@@ -39,7 +39,7 @@ class TRestAxionEvent : public TRestEvent
 		TVector3 fDirection; //->
 		Double_t fEnergy = 0; //->
 
-		Double_t fGammaAmplitude = 0; //-> Its square is the P_{ag} conversion probability
+		Double_t fGammaProbability = 0; //-> Its square is the P_{ag} conversion probability
 
     protected:
 
@@ -59,6 +59,8 @@ class TRestAxionEvent : public TRestEvent
 
         Double_t GetEnergy( ) { return fEnergy; } //returns value in keV
 
+		Double_t GetGammaProbability( ) { return fGammaProbability; }
+
 		void SetPosition( TVector3 pos ) { fPosition = pos; }
 		void SetPosition( Double_t x, Double_t y, Double_t z ) { SetPosition( TVector3( x, y, z) ); }
 
@@ -66,6 +68,8 @@ class TRestAxionEvent : public TRestEvent
 		void SetDirection( Double_t px, Double_t py, Double_t pz ) { SetDirection( TVector3( px, py, pz) ); }
 
 		void SetEnergy( Double_t en ) { fEnergy = en; }
+
+		void SetGammaProbability( Double_t p ) { fGammaProbability = p; }
 
         virtual void Initialize();
 

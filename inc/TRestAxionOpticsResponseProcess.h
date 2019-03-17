@@ -20,18 +20,19 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestAxionAnalysisProcess
-#define RestCore_TRestAxionAnalysisProcess
+#ifndef RestCore_TRestAxionOpticsResponseProcess
+#define RestCore_TRestAxionOpticsResponseProcess
 
 #include "TRestAxionEvent.h"
 #include "TRestEventProcess.h"
 
-//! An analyis process to add TRestAxionEvent observables to the analysis tree
-class TRestAxionAnalysisProcess:public TRestEventProcess {
+//! A process to introduce the response from optics in the axion signal generation chain
+class TRestAxionOpticsResponseProcess:public TRestEventProcess {
     private:
 		
         /// A pointer to the specific TRestAxionEvent
-        TRestAxionEvent *fAxionEvent; //!
+        TRestAxionEvent *fInputAxionEvent; //!
+        TRestAxionEvent *fOutputAxionEvent; //!
 		
         void InitFromConfigFile();
 
@@ -56,19 +57,19 @@ class TRestAxionAnalysisProcess:public TRestEventProcess {
         }
         
         /// Returns a new instance of this class
-        TRestEventProcess *Maker() { return new TRestAxionAnalysisProcess; }
+        TRestEventProcess *Maker() { return new TRestAxionOpticsResponseProcess; }
 
         /// Returns the name of this process
-        TString GetProcessName() { return (TString) "axionAnalysis"; }
+        TString GetProcessName() { return (TString) "axionOpticsResponse"; }
 
         //Constructor
-        TRestAxionAnalysisProcess();
-        TRestAxionAnalysisProcess( char *cfgFileName );
+        TRestAxionOpticsResponseProcess();
+        TRestAxionOpticsResponseProcess( char *cfgFileName );
 
         //Destructor
-        ~TRestAxionAnalysisProcess();
+        ~TRestAxionOpticsResponseProcess();
 
-        ClassDef(TRestAxionAnalysisProcess, 1);
+        ClassDef(TRestAxionOpticsResponseProcess, 1);
 };
 #endif
 

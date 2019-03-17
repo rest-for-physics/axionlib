@@ -97,6 +97,7 @@ void TRestAxionEvent::PrintEvent(  )
     cout << "Energy : " << GetEnergy() << endl;
 	cout << "Position : ( " << fPosition.X() << ", " << fPosition.Y() << ", " << fPosition.Z() << " )" << endl; 
 	cout << "Direction : ( " << fDirection.X() << ", " << fDirection.Y() << ", " << fDirection.Z() << " )" << endl; 
- //   cout << "Mean position : ( " << GetMeanPositionX() << " , " << GetMeanPositionY() << " , " << GetMeanPositionZ() << " ) " << endl;
+	cout << "Gamma state probability : " << fGammaProbability << endl;
+	cout << endl;
 }
 

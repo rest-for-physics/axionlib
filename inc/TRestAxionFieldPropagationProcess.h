@@ -20,18 +20,19 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestAxionAnalysisProcess
-#define RestCore_TRestAxionAnalysisProcess
+#ifndef RestCore_TRestAxionFieldPropagationProcess
+#define RestCore_TRestAxionFieldPropagationProcess
 
 #include "TRestAxionEvent.h"
 #include "TRestEventProcess.h"
 
-//! An analyis process to add TRestAxionEvent observables to the analysis tree
-class TRestAxionAnalysisProcess:public TRestEventProcess {
+//! A process to introduce the axion-photon conversion probability in the signal generation chain
+class TRestAxionFieldPropagationProcess:public TRestEventProcess {
     private:
 		
         /// A pointer to the specific TRestAxionEvent
-        TRestAxionEvent *fAxionEvent; //!
+        TRestAxionEvent *fInputAxionEvent; //!
+        TRestAxionEvent *fOutputAxionEvent; //!
 		
         void InitFromConfigFile();
 
@@ -56,19 +57,19 @@ class TRestAxionAnalysisProcess:public TRestEventProcess {
         }
         
         /// Returns a new instance of this class
-        TRestEventProcess *Maker() { return new TRestAxionAnalysisProcess; }
+        TRestEventProcess *Maker() { return new TRestAxionFieldPropagationProcess; }
 
         /// Returns the name of this process
-        TString GetProcessName() { return (TString) "axionAnalysis"; }
+        TString GetProcessName() { return (TString) "axionFieldPropagation"; }
 
         //Constructor
-        TRestAxionAnalysisProcess();
-        TRestAxionAnalysisProcess( char *cfgFileName );
+        TRestAxionFieldPropagationProcess();
+        TRestAxionFieldPropagationProcess( char *cfgFileName );
 
         //Destructor
-        ~TRestAxionAnalysisProcess();
+        ~TRestAxionFieldPropagationProcess();
 
-        ClassDef(TRestAxionAnalysisProcess, 1);
+        ClassDef(TRestAxionFieldPropagationProcess, 1);
 };
 #endif
 

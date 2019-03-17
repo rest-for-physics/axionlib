@@ -20,18 +20,19 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestAxionAnalysisProcess
-#define RestCore_TRestAxionAnalysisProcess
+#ifndef RestCore_TRestAxionTemplateProcess
+#define RestCore_TRestAxionTemplateProcess
 
 #include "TRestAxionEvent.h"
 #include "TRestEventProcess.h"
 
-//! An analyis process to add TRestAxionEvent observables to the analysis tree
-class TRestAxionAnalysisProcess:public TRestEventProcess {
+//! A template process to serve as a copy/paste for creating new TRestAxion___Process 
+class TRestAxionTemplateProcess:public TRestEventProcess {
     private:
 		
         /// A pointer to the specific TRestAxionEvent
-        TRestAxionEvent *fAxionEvent; //!
+        TRestAxionEvent *fInputAxionEvent; //!
+        TRestAxionEvent *fOutputAxionEvent; //!
 		
         void InitFromConfigFile();
 
@@ -56,19 +57,19 @@ class TRestAxionAnalysisProcess:public TRestEventProcess {
         }
         
         /// Returns a new instance of this class
-        TRestEventProcess *Maker() { return new TRestAxionAnalysisProcess; }
+        TRestEventProcess *Maker() { return new TRestAxionTemplateProcess; }
 
         /// Returns the name of this process
-        TString GetProcessName() { return (TString) "axionAnalysis"; }
+        TString GetProcessName() { return (TString) "axionTemplate"; }
 
         //Constructor
-        TRestAxionAnalysisProcess();
-        TRestAxionAnalysisProcess( char *cfgFileName );
+        TRestAxionTemplateProcess();
+        TRestAxionTemplateProcess( char *cfgFileName );
 
         //Destructor
-        ~TRestAxionAnalysisProcess();
+        ~TRestAxionTemplateProcess();
 
-        ClassDef(TRestAxionAnalysisProcess, 1);
+        ClassDef(TRestAxionTemplateProcess, 1);
 };
 #endif
 
