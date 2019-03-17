@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<TRestAxionModel name="axionModel" verboseLevel="debug" />
+	<parameter name="solarAxionModel" value="arXiv_0702006"/>
+	<parameter name="solarProductionMechanism" value="Primakoff"/>
+</TRestAxionModel>
