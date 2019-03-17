@@ -133,9 +133,12 @@ void TRestAxionGeneratorProcess::InitProcess()
 	}
 }
 
-Double_t TRestAxionGeneratorProcess::GetRandomEnergy( )
+///////////////////////////////////////////////
+/// \brief This method gets a random energy relying on the solar axion model defined in TRestAxionModel
+/// 
+Double_t TRestAxionGeneratorProcess::GenerateEnergy( )
 {
-	debug << "Entering TRestAxionGeneratorProcess::GetRandomEnergy() ..." << endl;
+	debug << "Entering TRestAxionGeneratorProcess::GenerateEnergy() ..." << endl;
 	Double_t solarFlux = fAxionModel->GetSolarAxionFlux( fEnergyRange.X(), fEnergyRange.Y(), 1., fEnergyStep );
 
 	Double_t random = solarFlux * fRandom->Uniform( 0, 1.0 );
@@ -147,12 +150,55 @@ Double_t TRestAxionGeneratorProcess::GetRandomEnergy( )
 
 		if( random < sum )
 		{
-			debug << "TRestAxionGeneratorProcess::GetRandomEnergy. Energy = " << en << endl;
+			debug << "TRestAxionGeneratorProcess::GenerateEnergy. Energy = " << en << endl;
 			return en + fRandom->Uniform( 0, fEnergyStep );
 		}
 	}
 
 	return fEnergyRange.Y();
+}
+
+TVector3 TRestAxionGeneratorProcess::GenerateDirection( )
+{
+	TVector3 direction;
+
+	// For the moment "circleWall" just generates in the XY-plane
+	if( fAngularDistribution == "flux" )
+	{
+		return fAngularDirection;
+	}
+
+	warning << "Angular distribution : " << fAngularDistribution << " is not defined!" << endl;
+
+	return fAngularDirection;
+}
+
+TVector3 TRestAxionGeneratorProcess::GeneratePosition( )
+{
+	TVector3 position;
+
+	// For the moment "circleWall" just generates in the XY-plane
+	if( fSpatialDistribution == "circleWall" )
+	{
+		Double_t r, x, y;
+
+		do
+		{
+			x = fRandom->Uniform( -fSpatialRadius, fSpatialRadius );
+			y = fRandom->Uniform( -fSpatialRadius, fSpatialRadius );
+
+			r = x*x + y*y;
+		}
+		while( r > fSpatialRadius*fSpatialRadius );
+
+		position = TVector3( x, y, 0 ) + fSpatialOrigin;
+
+		return position;
+	}
+
+	warning << "Spatial distribution : " << fSpatialDistribution << " is not defined!" << endl;
+
+	return position;
 }
 
 ///////////////////////////////////////////////
@@ -175,7 +221,9 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent( TRestEvent *evInput )
 {
 	debug << "TRestAxionGeneratorProcess::ProcessEvent : " << fCounter << endl;
 
-	fOutputAxionEvent->SetEnergy( GetRandomEnergy( ) );
+	fOutputAxionEvent->SetEnergy( GenerateEnergy( ) );
+	fOutputAxionEvent->SetPosition( GeneratePosition( ) );
+	fOutputAxionEvent->SetDirection( GenerateDirection( ) );
   
 	//cout << "anaTree : " << fAnalysisTree << endl;
     //fAnalysisTree->SetObservableValue( this, "energy", fOutputAxionEvent->GetEnergy() );
@@ -192,7 +240,15 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent( TRestEvent *evInput )
 /// 
 void TRestAxionGeneratorProcess::InitFromConfigFile( )
 {
-	fEnergyRange = StringTo2DVector( GetParameter( "energyRange", "(0,10)") );
-    fEnergyStep = StringToDouble( GetParameter( "energyStep", "1.e-3" ) );
+	// These 2-params should be moved to TRestAxionModel
+	fEnergyRange = Get2DVectorParameterWithUnits( "energyRange", TVector2(0,10) );
+    fEnergyStep = GetDoubleParameterWithUnits( "energyStep", 1.e-3 );
+
+	fAngularDistribution = GetParameter( "angularDistribution", "flux" );
+	fAngularDirection = StringTo3DVector( GetParameter( "direction", "(0,0,1)" ) );
+
+	fSpatialDistribution = GetParameter( "spatialDistribution", "circleWall" );
+	fSpatialRadius = GetDoubleParameterWithUnits( "spatialRadius", 10.e3 );
+	fSpatialOrigin = Get3DVectorParameterWithUnits( "spatialOrigin", TVector3(0,0,-30000) ); 
 }
 

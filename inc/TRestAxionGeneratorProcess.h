@@ -52,6 +52,20 @@ class TRestAxionGeneratorProcess:public TRestEventProcess {
 		/// Energy step
 		Double_t fEnergyStep; //->
 
+		/// The angular distribution generator type
+		TString fAngularDistribution; //->
+
+		/// The main direction of the angular distribution
+		TVector3 fAngularDirection; //->
+
+		/// The spatial distribution generator type
+		TString fSpatialDistribution; //->
+
+		/// The spatial distribution generator type
+		Double_t fSpatialRadius; //->
+
+		/// The spatial origin from the spatial distribution
+		TVector3 fSpatialOrigin; //->
 
         void InitFromConfigFile();
 
@@ -59,7 +73,9 @@ class TRestAxionGeneratorProcess:public TRestEventProcess {
 
         void LoadDefaultConfig();
 
-		Double_t GetRandomEnergy( );
+		Double_t GenerateEnergy( );
+		TVector3 GeneratePosition( );
+		TVector3 GenerateDirection( );
 
     protected:
 
@@ -76,8 +92,22 @@ class TRestAxionGeneratorProcess:public TRestEventProcess {
         {
             BeginPrintProcess();
 
-			metadata << "Energy range : (" << fEnergyRange.X() << ", " << fEnergyRange.Y() << ")" << endl;
-			metadata << "Energy step : " << fEnergyStep << endl;
+			metadata << "Energy distribution" << endl;
+			metadata << "---------------------" << endl;
+			metadata << "Energy range : (" << fEnergyRange.X() << ", " << fEnergyRange.Y() << ") keV" << endl;
+			metadata << "Energy step : " << fEnergyStep << " keV" << endl;
+			metadata << " " << endl;
+
+			metadata << "Angular distribution" << endl;
+			metadata << "----------------------" << endl;
+			metadata << "Type : " << fAngularDistribution << endl;
+			metadata << "Main direction : (" << fAngularDirection.X() << "," << fAngularDirection.Y() << "," << fAngularDirection.Z() << ")" << endl;
+			metadata << " " << endl;
+			metadata << "Spatial distribution" << endl;
+			metadata << "----------------------" << endl;
+			metadata << "Type : " << fSpatialDistribution << endl;
+			metadata << "Radius : " << fSpatialRadius << " mm" << endl;
+			metadata << "Origin : (" << fSpatialOrigin.X() << "," << fSpatialOrigin.Y() << "," << fSpatialOrigin.Z() << ")" << endl;
 
             EndPrintProcess();
         }

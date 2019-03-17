@@ -33,12 +33,21 @@ internal values are saved.
     <parameter name="outputEvent" value="on"/>
 
 	<addProcess type="TRestAxionGeneratorProcess" name="axionGen" value="ON" verboseLevel="info" >
-		<parameter name="energyStep" value="1.e-3" />
-		<parameter name="energyRange" value="(0,15)" />
+		<parameter name="energyStep" value="1.e-3keV" />
+		<parameter name="energyRange" value="(0,15)keV" />
+
+		<parameter name="angularDistribution" value="flux" />
+		<parameter name="angularDirection" value="(0,0,1)" />
+
+		<parameter name="spatialDistribution" value="circleWall" />
+		<parameter name="spatialRadius" value="30cm" />
+		<parameter name="spatialOrigin" value="(0,0,-40)m" />
 	</addProcess>
 
 	<addProcess type="TRestAxionAnalysisProcess" name="axGen" value="ON" verboseLevel="info" >
 		<observable name="energy" value="ON" />
+		<observable name="posX" value="ON" />
+		<observable name="posY" value="ON" />
 	</addProcess>
 	   
 	<!--	file="processes.rml"/> -->
