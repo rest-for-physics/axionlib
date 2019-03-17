@@ -127,9 +127,11 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 
 	debug << "TRestAxionAnalysisProcess::ProcessEvent : " << fAxionEvent->GetID()  << endl;
 
-	fAxionEvent->GetEnergy( );
-  
     fAnalysisTree->SetObservableValue( this, "energy", fAxionEvent->GetEnergy() );
+
+    fAnalysisTree->SetObservableValue( this, "posX", fAxionEvent->GetPosition()->X() );
+    fAnalysisTree->SetObservableValue( this, "posY", fAxionEvent->GetPosition()->Y() );
+    fAnalysisTree->SetObservableValue( this, "posZ", fAxionEvent->GetPosition()->Z() );
 
 	if( GetVerboseLevel() >= REST_Debug ) 
 		fAxionEvent->PrintEvent();
