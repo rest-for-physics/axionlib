@@ -202,23 +202,15 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition( )
 }
 
 ///////////////////////////////////////////////
-/// \brief Function including required initialization before each event starts to process.
-/// 
-TRestEvent* TRestAxionGeneratorProcess::BeginOfEventProcess( TRestEvent *evInput ) 
-{
-	TRestEventProcess::BeginOfEventProcess( evInput );
-
-	fOutputEvent->SetID( fCounter );
-	fCounter++;
-
-	return fOutputEvent;
-}
-
-///////////////////////////////////////////////
 /// \brief The main processing event function
 /// 
 TRestEvent* TRestAxionGeneratorProcess::ProcessEvent( TRestEvent *evInput )
 {
+	/*
+	fOutputEvent->SetID( fCounter );
+	fCounter++;
+	*/
+
 	debug << "TRestAxionGeneratorProcess::ProcessEvent : " << fCounter << endl;
 
 	fOutputAxionEvent->SetEnergy( GenerateEnergy( ) );

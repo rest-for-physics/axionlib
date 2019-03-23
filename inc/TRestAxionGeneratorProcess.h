@@ -82,7 +82,6 @@ class TRestAxionGeneratorProcess:public TRestEventProcess {
     public:
         void InitProcess();
 
-        TRestEvent *BeginOfEventProcess( TRestEvent *eventInput ); 
         TRestEvent *ProcessEvent( TRestEvent *eventInput );
 
         void LoadConfig( std::string cfgFilename, std::string name = "" );
