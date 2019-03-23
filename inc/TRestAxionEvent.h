@@ -35,11 +35,15 @@
 class TRestAxionEvent : public TRestEvent
 {
     private:
-		TVector3 fPosition; //->
-		TVector3 fDirection; //->
-		Double_t fEnergy = 0; //->
+		TVector3 fPosition; //-> Particle position
+		TVector3 fDirection; //-> Unitary direction of movement
+		Double_t fEnergy = 0; //-> Energy of axion in keV
 
-		Double_t fGammaProbability = 0; //-> Its square is the P_{ag} conversion probability
+		Double_t fMass = 0.; //-> Axion mass in eV
+
+		Double_t fGammaProbability = 0; //-> The conversion probability P_{ag}
+
+		Double_t fEfficiency = 1; //-> To include any loss of signal transmission/efficiency
 
     protected:
 
@@ -58,6 +62,8 @@ class TRestAxionEvent : public TRestEvent
         Double_t GetDirectionZ( ) { return fDirection.Z(); } // returns normalized vector z-component
 
         Double_t GetEnergy( ) { return fEnergy; } //returns value in keV
+        Double_t GetMass( ) { return fMass; } //returns value in eV
+		Double_t GetEfficiency( ) { return fEfficiency; }
 
 		Double_t GetGammaProbability( ) { return fGammaProbability; }
 
@@ -68,8 +74,10 @@ class TRestAxionEvent : public TRestEvent
 		void SetDirection( Double_t px, Double_t py, Double_t pz ) { SetDirection( TVector3( px, py, pz) ); }
 
 		void SetEnergy( Double_t en ) { fEnergy = en; }
+		void SetMass( Double_t m ) { fMass = m; }
 
 		void SetGammaProbability( Double_t p ) { fGammaProbability = p; }
+		void SetEfficiency( Double_t eff ) { fEfficiency = eff; }
 
         virtual void Initialize();
 
