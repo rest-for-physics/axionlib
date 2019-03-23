@@ -89,3 +89,9 @@ file(COPY \${PCMFiles} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 "
 
 )
+
+install(
+	DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data
+    DESTINATION .
+    COMPONENT install
+        )
