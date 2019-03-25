@@ -236,6 +236,11 @@ Double_t TRestAxionBufferGas::GetPhotonAbsorptionLength( Double_t energy )
 	return attLength;
 }
 
+Double_t TRestAxionBufferGas::GetPhotonAbsorptionLengthIneV( Double_t energy )
+{
+	return cmToeV( GetPhotonAbsorptionLength( energy ) ); 
+}
+
 // Transforms cm-1 to eV
 Double_t TRestAxionBufferGas::cmToeV( double l_Inv ) // E in keV, P in bar ---> Gamma in cm-1
 {
@@ -357,15 +362,22 @@ void TRestAxionBufferGas::PrintMetadata( )
 	TRestMetadata::PrintMetadata();
 
 	metadata << "Number of buffer gases defined : " << fBufferGasName.size() << endl;
-	metadata << "Buffer gases defined : " << endl;
-	metadata << "---------------------------" << endl;
-	for( unsigned int n = 0; n < fBufferGasName.size(); n++ )
+	if( fBufferGasName.size() == 0 )
 	{
-		metadata << " Gas name : " << fBufferGasName[n] << endl;
-		metadata << " Gas density : " << fBufferGasDensity[n] << " g/cm3" << endl;
-	    metadata <<	" Form factor energy range : ( " << fFactorEnergy[n][0] << ", " << fFactorEnergy[n].back() << " ) keV" << endl;
-	    metadata <<	" Absorption energy range : ( " << fAbsEnergy[n][0] << ", " << fAbsEnergy[n].back() << " ) keV" << endl;
-		metadata << " " << endl;
+		metadata << "Buffer medium is vacuum" << endl;
+	}
+	else
+	{
+		metadata << "Buffer gases defined : " << endl;
+		metadata << "---------------------------" << endl;
+		for( unsigned int n = 0; n < fBufferGasName.size(); n++ )
+		{
+			metadata << " Gas name : " << fBufferGasName[n] << endl;
+			metadata << " Gas density : " << fBufferGasDensity[n] << " g/cm3" << endl;
+			metadata <<	" Form factor energy range : ( " << fFactorEnergy[n][0] << ", " << fFactorEnergy[n].back() << " ) keV" << endl;
+			metadata <<	" Absorption energy range : ( " << fAbsEnergy[n][0] << ", " << fAbsEnergy[n].back() << " ) keV" << endl;
+			metadata << " " << endl;
+		}
 	}
 
 	metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;

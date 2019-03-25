@@ -55,9 +55,6 @@ class TRestAxionBufferGas:public TRestMetadata {
 		Int_t FindGasIndex( TString gName );
 		Int_t GetEnergyIndex( std::vector <Double_t> enVector, Double_t energy );
 
-		// Transforms cm-1 to eV (This method might be transferred to REST_Physics)
-		Double_t cmToeV( double l_Inv );
-
     public:
 
 		void SetGasDensity( TString gasName, Double_t density );
@@ -69,6 +66,12 @@ class TRestAxionBufferGas:public TRestMetadata {
 
 		// Returns absorption length in cm-1
 		Double_t GetPhotonAbsorptionLength( Double_t energy );
+
+		// Returns absorption length in eV
+		Double_t GetPhotonAbsorptionLengthIneV( Double_t energy );
+
+		// Transforms cm-1 to eV (This method might be transferred to REST_Physics)
+		Double_t cmToeV( double l_Inv );
 
 		// in eV
 		Double_t GetPhotonMass( double en );
