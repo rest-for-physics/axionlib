@@ -1,4 +1,5 @@
-<metadata>
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
 <TRestAxionLikelihood name="babyIAXO" verboseLevel="debug" />
 	<parameter name="Bmag" value="1000G"/>
 	<parameter name="Rmag" value="30cm"/>
@@ -9,4 +10,3 @@
 	<parameter name="expTimePerStep" value="3*18"/>
 	<parameter name="pressureSteps" value="100"/>
 </TRestAxionLikelihood>
-</metadata>
