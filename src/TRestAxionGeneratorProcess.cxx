@@ -124,9 +124,9 @@ void TRestAxionGeneratorProcess::InitProcess()
 {
 	debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
 
-	fAxionModel = (TRestAxionModel *) this->GetMetadata( "TRestAxionModel" );
+	fAxionSolarModel = (TRestAxionSolarModel *) this->GetMetadata( "TRestAxionSolarModel" );
 
-	if( !fAxionModel )
+	if( !fAxionSolarModel )
 	{
 		error << "TRestAxionGeneratorProcess. Axion model was not defined!" << endl;
 		exit(0);
@@ -134,19 +134,19 @@ void TRestAxionGeneratorProcess::InitProcess()
 }
 
 ///////////////////////////////////////////////
-/// \brief This method gets a random energy relying on the solar axion model defined in TRestAxionModel
+/// \brief This method gets a random energy relying on the solar axion model defined in TRestAxionSolarModel
 /// 
 Double_t TRestAxionGeneratorProcess::GenerateEnergy( )
 {
 	debug << "Entering TRestAxionGeneratorProcess::GenerateEnergy() ..." << endl;
-	Double_t solarFlux = fAxionModel->GetSolarAxionFlux( fEnergyRange.X(), fEnergyRange.Y(), 1., fEnergyStep );
+	Double_t solarFlux = fAxionSolarModel->GetSolarAxionFlux( fEnergyRange.X(), fEnergyRange.Y(), 1., fEnergyStep );
 
 	Double_t random = solarFlux * fRandom->Uniform( 0, 1.0 );
 
 	Double_t sum = 0;
 	for( double en = fEnergyRange.X(); en < fEnergyRange.Y(); en += fEnergyStep )
 	{
-		sum += fAxionModel->GetDifferentialSolarAxionFlux( en, 1.0 ) * fEnergyStep;
+		sum += fAxionSolarModel->GetDifferentialSolarAxionFlux( en, 1.0 ) * fEnergyStep;
 
 		if( random < sum )
 		{
@@ -232,7 +232,7 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent( TRestEvent *evInput )
 /// 
 void TRestAxionGeneratorProcess::InitFromConfigFile( )
 {
-	// These 2-params should be moved to TRestAxionModel
+	// These 2-params should be moved to TRestAxionSolarModel
 	fEnergyRange = Get2DVectorParameterWithUnits( "energyRange", TVector2(0,10) );
     fEnergyStep = GetDoubleParameterWithUnits( "energyStep", 1.e-3 );
 

@@ -20,13 +20,13 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef _TRestAxionModel
-#define _TRestAxionModel
+#ifndef _TRestAxionSolarModel
+#define _TRestAxionSolarModel
 
 #include <TRestMetadata.h>
 
 //! A metadata class to define theoretical axion models and calculations related
-class TRestAxionModel:public TRestMetadata {
+class TRestAxionSolarModel:public TRestMetadata {
     private:
         void Initialize();
 
@@ -48,10 +48,10 @@ class TRestAxionModel:public TRestMetadata {
 
     public:
 		
-        TString GetSolarAxionModel() { return fSolarAxionFluxModel; }
+        TString GetSolarAxionSolarModel() { return fSolarAxionFluxModel; }
         TString GetSolarProductionMechanism() { return fSolarProductionMechanism; }
 
-		void SetSolarAxionModel( TString modelName ) { fSolarAxionFluxModel = modelName; }
+		void SetSolarAxionSolarModel( TString modelName ) { fSolarAxionFluxModel = modelName; }
 		void SetSolarProductionMechanism( TString mName ) { fSolarProductionMechanism = mName; }
 
 		void ResetSolarEnergyFlux() { fSolarEnergyFlux = 0; }
@@ -62,11 +62,11 @@ class TRestAxionModel:public TRestMetadata {
         void PrintMetadata( );
 
         //Constructors
-        TRestAxionModel();
-        TRestAxionModel( const char *cfgFileName, std::string name = "");
+        TRestAxionSolarModel();
+        TRestAxionSolarModel( const char *cfgFileName, std::string name = "");
         //Destructor
-        ~TRestAxionModel();
+        ~TRestAxionSolarModel();
 
-        ClassDef(TRestAxionModel, 1); 
+        ClassDef(TRestAxionSolarModel, 1); 
 };
 #endif

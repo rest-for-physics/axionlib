@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
-<TRestAxionLikelihood name="babyIAXO" verboseLevel="debug" />
+<TRestAxionLikelihood name="babyIAXO" title="It's me" verboseLevel="debug" />
 	<parameter name="Bmag" value="1000G"/>
 	<parameter name="Rmag" value="30cm"/>
 	<parameter name="Lmag" value="4m"/>

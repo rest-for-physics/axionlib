@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
-<TRestAxionModel name="sunPrimakoff" verboseLevel="debug" />
-	<parameter name="solarAxionModel" value="arXiv_0702006"/>
-	<parameter name="solarProductionMechanism" value="Primakoff"/>
-</TRestAxionModel>
+<TRestAxionSolarModel name="sunPrimakoff" verboseLevel="debug" />
+	<parameter name="solarAxionSolarModel" value="arXiv_0702006"/>
+	<parameter name="solarProductionMechanism" value="Primakff"/>
+</TRestAxionSolarModel>
 
 <TRestAxionLikelihood name="babyIAXO" verboseLevel="debug" />
 	<parameter name="Bmag" value="1000G"/>

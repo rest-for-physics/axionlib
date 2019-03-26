@@ -10,23 +10,22 @@ internal values are saved.
   <TRestRun name="Run metadata" title="REST Metadata run info (template)" verboseLevel="info">
     <parameter name="experiment" value="babyIAXO"/>
     <parameter name="runType" value="simulation"/>
-    <parameter name="runNumber" value="100"/> //it will find next run number from database when we use "auto"
+    <parameter name="runNumber" value="auto"/> //it will find next run number from database when we use "auto"
     <parameter name="runTag" value="Template"/>
     <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
     <parameter name="user" value="${USER}"/>
     <parameter name="verboseLevel" value="2"/>
 	<parameter name="outputFile" value="./Run_[fExperimentName].root" />
 
-	<TRestAxionModel name="axionModel" file="metadata.rml" verboseLevel="info" />
-
-	<addTask command="axionModel->PrintMetadata()" value="ON"/>
+	<TRestAxionSolarModel name="sunPrimakoff" file="metadata.rml" verboseLevel="debug" />
+	<TRestAxionLikelihood name="babyIAXO" file="metadata.rml" verboseLevel="debug" />
 
   </TRestRun>
 
 
   <TRestProcessRunner name="EventProcess" verboseLevel="info">
-    <parameter name="eventsToProcess" value="100000" />
-    <parameter name="threadNumber" value="2"/>
+    <parameter name="eventsToProcess" value="1000" />
+    <parameter name="threadNumber" value="1"/>
 
     <parameter name="inputAnalysis" value="on"/>
     <parameter name="inputEvent" value="off"/>
@@ -49,17 +48,34 @@ internal values are saved.
 		<observable name="posX" value="ON" />
 		<observable name="posY" value="ON" />
 	</addProcess>
+
+	<addProcess type="TRestAxionFieldPropagationProcess" name="babyMagnet" value="ON" verboseLevel="info" >
+	</addProcess>
+
+	<addProcess type="TRestAxionTransmissionProcess" name="magnetWindow" value="ON" verboseLevel="info" >
+	</addProcess>
+
+	<addProcess type="TRestAxionOpticsResponseProcess" name="optics" value="ON" verboseLevel="info" >
+	</addProcess>
+
+	<addProcess type="TRestAxionTransmissionProcess" name="detectorWindow" value="ON" verboseLevel="info" >
+	</addProcess>
 	   
 	<!--	file="processes.rml"/> -->
 
   </TRestProcessRunner>
   
-  <!--<addTask type="processEvents" value="ON" />-->
+<!--
+	<TRestAxionSolarModel name="sunPrimakoff" file="metadata.rml" verboseLevel="info" />
+
+	<addTask command="sunPrimakoff->PrintMetadata()" value="ON"/>
+
+  <addTask type="processEvents" value="ON" />-->
   <addTask command="EventProcess->RunProcess()" value="ON"/>
 
   <globals>
     <parameter name="outputLevel" value="internalvar" /> %options are : nooutput(0), observable(1), internalvar(2), fulloutput(3)
-    <parameter name="verboseLevel" value="essential" /> %options are : silent(0), essential(1), info(2), debug(3), extreme(4)
+    <parameter name="verboseLevel" value="essential" /> %options are : silent(0), essential(1), info(2), info(3), extreme(4)
     <parameter name="inputFile" value=""/>
     <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
   </globals>

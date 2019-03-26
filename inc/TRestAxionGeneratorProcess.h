@@ -26,7 +26,7 @@
 #include "TRestAxionEvent.h"
 #include "TRestEventProcess.h"
 
-#include "TRestAxionModel.h"
+#include "TRestAxionSolarModel.h"
 
 #include "TRandom3.h"
 
@@ -41,7 +41,7 @@ class TRestAxionGeneratorProcess:public TRestEventProcess {
 		Int_t fCounter = 0; //!
 
 		/// A pointer to the axion model stored in TRestRun
-		TRestAxionModel *fAxionModel; //!
+		TRestAxionSolarModel *fAxionSolarModel; //!
 
 		/// Random number generator
 		TRandom3 *fRandom; //!

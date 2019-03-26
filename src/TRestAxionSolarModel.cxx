@@ -21,7 +21,7 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionModels is a class used to define methods which define
+/// TRestAxionSolarModels is a class used to define methods which define
 /// theoretical model results that can be directly used in the calculation
 /// of experimental observables.
 ///
@@ -39,31 +39,31 @@
 ///
 /// History of developments:
 ///
-/// 2019-March: First concept and implementation of TRestAxionModel class.
+/// 2019-March: First concept and implementation of TRestAxionSolarModel class.
 ///             Javier Galan
 ///
-/// \class      TRestAxionModel
+/// \class      TRestAxionSolarModel
 /// \author     Javier Galan
 ///
 /// <hr>
 ///
 
-#include "TRestAxionModel.h"
+#include "TRestAxionSolarModel.h"
 using namespace std;
 
-ClassImp(TRestAxionModel)
+ClassImp(TRestAxionSolarModel)
 //______________________________________________________________________________
-TRestAxionModel::TRestAxionModel() : TRestMetadata()
+TRestAxionSolarModel::TRestAxionSolarModel() : TRestMetadata()
 {
-   // TRestAxionModel default constructor
+   // TRestAxionSolarModel default constructor
    Initialize();
 }
 
 
 //______________________________________________________________________________
-TRestAxionModel::TRestAxionModel( const char *cfgFileName, string name ) : TRestMetadata (cfgFileName)
+TRestAxionSolarModel::TRestAxionSolarModel( const char *cfgFileName, string name ) : TRestMetadata (cfgFileName)
 {
-	cout << "Entering TRestAxionModel constructor( cfgFileName, name )" << endl;
+	cout << "Entering TRestAxionSolarModel constructor( cfgFileName, name )" << endl;
 
     Initialize();
 
@@ -74,18 +74,18 @@ TRestAxionModel::TRestAxionModel( const char *cfgFileName, string name ) : TRest
 
 
 //______________________________________________________________________________
-TRestAxionModel::~TRestAxionModel()
+TRestAxionSolarModel::~TRestAxionSolarModel()
 {
-    // TRestAxionModel destructor
+    // TRestAxionSolarModel destructor
 }
 
-void TRestAxionModel::Initialize()
+void TRestAxionSolarModel::Initialize()
 {
 	SetSectionName( this->ClassName() );
 }
 
 // Returns the solar axion flux in cm-2 keV-1 s-1 (on earth)
-Double_t TRestAxionModel::GetDifferentialSolarAxionFlux( Double_t energy, Double_t g10 )
+Double_t TRestAxionSolarModel::GetDifferentialSolarAxionFlux( Double_t energy, Double_t g10 )
 {
 	// https://arxiv.org/abs/hep-ex/0702006
 	if( fSolarAxionFluxModel == "arXiv_0702006" && fSolarProductionMechanism == "Primakoff" )
@@ -100,13 +100,13 @@ Double_t TRestAxionModel::GetDifferentialSolarAxionFlux( Double_t energy, Double
 
 }
 
-Double_t TRestAxionModel::GetSolarAxionFlux( Double_t eMin, Double_t eMax, Double_t g10, Double_t step )
+Double_t TRestAxionSolarModel::GetSolarAxionFlux( Double_t eMin, Double_t eMax, Double_t g10, Double_t step )
 {
 	if( fSolarEnergyFlux > 0 )
 		if( fg10 == g10 && fStep == step && eMin == fEnergyRange.X() && eMax == fEnergyRange.Y() )
 			return fSolarEnergyFlux;
 
-	info << "TRestAxionModel::GetSolarAxionFlux re-calculating solar axion flux" << endl;
+	info << "TRestAxionSolarModel::GetSolarAxionFlux re-calculating solar axion flux" << endl;
 
 	fg10 = g10;
 	fStep = step;
@@ -123,7 +123,7 @@ Double_t TRestAxionModel::GetSolarAxionFlux( Double_t eMin, Double_t eMax, Doubl
 
 
 //______________________________________________________________________________
-void TRestAxionModel::InitFromConfigFile()
+void TRestAxionSolarModel::InitFromConfigFile()
 {
     this->Initialize();
 
@@ -131,13 +131,13 @@ void TRestAxionModel::InitFromConfigFile()
 	
     // fClassMember = GetParameter( "paramName", "defaultValue" );
 	
-    fSolarAxionFluxModel = GetParameter( "solarAxionModel", "arXiv_0702006" );
+    fSolarAxionFluxModel = GetParameter( "solarAxionSolarModel", "arXiv_0702006" );
 	fSolarProductionMechanism = GetParameter( "solarProductionMechanism", "Primakoff" );
 
     PrintMetadata();
 }
 
-void TRestAxionModel::PrintMetadata( )
+void TRestAxionSolarModel::PrintMetadata( )
 {
 	TRestMetadata::PrintMetadata();
 
