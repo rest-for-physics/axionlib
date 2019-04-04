@@ -1,8 +1,14 @@
-#---------------------------------------#
-# File : README.md						#
-# Creation Date : 4th April 2019		#
-# Database manager : Maurizio Gianotti	#
-#---------------------------------------#
+
+File : README.md
+
+Creation Date : 4th April 2019
+
+Database manager : Maurizio Gianotti
+
+---
+
+Description
+===========
 
 This data directory contains the description of different solar axion models that can be accessed using the `TRestAxionSolarModel` object. To learn on how to use `TRestAxionSolarModel` visit the file containing the source code, TRestAxionSolarModel.cxx.
 
@@ -25,5 +31,5 @@ Basic conventions
 List of solar models available
 ==============================
 
-- Primakoff_Gianotti_201904.dat : TOBE WRITTEN. References and notes.
+- `Primakoff_Gianotti_201904.dat` : TOBE WRITTEN. References and notes.
 
