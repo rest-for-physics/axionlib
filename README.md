@@ -17,6 +17,7 @@ Then, just proceed to create the build directory, compile and install.
 We assume here that you are now at the RestAxionLib directory.
 ```
 mkdir build
+cd build
 cmake ../
 make -j4 install
 ```
