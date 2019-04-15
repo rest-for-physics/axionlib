@@ -32,32 +32,36 @@ class TRestAxionSolarModel:public TRestMetadata {
 
         void InitFromConfigFile();
 
-        TString fSolarAxionFluxModel; //->
-		TString fSolarProductionMechanism; //->
+        TString fSolarAxionModel; //->
 
-		// Integrated solar axion spectrum in cm-2 s-1
-		Double_t fSolarEnergyFlux = 0; //->
+        TString fMode; //->
 
-		// The axion-photon g10 coupling 
-		Double_t fg10 = 1.; //->
+        // Integrated solar axion spectrum in cm-2 s-1
+        Double_t fSolarEnergyFlux = 0; //->
 
-		// The integration step for solar energy spectrum
-		Double_t fStep = 1.e-3; //->
+        // The axion-photon g10 coupling 
+        Double_t fg10 = 1.; //->
 
-		TVector2 fEnergyRange; //->
+        // The integration step for solar energy spectrum
+        Double_t fStep = 1.e-3; //->
+
+        TVector2 fEnergyRange; //->
+
+        // Contains the tabulated solar disk in solar radius and energy. As described in data/solarModel.
+        std::vector <std::vector <Double_t> > fSolarTable; //->
 
     public:
-		
-        TString GetSolarAxionSolarModel() { return fSolarAxionFluxModel; }
-        TString GetSolarProductionMechanism() { return fSolarProductionMechanism; }
 
-		void SetSolarAxionSolarModel( TString modelName ) { fSolarAxionFluxModel = modelName; }
-		void SetSolarProductionMechanism( TString mName ) { fSolarProductionMechanism = mName; }
+        Bool_t isSolarTableLoaded( ) { return fSolarTable.size() > 0; }
 
-		void ResetSolarEnergyFlux() { fSolarEnergyFlux = 0; }
+        TString GetSolarAxionSolarModel() { return fSolarAxionModel; }
 
-		Double_t GetSolarAxionFlux( Double_t eMin = 0., Double_t eMax = 10., Double_t g10 = 1., Double_t step = 0.001 );
-		Double_t GetDifferentialSolarAxionFlux( Double_t energy, Double_t g10 = 1. );
+        void SetSolarAxionSolarModel( TString modelName ) { fSolarAxionModel = modelName; }
+
+        void ResetSolarEnergyFlux() { fSolarEnergyFlux = 0; }
+
+        Double_t GetSolarAxionFlux( Double_t eMin = 0., Double_t eMax = 10., Double_t g10 = 1., Double_t step = 0.001 );
+        Double_t GetDifferentialSolarAxionFlux( Double_t energy, Double_t g10 = 1. );
 
         void PrintMetadata( );
 
