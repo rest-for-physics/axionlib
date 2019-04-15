@@ -25,8 +25,11 @@
 
 #include <TRestMetadata.h>
 
+#include "TRestAxionSolarModel.h"
 #include "TRestAxionBufferGas.h"
 #include "TRestAxionPhotonConversion.h"
+
+#include "TRandom3.h"
 
 //! A metadata class deninning a particular implementation of the likelihood to obtain the experimental sensitivity
 class TRestAxionLikelihood:public TRestMetadata {
@@ -43,17 +46,41 @@ class TRestAxionLikelihood:public TRestMetadata {
 		Double_t fLmag = 0; //-> Manget length in mm
 		Double_t fEfficiency = 1; //->
 
+		Int_t fNbores = 0; //->
+
 		Double_t fBackgroundLevel = 0.; //->
+
+		Double_t fSpotArea = 0.; //->
+
+		TVector2 fErange; //->
 
 		Double_t fTExpVacuum = 0; //->
 
-		Double_t fTExpPerStep = 0;
-		Int_t fNSteps = 0;
+		Double_t fTExpPerStep = 0; //->
+		Int_t fNSteps = 0; //->
+
+		Double_t fLastStepDensity = 0.; //-> 
 
 		TRestAxionPhotonConversion *fPhotonConversion; //!
 		TRestAxionBufferGas *fBufferGas; //!
+		TRestAxionSolarModel *fAxionSolarModel; //!
+
+		/// Random number generator
+		TRandom3 *fRandom; //!
+
+		Int_t fMeasuredCountsVacuum;
+		std::vector <Int_t> fMeasuredCountsPerStep;
+		std::vector <Double_t> fExposureTimePerStep;
+		std::vector <Double_t> fDensityInStep;
 
     public:
+
+		void GenerateMonteCarlo( );
+		Double_t LogLikelihood( Double_t ma, Double_t g10, Double_t Nmeas, Double_t rho, Double_t tExp );
+
+		Double_t GetSignal( Double_t ma, Double_t g10_4, Double_t rho, Double_t tExp );
+
+		void LikelihoodTest( string fname );
 		
         void PrintMetadata( );
 
