@@ -87,8 +87,10 @@ double TRestAxionPhotonConversion::BLFactor( Double_t Lcoh, Double_t Bmag ) // (
 	if( Lcoh == -1 ) Lcoh = fCohLength; else fCohLength = Lcoh;
 	if( Bmag == -1 ) Bmag = fBMag; else fBMag = Bmag;
 
+	Double_t lengthInMeters = fCohLength/1000.;
+
 	Double_t tm = lightSpeed / naturalElectron * 1.0e-9; // gev
-	Double_t sol = Lcoh * Bmag * tm / 2;
+	Double_t sol = lengthInMeters * Bmag * tm / 2;
 	sol = sol* sol * 1.0e-20;
 
 	return sol;
@@ -107,6 +109,8 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability( Double_t Ea, 
 	if( ma == -1 ) ma = fAxionMass; else fAxionMass = ma;
 	if( Lcoh == -1 ) Lcoh = fCohLength; else fCohLength = Lcoh;
 	if( Bmag == -1 ) Bmag = fBMag; else fBMag = Bmag;
+
+	Double_t lengthInMeters = fCohLength/1000.; // Default REST units are mm
 
 	if( Bmag == 0 )
 		warning << "TRestAxionPhotonConversion::GammaTransmissionProbability. Bmag = 0" << endl;
@@ -129,22 +133,21 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability( Double_t Ea, 
     debug << " Photon mass : " << photonMass << " eV" << endl;
 	debug << " Axion mass : " << ma << " eV" << endl;
    	debug << " Axion energy : " << Ea << " keV" << endl;
-    debug << " Lcoh : " << Lcoh << " m" << endl;
+    debug << " Lcoh : " << Lcoh << " mm" << endl;
     debug << " Bmag : " << Bmag << " T" << endl;
 	debug << "+--------------------------------------------------------------------------+" << endl;
 
 	if( ma == 0.0 && photonMass == 0.0 ) return BLFactor( );
 
 	double q = (ma*ma - photonMass*photonMass)/2./Ea/1000.0;
-	double l = Lcoh * PhMeterIneV;
+	double l = lengthInMeters * PhMeterIneV;
 	double phi = q * l;
-
 
 	Double_t Gamma = 0.;
 	if( fBufferGas )
 		Gamma = fBufferGas->GetPhotonAbsorptionLength( Ea ); //cm-1
 
-	Double_t GammaL = Gamma * Lcoh * 100;
+	Double_t GammaL = Gamma * lengthInMeters * 100;
 
 	debug << "+------------------------+" << endl;
 	debug << " Intermediate calculations" << endl;
