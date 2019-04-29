@@ -56,15 +56,15 @@ ClassImp(TRestAxionTemplate)
 //______________________________________________________________________________
 TRestAxionTemplate::TRestAxionTemplate() : TRestMetadata()
 {
-   // TRestAxionTemplate default constructor
-   Initialize();
+    // TRestAxionTemplate default constructor
+    Initialize();
 }
 
 
 //______________________________________________________________________________
 TRestAxionTemplate::TRestAxionTemplate( const char *cfgFileName, string name ) : TRestMetadata (cfgFileName)
 {
-	cout << "Entering TRestAxionTemplate constructor( cfgFileName, name )" << endl;
+    cout << "Entering TRestAxionTemplate constructor( cfgFileName, name )" << endl;
 
     Initialize();
 
@@ -81,7 +81,7 @@ TRestAxionTemplate::~TRestAxionTemplate()
 
 void TRestAxionTemplate::Initialize()
 {
-	SetSectionName( this->ClassName() );
+    SetSectionName( this->ClassName() );
 }
 
 //______________________________________________________________________________
@@ -92,16 +92,15 @@ void TRestAxionTemplate::InitFromConfigFile()
     // Initialize the metadata members from a configfile
     fDummyValue = StringToDouble( GetParameter( "dummy", "317" ) );
 
-	if( GetVerboseLevel() >= REST_Debug )
-		PrintMetadata();
+    if( GetVerboseLevel() >= REST_Debug )
+	PrintMetadata();
 }
 
 void TRestAxionTemplate::PrintMetadata( )
 {
-	TRestMetadata::PrintMetadata();
+    TRestMetadata::PrintMetadata();
 
-	metadata << " - Dummy metadata member : " << fDummyValue << endl;
-	metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    metadata << " - Dummy metadata member : " << fDummyValue << endl;
+    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 
 }
-

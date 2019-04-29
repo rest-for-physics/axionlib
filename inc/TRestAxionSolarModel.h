@@ -26,51 +26,51 @@
 #include <TRestMetadata.h>
 
 //! A metadata class to define theoretical axion models and calculations related
-class TRestAxionSolarModel:public TRestMetadata {
-    private:
-        void Initialize();
+class TRestAxionSolarModel : public TRestMetadata {
+private:
+    void Initialize();
 
-        void InitFromConfigFile();
+    void InitFromConfigFile();
 
-        TString fSolarAxionModel; //->
+    TString fSolarAxionModel; //->
 
-        TString fMode; //->
+    TString fMode; //->
 
-        // Integrated solar axion spectrum in cm-2 s-1
-        Double_t fSolarEnergyFlux = 0; //->
+    // Integrated solar axion spectrum in cm-2 s-1
+    Double_t fSolarEnergyFlux = 0; //->
 
-        // The axion-photon g10 coupling 
-        Double_t fg10 = 1.; //->
+    // The axion-photon g10 coupling
+    Double_t fg10 = 1.; //->
 
-        // The integration step for solar energy spectrum
-        Double_t fStep = 1.e-3; //->
+    // The integration step for solar energy spectrum
+    Double_t fStep = 1.e-3; //->
 
-        TVector2 fEnergyRange; //->
+    TVector2 fEnergyRange; //->
 
-        // Contains the tabulated solar disk in solar radius and energy. As described in data/solarModel.
-        std::vector <std::vector <Double_t> > fSolarTable; //->
+    // Contains the tabulated solar disk in solar radius and energy. As described in data/solarModel.
+    std::vector <std::vector <Double_t> > fSolarTable; //->
 
-    public:
+public:
 
-        Bool_t isSolarTableLoaded( ) { return fSolarTable.size() > 0; }
+    Bool_t isSolarTableLoaded( ) { return fSolarTable.size() > 0; }
 
-        TString GetSolarAxionSolarModel() { return fSolarAxionModel; }
+    TString GetSolarAxionSolarModel() { return fSolarAxionModel; }
 
-        void SetSolarAxionSolarModel( TString modelName ) { fSolarAxionModel = modelName; }
+    void SetSolarAxionSolarModel( TString modelName ) { fSolarAxionModel = modelName; }
 
-        void ResetSolarEnergyFlux() { fSolarEnergyFlux = 0; }
+    void ResetSolarEnergyFlux() { fSolarEnergyFlux = 0; }
 
-        Double_t GetSolarAxionFlux( Double_t eMin = 0., Double_t eMax = 10., Double_t g10 = 1., Double_t step = 0.001 );
-        Double_t GetDifferentialSolarAxionFlux( Double_t energy, Double_t g10 = 1. );
+    Double_t GetSolarAxionFlux( Double_t eMin = 0., Double_t eMax = 10., Double_t g10 = 1., Double_t step = 0.001 );
+    Double_t GetDifferentialSolarAxionFlux( Double_t energy, Double_t g10 = 1. );
 
-        void PrintMetadata( );
+    void PrintMetadata( );
 
-        //Constructors
-        TRestAxionSolarModel();
-        TRestAxionSolarModel( const char *cfgFileName, std::string name = "");
-        //Destructor
-        ~TRestAxionSolarModel();
+    //Constructors
+    TRestAxionSolarModel();
+    TRestAxionSolarModel( const char *cfgFileName, std::string name = "");
+    //Destructor
+    ~TRestAxionSolarModel();
 
-        ClassDef(TRestAxionSolarModel, 1); 
+    ClassDef(TRestAxionSolarModel, 1);
 };
 #endif

@@ -28,53 +28,53 @@
 #include "TRestAxionBufferGas.h"
 
 //! A metadata class to define analytical axion-photon conversion probabilities for axion helioscopes
-class TRestAxionPhotonConversion:public TRestMetadata {
-    private:
-        void Initialize();
+class TRestAxionPhotonConversion : public TRestMetadata {
+private:
+    void Initialize();
 
-        void InitFromConfigFile();
+    void InitFromConfigFile();
 
-		// Axion mass in eV
-		Double_t fAxionMass = 0; //->
+    // Axion mass in eV
+    Double_t fAxionMass = 0; //->
 
-		// Coherence length in mm [REST default units]
-		Double_t fCohLength = 0; //->
+    // Coherence length in mm [REST default units]
+    Double_t fCohLength = 0; //->
 
-		// Magnet field intensity in T
-		Double_t fBMag = 0; //->
+    // Magnet field intensity in T
+    Double_t fBMag = 0; //->
 
-		// The axion-photon g10 coupling 
-		Double_t fg10 = 1.; //->
+    // The axion-photon g10 coupling
+    Double_t fg10 = 1.; //->
 
-		// A pointer to the buffer gas definition
-		TRestAxionBufferGas *fBufferGas = NULL; //!
+    // A pointer to the buffer gas definition
+    TRestAxionBufferGas *fBufferGas = NULL; //!
 
-    public:
+public:
 
-		void AssignBufferGas( TRestAxionBufferGas *buffGas ) { fBufferGas = buffGas; }
+    void AssignBufferGas( TRestAxionBufferGas *buffGas ) { fBufferGas = buffGas; }
 
-		void SetAxionMass( Double_t m ) { fAxionMass = m; }
-		void SetCoherenceLength( Double_t l ) { fCohLength = l; }
-		void SetMagneticField( Double_t B ) { fBMag = B; }
+    void SetAxionMass( Double_t m ) { fAxionMass = m; }
+    void SetCoherenceLength( Double_t l ) { fCohLength = l; }
+    void SetMagneticField( Double_t B ) { fBMag = B; }
 
-		Double_t GetAxionMass( ) { return fAxionMass; }
-		Double_t GetCoherenceLength( ) { return fCohLength; }
-		Double_t GetMagneticField( ) { return fBMag; }
+    Double_t GetAxionMass( ) { return fAxionMass; }
+    Double_t GetCoherenceLength( ) { return fCohLength; }
+    Double_t GetMagneticField( ) { return fBMag; }
 
-		// (BL/2)**2
-		Double_t BLFactor(Double_t Lcoh = -1, Double_t Bmag = -1 );
+    // (BL/2)**2
+    Double_t BLFactor(Double_t Lcoh = -1, Double_t Bmag = -1 );
 
-		/// ma in eV, Ea in keV, Length in cm
-		Double_t GammaTransmissionProbability( Double_t Ea, Double_t ma = -1, Double_t Lcoh = -1, Double_t Bmag = -1 );
-		
-        void PrintMetadata( );
+    /// ma in eV, Ea in keV, Length in cm
+    Double_t GammaTransmissionProbability( Double_t Ea, Double_t ma = -1, Double_t Lcoh = -1, Double_t Bmag = -1 );
 
-        //Constructors
-        TRestAxionPhotonConversion();
-        TRestAxionPhotonConversion( const char *cfgFileName, std::string name = "");
-        //Destructor
-        ~TRestAxionPhotonConversion();
+    void PrintMetadata( );
 
-        ClassDef(TRestAxionPhotonConversion, 1); 
+    //Constructors
+    TRestAxionPhotonConversion();
+    TRestAxionPhotonConversion( const char *cfgFileName, std::string name = "");
+    //Destructor
+    ~TRestAxionPhotonConversion();
+
+    ClassDef(TRestAxionPhotonConversion, 1);
 };
 #endif

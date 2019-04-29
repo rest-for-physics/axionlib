@@ -27,48 +27,47 @@
 #include "TRestEventProcess.h"
 
 //! An analyis process to add TRestAxionEvent observables to the analysis tree
-class TRestAxionAnalysisProcess:public TRestEventProcess {
-    private:
-		
-        /// A pointer to the specific TRestAxionEvent
-        TRestAxionEvent *fAxionEvent; //!
-		
-        void InitFromConfigFile();
+class TRestAxionAnalysisProcess : public TRestEventProcess {
+private:
 
-        void Initialize();
+    /// A pointer to the specific TRestAxionEvent
+    TRestAxionEvent *fAxionEvent; //!
 
-        void LoadDefaultConfig();
+    void InitFromConfigFile();
 
-    protected:
+    void Initialize();
 
-    public:
+    void LoadDefaultConfig();
 
-        TRestEvent *ProcessEvent( TRestEvent *evInput );
+protected:
 
-        void LoadConfig( std::string cfgFilename, std::string name = "" );
+public:
 
-        /// It prints out the process parameters stored in the metadata structure
-        void PrintMetadata() 
+    TRestEvent *ProcessEvent( TRestEvent *evInput );
+
+    void LoadConfig( std::string cfgFilename, std::string name = "" );
+
+    /// It prints out the process parameters stored in the metadata structure
+    void PrintMetadata()
         {
             BeginPrintProcess();
 
             EndPrintProcess();
         }
-        
-        /// Returns a new instance of this class
-        TRestEventProcess *Maker() { return new TRestAxionAnalysisProcess; }
 
-        /// Returns the name of this process
-        TString GetProcessName() { return (TString) "axionAnalysis"; }
+    /// Returns a new instance of this class
+    TRestEventProcess *Maker() { return new TRestAxionAnalysisProcess; }
 
-        //Constructor
-        TRestAxionAnalysisProcess();
-        TRestAxionAnalysisProcess( char *cfgFileName );
+    /// Returns the name of this process
+    TString GetProcessName() { return (TString) "axionAnalysis"; }
 
-        //Destructor
-        ~TRestAxionAnalysisProcess();
+    //Constructor
+    TRestAxionAnalysisProcess();
+    TRestAxionAnalysisProcess( char *cfgFileName );
 
-        ClassDef(TRestAxionAnalysisProcess, 1);
+    //Destructor
+    ~TRestAxionAnalysisProcess();
+
+    ClassDef(TRestAxionAnalysisProcess, 1);
 };
 #endif
-

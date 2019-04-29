@@ -27,49 +27,48 @@
 #include "TRestEventProcess.h"
 
 //! A process to include photon transmission from different interfaces found till reaching the detector. E.g. differential vaccuum windows
-class TRestAxionTransmissionProcess:public TRestEventProcess {
-    private:
-		
-        /// A pointer to the specific TRestAxionEvent
-        TRestAxionEvent *fInputAxionEvent; //!
-        TRestAxionEvent *fOutputAxionEvent; //!
-		
-        void InitFromConfigFile();
+class TRestAxionTransmissionProcess : public TRestEventProcess {
+private:
 
-        void Initialize();
+    /// A pointer to the specific TRestAxionEvent
+    TRestAxionEvent *fInputAxionEvent; //!
+    TRestAxionEvent *fOutputAxionEvent; //!
 
-        void LoadDefaultConfig();
+    void InitFromConfigFile();
 
-    protected:
+    void Initialize();
 
-    public:
+    void LoadDefaultConfig();
 
-        TRestEvent *ProcessEvent( TRestEvent *evInput );
+protected:
 
-        void LoadConfig( std::string cfgFilename, std::string name = "" );
+public:
 
-        /// It prints out the process parameters stored in the metadata structure
-        void PrintMetadata() 
+    TRestEvent *ProcessEvent( TRestEvent *evInput );
+
+    void LoadConfig( std::string cfgFilename, std::string name = "" );
+
+    /// It prints out the process parameters stored in the metadata structure
+    void PrintMetadata()
         {
             BeginPrintProcess();
 
             EndPrintProcess();
         }
-        
-        /// Returns a new instance of this class
-        TRestEventProcess *Maker() { return new TRestAxionTransmissionProcess; }
 
-        /// Returns the name of this process
-        TString GetProcessName() { return (TString) "axionTransmission"; }
+    /// Returns a new instance of this class
+    TRestEventProcess *Maker() { return new TRestAxionTransmissionProcess; }
 
-        //Constructor
-        TRestAxionTransmissionProcess();
-        TRestAxionTransmissionProcess( char *cfgFileName );
+    /// Returns the name of this process
+    TString GetProcessName() { return (TString) "axionTransmission"; }
 
-        //Destructor
-        ~TRestAxionTransmissionProcess();
+    //Constructor
+    TRestAxionTransmissionProcess();
+    TRestAxionTransmissionProcess( char *cfgFileName );
 
-        ClassDef(TRestAxionTransmissionProcess, 1);
+    //Destructor
+    ~TRestAxionTransmissionProcess();
+
+    ClassDef(TRestAxionTransmissionProcess, 1);
 };
 #endif
-

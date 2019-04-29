@@ -26,50 +26,49 @@
 #include "TRestAxionEvent.h"
 #include "TRestEventProcess.h"
 
-//! A template process to serve as a copy/paste for creating new TRestAxion___Process 
-class TRestAxionTemplateProcess:public TRestEventProcess {
-    private:
-		
-        /// A pointer to the specific TRestAxionEvent
-        TRestAxionEvent *fInputAxionEvent; //!
-        TRestAxionEvent *fOutputAxionEvent; //!
-		
-        void InitFromConfigFile();
+//! A template process to serve as a copy/paste for creating new TRestAxion___Process
+class TRestAxionTemplateProcess : public TRestEventProcess {
+private:
 
-        void Initialize();
+    /// A pointer to the specific TRestAxionEvent
+    TRestAxionEvent *fInputAxionEvent; //!
+    TRestAxionEvent *fOutputAxionEvent; //!
 
-        void LoadDefaultConfig();
+    void InitFromConfigFile();
 
-    protected:
+    void Initialize();
 
-    public:
+    void LoadDefaultConfig();
 
-        TRestEvent *ProcessEvent( TRestEvent *evInput );
+protected:
 
-        void LoadConfig( std::string cfgFilename, std::string name = "" );
+public:
 
-        /// It prints out the process parameters stored in the metadata structure
-        void PrintMetadata() 
+    TRestEvent *ProcessEvent( TRestEvent *evInput );
+
+    void LoadConfig( std::string cfgFilename, std::string name = "" );
+
+    /// It prints out the process parameters stored in the metadata structure
+    void PrintMetadata()
         {
             BeginPrintProcess();
 
             EndPrintProcess();
         }
-        
-        /// Returns a new instance of this class
-        TRestEventProcess *Maker() { return new TRestAxionTemplateProcess; }
 
-        /// Returns the name of this process
-        TString GetProcessName() { return (TString) "axionTemplate"; }
+    /// Returns a new instance of this class
+    TRestEventProcess *Maker() { return new TRestAxionTemplateProcess; }
 
-        //Constructor
-        TRestAxionTemplateProcess();
-        TRestAxionTemplateProcess( char *cfgFileName );
+    /// Returns the name of this process
+    TString GetProcessName() { return (TString) "axionTemplate"; }
 
-        //Destructor
-        ~TRestAxionTemplateProcess();
+    //Constructor
+    TRestAxionTemplateProcess();
+    TRestAxionTemplateProcess( char *cfgFileName );
 
-        ClassDef(TRestAxionTemplateProcess, 1);
+    //Destructor
+    ~TRestAxionTemplateProcess();
+
+    ClassDef(TRestAxionTemplateProcess, 1);
 };
 #endif
-

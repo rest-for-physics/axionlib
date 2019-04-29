@@ -33,7 +33,7 @@
 /// The following piece of code shows how to define an analytical solar model.
 ///
 /// \code
-///	<TRestAxionSolarModel name="sunPrimakoff" verboseLevel="debug" >
+///     <TRestAxionSolarModel name="sunPrimakoff" verboseLevel="debug" >
 ///    <parameter name="mode" value="analytical" />
 ///    <parameter name="solarAxionSolarModel" value="arXiv_0702006_Primakoff" />
 /// </TRestAxionSolarModel>
@@ -46,12 +46,12 @@
 ///
 ///
 /// The second mode, *table*, will provide further detail on the solar axion
-/// production as a function of the solar radius. The tables will be 
-/// available as a file inside the data/solarModel/ directory. The 
-/// *solarAxionSolarModel* parameter 
+/// production as a function of the solar radius. The tables will be
+/// available as a file inside the data/solarModel/ directory. The
+/// *solarAxionSolarModel* parameter
 ///
 /// \code
-///	<TRestAxionSolarModel name="sunPrimakoff" verboseLevel="debug" >
+///     <TRestAxionSolarModel name="sunPrimakoff" verboseLevel="debug" >
 ///    <parameter name="mode" value="table" />
 ///    <parameter name="solarAxionSolarModel" value="arXiv_0702006_Primakoff" />
 /// </TRestAxionSolarModel>
@@ -79,15 +79,15 @@ ClassImp(TRestAxionSolarModel)
 //______________________________________________________________________________
 TRestAxionSolarModel::TRestAxionSolarModel() : TRestMetadata()
 {
-   // TRestAxionSolarModel default constructor
-   Initialize();
+    // TRestAxionSolarModel default constructor
+    Initialize();
 }
 
 
 //______________________________________________________________________________
 TRestAxionSolarModel::TRestAxionSolarModel( const char *cfgFileName, string name ) : TRestMetadata (cfgFileName)
 {
-	cout << "Entering TRestAxionSolarModel constructor( cfgFileName, name )" << endl;
+    cout << "Entering TRestAxionSolarModel constructor( cfgFileName, name )" << endl;
 
     Initialize();
 
@@ -105,96 +105,95 @@ TRestAxionSolarModel::~TRestAxionSolarModel()
 
 void TRestAxionSolarModel::Initialize()
 {
-	SetSectionName( this->ClassName() );
+    SetSectionName( this->ClassName() );
 }
 
 // Returns the solar axion flux in cm-2 keV-1 s-1 (on earth)
 Double_t TRestAxionSolarModel::GetDifferentialSolarAxionFlux( Double_t energy, Double_t g10 )
 {
-	// https://arxiv.org/abs/hep-ex/0702006
-	if( fSolarAxionModel == "arXiv_0702006_Primakoff" )
-		return 6.02e10 * g10 * g10 * TMath::Power( energy, 2.481 ) * TMath::Exp( -energy/1.205 );
+    // https://arxiv.org/abs/hep-ex/0702006
+    if( fSolarAxionModel == "arXiv_0702006_Primakoff" )
+        return 6.02e10 * g10 * g10 * TMath::Power( energy, 2.481 ) * TMath::Exp( -energy/1.205 );
 
-	warning << "Solar model not recognized" << endl;
-	warning << "--------------------------" << endl;
-	warning << "Solar axion model : " << fSolarAxionModel << endl;
+    warning << "Solar model not recognized" << endl;
+    warning << "--------------------------" << endl;
+    warning << "Solar axion model : " << fSolarAxionModel << endl;
 
-	return 0;
+    return 0;
 }
 
 Double_t TRestAxionSolarModel::GetSolarAxionFlux( Double_t eMin, Double_t eMax, Double_t g10, Double_t step )
 {
-	if( fMode == "analytical" && fSolarEnergyFlux > 0 )
-		if( fg10 == g10 && fStep == step && eMin == fEnergyRange.X() && eMax == fEnergyRange.Y() )
-			return fSolarEnergyFlux;
+    if( fMode == "analytical" && fSolarEnergyFlux > 0 )
+        if( fg10 == g10 && fStep == step && eMin == fEnergyRange.X() && eMax == fEnergyRange.Y() )
+            return fSolarEnergyFlux;
 
-	info << "TRestAxionSolarModel::GetSolarAxionFlux re-calculating solar axion flux" << endl;
+    info << "TRestAxionSolarModel::GetSolarAxionFlux re-calculating solar axion flux" << endl;
 
-	fg10 = g10;
-	fStep = step;
-	fEnergyRange = TVector2( eMin, eMax );
+    fg10 = g10;
+    fStep = step;
+    fEnergyRange = TVector2( eMin, eMax );
 
-	fSolarEnergyFlux = 0;
-	for( Double_t en = eMin; en < eMax; en += step )
-		fSolarEnergyFlux += GetDifferentialSolarAxionFlux( en, g10 );
+    fSolarEnergyFlux = 0;
+    for( Double_t en = eMin; en < eMax; en += step )
+        fSolarEnergyFlux += GetDifferentialSolarAxionFlux( en, g10 );
 
-	fSolarEnergyFlux = fSolarEnergyFlux * step;
+    fSolarEnergyFlux = fSolarEnergyFlux * step;
 
-	return fSolarEnergyFlux;
+    return fSolarEnergyFlux;
 }
 
 
 //______________________________________________________________________________
 void TRestAxionSolarModel::InitFromConfigFile()
 {
-	debug << "Entering TRestAxionSolarModel::InitFromConfigFile" << endl;
+    debug << "Entering TRestAxionSolarModel::InitFromConfigFile" << endl;
 
-	this->Initialize();
+    this->Initialize();
 
-	// Initialize the metadata members from a configfile
+    // Initialize the metadata members from a configfile
 
-	// fClassMember = GetParameter( "paramName", "defaultValue" );
+    // fClassMember = GetParameter( "paramName", "defaultValue" );
 
-	fMode = GetParameter( "mode", "analytical" ); // analytical/table
-	fSolarAxionModel = GetParameter( "solarAxionModel", "arXiv_0702006_Primakoff" );
+    fMode = GetParameter( "mode", "analytical" ); // analytical/table
+    fSolarAxionModel = GetParameter( "solarAxionModel", "arXiv_0702006_Primakoff" );
 
-	if( fMode == "table" )
-	{
-		fStep = 0.1;
-		debug << "Loading table from file : " << endl;
-		string fullPathName = SearchFile( (string) fSolarAxionModel );
+    if( fMode == "table" )
+    {
+        fStep = 0.1;
+        debug << "Loading table from file : " << endl;
+        string fullPathName = SearchFile( (string) fSolarAxionModel );
 
-		debug << "File : " << fullPathName << endl;
+        debug << "File : " << fullPathName << endl;
 
-		if( fullPathName == "" )
-		{
-			error << "File not found : " <<  fSolarAxionModel << endl;
-			error << "Solar model table will not be loaded!!" << endl;
-		}
-		else
-		{
-			TRestTools::ReadASCIITable( fullPathName, fSolarTable );
-			for( int n = 0; n < fSolarTable.size(); n++ )
-			{
-				for( int m = 0; m < fSolarTable[n].size(); m++ )
-					cout << fSolarTable[n][m] << "\t";
-				cout << endl; cout << endl;
-			}
-		}
-	}
+        if( fullPathName == "" )
+        {
+            error << "File not found : " <<  fSolarAxionModel << endl;
+            error << "Solar model table will not be loaded!!" << endl;
+        }
+        else
+        {
+            TRestTools::ReadASCIITable( fullPathName, fSolarTable );
+            for( int n = 0; n < fSolarTable.size(); n++ )
+            {
+                for( int m = 0; m < fSolarTable[n].size(); m++ )
+                    cout << fSolarTable[n][m] << "\t";
+                cout << endl; cout << endl;
+            }
+        }
+    }
 }
 
 void TRestAxionSolarModel::PrintMetadata( )
 {
-	TRestMetadata::PrintMetadata();
+    TRestMetadata::PrintMetadata();
 
-	metadata << " - Mode : " << fMode << endl;
-	metadata << " - Solar axion model : " << fSolarAxionModel << endl;
-	metadata << "-------------------------------------------------" << endl;
-	metadata << " - Axion-photon couping : " << fg10 << " x 10^{-10} GeV^{-1}" << endl;
-	metadata << " - Integration step : " << fStep << " keV" << endl;
-	metadata << " - Integration range : ( " << fEnergyRange.X() << ", " << fEnergyRange.Y() << " ) keV" << endl;
-	metadata << " - Calculated solar flux : " << fSolarEnergyFlux << " cm-2 s-1" << endl;
-	metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    metadata << " - Mode : " << fMode << endl;
+    metadata << " - Solar axion model : " << fSolarAxionModel << endl;
+    metadata << "-------------------------------------------------" << endl;
+    metadata << " - Axion-photon couping : " << fg10 << " x 10^{-10} GeV^{-1}" << endl;
+    metadata << " - Integration step : " << fStep << " keV" << endl;
+    metadata << " - Integration range : ( " << fEnergyRange.X() << ", " << fEnergyRange.Y() << " ) keV" << endl;
+    metadata << " - Calculated solar flux : " << fSolarEnergyFlux << " cm-2 s-1" << endl;
+    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
-

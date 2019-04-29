@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
-<!--This file is an example of REST simulation functionality. We process the output root file 
-from restG4, converting its TRestG4Event to TRestSignalEvent. Observables and processes's 
+<!--This file is an example of REST simulation functionality. We process the output root file
+from restG4, converting its TRestG4Event to TRestSignalEvent. Observables and processes's
 internal values are saved.
 -->
 
@@ -10,7 +10,7 @@ internal values are saved.
   <TRestRun name="Run metadata" title="REST Metadata run info (template)" verboseLevel="info">
     <parameter name="experiment" value="babyIAXO"/>
     <parameter name="runType" value="simulation"/>
-    <parameter name="runNumber" value="auto"/> //it will find next run number from database when we use "auto"
+    <parameter name="runNumber" value="auto"/> <!-- it will find next run number from database when we use "auto" -->
     <parameter name="runTag" value="Template"/>
     <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
     <parameter name="user" value="${USER}"/>
@@ -60,11 +60,11 @@ internal values are saved.
 
 	<addProcess type="TRestAxionTransmissionProcess" name="detectorWindow" value="ON" verboseLevel="info" >
 	</addProcess>
-	   
+
 	<!--	file="processes.rml"/> -->
 
   </TRestProcessRunner>
-  
+
 <!--
 	<TRestAxionSolarModel name="sunPrimakoff" file="metadata.rml" verboseLevel="info" />
 
@@ -74,8 +74,8 @@ internal values are saved.
   <addTask command="EventProcess->RunProcess()" value="ON"/>
 
   <globals>
-    <parameter name="outputLevel" value="internalvar" /> %options are : nooutput(0), observable(1), internalvar(2), fulloutput(3)
-    <parameter name="verboseLevel" value="essential" /> %options are : silent(0), essential(1), info(2), info(3), extreme(4)
+    <parameter name="outputLevel" value="internalvar" /> <!-- options are : nooutput(0), observable(1), internalvar(2), fulloutput(3) -->
+    <parameter name="verboseLevel" value="essential" /> <!-- options are : silent(0), essential(1), info(2), info(3), extreme(4) -->
     <parameter name="inputFile" value=""/>
     <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
   </globals>

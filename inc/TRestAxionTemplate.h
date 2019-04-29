@@ -27,23 +27,23 @@
 
 //! A metadata class to serve as example on the implementation of future metadata classes
 class TRestAxionTemplate:public TRestMetadata {
-    private:
-        void Initialize();
+private:
+    void Initialize();
 
-        void InitFromConfigFile();
+    void InitFromConfigFile();
 
-		Double_t fDummyValue; //->
+    Double_t fDummyValue; //->
 
-    public:
-		
-        void PrintMetadata( );
+public:
 
-        //Constructors
-        TRestAxionTemplate();
-        TRestAxionTemplate( const char *cfgFileName, std::string name = "");
-        //Destructor
-        ~TRestAxionTemplate();
+    void PrintMetadata( );
 
-        ClassDef(TRestAxionTemplate, 1); 
+    //Constructors
+    TRestAxionTemplate();
+    TRestAxionTemplate( const char *cfgFileName, std::string name = "");
+    //Destructor
+    ~TRestAxionTemplate();
+
+    ClassDef(TRestAxionTemplate, 1);
 };
 #endif
