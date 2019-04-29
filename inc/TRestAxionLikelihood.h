@@ -32,64 +32,64 @@
 #include "TRandom3.h"
 
 //! A metadata class deninning a particular implementation of the likelihood to obtain the experimental sensitivity
-class TRestAxionLikelihood:public TRestMetadata {
-    private:
-        void Initialize();
+class TRestAxionLikelihood : public TRestMetadata {
+private:
+    void Initialize();
 
-        void InitFromConfigFile();
+    void InitFromConfigFile();
 
-		// We consider all this values as constant parameters
-		// In the future we will use the signal generator event chain
-		// to determine a more accurate signal generation
-		Double_t fBmag = 0; //-> Manget field in T
-		Double_t fRmag = 0; //-> Magnet radius
-		Double_t fLmag = 0; //-> Manget length in mm
-		Double_t fEfficiency = 1; //->
+    // We consider all this values as constant parameters
+    // In the future we will use the signal generator event chain
+    // to determine a more accurate signal generation
+    Double_t fBmag = 0; //-> Manget field in T
+    Double_t fRmag = 0; //-> Magnet radius
+    Double_t fLmag = 0; //-> Manget length in mm
+    Double_t fEfficiency = 1; //->
 
-		Int_t fNbores = 0; //->
+    Int_t fNbores = 0; //->
 
-		Double_t fBackgroundLevel = 0.; //->
+    Double_t fBackgroundLevel = 0.; //->
 
-		Double_t fSpotArea = 0.; //->
+    Double_t fSpotArea = 0.; //->
 
-		TVector2 fErange; //->
+    TVector2 fErange; //->
 
-		Double_t fTExpVacuum = 0; //->
+    Double_t fTExpVacuum = 0; //->
 
-		Double_t fTExpPerStep = 0; //->
-		Int_t fNSteps = 0; //->
+    Double_t fTExpPerStep = 0; //->
+    Int_t fNSteps = 0; //->
 
-		Double_t fLastStepDensity = 0.; //-> 
+    Double_t fLastStepDensity = 0.; //->
 
-		TRestAxionPhotonConversion *fPhotonConversion; //!
-		TRestAxionBufferGas *fBufferGas; //!
-		TRestAxionSolarModel *fAxionSolarModel; //!
+    TRestAxionPhotonConversion *fPhotonConversion; //!
+    TRestAxionBufferGas *fBufferGas; //!
+    TRestAxionSolarModel *fAxionSolarModel; //!
 
-		/// Random number generator
-		TRandom3 *fRandom; //!
+    /// Random number generator
+    TRandom3 *fRandom; //!
 
-		Int_t fMeasuredCountsVacuum;
-		std::vector <Int_t> fMeasuredCountsPerStep;
-		std::vector <Double_t> fExposureTimePerStep;
-		std::vector <Double_t> fDensityInStep;
+    Int_t fMeasuredCountsVacuum;
+    std::vector <Int_t> fMeasuredCountsPerStep;
+    std::vector <Double_t> fExposureTimePerStep;
+    std::vector <Double_t> fDensityInStep;
 
-    public:
+public:
 
-		void GenerateMonteCarlo( );
-		Double_t LogLikelihood( Double_t ma, Double_t g10, Double_t Nmeas, Double_t rho, Double_t tExp );
+    void GenerateMonteCarlo( );
+    Double_t LogLikelihood( Double_t ma, Double_t g10, Double_t Nmeas, Double_t rho, Double_t tExp );
 
-		Double_t GetSignal( Double_t ma, Double_t g10_4, Double_t rho, Double_t tExp );
+    Double_t GetSignal( Double_t ma, Double_t g10_4, Double_t rho, Double_t tExp );
 
-		void LikelihoodTest( string fname );
-		
-        void PrintMetadata( );
+    void LikelihoodTest( string fname );
 
-        //Constructors
-        TRestAxionLikelihood();
-        TRestAxionLikelihood( const char *cfgFileName, std::string name = "");
-        //Destructor
-        ~TRestAxionLikelihood();
+    void PrintMetadata( );
 
-        ClassDef(TRestAxionLikelihood, 1); 
+    //Constructors
+    TRestAxionLikelihood();
+    TRestAxionLikelihood( const char *cfgFileName, std::string name = "");
+    //Destructor
+    ~TRestAxionLikelihood();
+
+    ClassDef(TRestAxionLikelihood, 1);
 };
 #endif

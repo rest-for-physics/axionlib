@@ -34,62 +34,62 @@
 /// An event data class to define the parameters related to an axion particle
 class TRestAxionEvent : public TRestEvent
 {
-    private:
-		TVector3 fPosition; //-> Particle position
-		TVector3 fDirection; //-> Unitary direction of movement
-		Double_t fEnergy = 0; //-> Energy of axion in keV
+private:
+    TVector3 fPosition; //-> Particle position
+    TVector3 fDirection; //-> Unitary direction of movement
+    Double_t fEnergy = 0; //-> Energy of axion in keV
 
-		Double_t fMass = 0.; //-> Axion mass in eV
+    Double_t fMass = 0.; //-> Axion mass in eV
 
-		Double_t fGammaProbability = 0; //-> The conversion probability P_{ag}
+    Double_t fGammaProbability = 0; //-> The conversion probability P_{ag}
 
-		Double_t fEfficiency = 1; //-> To include any loss of signal transmission/efficiency
+    Double_t fEfficiency = 1; //-> To include any loss of signal transmission/efficiency
 
-    protected:
+protected:
 
-    public:
-        
-		TVector3 *GetPosition( ) { return &fPosition; }
+public:
 
-        Double_t GetPositionX( ) { return fPosition.X(); } // returns value in mm
-        Double_t GetPositionY( ) { return fPosition.Y(); } // returns value in mm
-        Double_t GetPositionZ( ) { return fPosition.Z(); } // returns value in mm
-        
-		TVector3 *GetDirection( ) { return &fDirection; }
+    TVector3 *GetPosition( ) { return &fPosition; }
 
-        Double_t GetDirectionX( ) { return fDirection.X(); } // returns normalized vector x-component.
-        Double_t GetDirectionY( ) { return fDirection.Y(); } // returns normalized vector y-component 
-        Double_t GetDirectionZ( ) { return fDirection.Z(); } // returns normalized vector z-component
+    Double_t GetPositionX( ) { return fPosition.X(); } // returns value in mm
+    Double_t GetPositionY( ) { return fPosition.Y(); } // returns value in mm
+    Double_t GetPositionZ( ) { return fPosition.Z(); } // returns value in mm
 
-        Double_t GetEnergy( ) { return fEnergy; } //returns value in keV
-        Double_t GetMass( ) { return fMass; } //returns value in eV
-		Double_t GetEfficiency( ) { return fEfficiency; }
+    TVector3 *GetDirection( ) { return &fDirection; }
 
-		Double_t GetGammaProbability( ) { return fGammaProbability; }
+    Double_t GetDirectionX( ) { return fDirection.X(); } // returns normalized vector x-component.
+    Double_t GetDirectionY( ) { return fDirection.Y(); } // returns normalized vector y-component
+    Double_t GetDirectionZ( ) { return fDirection.Z(); } // returns normalized vector z-component
 
-		void SetPosition( TVector3 pos ) { fPosition = pos; }
-		void SetPosition( Double_t x, Double_t y, Double_t z ) { SetPosition( TVector3( x, y, z) ); }
+    Double_t GetEnergy( ) { return fEnergy; } //returns value in keV
+    Double_t GetMass( ) { return fMass; } //returns value in eV
+    Double_t GetEfficiency( ) { return fEfficiency; }
 
-		void SetDirection( TVector3 dir ) { fDirection = dir; }
-		void SetDirection( Double_t px, Double_t py, Double_t pz ) { SetDirection( TVector3( px, py, pz) ); }
+    Double_t GetGammaProbability( ) { return fGammaProbability; }
 
-		void SetEnergy( Double_t en ) { fEnergy = en; }
-		void SetMass( Double_t m ) { fMass = m; }
+    void SetPosition( TVector3 pos ) { fPosition = pos; }
+    void SetPosition( Double_t x, Double_t y, Double_t z ) { SetPosition( TVector3( x, y, z) ); }
 
-		void SetGammaProbability( Double_t p ) { fGammaProbability = p; }
-		void SetEfficiency( Double_t eff ) { fEfficiency = eff; }
+    void SetDirection( TVector3 dir ) { fDirection = dir; }
+    void SetDirection( Double_t px, Double_t py, Double_t pz ) { SetDirection( TVector3( px, py, pz) ); }
 
-        virtual void Initialize();
+    void SetEnergy( Double_t en ) { fEnergy = en; }
+    void SetMass( Double_t m ) { fMass = m; }
 
-        virtual void PrintEvent( );
+    void SetGammaProbability( Double_t p ) { fGammaProbability = p; }
+    void SetEfficiency( Double_t eff ) { fEfficiency = eff; }
 
-        TPad *DrawEvent( TString option = "" );
+    virtual void Initialize();
 
-        //Construtor
-        TRestAxionEvent();
-        //Destructor
-        ~TRestAxionEvent();
+    virtual void PrintEvent( );
 
-        ClassDef(TRestAxionEvent, 1);
+    TPad *DrawEvent( TString option = "" );
+
+    //Construtor
+    TRestAxionEvent();
+    //Destructor
+    ~TRestAxionEvent();
+
+    ClassDef(TRestAxionEvent, 1);
 };
 #endif

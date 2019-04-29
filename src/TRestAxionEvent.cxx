@@ -85,19 +85,18 @@ TPad *TRestAxionEvent::DrawEvent( TString option )
     fPad->Divide( 1 , 1 );
     fPad->Draw( );
 
-	// TOBE implemented if necessary
+    // TOBE implemented if necessary
 
     return fPad;
 }
 
 void TRestAxionEvent::PrintEvent(  )
 {
-	TRestEvent::PrintEvent();
+    TRestEvent::PrintEvent();
 
     cout << "Energy : " << GetEnergy() << endl;
-	cout << "Position : ( " << fPosition.X() << ", " << fPosition.Y() << ", " << fPosition.Z() << " )" << endl; 
-	cout << "Direction : ( " << fDirection.X() << ", " << fDirection.Y() << ", " << fDirection.Z() << " )" << endl; 
-	cout << "Gamma state probability : " << fGammaProbability << endl;
-	cout << endl;
+    cout << "Position : ( " << fPosition.X() << ", " << fPosition.Y() << ", " << fPosition.Z() << " )" << endl;
+    cout << "Direction : ( " << fDirection.X() << ", " << fDirection.Y() << ", " << fDirection.Z() << " )" << endl;
+    cout << "Gamma state probability : " << fGammaProbability << endl;
+    cout << endl;
 }
-

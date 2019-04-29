@@ -53,11 +53,11 @@ TRestAxionGeneratorProcess::TRestAxionGeneratorProcess()
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
-/// 
+///
 /// If no configuration path is defined using TRestMetadata::SetConfigFilePath
 /// the path to the config file must be specified using full path, absolute or relative.
 ///
-/// The default behaviour is that the config file must be specified with 
+/// The default behaviour is that the config file must be specified with
 /// full path, absolute or relative.
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
@@ -70,8 +70,8 @@ TRestAxionGeneratorProcess::TRestAxionGeneratorProcess( char *cfgFileName )
 }
 
 ///////////////////////////////////////////////
-/// \brief Default destructor 
-/// 
+/// \brief Default destructor
+///
 TRestAxionGeneratorProcess::~TRestAxionGeneratorProcess()
 {
     delete fOutputAxionEvent;
@@ -80,7 +80,7 @@ TRestAxionGeneratorProcess::~TRestAxionGeneratorProcess()
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
-/// 
+///
 void TRestAxionGeneratorProcess::LoadDefaultConfig( )
 {
     SetName( "axionGenerator-Default" );
@@ -89,12 +89,12 @@ void TRestAxionGeneratorProcess::LoadDefaultConfig( )
 
 ///////////////////////////////////////////////
 /// \brief Function to load the configuration from an external configuration file.
-/// 
+///
 /// If no configuration path is defined in TRestMetadata::SetConfigFilePath
 /// the path to the config file must be specified using full path, absolute or relative.
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
-/// \param name The name of the specific metadata. It will be used to find the 
+/// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
 void TRestAxionGeneratorProcess::LoadConfig( std::string cfgFilename, std::string name )
@@ -104,143 +104,142 @@ void TRestAxionGeneratorProcess::LoadConfig( std::string cfgFilename, std::strin
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define the section name
-/// 
+///
 void TRestAxionGeneratorProcess::Initialize()
 {
     SetSectionName( this->ClassName() );
 
     fOutputAxionEvent = new TRestAxionEvent();
 
-	fIsExternal = true;
+    fIsExternal = true;
 
     fInputEvent = NULL;
     fOutputEvent = fOutputAxionEvent;
 
-	fRandom = new TRandom3(0);
+    fRandom = new TRandom3(0);
 }
 
 
 void TRestAxionGeneratorProcess::InitProcess()
 {
-	debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
+    debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
 
-	fAxionSolarModel = (TRestAxionSolarModel *) this->GetMetadata( "TRestAxionSolarModel" );
+    fAxionSolarModel = (TRestAxionSolarModel *) this->GetMetadata( "TRestAxionSolarModel" );
 
-	if( !fAxionSolarModel )
-	{
-		error << "TRestAxionGeneratorProcess. Axion model was not defined!" << endl;
-		exit(0);
-	}
+    if( !fAxionSolarModel )
+    {
+	error << "TRestAxionGeneratorProcess. Axion model was not defined!" << endl;
+	exit(0);
+    }
 }
 
 ///////////////////////////////////////////////
 /// \brief This method gets a random energy relying on the solar axion model defined in TRestAxionSolarModel
-/// 
+///
 Double_t TRestAxionGeneratorProcess::GenerateEnergy( )
 {
-	debug << "Entering TRestAxionGeneratorProcess::GenerateEnergy() ..." << endl;
-	Double_t solarFlux = fAxionSolarModel->GetSolarAxionFlux( fEnergyRange.X(), fEnergyRange.Y(), 1., fEnergyStep );
+    debug << "Entering TRestAxionGeneratorProcess::GenerateEnergy() ..." << endl;
+    Double_t solarFlux = fAxionSolarModel->GetSolarAxionFlux( fEnergyRange.X(), fEnergyRange.Y(), 1., fEnergyStep );
 
-	Double_t random = solarFlux * fRandom->Uniform( 0, 1.0 );
+    Double_t random = solarFlux * fRandom->Uniform( 0, 1.0 );
 
-	Double_t sum = 0;
-	for( double en = fEnergyRange.X(); en < fEnergyRange.Y(); en += fEnergyStep )
+    Double_t sum = 0;
+    for( double en = fEnergyRange.X(); en < fEnergyRange.Y(); en += fEnergyStep )
+    {
+	sum += fAxionSolarModel->GetDifferentialSolarAxionFlux( en, 1.0 ) * fEnergyStep;
+
+	if( random < sum )
 	{
-		sum += fAxionSolarModel->GetDifferentialSolarAxionFlux( en, 1.0 ) * fEnergyStep;
-
-		if( random < sum )
-		{
-			debug << "TRestAxionGeneratorProcess::GenerateEnergy. Energy = " << en << endl;
-			return en + fRandom->Uniform( 0, fEnergyStep );
-		}
+	    debug << "TRestAxionGeneratorProcess::GenerateEnergy. Energy = " << en << endl;
+	    return en + fRandom->Uniform( 0, fEnergyStep );
 	}
+    }
 
-	return fEnergyRange.Y();
+    return fEnergyRange.Y();
 }
 
 TVector3 TRestAxionGeneratorProcess::GenerateDirection( )
 {
-	TVector3 direction;
+    TVector3 direction;
 
-	// For the moment "circleWall" just generates in the XY-plane
-	if( fAngularDistribution == "flux" )
-	{
-		return fAngularDirection;
-	}
-
-	warning << "Angular distribution : " << fAngularDistribution << " is not defined!" << endl;
-
+    // For the moment "circleWall" just generates in the XY-plane
+    if( fAngularDistribution == "flux" )
+    {
 	return fAngularDirection;
+    }
+
+    warning << "Angular distribution : " << fAngularDistribution << " is not defined!" << endl;
+
+    return fAngularDirection;
 }
 
 TVector3 TRestAxionGeneratorProcess::GeneratePosition( )
 {
-	TVector3 position;
+    TVector3 position;
 
-	// For the moment "circleWall" just generates in the XY-plane
-	if( fSpatialDistribution == "circleWall" )
+    // For the moment "circleWall" just generates in the XY-plane
+    if( fSpatialDistribution == "circleWall" )
+    {
+	Double_t r, x, y;
+
+	do
 	{
-		Double_t r, x, y;
+	    x = fRandom->Uniform( -fSpatialRadius, fSpatialRadius );
+	    y = fRandom->Uniform( -fSpatialRadius, fSpatialRadius );
 
-		do
-		{
-			x = fRandom->Uniform( -fSpatialRadius, fSpatialRadius );
-			y = fRandom->Uniform( -fSpatialRadius, fSpatialRadius );
-
-			r = x*x + y*y;
-		}
-		while( r > fSpatialRadius*fSpatialRadius );
-
-		position = TVector3( x, y, 0 ) + fSpatialOrigin;
-
-		return position;
+	    r = x*x + y*y;
 	}
+	while( r > fSpatialRadius*fSpatialRadius );
 
-	warning << "Spatial distribution : " << fSpatialDistribution << " is not defined!" << endl;
+	position = TVector3( x, y, 0 ) + fSpatialOrigin;
 
 	return position;
+    }
+
+    warning << "Spatial distribution : " << fSpatialDistribution << " is not defined!" << endl;
+
+    return position;
 }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
-/// 
+///
 TRestEvent* TRestAxionGeneratorProcess::ProcessEvent( TRestEvent *evInput )
 {
-	/*
-	fOutputEvent->SetID( fCounter );
-	fCounter++;
-	*/
+    /*
+      fOutputEvent->SetID( fCounter );
+      fCounter++;
+    */
 
-	debug << "TRestAxionGeneratorProcess::ProcessEvent : " << fCounter << endl;
+    debug << "TRestAxionGeneratorProcess::ProcessEvent : " << fCounter << endl;
 
-	fOutputAxionEvent->SetEnergy( GenerateEnergy( ) );
-	fOutputAxionEvent->SetPosition( GeneratePosition( ) );
-	fOutputAxionEvent->SetDirection( GenerateDirection( ) );
-  
-	//cout << "anaTree : " << fAnalysisTree << endl;
+    fOutputAxionEvent->SetEnergy( GenerateEnergy( ) );
+    fOutputAxionEvent->SetPosition( GeneratePosition( ) );
+    fOutputAxionEvent->SetDirection( GenerateDirection( ) );
+
+    //cout << "anaTree : " << fAnalysisTree << endl;
     //fAnalysisTree->SetObservableValue( this, "energy", fOutputAxionEvent->GetEnergy() );
-	//fAnalysisTree->PrintObservables();
+    //fAnalysisTree->PrintObservables();
 
-	if( GetVerboseLevel() >= REST_Debug ) 
-		fOutputAxionEvent->PrintEvent();
+    if( GetVerboseLevel() >= REST_Debug )
+	fOutputAxionEvent->PrintEvent();
 
     return fOutputAxionEvent;
 }
 
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML TRestAxionGeneratorProcess metadata section
-/// 
+///
 void TRestAxionGeneratorProcess::InitFromConfigFile( )
 {
-	// These 2-params should be moved to TRestAxionSolarModel
-	fEnergyRange = Get2DVectorParameterWithUnits( "energyRange", TVector2(0,10) );
+    // These 2-params should be moved to TRestAxionSolarModel
+    fEnergyRange = Get2DVectorParameterWithUnits( "energyRange", TVector2(0,10) );
     fEnergyStep = GetDoubleParameterWithUnits( "energyStep", 1.e-3 );
 
-	fAngularDistribution = GetParameter( "angularDistribution", "flux" );
-	fAngularDirection = StringTo3DVector( GetParameter( "direction", "(0,0,1)" ) );
+    fAngularDistribution = GetParameter( "angularDistribution", "flux" );
+    fAngularDirection = StringTo3DVector( GetParameter( "direction", "(0,0,1)" ) );
 
-	fSpatialDistribution = GetParameter( "spatialDistribution", "circleWall" );
-	fSpatialRadius = GetDoubleParameterWithUnits( "spatialRadius", 10.e3 );
-	fSpatialOrigin = Get3DVectorParameterWithUnits( "spatialOrigin", TVector3(0,0,-30000) ); 
+    fSpatialDistribution = GetParameter( "spatialDistribution", "circleWall" );
+    fSpatialRadius = GetDoubleParameterWithUnits( "spatialRadius", 10.e3 );
+    fSpatialOrigin = Get3DVectorParameterWithUnits( "spatialOrigin", TVector3(0,0,-30000) );
 }
-
