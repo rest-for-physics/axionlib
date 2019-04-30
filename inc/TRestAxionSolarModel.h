@@ -32,43 +32,46 @@ private:
 
     void InitFromConfigFile();
 
-    TString fSolarAxionModel; //->
+    TString fSolarAxionModel;  //->
 
-    TString fMode; //->
+    TString fMode;  //->
 
     // Integrated solar axion spectrum in cm-2 s-1
-    Double_t fSolarEnergyFlux = 0; //->
+    Double_t fSolarEnergyFlux = 0;  //->
 
     // The axion-photon g10 coupling
-    Double_t fg10 = 1.; //->
+    Double_t fg10 = 1.;  //->
 
     // The integration step for solar energy spectrum
-    Double_t fStep = 1.e-3; //->
+    Double_t fStep = 1.e-3;  //->
 
-    TVector2 fEnergyRange; //->
+    TVector2 fEnergyRange;  //->
 
-    // Contains the tabulated solar disk in solar radius and energy. As described in data/solarModel.
-    std::vector <std::vector <Double_t> > fSolarTable; //->
+    // Contains the tabulated solar disk in solar radius and energy. As
+    // described in data/solarModel.
+    std::vector<std::vector<Double_t>> fSolarTable;  //->
 
 public:
-
-    Bool_t isSolarTableLoaded( ) { return fSolarTable.size() > 0; }
+    Bool_t isSolarTableLoaded() { return fSolarTable.size() > 0; }
 
     TString GetSolarAxionSolarModel() { return fSolarAxionModel; }
 
-    void SetSolarAxionSolarModel( TString modelName ) { fSolarAxionModel = modelName; }
+    void SetSolarAxionSolarModel(TString modelName) {
+        fSolarAxionModel = modelName;
+    }
 
     void ResetSolarEnergyFlux() { fSolarEnergyFlux = 0; }
 
-    Double_t GetSolarAxionFlux( Double_t eMin = 0., Double_t eMax = 10., Double_t g10 = 1., Double_t step = 0.001 );
-    Double_t GetDifferentialSolarAxionFlux( Double_t energy, Double_t g10 = 1. );
+    Double_t GetSolarAxionFlux(Double_t eMin = 0., Double_t eMax = 10.,
+                               Double_t g10 = 1., Double_t step = 0.001);
+    Double_t GetDifferentialSolarAxionFlux(Double_t energy, Double_t g10 = 1.);
 
-    void PrintMetadata( );
+    void PrintMetadata();
 
-    //Constructors
+    // Constructors
     TRestAxionSolarModel();
-    TRestAxionSolarModel( const char *cfgFileName, std::string name = "");
-    //Destructor
+    TRestAxionSolarModel(const char *cfgFileName, std::string name = "");
+    // Destructor
     ~TRestAxionSolarModel();
 
     ClassDef(TRestAxionSolarModel, 1);
