@@ -56,14 +56,13 @@ public:
 
     TString GetSolarAxionSolarModel() { return fSolarAxionModel; }
 
-    void SetSolarAxionSolarModel(TString modelName) {
-        fSolarAxionModel = modelName;
-    }
+    void SetSolarAxionSolarModel(TString modelName) { fSolarAxionModel = modelName; }
 
     void ResetSolarEnergyFlux() { fSolarEnergyFlux = 0; }
 
-    Double_t GetSolarAxionFlux(Double_t eMin = 0., Double_t eMax = 10.,
-                               Double_t g10 = 1., Double_t step = 0.001);
+    Double_t GetSolarAxionFlux(Double_t eMin = 0., Double_t eMax = 10., Double_t g10 = 1.,
+                               Double_t step = 0.001);
+
     Double_t GetDifferentialSolarAxionFlux(Double_t energy, Double_t g10 = 1.);
 
     void PrintMetadata();

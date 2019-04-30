@@ -1,4 +1,4 @@
-/*************************************************************************
+/******************** REST disclaimer ***********************************
  * This file is part of the REST software framework.                     *
  *                                                                       *
  * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
@@ -20,7 +20,7 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-//////////////////////////////////////////////////////////////////////////
+/***************** DOXYGEN DOCUMENTATION ********************************
 /// TRestAxionSolarModels is a class used to define methods which define
 /// theoretical model results that can be directly used in the calculation
 /// of experimental observables.
@@ -42,8 +42,9 @@
 /// The available analytical solar axion models, for different production
 /// mechanisms, is given in the following list.
 ///
-/// - arXiv_0702006_Primakoff
-///
+/// - arXiv_0702006_Primakoff (https://arxiv.org/abs/hep-ex/0702006)
+/// - arXiv_1302.6283_Primakoff ( https://arxiv.org/pdf/1302.6283v2.pdf )
+/// - arXiv_1302.6283_BC ( https://arxiv.org/pdf/1302.6283v2.pdf )
 ///
 /// The second mode, *table*, will provide further detail on the solar axion
 /// production as a function of the solar radius. The tables will be
@@ -52,9 +53,9 @@
 ///
 /// \code
 ///     <TRestAxionSolarModel name="sunPrimakoff" verboseLevel="debug" >
-///    <parameter name="mode" value="table" />
-///    <parameter name="solarAxionSolarModel" value="arXiv_0702006_Primakoff" />
-/// </TRestAxionSolarModel>
+///         <parameter name="mode" value="table" />
+///         <parameter name="solarAxionSolarModel" value="arXiv_0702006_Primakoff" />
+///     </TRestAxionSolarModel>
 /// \endcode
 ///
 ///--------------------------------------------------------------------------
@@ -71,23 +72,21 @@
 ///
 /// <hr>
 ///
+ *************************************************************************/
 
 #include "TRestAxionSolarModel.h"
 using namespace std;
 
-ClassImp(TRestAxionSolarModel)
-    //______________________________________________________________________________
-    TRestAxionSolarModel::TRestAxionSolarModel()
-    : TRestMetadata() {
+ClassImp(TRestAxionSolarModel);
+
+TRestAxionSolarModel::TRestAxionSolarModel() : TRestMetadata() {
     // TRestAxionSolarModel default constructor
     Initialize();
 }
 
-//______________________________________________________________________________
 TRestAxionSolarModel::TRestAxionSolarModel(const char *cfgFileName, string name)
     : TRestMetadata(cfgFileName) {
-    cout << "Entering TRestAxionSolarModel constructor( cfgFileName, name )"
-         << endl;
+    cout << "Entering TRestAxionSolarModel constructor( cfgFileName, name )" << endl;
 
     Initialize();
 
@@ -96,7 +95,6 @@ TRestAxionSolarModel::TRestAxionSolarModel(const char *cfgFileName, string name)
     PrintMetadata();
 }
 
-//______________________________________________________________________________
 TRestAxionSolarModel::~TRestAxionSolarModel() {
     // TRestAxionSolarModel destructor
 }
@@ -104,12 +102,24 @@ TRestAxionSolarModel::~TRestAxionSolarModel() {
 void TRestAxionSolarModel::Initialize() { SetSectionName(this->ClassName()); }
 
 // Returns the solar axion flux in cm-2 keV-1 s-1 (on earth)
-Double_t TRestAxionSolarModel::GetDifferentialSolarAxionFlux(Double_t energy,
-                                                             Double_t g10) {
-    // https://arxiv.org/abs/hep-ex/0702006
+Double_t TRestAxionSolarModel::GetDifferentialSolarAxionFlux(Double_t energy, Double_t g10) {
+    Double_t yearToSeconds = 3600. * 24. * 365.25;
+    Double_t m2Tocm2 = 1.e4;
+
     if (fSolarAxionModel == "arXiv_0702006_Primakoff")
-        return 6.02e10 * g10 * g10 * TMath::Power(energy, 2.481) *
-               TMath::Exp(-energy / 1.205);
+        return 6.02e10 * g10 * g10 * TMath::Power(energy, 2.481) * TMath::Exp(-energy / 1.205);
+    if (fSolarAxionModel == "arXiv_1302.6283_Primakoff") {
+        Double_t factor = 2.0e22 / yearToSeconds / m2Tocm2;
+        return factor * g10 * g10 * TMath::Power(energy, 2.450) * TMath::Exp(-0.829 * energy);
+    }
+    if (fSolarAxionModel == "arXiv_1302.6283_BC") {
+        Double_t factor_1 = 4.2e24 / yearToSeconds / m2Tocm2;
+        Double_t factor_2 = 8.3e26 / yearToSeconds / m2Tocm2;
+
+        return g10 * g10 *
+               (factor_1 * TMath::Power(energy, 2.987) * TMath::Exp(-0.776 * energy) +
+                factor_2 * energy * TMath::Exp(-.77 * energy) / (1 + 0.667 * TMath::Power(energy, 1.278)));
+    }
 
     warning << "Solar model not recognized" << endl;
     warning << "--------------------------" << endl;
@@ -118,11 +128,9 @@ Double_t TRestAxionSolarModel::GetDifferentialSolarAxionFlux(Double_t energy,
     return 0;
 }
 
-Double_t TRestAxionSolarModel::GetSolarAxionFlux(Double_t eMin, Double_t eMax,
-                                                 Double_t g10, Double_t step) {
+Double_t TRestAxionSolarModel::GetSolarAxionFlux(Double_t eMin, Double_t eMax, Double_t g10, Double_t step) {
     if (fMode == "analytical" && fSolarEnergyFlux > 0)
-        if (fg10 == g10 && fStep == step && eMin == fEnergyRange.X() &&
-            eMax == fEnergyRange.Y())
+        if (fg10 == g10 && fStep == step && eMin == fEnergyRange.X() && eMax == fEnergyRange.Y())
             return fSolarEnergyFlux;
 
     info << "TRestAxionSolarModel::GetSolarAxionFlux re-calculating solar "
@@ -142,7 +150,6 @@ Double_t TRestAxionSolarModel::GetSolarAxionFlux(Double_t eMin, Double_t eMax,
     return fSolarEnergyFlux;
 }
 
-//______________________________________________________________________________
 void TRestAxionSolarModel::InitFromConfigFile() {
     debug << "Entering TRestAxionSolarModel::InitFromConfigFile" << endl;
 
@@ -153,8 +160,7 @@ void TRestAxionSolarModel::InitFromConfigFile() {
     // fClassMember = GetParameter( "paramName", "defaultValue" );
 
     fMode = GetParameter("mode", "analytical");  // analytical/table
-    fSolarAxionModel =
-        GetParameter("solarAxionModel", "arXiv_0702006_Primakoff");
+    fSolarAxionModel = GetParameter("solarAxionModel", "arXiv_0702006_Primakoff");
 
     if (fMode == "table") {
         fStep = 0.1;
@@ -169,8 +175,7 @@ void TRestAxionSolarModel::InitFromConfigFile() {
         } else {
             TRestTools::ReadASCIITable(fullPathName, fSolarTable);
             for (int n = 0; n < fSolarTable.size(); n++) {
-                for (int m = 0; m < fSolarTable[n].size(); m++)
-                    cout << fSolarTable[n][m] << "\t";
+                for (int m = 0; m < fSolarTable[n].size(); m++) cout << fSolarTable[n][m] << "\t";
                 cout << endl;
                 cout << endl;
             }
@@ -184,12 +189,10 @@ void TRestAxionSolarModel::PrintMetadata() {
     metadata << " - Mode : " << fMode << endl;
     metadata << " - Solar axion model : " << fSolarAxionModel << endl;
     metadata << "-------------------------------------------------" << endl;
-    metadata << " - Axion-photon couping : " << fg10 << " x 10^{-10} GeV^{-1}"
-             << endl;
+    metadata << " - Axion-photon couping : " << fg10 << " x 10^{-10} GeV^{-1}" << endl;
     metadata << " - Integration step : " << fStep << " keV" << endl;
-    metadata << " - Integration range : ( " << fEnergyRange.X() << ", "
-             << fEnergyRange.Y() << " ) keV" << endl;
-    metadata << " - Calculated solar flux : " << fSolarEnergyFlux << " cm-2 s-1"
+    metadata << " - Integration range : ( " << fEnergyRange.X() << ", " << fEnergyRange.Y() << " ) keV"
              << endl;
+    metadata << " - Calculated solar flux : " << fSolarEnergyFlux << " cm-2 s-1" << endl;
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
