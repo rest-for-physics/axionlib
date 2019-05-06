@@ -41,13 +41,12 @@
 #include "TRestAxionAnalysisProcess.h"
 using namespace std;
 
-ClassImp( TRestAxionAnalysisProcess )
+ClassImp(TRestAxionAnalysisProcess)
 
-///////////////////////////////////////////////
-/// \brief Default constructor
-///
-TRestAxionAnalysisProcess::TRestAxionAnalysisProcess()
-{
+    ///////////////////////////////////////////////
+    /// \brief Default constructor
+    ///
+    TRestAxionAnalysisProcess::TRestAxionAnalysisProcess() {
     Initialize();
 }
 
@@ -62,29 +61,23 @@ TRestAxionAnalysisProcess::TRestAxionAnalysisProcess()
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestAxionAnalysisProcess::TRestAxionAnalysisProcess( char *cfgFileName )
-{
+TRestAxionAnalysisProcess::TRestAxionAnalysisProcess(char *cfgFileName) {
     Initialize();
 
-    LoadConfig( cfgFileName );
+    LoadConfig(cfgFileName);
 }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionAnalysisProcess::~TRestAxionAnalysisProcess()
-{
-    delete fAxionEvent;
-}
-
+TRestAxionAnalysisProcess::~TRestAxionAnalysisProcess() { delete fAxionEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
 ///
-void TRestAxionAnalysisProcess::LoadDefaultConfig( )
-{
-    SetName( this->ClassName() );
-    SetTitle( "Default config" );
+void TRestAxionAnalysisProcess::LoadDefaultConfig() {
+    SetName(this->ClassName());
+    SetTitle("Default config");
 }
 
 ///////////////////////////////////////////////
@@ -97,17 +90,15 @@ void TRestAxionAnalysisProcess::LoadDefaultConfig( )
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestAxionAnalysisProcess::LoadConfig( std::string cfgFilename, std::string name )
-{
-    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
+void TRestAxionAnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
+    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define the section name
 ///
-void TRestAxionAnalysisProcess::Initialize()
-{
-    SetSectionName( this->ClassName() );
+void TRestAxionAnalysisProcess::Initialize() {
+    SetSectionName(this->ClassName());
 
     fAxionEvent = new TRestAxionEvent();
 
@@ -120,21 +111,19 @@ void TRestAxionAnalysisProcess::Initialize()
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestAxionAnalysisProcess::ProcessEvent( TRestEvent *evInput )
-{
-    fAxionEvent = (TRestAxionEvent *) evInput;
+TRestEvent *TRestAxionAnalysisProcess::ProcessEvent(TRestEvent *evInput) {
+    fAxionEvent = (TRestAxionEvent *)evInput;
     fOutputEvent = evInput;
 
-    debug << "TRestAxionAnalysisProcess::ProcessEvent : " << fAxionEvent->GetID()  << endl;
+    debug << "TRestAxionAnalysisProcess::ProcessEvent : " << fAxionEvent->GetID() << endl;
 
-    fAnalysisTree->SetObservableValue( this, "energy", fAxionEvent->GetEnergy() );
+    fAnalysisTree->SetObservableValue("energy", fAxionEvent->GetEnergy());
 
-    fAnalysisTree->SetObservableValue( this, "posX", fAxionEvent->GetPosition()->X() );
-    fAnalysisTree->SetObservableValue( this, "posY", fAxionEvent->GetPosition()->Y() );
-    fAnalysisTree->SetObservableValue( this, "posZ", fAxionEvent->GetPosition()->Z() );
+    fAnalysisTree->SetObservableValue("posX", fAxionEvent->GetPosition()->X());
+    fAnalysisTree->SetObservableValue("posY", fAxionEvent->GetPosition()->Y());
+    fAnalysisTree->SetObservableValue("posZ", fAxionEvent->GetPosition()->Z());
 
-    if( GetVerboseLevel() >= REST_Debug )
-	fAxionEvent->PrintEvent();
+    if (GetVerboseLevel() >= REST_Debug) fAxionEvent->PrintEvent();
 
     return fOutputEvent;
 }
@@ -142,6 +131,4 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent( TRestEvent *evInput )
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML TRestAxionAnalysisProcess metadata section
 ///
-void TRestAxionAnalysisProcess::InitFromConfigFile( )
-{
-}
+void TRestAxionAnalysisProcess::InitFromConfigFile() {}

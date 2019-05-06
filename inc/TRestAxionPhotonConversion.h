@@ -35,44 +35,44 @@ private:
     void InitFromConfigFile();
 
     // Axion mass in eV
-    Double_t fAxionMass = 0; //->
+    Double_t fAxionMass = 0;  //->
 
     // Coherence length in mm [REST default units]
-    Double_t fCohLength = 0; //->
+    Double_t fCohLength = 0;  //->
 
     // Magnet field intensity in T
-    Double_t fBMag = 0; //->
+    Double_t fBMag = 0;  //->
 
     // The axion-photon g10 coupling
-    Double_t fg10 = 1.; //->
+    Double_t fg10 = 1.;  //->
 
     // A pointer to the buffer gas definition
-    TRestAxionBufferGas *fBufferGas = NULL; //!
+    TRestAxionBufferGas *fBufferGas = NULL;  //!
 
 public:
+    void AssignBufferGas(TRestAxionBufferGas *buffGas) { fBufferGas = buffGas; }
 
-    void AssignBufferGas( TRestAxionBufferGas *buffGas ) { fBufferGas = buffGas; }
+    void SetAxionMass(Double_t m) { fAxionMass = m; }
+    void SetCoherenceLength(Double_t l) { fCohLength = l; }
+    void SetMagneticField(Double_t B) { fBMag = B; }
 
-    void SetAxionMass( Double_t m ) { fAxionMass = m; }
-    void SetCoherenceLength( Double_t l ) { fCohLength = l; }
-    void SetMagneticField( Double_t B ) { fBMag = B; }
-
-    Double_t GetAxionMass( ) { return fAxionMass; }
-    Double_t GetCoherenceLength( ) { return fCohLength; }
-    Double_t GetMagneticField( ) { return fBMag; }
+    Double_t GetAxionMass() { return fAxionMass; }
+    Double_t GetCoherenceLength() { return fCohLength; }
+    Double_t GetMagneticField() { return fBMag; }
 
     // (BL/2)**2
-    Double_t BLFactor(Double_t Lcoh = -1, Double_t Bmag = -1 );
+    Double_t BLFactor(Double_t Lcoh = -1, Double_t Bmag = -1);
 
     /// ma in eV, Ea in keV, Length in cm
-    Double_t GammaTransmissionProbability( Double_t Ea, Double_t ma = -1, Double_t Lcoh = -1, Double_t Bmag = -1 );
+    Double_t GammaTransmissionProbability(Double_t Ea, Double_t ma = -1, Double_t Lcoh = -1,
+                                          Double_t Bmag = -1);
 
-    void PrintMetadata( );
+    void PrintMetadata();
 
-    //Constructors
+    // Constructors
     TRestAxionPhotonConversion();
-    TRestAxionPhotonConversion( const char *cfgFileName, std::string name = "");
-    //Destructor
+    TRestAxionPhotonConversion(const char *cfgFileName, std::string name = "");
+    // Destructor
     ~TRestAxionPhotonConversion();
 
     ClassDef(TRestAxionPhotonConversion, 1);
