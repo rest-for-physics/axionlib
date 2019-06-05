@@ -41,22 +41,23 @@
 ///
 /// <hr>
 ///
-
 #include "TRestAxionPhotonConversion.h"
 using namespace std;
 
 using namespace REST_Physics;
 
-ClassImp(TRestAxionPhotonConversion)
-    //______________________________________________________________________________
-    TRestAxionPhotonConversion::TRestAxionPhotonConversion()
-    : TRestMetadata() {
+#include "mpreal.h"
+using mpfr::mpreal;
+
+ClassImp(TRestAxionPhotonConversion);
+//______________________________________________________________________________
+TRestAxionPhotonConversion::TRestAxionPhotonConversion() : TRestMetadata() {
     // TRestAxionPhotonConversion default constructor
     Initialize();
 }
 
 //______________________________________________________________________________
-TRestAxionPhotonConversion::TRestAxionPhotonConversion(const char *cfgFileName, string name)
+TRestAxionPhotonConversion::TRestAxionPhotonConversion(const char* cfgFileName, string name)
     : TRestMetadata(cfgFileName) {
     cout << "Entering TRestAxionPhotonConversion constructor( cfgFileName, name )" << endl;
 
@@ -72,7 +73,10 @@ TRestAxionPhotonConversion::~TRestAxionPhotonConversion() {
     // TRestAxionPhotonConversion destructor
 }
 
-void TRestAxionPhotonConversion::Initialize() { SetSectionName(this->ClassName()); }
+void TRestAxionPhotonConversion::Initialize() {
+    SetSectionName(this->ClassName());
+    mpreal::set_default_prec(mpfr::digits2bits(100));
+}
 
 double TRestAxionPhotonConversion::BLFactor(Double_t Lcoh, Double_t Bmag)  // (BL/2)**2
 {
@@ -101,7 +105,7 @@ double TRestAxionPhotonConversion::BLFactor(Double_t Lcoh, Double_t Bmag)  // (B
 /// If ma, Lcoh, Bmag = -1. Value will be taken from the class members definition.
 /// Otherwise, members of the class will be updated
 ///
-/// Ea in keV, ma in eV, mgamma in eV, Lcoh in m, Bmag in T
+/// Ea in keV, ma in eV, mgamma in eV, Lcoh in mm, Bmag in T
 Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, Double_t ma, Double_t Lcoh,
                                                                   Double_t Bmag) {
     // If we provide the values as argument we update the class members,
@@ -119,12 +123,14 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, D
     else
         fBMag = Bmag;
 
-    Double_t lengthInMeters = fCohLength / 1000.;  // Default REST units are mm
-
     if (Bmag == 0) warning << "TRestAxionPhotonConversion::GammaTransmissionProbability. Bmag = 0" << endl;
     if (Lcoh == 0) warning << "TRestAxionPhotonConversion::GammaTransmissionProbability. Lcoh = 0" << endl;
 
-    Double_t photonMass = 0.;
+    mpreal axionMass = fAxionMass;
+    mpreal cohLength = fCohLength / 1000.;  // Default REST units are mm;
+    mpreal bMag = fBMag;
+
+    mpreal photonMass = 0.;
     if (!fBufferGas) {
         warning << "TRestAxionPhotonConversion::GammaTransmissionProbability. No buffer gas definition found!"
                 << endl;
@@ -144,14 +150,14 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, D
 
     if (ma == 0.0 && photonMass == 0.0) return BLFactor();
 
-    double q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
-    double l = lengthInMeters * PhMeterIneV;
-    double phi = q * l;
+    mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
+    mpreal l = cohLength * PhMeterIneV;
+    mpreal phi = q * l;
 
-    Double_t Gamma = 0.;
+    mpreal Gamma = 0.;
     if (fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
 
-    Double_t GammaL = Gamma * lengthInMeters * 100;
+    mpreal GammaL = Gamma * cohLength * 100;
 
     debug << "+------------------------+" << endl;
     debug << " Intermediate calculations" << endl;
@@ -162,10 +168,15 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, D
     debug << "GammaL : " << GammaL << endl;
     debug << "+------------------------+" << endl;
 
-    double MFactor = phi * phi + GammaL * GammaL / 4.0;
+    mpreal MFactor = phi * phi + GammaL * GammaL / 4.0;
     MFactor = 1.0 / MFactor;
 
-    double sol = MFactor * BLFactor() * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi));
+    debug << "Mfactor : " << MFactor << endl;
+    debug << "BLFactor : " << BLFactor() << endl;
+    debug << "cos(phi) : " << cos(phi) << endl;
+    debug << "Exp(-GammaL) : " << exp(-GammaL) << endl;
+
+    double sol = (double)(MFactor * BLFactor() * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
 
     debug << "Axion-photon transmission probability : " << sol << endl;
 
