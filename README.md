@@ -2,10 +2,15 @@
 
 A REST library used to generate solar axions and obtain the detection probability function. The library allows to define a generic helioscope setup - buffer gas, magnetic field, optics response, photon transmission - through REST metadata structures.
 
-Installation
-============
+### Prerequisites
 
-REST libraries must be installed and loaded in the system.
+As any REST library, RestAxionLib requires a running installion of REST Framework. But on top of that, some calculations require higher precision arithmetics and we need to use a external library named `mpfr`. We use a c++ wrapper that is available at the [following site](http://www.holoborodko.com/pavel/mpfr/#intro).
+
+All you need to be able to compile RestAxionLib is to install the [mpfr](https://www.mpfr.org) and [mpir](http://mpir.org) libraries. Download the source, compile, and install. Usually as simple as running `./configure`, `make` and `make install`.
+
+### Installation
+
+REST libraries must be installed in the system.
 
 You may check REST libraries are available in the system by doing.
 ```
