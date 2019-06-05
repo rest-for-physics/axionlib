@@ -29,7 +29,7 @@
 
 //! A metadata class to define analytical axion-photon conversion probabilities for axion helioscopes
 class TRestAxionPhotonConversion : public TRestMetadata {
-private:
+   private:
     void Initialize();
 
     void InitFromConfigFile();
@@ -47,10 +47,11 @@ private:
     Double_t fg10 = 1.;  //->
 
     // A pointer to the buffer gas definition
-    TRestAxionBufferGas *fBufferGas = NULL;  //!
+    TRestAxionBufferGas* fBufferGas = NULL;  //!
 
-public:
-    void AssignBufferGas(TRestAxionBufferGas *buffGas) { fBufferGas = buffGas; }
+   public:
+    void AssignBufferGas(TRestAxionBufferGas* buffGas) { fBufferGas = buffGas; }
+    void SetBufferGas(TRestAxionBufferGas* buffGas) { fBufferGas = buffGas; }
 
     void SetAxionMass(Double_t m) { fAxionMass = m; }
     void SetCoherenceLength(Double_t l) { fCohLength = l; }
@@ -71,7 +72,7 @@ public:
 
     // Constructors
     TRestAxionPhotonConversion();
-    TRestAxionPhotonConversion(const char *cfgFileName, std::string name = "");
+    TRestAxionPhotonConversion(const char* cfgFileName, std::string name = "");
     // Destructor
     ~TRestAxionPhotonConversion();
 
