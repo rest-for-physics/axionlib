@@ -21,7 +21,7 @@ ENDIF()
 set(CMAKE_INSTALL_PREFIX ${REST_PATH})
 message(STATUS "Using REST PATH: " ${REST_PATH})
 
-SET(CMAKE_CXX_FLAGS "-std=c++1y")
+SET(CMAKE_CXX_FLAGS "-std=c++1y -Wno-deprecated")
 
 #----------------------------------------------------------------------------
 # Find package ROOT
@@ -32,15 +32,15 @@ include(MacroRootDict)
 #----------------------------------------------------------------------------
 # Set include and lib
 if(DEFINED rest_include_dirs)
-set(incdir ${PROJECT_SOURCE_DIR}/inc ${ROOT_INCLUDE_DIRS} ${rest_include_dirs})
+    set(incdir ${PROJECT_SOURCE_DIR}/inc ${ROOT_INCLUDE_DIRS} ${rest_include_dirs} /usr/local/include)
 else()
-set(incdir ${PROJECT_SOURCE_DIR}/inc ${ROOT_INCLUDE_DIRS} ${REST_PATH}/include)
+    set(incdir ${PROJECT_SOURCE_DIR}/inc ${ROOT_INCLUDE_DIRS} ${REST_PATH}/include /usr/local/include)
 endif()
 
 if(DEFINED rest_libraries)
-set(lnklib ${rest_libraries} ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
+    set(lnklib ${rest_libraries} ${ROOT_LIBRARIES} -L/usr/local/lib -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lmpfr)
 else()
-set(lnklib -L${REST_PATH}/lib/ -lRestTools -lRestCore -lRestEvents -lRestMetadata ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit)
+    set(lnklib -L/usr/local/lib -L${REST_PATH}/lib/ -lRestTools -lRestCore -lRestEvents -lRestMetadata ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lmpfr)
 message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
           After \"make install\" this package will add additional library in ${REST_PATH}/lib\n\n
           This will take effect in the next launch of restManager/restRoot
