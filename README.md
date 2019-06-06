@@ -4,9 +4,11 @@ A REST library used to generate solar axions and obtain the detection probabilit
 
 ### Prerequisites
 
-As any REST library, RestAxionLib requires a running installion of REST Framework. But on top of that, some calculations require higher precision arithmetics and we need to use a external library named `mpfr`. We use a c++ wrapper that is available at the [following site](http://www.holoborodko.com/pavel/mpfr/#intro).
+As any REST library, RestAxionLib requires a running installion of REST Framework. But on top of that, some calculations require higher precision arithmetics and we need to use a external library named `mpfr`. 
+We use a c++ wrapper that is available at the [following site](http://www.holoborodko.com/pavel/mpfr/#intro). This wrapper (mpreal.h) is already available/uploaded to this repository.
 
-All you need to be able to compile RestAxionLib is to install the [mpfr](https://www.mpfr.org) and [mpir](http://mpir.org) libraries. Download the source, compile, and install. Usually as simple as running `./configure`, `make` and `make install`.
+All you need to be able to compile RestAxionLib is to install the [mpfr](https://www.mpfr.org) and [mpir](http://mpir.org) libraries. Download the source, compile, and install. 
+Usually as simple as running `./configure`, `make` and `make install` at the downloaded source directory.
 
 ### Installation
 
