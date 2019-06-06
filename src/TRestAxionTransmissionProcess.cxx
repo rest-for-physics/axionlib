@@ -42,15 +42,12 @@
 #include "TRestAxionTransmissionProcess.h"
 using namespace std;
 
-ClassImp( TRestAxionTransmissionProcess )
+ClassImp(TRestAxionTransmissionProcess);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestAxionTransmissionProcess::TRestAxionTransmissionProcess()
-{
-    Initialize();
-}
+TRestAxionTransmissionProcess::TRestAxionTransmissionProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -63,30 +60,26 @@ TRestAxionTransmissionProcess::TRestAxionTransmissionProcess()
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestAxionTransmissionProcess::TRestAxionTransmissionProcess( char *cfgFileName )
-{
+TRestAxionTransmissionProcess::TRestAxionTransmissionProcess(char* cfgFileName) {
     Initialize();
 
-    LoadConfig( cfgFileName );
+    LoadConfig(cfgFileName);
 }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionTransmissionProcess::~TRestAxionTransmissionProcess()
-{
+TRestAxionTransmissionProcess::~TRestAxionTransmissionProcess() {
     delete fInputAxionEvent;
     delete fOutputAxionEvent;
 }
 
-
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
 ///
-void TRestAxionTransmissionProcess::LoadDefaultConfig( )
-{
-    SetName( this->ClassName() );
-    SetTitle( "Default config" );
+void TRestAxionTransmissionProcess::LoadDefaultConfig() {
+    SetName(this->ClassName());
+    SetTitle("Default config");
 }
 
 ///////////////////////////////////////////////
@@ -99,17 +92,16 @@ void TRestAxionTransmissionProcess::LoadDefaultConfig( )
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestAxionTransmissionProcess::LoadConfig( std::string cfgFilename, std::string name )
-{
-    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
+void TRestAxionTransmissionProcess::LoadConfig(std::string cfgFilename, std::string name) {
+    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define the section name
 ///
-void TRestAxionTransmissionProcess::Initialize()
-{
-    SetSectionName( this->ClassName() );
+void TRestAxionTransmissionProcess::Initialize() {
+    SetSectionName(this->ClassName());
+    SetLibraryVersion(LIBRARY_VERSION);
 
     fInputAxionEvent = new TRestAxionEvent();
     fOutputAxionEvent = new TRestAxionEvent();
@@ -121,18 +113,15 @@ void TRestAxionTransmissionProcess::Initialize()
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestAxionTransmissionProcess::ProcessEvent( TRestEvent *evInput )
-{
-    fInputAxionEvent = (TRestAxionEvent *) evInput;
+TRestEvent* TRestAxionTransmissionProcess::ProcessEvent(TRestEvent* evInput) {
+    fInputAxionEvent = (TRestAxionEvent*)evInput;
 
     *fOutputAxionEvent = *fInputAxionEvent;
 
-    if( GetVerboseLevel() >= REST_Debug )
-    {
-	fOutputAxionEvent->PrintEvent();
+    if (GetVerboseLevel() >= REST_Debug) {
+        fOutputAxionEvent->PrintEvent();
 
-	if ( GetVerboseLevel() >= REST_Extreme )
-	    GetChar();
+        if (GetVerboseLevel() >= REST_Extreme) GetChar();
     }
 
     return fOutputEvent;
@@ -141,6 +130,4 @@ TRestEvent* TRestAxionTransmissionProcess::ProcessEvent( TRestEvent *evInput )
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML TRestAxionTransmissionProcess metadata section
 ///
-void TRestAxionTransmissionProcess::InitFromConfigFile( )
-{
-}
+void TRestAxionTransmissionProcess::InitFromConfigFile() {}

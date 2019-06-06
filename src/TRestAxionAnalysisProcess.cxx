@@ -41,14 +41,12 @@
 #include "TRestAxionAnalysisProcess.h"
 using namespace std;
 
-ClassImp(TRestAxionAnalysisProcess)
+ClassImp(TRestAxionAnalysisProcess);
 
-    ///////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    TRestAxionAnalysisProcess::TRestAxionAnalysisProcess() {
-    Initialize();
-}
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestAxionAnalysisProcess::TRestAxionAnalysisProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -61,7 +59,7 @@ ClassImp(TRestAxionAnalysisProcess)
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestAxionAnalysisProcess::TRestAxionAnalysisProcess(char *cfgFileName) {
+TRestAxionAnalysisProcess::TRestAxionAnalysisProcess(char* cfgFileName) {
     Initialize();
 
     LoadConfig(cfgFileName);
@@ -99,6 +97,7 @@ void TRestAxionAnalysisProcess::LoadConfig(std::string cfgFilename, std::string 
 ///
 void TRestAxionAnalysisProcess::Initialize() {
     SetSectionName(this->ClassName());
+    SetLibraryVersion(LIBRARY_VERSION);
 
     fAxionEvent = new TRestAxionEvent();
 
@@ -111,8 +110,8 @@ void TRestAxionAnalysisProcess::Initialize() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent *TRestAxionAnalysisProcess::ProcessEvent(TRestEvent *evInput) {
-    fAxionEvent = (TRestAxionEvent *)evInput;
+TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
+    fAxionEvent = (TRestAxionEvent*)evInput;
     fOutputEvent = evInput;
 
     debug << "TRestAxionAnalysisProcess::ProcessEvent : " << fAxionEvent->GetID() << endl;

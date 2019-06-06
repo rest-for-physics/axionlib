@@ -75,6 +75,8 @@ TRestAxionPhotonConversion::~TRestAxionPhotonConversion() {
 
 void TRestAxionPhotonConversion::Initialize() {
     SetSectionName(this->ClassName());
+    SetLibraryVersion(LIBRARY_VERSION);
+
     mpreal::set_default_prec(mpfr::digits2bits(100));
 }
 

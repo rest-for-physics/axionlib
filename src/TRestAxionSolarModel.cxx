@@ -84,7 +84,7 @@ TRestAxionSolarModel::TRestAxionSolarModel() : TRestMetadata() {
     Initialize();
 }
 
-TRestAxionSolarModel::TRestAxionSolarModel(const char *cfgFileName, string name)
+TRestAxionSolarModel::TRestAxionSolarModel(const char* cfgFileName, string name)
     : TRestMetadata(cfgFileName) {
     cout << "Entering TRestAxionSolarModel constructor( cfgFileName, name )" << endl;
 
@@ -99,7 +99,10 @@ TRestAxionSolarModel::~TRestAxionSolarModel() {
     // TRestAxionSolarModel destructor
 }
 
-void TRestAxionSolarModel::Initialize() { SetSectionName(this->ClassName()); }
+void TRestAxionSolarModel::Initialize() {
+    SetSectionName(this->ClassName());
+    SetLibraryVersion(LIBRARY_VERSION);
+}
 
 // Returns the solar axion flux in cm-2 keV-1 s-1 (on earth)
 Double_t TRestAxionSolarModel::GetDifferentialSolarAxionFlux(Double_t energy, Double_t g10) {

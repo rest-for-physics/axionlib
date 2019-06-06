@@ -40,15 +40,12 @@
 #include "TRestAxionOpticsResponseProcess.h"
 using namespace std;
 
-ClassImp( TRestAxionOpticsResponseProcess )
+ClassImp(TRestAxionOpticsResponseProcess);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestAxionOpticsResponseProcess::TRestAxionOpticsResponseProcess()
-{
-    Initialize();
-}
+TRestAxionOpticsResponseProcess::TRestAxionOpticsResponseProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -61,30 +58,26 @@ TRestAxionOpticsResponseProcess::TRestAxionOpticsResponseProcess()
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestAxionOpticsResponseProcess::TRestAxionOpticsResponseProcess( char *cfgFileName )
-{
+TRestAxionOpticsResponseProcess::TRestAxionOpticsResponseProcess(char* cfgFileName) {
     Initialize();
 
-    LoadConfig( cfgFileName );
+    LoadConfig(cfgFileName);
 }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionOpticsResponseProcess::~TRestAxionOpticsResponseProcess()
-{
+TRestAxionOpticsResponseProcess::~TRestAxionOpticsResponseProcess() {
     delete fInputAxionEvent;
     delete fOutputAxionEvent;
 }
 
-
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
 ///
-void TRestAxionOpticsResponseProcess::LoadDefaultConfig( )
-{
-    SetName( this->ClassName() );
-    SetTitle( "Default config" );
+void TRestAxionOpticsResponseProcess::LoadDefaultConfig() {
+    SetName(this->ClassName());
+    SetTitle("Default config");
 }
 
 ///////////////////////////////////////////////
@@ -97,17 +90,16 @@ void TRestAxionOpticsResponseProcess::LoadDefaultConfig( )
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestAxionOpticsResponseProcess::LoadConfig( std::string cfgFilename, std::string name )
-{
-    if( LoadConfigFromFile( cfgFilename, name ) ) LoadDefaultConfig( );
+void TRestAxionOpticsResponseProcess::LoadConfig(std::string cfgFilename, std::string name) {
+    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define the section name
 ///
-void TRestAxionOpticsResponseProcess::Initialize()
-{
-    SetSectionName( this->ClassName() );
+void TRestAxionOpticsResponseProcess::Initialize() {
+    SetSectionName(this->ClassName());
+    SetLibraryVersion(LIBRARY_VERSION);
 
     fInputAxionEvent = new TRestAxionEvent();
     fOutputAxionEvent = new TRestAxionEvent();
@@ -119,18 +111,15 @@ void TRestAxionOpticsResponseProcess::Initialize()
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestAxionOpticsResponseProcess::ProcessEvent( TRestEvent *evInput )
-{
-    fInputAxionEvent = (TRestAxionEvent *) evInput;
+TRestEvent* TRestAxionOpticsResponseProcess::ProcessEvent(TRestEvent* evInput) {
+    fInputAxionEvent = (TRestAxionEvent*)evInput;
 
     *fOutputAxionEvent = *fInputAxionEvent;
 
-    if( GetVerboseLevel() >= REST_Debug )
-    {
-	fOutputAxionEvent->PrintEvent();
+    if (GetVerboseLevel() >= REST_Debug) {
+        fOutputAxionEvent->PrintEvent();
 
-	if ( GetVerboseLevel() >= REST_Extreme )
-	    GetChar();
+        if (GetVerboseLevel() >= REST_Extreme) GetChar();
     }
 
     return fOutputEvent;
@@ -139,6 +128,4 @@ TRestEvent* TRestAxionOpticsResponseProcess::ProcessEvent( TRestEvent *evInput )
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML TRestAxionOpticsResponseProcess metadata section
 ///
-void TRestAxionOpticsResponseProcess::InitFromConfigFile( )
-{
-}
+void TRestAxionOpticsResponseProcess::InitFromConfigFile() {}

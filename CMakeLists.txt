@@ -1,12 +1,27 @@
 #----------------------------------------------------------------------------
 # Setup the project
 cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
-set( MY_LIBRARY "RestAxion" )
-project(${MY_LIBRARY} CXX)
 set(CMAKE_MACOSX_RPATH 1)
-message("\n===========================================")
-message("Project : ${MY_LIBRARY}")
-message("===========================================\n")
+
+## --------------------------------------------------------------------------
+## ---------- ONLY need to change THIS_LIBRARY and LibraryVersion -----------
+## ---------- to adapt this dummy CMakeLists to a new library name.  --------
+## ---------- The version value should be assigned to any metadata ----------
+## ---------- structure inside the Initialize method              -----------
+## ----------
+## ---------- THIS_LIBRARY should contain `Rest` or `REST` in the -----------
+## ---------- name to be recognized by TRestTools::GetListOfRestLibraries. --
+## ---------- You might use any string you like in the version field --------
+## ----------
+set( THIS_LIBRARY "RestAxion" )
+set( LibraryVersion "1.0" )
+## ----------
+## --------------------------------------------------------------------------
+
+add_definitions(-DLIBRARY_VERSION="${LibraryVersion}")
+project(${THIS_LIBRARY} CXX)
+message("===============  ${THIS_LIBRARY}  ==============")
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 # find REST 
@@ -68,15 +83,15 @@ endforeach (header ${headers})
 #----------------------------------------------------------------------------
 # Add the library, and link it to the Geant4 libraries
 #
-add_library(${MY_LIBRARY} SHARED ${sources} ${newsources})
-target_link_libraries(${MY_LIBRARY} ${lnklib})
+add_library(${THIS_LIBRARY} SHARED ${sources} ${newsources})
+target_link_libraries(${THIS_LIBRARY} ${lnklib})
 
 
 #----------------------------------------------------------------------------
 # Install the library to 'lib' directory under REST_PATH
 #
 #begin installation
-install(TARGETS ${MY_LIBRARY} DESTINATION lib)
+install(TARGETS ${THIS_LIBRARY} DESTINATION lib)
 
 file(GLOB_RECURSE Headers "${CMAKE_CURRENT_SOURCE_DIR}/*.h")
 

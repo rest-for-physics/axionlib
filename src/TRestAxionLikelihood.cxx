@@ -52,16 +52,15 @@
 #include "TRestAxionLikelihood.h"
 using namespace std;
 
-ClassImp(TRestAxionLikelihood)
-    //______________________________________________________________________________
-    TRestAxionLikelihood::TRestAxionLikelihood()
-    : TRestMetadata() {
+ClassImp(TRestAxionLikelihood);
+//______________________________________________________________________________
+TRestAxionLikelihood::TRestAxionLikelihood() : TRestMetadata() {
     // TRestAxionLikelihood default constructor
     Initialize();
 }
 
 //______________________________________________________________________________
-TRestAxionLikelihood::TRestAxionLikelihood(const char *cfgFileName, string name)
+TRestAxionLikelihood::TRestAxionLikelihood(const char* cfgFileName, string name)
     : TRestMetadata(cfgFileName) {
     cout << "Entering TRestAxionLikelihood constructor( cfgFileName, name )" << endl;
 
@@ -79,6 +78,7 @@ TRestAxionLikelihood::~TRestAxionLikelihood() {
 
 void TRestAxionLikelihood::Initialize() {
     SetSectionName(this->ClassName());
+    SetLibraryVersion(LIBRARY_VERSION);
 
     // Buffer gas properties definition (e.g. equivalent photon mass, absorption, etc)
     fBufferGas = new TRestAxionBufferGas();
@@ -186,7 +186,7 @@ void TRestAxionLikelihood::GenerateMonteCarlo() {
 }
 
 void TRestAxionLikelihood::LikelihoodTest(string fname) {
-    FILE *f = fopen(fname.c_str(), "wt");
+    FILE* f = fopen(fname.c_str(), "wt");
 
     for (Double_t m = 0.008; m < 10; m = m * 1.04) {
         Double_t integral = 0;

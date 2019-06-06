@@ -52,55 +52,47 @@
 #include "TRestAxionTemplate.h"
 using namespace std;
 
-ClassImp(TRestAxionTemplate)
+ClassImp(TRestAxionTemplate);
 //______________________________________________________________________________
-TRestAxionTemplate::TRestAxionTemplate() : TRestMetadata()
-{
+TRestAxionTemplate::TRestAxionTemplate() : TRestMetadata() {
     // TRestAxionTemplate default constructor
     Initialize();
 }
 
-
 //______________________________________________________________________________
-TRestAxionTemplate::TRestAxionTemplate( const char *cfgFileName, string name ) : TRestMetadata (cfgFileName)
-{
+TRestAxionTemplate::TRestAxionTemplate(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
     cout << "Entering TRestAxionTemplate constructor( cfgFileName, name )" << endl;
 
     Initialize();
 
-    LoadConfigFromFile( fConfigFileName, name );
+    LoadConfigFromFile(fConfigFileName, name);
 
     PrintMetadata();
 }
 
 //______________________________________________________________________________
-TRestAxionTemplate::~TRestAxionTemplate()
-{
+TRestAxionTemplate::~TRestAxionTemplate() {
     // TRestAxionTemplate destructor
 }
 
-void TRestAxionTemplate::Initialize()
-{
-    SetSectionName( this->ClassName() );
+void TRestAxionTemplate::Initialize() {
+    SetSectionName(this->ClassName());
+    SetLibraryVersion(LIBRARY_VERSION);
 }
 
 //______________________________________________________________________________
-void TRestAxionTemplate::InitFromConfigFile()
-{
+void TRestAxionTemplate::InitFromConfigFile() {
     this->Initialize();
 
     // Initialize the metadata members from a configfile
-    fDummyValue = StringToDouble( GetParameter( "dummy", "317" ) );
+    fDummyValue = StringToDouble(GetParameter("dummy", "317"));
 
-    if( GetVerboseLevel() >= REST_Debug )
-	PrintMetadata();
+    if (GetVerboseLevel() >= REST_Debug) PrintMetadata();
 }
 
-void TRestAxionTemplate::PrintMetadata( )
-{
+void TRestAxionTemplate::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     metadata << " - Dummy metadata member : " << fDummyValue << endl;
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-
 }
