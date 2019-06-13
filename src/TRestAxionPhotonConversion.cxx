@@ -108,8 +108,7 @@ double TRestAxionPhotonConversion::BLFactor(Double_t Lcoh, Double_t Bmag)  // (B
 /// Otherwise, members of the class will be updated
 ///
 /// Ea in keV, ma in eV, mgamma in eV, Lcoh in mm, Bmag in T
-Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, Double_t ma, Double_t Lcoh,
-                                                                  Double_t Bmag) {
+Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, Double_t Bmag, Double_t ma, Double_t Lcoh) {
     // If we provide the values as argument we update the class members,
     // If not, we use the existing values in the class member
     if (ma == -1)
