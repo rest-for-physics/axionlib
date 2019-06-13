@@ -66,6 +66,7 @@ class TRestAxionPhotonConversion : public TRestMetadata {
 
     /// ma in eV, Ea in keV, Length in cm
     Double_t GammaTransmissionProbability(Double_t Ea, Double_t Bmag=-1, Double_t ma = -1, Double_t Lcoh = -1);
+    Double_t GammaTransmissionProbability(Double_t Ea, TVectorD B, Double_t ma = -1, Double_t Lcoh = -1);
 
     void PrintMetadata();
 
