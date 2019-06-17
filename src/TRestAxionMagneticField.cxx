@@ -24,10 +24,12 @@ and a regular mesh. Maybe later there will be irregular mesh or other geometrica
 
 */
 
-
 #include "TRestAxionMagneticField.h"
+#include "TVectorD.h"
+#include <iostream>
 
 using namespace std;
+
 
 ClassImp(TRestAxionMagneticField);
 
@@ -62,9 +64,10 @@ void TRestAxionMagneticField::Initialize() {
 void TRestAxionMagneticField::LoadMagneticVolumeRegPar() {
 #if defined USE_Garfield
 	Int_t i=14;
-	string sizemesh_s=fFileName[i];
-	sizemesh=sizemesh+".";
-	while (fFileName[i]!="_") {
+	string sizemesh_s;
+	sizemesh_s=fFileName[i];
+	sizemesh_s=sizemesh_s+".";
+	while (i<=18) {
 		sizemesh_s=sizemesh_s+fFileName[i];
 		i=i+1;}
 	Double_t sizemesh=stod(sizemesh_s);
@@ -79,11 +82,11 @@ void TRestAxionMagneticField::LoadMagneticVolumeRegPar() {
 	const unsigned int nx=2*fXmax/sizemesh+1;
 	const unsigned int ny=2*fYmax/sizemesh+1;
 	const unsigned int nz=2*fZmax/sizemesh+1;
-	ComponentVoxel *mesh=new Garfield::ComponentVoxel();	
+	Garfield::ComponentVoxel *fMesh=new ComponentVoxel();	
 	//mesh->SetMesh(nx,ny,nz,fXmin,fXmax,fYmin,fYmax,fZmin,fZmax); // without any rotation and position consideration
 	fMesh->SetMesh(nx,ny,nz,(fXmin+pos[0])*(cos(rot[1])*cos(rot[0])-sin(rot[1])*cos(rot[2])*sin(rot[0])+cos(rot[1])*sin(rot[0])+sin(rot[1])*cos(rot[2])*cos(rot[0])+sin(rot[1])*sin(rot[2])),(fXmax+pos[0])*(cos(rot[1])*cos(rot[0])-sin(rot[1])*cos(rot[2])*sin(rot[0])+cos(rot[1])*sin(rot[0])+sin(rot[1])*cos(rot[2])*cos(rot[0])+sin(rot[1])*sin(rot[2])),(fYmin+pos[1])*(-sin(rot[1])*cos(rot[0])-cos(rot[1])*cos(rot[2])*sin(rot[0])-sin(rot[1])*sin(rot[0])+cos(rot[1])*cos(rot[2])*cos(rot[0])+cos(rot[1])*sin(rot[2])),(fYmax+pos[1])*(-sin(rot[1])*cos(rot[0])-cos(rot[1])*cos(rot[2])*sin(rot[0])-sin(rot[1])*sin(rot[0])+cos(rot[1])*cos(rot[2])*cos(rot[0])+cos(rot[1])*sin(rot[2])),(fZmin+pos[2])*(sin(rot[2])*sin(rot[0])-sin(rot[2])*cos(rot[0])+cos(rot[2])),(fZmax+pos[2])*(sin(rot[2])*sin(rot[0])-sin(rot[2])*cos(rot[0])+cos(rot[2]))); // to future translation and rotation. Let rota and pos on 0 for now.	
 	fMesh->LoadMagneticField((TString)getenv("RestAxionLib_PATH")+"data/magneticField"+fFileName,"XYZ",1,1);
-	fMesh->EnableInterpolation(true); }
+	fMesh->EnableInterpolation(true);
 #else
     cout << "This REST is not complied with garfield, it cannot load any magnetic field Volume!" << endl;
 #endif

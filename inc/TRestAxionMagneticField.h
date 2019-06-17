@@ -19,13 +19,11 @@
 
 #include <TRestMetadata.h>
 
-//#define USE_Garfield
-#if defined USE_Garfield
-#include "ComponentVoxel.hh"
-using namespace Garfield;
-#else
-class ComponentVoxel;
-#endif
+#include "TRestAxionMagneticField.h"
+#include "TVectorD.h"
+#include <iostream>
+
+using namespace std;
 
 const double fXmin=-0.24;
 const double fXmax=0.24;
@@ -40,8 +38,8 @@ private:
 
     void InitFromConfigFile();
 
-    TString fType;
-    TString fFileName;
+    string fType;
+    string fFileName;
     Double_t fPosX;
     Double_t fPosY;
     Double_t fPosZ;
@@ -50,10 +48,8 @@ private:
     Double_t fRotZ;
 
 public:
-    
-    
-    void LoadMagneticVolumeRegPar();
-    void PrintMetadata();
+     void LoadMagneticVolumeRegPar();
+     void PrintMetadata();
 
     // Constructors
     TRestAxionMagneticField();
