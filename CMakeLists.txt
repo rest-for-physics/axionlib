@@ -24,6 +24,22 @@ message("===============  ${THIS_LIBRARY}  ==============")
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
+if (${REST_GARFIELD} MATCHES "ON")
+    add_definitions(-DUSE_Garfield)
+    include(FindGarfield)
+    set(external_include_dirs ${external_include_dirs} ${Garfield_INCLUDE_DIRS})
+    set(external_libs ${external_libs} ${Garfield_LIBRARIES})
+else ()
+    set(REST_GARFIELD OFF)
+endif (${REST_GARFIELD} MATCHES "ON")
+
+if (${REST_GARFIELD} MATCHES "ON")
+    message(STATUS "Garfield is : ${REST_GARFIELD}")
+else ()
+    message(STATUS "Garfield is : ${REST_GARFIELD}.")
+    message(STATUS "To enable Garfield features and link Garfield libraries run cmake adding : -DREST_GARFIELD=ON")
+endif ()
+
 # find REST 
 IF(NOT DEFINED REST_PATH)
 	IF(DEFINED ENV{REST_PATH})
@@ -62,6 +78,7 @@ message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
           \n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" )
 endif()
 
+set(incdir ${incdir} ${external_include_dirs})
 include_directories(${incdir})
 
 #----------------------------------------------------------------------------
