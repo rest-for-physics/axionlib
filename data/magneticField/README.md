@@ -14,11 +14,11 @@ This data directory contains different definitions of magnetic fields to be read
 Conventions
 ===========
 
-- `File contents` : Each .dat file contains 6 columns. The three first columns are the position X,Y,Z in m and the three last columns the values of the magnetic field in these positions in T. These files are for regular mesh.
+- `File contents` : Each .dat file contains a first line with 4 numbers (x_max, y_max, z_max and meshSize in m) and then 6 columns with many lines. The three first columns are the position X,Y,Z in m and the three last columns the values of the magnetic field in these positions in T. These files are for regular mesh and for rectanglar magnetic field.
 
-- `Filename` : magneticField_sizeMesh_AUTHOR_YYYYMM.dat. For example, if points are defined every 0.04 meters the file name will be magneticField_00400_AUTHOR_YYYMM.dat. 00400 because the size of the string has to be 5.
+- `Filename` : magneticField_AUTHOR_YYYYMM.dat. F
 
-- `X, Y, Z definitions` : The origin is set in the center of the domain. The Z direction is along the magnetic bore and the axis increases from the entry to the end of the magnetic bore. The X and Y axis are defined such that (X,Y,Z) is a direct system.
+- `X, Y, Z definitions` : The origin is set in the center of the domain, so x_max=-x_min (the same for y and z). The Z direction is along the magnetic bore and the axis increases from the entry to the end of the magnetic bore. The X and Y axis are defined such that (X,Y,Z) is a direct system.
 
 
 List of magnetic fields available 
