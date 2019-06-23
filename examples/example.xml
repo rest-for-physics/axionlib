@@ -1,0 +1,14 @@
+<!-- Created by Sebastian Hoof (6/2019) -->
+<!-- Example file with multiple 'TRestAxionSolarModel' tags -->
+<!-- xml Dcouments can only have one root tag; use any tag to have multiple 'TRestAxionSolarModel's -->
+<TRestAxionSolarModels>
+  <TRestAxionSolarModel name="FirstTest" verboseLevel="debug">
+    <parameter name="mode" value="analytical" />
+    <parameter name="solarAxionModel" value="arXiv_0702006_Primakoff" />
+  </TRestAxionSolarModel>
+
+  <TRestAxionSolarModel name="SecondTest" verboseLevel="debug">
+    <parameter name="mode" value="table" />
+    <parameter name="solarAxionModel" value="Primakoff_Gianotti_201904.dat" />
+  </TRestAxionSolarModel>
+</TRestAxionSolarModels>
