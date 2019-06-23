@@ -18,38 +18,48 @@
 #define _TRestAxionMagneticField
 
 #include <TRestMetadata.h>
-
-#include "TRestAxionMagneticField.h"
-#include "TVectorD.h"
 #include <iostream>
 
-using namespace std;
+#include "TVector3.h"
+#include "TVectorD.h"
 
-const double fXmin=-0.24;
-const double fXmax=0.24;
-const double fYmin=-0.24;
-const double fYmax=0.24;
-const double fZmin=-5.0;
-const double fZmax=5.0;
+#if defined USE_Garfield
+#include <ComponentBase.hh>
+#include <ComponentVoxel.hh>
+#include <Sensor.hh>
+class Garfield::Sensor;
+class Garfield::ComponentVoxel;
+class Garfield::ComponentBase;
+#endif
 
 class TRestAxionMagneticField : public TRestMetadata {
-private:
+   private:
     void Initialize();
 
     void InitFromConfigFile();
 
-    string fType;
-    string fFileName;
-    Double_t fPosX;
-    Double_t fPosY;
-    Double_t fPosZ;
-    Double_t fRotX;
-    Double_t fRotY;
-    Double_t fRotZ;
+#ifdef USE_Garfield
+    Garfield::Sensor* fSetOfField;    //!
+    Garfield::ComponentVoxel* fMesh;  //!
+#endif
 
-public:
-     void LoadMagneticVolumeRegPar();
-     void PrintMetadata();
+    Double_t fXmin;     //<
+    Double_t fXmax;     //<
+    Double_t fYmin;     //<
+    Double_t fYmax;     //<
+    Double_t fZmin;     //<
+    Double_t fZmax;     //<
+    Double_t sizeMesh;  //<
+
+    Int_t fNofVolumes;  //<
+
+    TString fFileName;
+    std::vector<TVector3> fPositions;
+
+   public:
+    void LoadMagneticVolumes();
+    void AddFieldComponent();
+    void PrintMetadata();
 
     // Constructors
     TRestAxionMagneticField();
