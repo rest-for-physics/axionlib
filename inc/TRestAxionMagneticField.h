@@ -40,25 +40,23 @@ class TRestAxionMagneticField : public TRestMetadata {
 
 #ifdef USE_Garfield
     Garfield::Sensor* fSetOfField;    //!
-    Garfield::ComponentVoxel* fMesh;  //!
 #endif
 
-    Double_t fXmin;     //<
+    /*Double_t fXmin;     //<
     Double_t fXmax;     //<
     Double_t fYmin;     //<
     Double_t fYmax;     //<
     Double_t fZmin;     //<
     Double_t fZmax;     //<
-    Double_t sizeMesh;  //<
+    Double_t sizeMesh;  //<*/
 
     Int_t fNofVolumes;  //<
 
-    TString fFileName;
     std::vector<TVector3> fPositions;
+    std::vector<TString> fFileNames;
 
    public:
     void LoadMagneticVolumes();
-    void AddFieldComponent();
     void PrintMetadata();
 
     // Constructors

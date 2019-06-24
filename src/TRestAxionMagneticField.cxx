@@ -106,7 +106,6 @@ TRestAxionMagneticField::~TRestAxionMagneticField() {
     debug << "Entering ... TRestAxionMagneticField() destructor." << endl;
 
 #if defined USE_Garfield
-    delete fMesh;
     delete fSetOfField;
 #endif
 }
@@ -115,19 +114,17 @@ void TRestAxionMagneticField::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fFileName = "magneticField_Bykovskiy_201906.dat";
     fNofVolumes = 0;
-    sizeMesh = 0.04;
+    /*sizeMesh = 0.04;
     fXmin = -0.24;
     fXmax = 0.24;
     fYmin = -0.24;
     fYmax = 0.24;
     fZmin = -5.0;
-    fZmax = 5.0;
+    fZmax = 5.0;*/
 
 #if defined USE_Garfield
     fSetOfField = new Garfield::Sensor();
-    fMesh = new Garfield::ComponentVoxel();
 #endif
 }
 
@@ -135,42 +132,45 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
 #ifdef USE_Garfield
 
     //// Here you need to iterate on fPositions to read all the magnetic volumes
-    //
-    // for( unsigned int n = 0; n < fPositions.size(); n++ )
-    //
+    
+    for( unsigned int n = 0; n < fPositions.size(); n++ ) {
     // But you also need to have a vector of filename string
     // Because we may have 2 volumes with different magnetic files
 
     /*** Read information from the fileName ***/
 
     fstream file_r;
-    file_r.open((string)getenv("REST_PATH") + "/data/magneticField/" + (string)fFileName);  // original file
+    file_r.open((string)getenv("REST_PATH") + "/data/magneticField/" + (string)fFileNames[n]);  // original file
     if (file_r.is_open()) {
         ofstream file_w;
         file_w.open("/tmp/tmp_bField.txt");  // temporal file for the translation and without the first line
-        TVector3 position;                   // translation vector
+        TVector3 coordinates;                   // translation vector
         double read;
         int i = 0;
         int j = 0;
+	double xmax,xmin;
+	double ymax,ymin;
+	double zmax,zmin;
+	double sizeMesh;
         while (file_r >> read) {
             if (i < 4) {
                 if (i == 0) {
                     ////// If you declare something locally it should not contain f at the beginning of the
                     /// variable. This will mask/hide the member defined in the class. The local variable has
                     // priority on the local environment, but better not use the same names.
-                    double fXmax = read;
-                    double fXmin = -fXmax;
+                    xmax = read;
+                    xmin = -xmax;
                     i = i + 1;
                 } else if (i == 1) {
-                    double fYmax = read;
-                    double fYmin = -fYmax;
+                    ymax = read;
+                    ymin = -ymax;
                     i = i + 1;
                 } else if (i == 2) {
-                    double fZmax = read;
-                    double fZmin = -fZmax;
+                    zmax = read;
+                    zmin = -zmax;
                     i = i + 1;
                 } else if (i == 3) {
-                    double sizeMesh = read;
+                    sizeMesh = read;
                     i = i + 1;
                 }
 
@@ -178,11 +178,11 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
 
             else {
                 if (j < 3) {
-                    position[j] = read;
+                    coordinates[j] = read;
                     if (j == 2) {
                         for (int k = 0; k < 3; k++) {
-                            position[k] = position[k] + Pos[k];
-                            file_w << position[k];
+                            coordinates[k] = coordinates[k] + fPositions[n][k];
+                            file_w << coordinates[k];
                             file_w << "\t";
                         }
                     }
@@ -206,48 +206,43 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         file_r.close();
 
         /*** Create the mesh if file is open ***/
-        int nx = (int)(2 * fXmax / sizeMesh) + 1;
-        int ny = (int)(2 * fYmax / sizeMesh) + 1;
-        int nz = (int)(2 * fZmax / sizeMesh) + 1;
-        // cout << fXmin+Pos[0]<<" " <<fXmax+Pos[0]<< " " << fYmin+Pos[1] << " " << fYmax+Pos[1] << " " <<
-        // fZmin+Pos[2]<< " " <<fZmax+Pos[2]<<endl;
-        fMesh->SetMesh(nx, ny, nz, fXmin + Pos[0], fXmax + Pos[0], fYmin + Pos[1], fYmax + Pos[1],
-                       fZmin + Pos[2], fZmax + Pos[2]);
+        int nx = (int)(2 * xmax / sizeMesh) + 1;
+        int ny = (int)(2 * ymax / sizeMesh) + 1;
+        int nz = (int)(2 * zmax / sizeMesh) + 1;
+      
+	Garfield::ComponentVoxel * mesh = new Garfield::ComponentVoxel();
+        mesh->SetMesh(nx, ny, nz, xmin + fPositions[n][0], xmax + fPositions[n][0], ymin + fPositions[n][1], ymax + fPositions[n][1],
+                       zmin + fPositions[n][2], zmax + fPositions[n][2]);
 
         /*** Fill the mesh with the magnetic field if file is open ***/
-        fMesh->LoadMagneticField("/tmp/tmp_bField.txt", "XYZ", 1,
+        mesh->LoadMagneticField("/tmp/tmp_bField_"+(string)getenv("REST_PATH")+".txt", "XYZ", 1,
                                  1);  // pour le nom a changer plus tard pour eviter  d effacer a chaque fois
-        fMesh->EnableInterpolation(true);
+        mesh->EnableInterpolation(true);
 
         // Better we already add the field component here, just after initializing the mesh
         // It seems that fMesh could be a local variable, while only Sensor needs to be a member
         // You could declare a local Garfield::ComponentVoxel *mesh = new Garfield::ComponentVoxel(); for each
         // magnetic volume (each loop).
-        AddFieldComponent();
+        fSetOfField->AddComponent(mesh);
+	fNofVolumes++;
     } else
         cout << " Cannot find the file " << endl;
-
+}
 #else
     cout << "This REST is not complied with garfield, it cannot load any magnetic field Volume!" << endl;
 #endif
 }
 
-void TRestAxionMagneticField::AddFieldComponent() {
-#ifdef USE_Garfield
-    fSetOfField->AddComponent(fMesh);
-#endif
-    fNofVolumes++;
-}
 
 void TRestAxionMagneticField::InitFromConfigFile() {
     this->Initialize();
     string bVolume;
     size_t position = 0;
-    while ((bVolume = GetKEYDefinition("addMagneticVolume", position)) != "")  // debugs or warnings later
+    while ((bVolume = GetKEYDefinition("addMagneticVolume", position)) != "")  
     {
         // TODO needs to be added to fFilenames vector
-        TString filename = GetParameter("file", "magneticField_Bykovskiy_201906.dat");
-
+        TString filename = GetParameter("file");// "magneticField_Bykovskiy_201906.dat")
+	fFileNames.push_back(filename);
         TVector3 position = Get3DVectorParameterWithUnits("position");
         fPositions.push_back(position);
     }
@@ -257,24 +252,23 @@ void TRestAxionMagneticField::InitFromConfigFile() {
 void TRestAxionMagneticField::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << " - File loaded : " << fFileName << endl;
-    metadata << " - Size of the mesh :" << sizeMesh << endl;
+    //metadata << " - Size of the mesh :" << sizeMesh << endl;
     metadata << " - Bounds : " << endl;
-    metadata << "    * xmin = " << fXmin << ", xmax = " << fXmax << endl;
+    /*metadata << "    * xmin = " << fXmin << ", xmax = " << fXmax << endl;
     metadata << "    * ymin = " << fYmin << ", ymax = " << fYmax << endl;
-    metadata << "    * zmin = " << fZmin << ", zmax = " << fZmax << endl;
+    metadata << "    * zmin = " << fZmin << ", zmax = " << fZmax << endl;*/
     metadata << " - Number of magnetic volumes : " << fNofVolumes << endl;
     metadata << " ------------------------------------------------ " << endl;
     metadata << " - Positions of Volumes :" << endl;
     /// ---> Also a volume will be associated to a filename so we need also a fFilenames vector.
-    int n = 0;
     double x, y, z;
     for (int p = 0; p < fNofVolumes; p++) {
         x = fPositions[p][0];
         y = fPositions[p][1];
         z = fPositions[p][2];
         metadata << "    * Volume " << p + 1 << " : "
-                 << "(" << x << "," << y << "," << z << ")" << endl;
-    }  // Bcz I don't know if the order will count later
+                 << "(" << x << "," << y << "," << z << ")" <<  endl;
+	metadata << "     File loaded : " << fFileNames[p] << endl;
+    }  
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
