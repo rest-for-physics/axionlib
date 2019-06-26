@@ -128,7 +128,12 @@ install(
     COMPONENT install
         )
 
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros
+        DESTINATION .
+        COMPONENT install
+        )
+
 #----------------------------------------------------------------------------
 # Example programs for this library
 #----------------------------------------------------------------------------
-add_subdirectory(examples)
+#add_subdirectory(examples)
