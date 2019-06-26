@@ -14,9 +14,10 @@ This data directory contains different definitions of magnetic fields to be read
 Conventions
 ===========
 
-- `File contents` : Each .dat file contains a first line with 4 numbers (x_max, y_max, z_max and meshSize in m) and then 6 columns with many lines. The three first columns are the position X,Y,Z in m and the three last columns the values of the magnetic field in these positions in T. These files are for regular mesh and for rectanglar magnetic field.
+- `File contents` : Each .dat file contains a first line with 4 numbers (x_max, y_max, z_max and meshSize in mm) and then 6 columns with many lines. The three first columns are the position X,Y,Z in mm and the three last columns the values of the magnetic field in these positions in T. These files are for regular mesh and for rectanglar magnetic field.
+All positions are in mm wich are the units by default of REST !
 
-- `Filename` : magneticField_AUTHOR_YYYYMM.dat. F
+- `Filename` : AUTHOR_YYYYMM.dat.
 
 - `X, Y, Z definitions` : The origin is set in the center of the domain, so x_max=-x_min (the same for y and z). The Z direction is along the magnetic bore and the axis increases from the entry to the end of the magnetic bore. The X and Y axis are defined such that (X,Y,Z) is a direct system.
 
@@ -24,4 +25,4 @@ Conventions
 List of magnetic fields available 
 =================================
 
-- `MagneticField_Bykovskiy_201906.dat` 
+- `Bykovskiy_201906.dat` 
