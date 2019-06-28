@@ -110,6 +110,23 @@ TRestAxionMagneticField::~TRestAxionMagneticField() {
 #endif
 }
 
+TVector3 TRestAxionMagneticField::GetMagneticField(Double_t x, Double_t y, Double_t z) {
+    Double_t bX = 0, bY = 0, bZ = 0;
+    Int_t st;
+#if defined USE_Garfield
+    fSetOfField->MagneticField(x, y, z, bX, bY, bZ, st);
+
+    debug << "Bx: " << bX << " T" << endl;
+    debug << "By: " << bY << " T" << endl;
+    debug << "Bz: " << bZ << " T" << endl;
+#else
+    cout << "This REST is not compiled with garfield, it cannot get field values using ComponentVoxel!"
+         << endl;
+#endif
+
+    return TVector3(bX, bY, bZ);
+}
+
 void TRestAxionMagneticField::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
@@ -123,7 +140,6 @@ void TRestAxionMagneticField::Initialize() {
 
 void TRestAxionMagneticField::LoadMagneticVolumes() {
 #ifdef USE_Garfield
-
     for (unsigned int n = 0; n < fPositions.size(); n++) {
         /*** Read information from the fileName ***/
 
@@ -207,6 +223,7 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
 
             fSetOfField->AddComponent(mesh);
             fNofVolumes++;
+
             fXmin.push_back(xmin);
             fXmax.push_back(xmax);
 
@@ -220,7 +237,7 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
             cout << " Cannot find the file " << endl;
     }
 #else
-    cout << "This REST is not complied with garfield, it cannot load any magnetic field Volume!" << endl;
+    cout << "This REST is not compiled with garfield, it cannot load any magnetic field Volume!" << endl;
 #endif
 }
 

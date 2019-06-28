@@ -60,6 +60,8 @@ class TRestAxionMagneticField : public TRestMetadata {
     void LoadMagneticVolumes();
     void PrintMetadata();
 
+    TVector3 GetMagneticField(Double_t x, Double_t y, Double_t z);
+
     // Constructors
     TRestAxionMagneticField();
     TRestAxionMagneticField(const char* cfgFileName, std::string name = "");
