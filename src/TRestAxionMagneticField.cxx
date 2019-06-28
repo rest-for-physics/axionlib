@@ -229,7 +229,7 @@ void TRestAxionMagneticField::InitFromConfigFile() {
     size_t pos = 0;
     while ((bVolume = GetKEYDefinition("addMagneticVolume", pos)) != "")  
     {
-        TString filename = GetParameter("file");
+        TString filename = GetParameter("fileName");
 	fFileNames.push_back(filename);
         TVector3 position = Get3DVectorParameterWithUnits("position");
         fPositions.push_back(position);

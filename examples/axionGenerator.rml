@@ -17,8 +17,8 @@ internal values are saved.
     <parameter name="verboseLevel" value="2"/>
 	<parameter name="outputFile" value="./Run_[fExperimentName].root" />
 
-	<TRestAxionSolarModel name="sunPrimakoff" file="metadata.rml" verboseLevel="debug" />
-	<TRestAxionLikelihood name="babyIAXO" file="metadata.rml" verboseLevel="debug" />
+	<TRestAxionSolarModel name="sunPrimakoff" file="metadata.rml" verboseLevel="warning" />
+    <!--<TRestAxionLikelihood name="babyIAXO" file="metadata.rml" verboseLevel="debug" />-->
 
   </TRestRun>
 
