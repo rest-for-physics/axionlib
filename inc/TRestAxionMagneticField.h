@@ -27,9 +27,10 @@
 #include <ComponentBase.hh>
 #include <ComponentVoxel.hh>
 #include <Sensor.hh>
-class Garfield::Sensor;
-class Garfield::ComponentVoxel;
-class Garfield::ComponentBase;
+#else
+class Sensor;
+class ComponentVoxel;
+class ComponentBase;
 #endif
 
 class TRestAxionMagneticField : public TRestMetadata {
@@ -39,7 +40,7 @@ class TRestAxionMagneticField : public TRestMetadata {
     void InitFromConfigFile();
 
 #ifdef USE_Garfield
-    Garfield::Sensor* fSetOfField;    //!
+    Garfield::Sensor* fSetOfField;  //!
 #endif
 
     Int_t fNofVolumes;  //<
