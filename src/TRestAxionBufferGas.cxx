@@ -101,7 +101,7 @@ void TRestAxionBufferGas::ReadGasData(TString gasName) {
 
     debug << "TRestAxionBufferGas::ReadGasData. Reading factor file : " << factorFileName << endl;
 
-    if (!fileExists((string)factorFileName)) {
+    if (!TRestTools::fileExists((string)factorFileName)) {
         error << "TRestAxionBufferGas::ReadGasData( " << gasName << " )" << endl;
         error << "Gas factor file not found : " << factorFileName << endl;
         exit(1);
@@ -132,7 +132,7 @@ void TRestAxionBufferGas::ReadGasData(TString gasName) {
 
     debug << "TRestAxionBufferGas::ReadGasData. Reading factor file : " << absFileName << endl;
 
-    if (!fileExists((string)absFileName)) {
+    if (!TRestTools::fileExists((string)absFileName)) {
         error << "TRestAxionBufferGas::ReadGasData( " << gasName << " )" << endl;
         error << "Gas absorption file not found : " << absFileName << endl;
         exit(1);

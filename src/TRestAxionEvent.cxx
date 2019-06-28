@@ -48,55 +48,47 @@ using namespace TMath;
 
 ClassImp(TRestAxionEvent)
 
-TRestAxionEvent::TRestAxionEvent()
-{
-
+    TRestAxionEvent::TRestAxionEvent() {
     fPad = NULL;
 }
 
-TRestAxionEvent::~TRestAxionEvent()
-{
-}
+TRestAxionEvent::~TRestAxionEvent() {}
 
+void TRestAxionEvent::Initialize() { TRestEvent::Initialize(); }
 
-void TRestAxionEvent::Initialize()
-{
-    TRestEvent::Initialize();
-}
+TPad* TRestAxionEvent::DrawEvent(TString option) {
+    vector<string> optList = TRestTools::GetOptions((string)option);
 
-TPad *TRestAxionEvent::DrawEvent( TString option )
-{
-    vector <TString> optList = TRestTools::GetOptions( option );
-
-    for( unsigned int n = 0; n < optList.size(); n++ )
-    {
-        if( optList[n] == "print" )
-            this->PrintEvent();
+    for (unsigned int n = 0; n < optList.size(); n++) {
+        if (optList[n] == "print") this->PrintEvent();
     }
 
-    optList.erase( std::remove( optList.begin(), optList.end(), "print"), optList.end() );
+    optList.erase(std::remove(optList.begin(), optList.end(), "print"), optList.end());
 
-    if( optList.size() == 0 )
-        optList.push_back( "TODO" );
+    if (optList.size() == 0) optList.push_back("TODO");
 
-    if( fPad != NULL ) { delete fPad; fPad = NULL; }
+    if (fPad != NULL) {
+        delete fPad;
+        fPad = NULL;
+    }
 
-    fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1 );
-    fPad->Divide( 1 , 1 );
-    fPad->Draw( );
+    fPad = new TPad(this->GetName(), " ", 0, 0, 1, 1);
+    fPad->Divide(1, 1);
+    fPad->Draw();
 
     // TOBE implemented if necessary
 
     return fPad;
 }
 
-void TRestAxionEvent::PrintEvent(  )
-{
+void TRestAxionEvent::PrintEvent() {
     TRestEvent::PrintEvent();
 
     cout << "Energy : " << GetEnergy() << endl;
-    cout << "Position : ( " << fPosition.X() << ", " << fPosition.Y() << ", " << fPosition.Z() << " )" << endl;
-    cout << "Direction : ( " << fDirection.X() << ", " << fDirection.Y() << ", " << fDirection.Z() << " )" << endl;
+    cout << "Position : ( " << fPosition.X() << ", " << fPosition.Y() << ", " << fPosition.Z() << " )"
+         << endl;
+    cout << "Direction : ( " << fDirection.X() << ", " << fDirection.Y() << ", " << fDirection.Z() << " )"
+         << endl;
     cout << "Gamma state probability : " << fGammaProbability << endl;
     cout << endl;
 }
