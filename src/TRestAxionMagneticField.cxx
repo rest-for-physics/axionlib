@@ -207,12 +207,14 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
 
             fSetOfField->AddComponent(mesh);
             fNofVolumes++;
-            fXmax.push_back(xmax);
             fXmin.push_back(xmin);
-            fYmax.push_back(ymax);
+            fXmax.push_back(xmax);
+
             fYmin.push_back(ymin);
+            fYmax.push_back(ymax);
+
+            fZmin.push_back(zmin);
             fZmax.push_back(zmax);
-            fXmin.push_back(zmin);
             fSizeMesh.push_back(sizeMesh);
         } else
             cout << " Cannot find the file " << endl;
@@ -233,6 +235,7 @@ void TRestAxionMagneticField::InitFromConfigFile() {
         TVector3 position = Get3DVectorFieldValueWithUnits("position", bVolume);
         fPositions.push_back(position);
     }
+
     LoadMagneticVolumes();
 }
 
