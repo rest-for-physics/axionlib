@@ -40,7 +40,7 @@ else ()
     message(STATUS "To enable Garfield features and link Garfield libraries run cmake adding : -DREST_GARFIELD=ON")
 endif ()
 
-# find REST 
+# find REST
 IF(NOT DEFINED REST_PATH)
 	IF(DEFINED ENV{REST_PATH})
 		set(REST_PATH $ENV{REST_PATH})
@@ -127,3 +127,13 @@ install(
     DESTINATION .
     COMPONENT install
         )
+
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/macros
+        DESTINATION .
+        COMPONENT install
+        )
+
+#----------------------------------------------------------------------------
+# Example programs for this library
+#----------------------------------------------------------------------------
+#add_subdirectory(examples)
