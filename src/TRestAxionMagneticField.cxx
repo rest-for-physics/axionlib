@@ -124,114 +124,113 @@ void TRestAxionMagneticField::Initialize() {
 void TRestAxionMagneticField::LoadMagneticVolumes() {
 #ifdef USE_Garfield
 
-    
-    for( unsigned int n = 0; n < fPositions.size(); n++ ) {
+    for (unsigned int n = 0; n < fPositions.size(); n++) {
+        /*** Read information from the fileName ***/
 
-    /*** Read information from the fileName ***/
-
-    fstream file_r;
-    file_r.open((string)getenv("REST_PATH") + "/data/magneticField/" + (string)fFileNames[n]);  // original file
-    if (file_r.is_open()) {
-        ofstream file_w;
-        file_w.open("/tmp/tmp_bField_"+(string)getenv("USER")+".txt"); 
-        TVector3 coordinates;                   
-        double read;
-        int i = 0;
-        int j = 0;
-	double xmax,xmin;
-	double ymax,ymin;
-	double zmax,zmin;
-	double sizeMesh;
-        while (file_r >> read) {
-            if (i < 4) {
-                if (i == 0) {
-                    xmax = read;
-                    xmin = -xmax;
-                    i = i + 1;
-                } else if (i == 1) {
-                    ymax = read;
-                    ymin = -ymax;
-                    i = i + 1;
-                } else if (i == 2) {
-                    zmax = read;
-                    zmin = -zmax;
-                    i = i + 1;
-                } else if (i == 3) {
-                    sizeMesh = read;
-                    i = i + 1;
-                }
-
-            }
-
-            else {
-                if (j < 3) {
-                    coordinates[j] = read;
-                    if (j == 2) {
-                        for (int k = 0; k < 3; k++) {
-                            coordinates[k] = coordinates[k] + fPositions[n][k];
-                            file_w << coordinates[k];
-                            file_w << "\t";
-                        }
+        fstream file_r;
+        file_r.open((string)getenv("REST_PATH") + "/data/magneticField/" +
+                    (string)fFileNames[n]);  // original file
+        if (file_r.is_open()) {
+            ofstream file_w;
+            file_w.open("/tmp/tmp_bField_" + (string)getenv("USER") + ".txt");
+            TVector3 coordinates;
+            double read;
+            int i = 0;
+            int j = 0;
+            double xmax, xmin;
+            double ymax, ymin;
+            double zmax, zmin;
+            double sizeMesh;
+            while (file_r >> read) {
+                if (i < 4) {
+                    if (i == 0) {
+                        xmax = read;
+                        xmin = -xmax;
+                        i = i + 1;
+                    } else if (i == 1) {
+                        ymax = read;
+                        ymin = -ymax;
+                        i = i + 1;
+                    } else if (i == 2) {
+                        zmax = read;
+                        zmin = -zmax;
+                        i = i + 1;
+                    } else if (i == 3) {
+                        sizeMesh = read;
+                        i = i + 1;
                     }
-                    j = j + 1;
+
                 }
 
                 else {
-                    if (j == 5) {
-                        file_w << read;
-                        file_w << "\n";
-                        j = 0;
-                    } else {
-                        file_w << read;
-                        file_w << "\t";
+                    if (j < 3) {
+                        coordinates[j] = read;
+                        if (j == 2) {
+                            for (int k = 0; k < 3; k++) {
+                                coordinates[k] = coordinates[k] + fPositions[n][k];
+                                file_w << coordinates[k];
+                                file_w << "\t";
+                            }
+                        }
                         j = j + 1;
+                    }
+
+                    else {
+                        if (j == 5) {
+                            file_w << read;
+                            file_w << "\n";
+                            j = 0;
+                        } else {
+                            file_w << read;
+                            file_w << "\t";
+                            j = j + 1;
+                        }
                     }
                 }
             }
-        }
-        file_w.close();
-        file_r.close();
+            file_w.close();
+            file_r.close();
 
-        /*** Create the mesh if file is open ***/
-        int nx = (int)(2 * xmax / sizeMesh) + 1;
-        int ny = (int)(2 * ymax / sizeMesh) + 1;
-        int nz = (int)(2 * zmax / sizeMesh) + 1;
-      
-	Garfield::ComponentVoxel * mesh = new Garfield::ComponentVoxel();
-        mesh->SetMesh(nx, ny, nz, xmin + fPositions[n][0], xmax + fPositions[n][0], ymin + fPositions[n][1], ymax + fPositions[n][1],
-                       zmin + fPositions[n][2], zmax + fPositions[n][2]);
+            /*** Create the mesh if file is open ***/
+            int nx = (int)(2 * xmax / sizeMesh) + 1;
+            int ny = (int)(2 * ymax / sizeMesh) + 1;
+            int nz = (int)(2 * zmax / sizeMesh) + 1;
 
-        /*** Fill the mesh with the magnetic field if file is open ***/
-        mesh->LoadMagneticField("/tmp/tmp_bField_"+(string)getenv("USER")+".txt", "XYZ", 1,1); 
-        mesh->EnableInterpolation(true);
- 
-        fSetOfField->AddComponent(mesh);
-	fNofVolumes++;
-	fXmax.push_back(xmax);	
-	fXmin.push_back(xmin);	
-	fYmax.push_back(ymax);	
-	fYmin.push_back(ymin);	
-	fZmax.push_back(zmax);	
-	fXmin.push_back(zmin);	
-	fSizeMesh.push_back(sizeMesh);
-    } else
-        cout << " Cannot find the file " << endl;
-}
+            Garfield::ComponentVoxel* mesh = new Garfield::ComponentVoxel();
+            mesh->SetMesh(nx, ny, nz, xmin + fPositions[n][0], xmax + fPositions[n][0],
+                          ymin + fPositions[n][1], ymax + fPositions[n][1], zmin + fPositions[n][2],
+                          zmax + fPositions[n][2]);
+
+            /*** Fill the mesh with the magnetic field if file is open ***/
+            mesh->LoadMagneticField("/tmp/tmp_bField_" + (string)getenv("USER") + ".txt", "XYZ", 1, 1);
+            mesh->EnableInterpolation(true);
+
+            fSetOfField->AddComponent(mesh);
+            fNofVolumes++;
+            fXmax.push_back(xmax);
+            fXmin.push_back(xmin);
+            fYmax.push_back(ymax);
+            fYmin.push_back(ymin);
+            fZmax.push_back(zmax);
+            fXmin.push_back(zmin);
+            fSizeMesh.push_back(sizeMesh);
+        } else
+            cout << " Cannot find the file " << endl;
+    }
 #else
     cout << "This REST is not complied with garfield, it cannot load any magnetic field Volume!" << endl;
 #endif
 }
 
-
 void TRestAxionMagneticField::InitFromConfigFile() {
     this->Initialize();
     string bVolume;
     size_t pos = 0;
-    while ((bVolume = GetKEYDefinition("addMagneticVolume", pos)) != "")  
-    {
-        TString filename = GetParameter("fileName");
-	fFileNames.push_back(filename);
-        TVector3 position = Get3DVectorParameterWithUnits("position");
+    while ((bVolume = GetKEYDefinition("addMagneticVolume", pos)) != "") {
+        TString filename = GetFieldValue("fileName", bVolume);
+        fFileNames.push_back(filename);
+
+        TVector3 position = Get3DVectorFieldValueWithUnits("position", bVolume);
         fPositions.push_back(position);
     }
     LoadMagneticVolumes();
@@ -248,13 +247,13 @@ void TRestAxionMagneticField::PrintMetadata() {
         y = fPositions[p][1];
         z = fPositions[p][2];
         metadata << "* Volume " << p + 1 << " : "
-                 << "  - Set in (" << x << "," << y << "," << z << ")" <<  endl;
-	metadata << "  - Bounds : " << endl;
-	metadata << "    xmin : " << fXmin[p] << " , xmax : " << fXmax[p]<<endl;
-	metadata << "    ymin : " << fYmin[p] << " , ymax : " << fYmax[p]<<endl;      
-	metadata << "    zmin : " << fZmin[p] << " , zmax : " << fZmax[p]<<endl;
-	metadata << "  - Size of the mesh : "<< fSizeMesh[p] << endl;            
-	metadata << "  - File loaded : " << fFileNames[p] << endl;
-    }  
+                 << "  - Set in (" << x << "," << y << "," << z << ")" << endl;
+        metadata << "  - Bounds : " << endl;
+        metadata << "    xmin : " << fXmin[p] << " , xmax : " << fXmax[p] << endl;
+        metadata << "    ymin : " << fYmin[p] << " , ymax : " << fYmax[p] << endl;
+        metadata << "    zmin : " << fZmin[p] << " , zmax : " << fZmax[p] << endl;
+        metadata << "  - Size of the mesh : " << fSizeMesh[p] << endl;
+        metadata << "  - File loaded : " << fFileNames[p] << endl;
+    }
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
