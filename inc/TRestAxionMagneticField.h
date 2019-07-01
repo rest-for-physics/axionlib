@@ -22,6 +22,8 @@
 
 #include "TVector3.h"
 #include "TVectorD.h"
+#include "TH2D.h"
+#include "TCanvas.h"
 
 #if defined USE_Garfield
 #include <ComponentBase.hh>
@@ -58,6 +60,7 @@ class TRestAxionMagneticField : public TRestMetadata {
 
    public:
     void LoadMagneticVolumes();
+    void DrawHistogram(Int_t VIndex,Double_t step,TString  projection,TString Bcomp);
     void PrintMetadata();
 
     TVector3 GetMagneticField(Double_t x, Double_t y, Double_t z);

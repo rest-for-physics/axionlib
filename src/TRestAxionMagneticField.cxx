@@ -27,12 +27,7 @@
 /// class will evaluate if a coordinate (x,y,z) is in a given magnetic
 /// region, and it will return a non-zero value of the magnetic field in
 /// case (x,y,z) is inside a magnetic region.
-///
-/// ----
-/// THIS SHOULD BE GENERALIZED SOON. For now we consider that the bounds of
-/// the volume are X,Y: -0.24 to 0.24 and Z:-5 to 5
-/// ----
-///
+/// 
 /// We can add any number of magnetic volumes inside the RML definition
 /// as shown in the following piece of code.
 ///
@@ -54,8 +49,6 @@
 /// in the magnetic field file given. However, it is possible to translate the
 /// volume using the `position` field.
 ///
-/// \TODO maybe add a section to visualize the magnetic volume (Can be done with
-/// ViewField()).
 ///
 /// \warning It seems to be difficult to apply rotations to the field coordinates,
 /// and assign it to Garfield methods. It seems also not possible to rotate the field
@@ -135,6 +128,153 @@ void TRestAxionMagneticField::Initialize() {
 
 #if defined USE_Garfield
     fSetOfField = new Garfield::Sensor();
+#endif
+}
+
+void TRestAxionMagneticField::DrawHistogram(Int_t VIndex , Double_t step , TString  projection , TString Bcomp) {
+   
+   if (VIndex > fNofVolumes || VIndex == 0) error << VIndex << " corresponds to none volume index " << endl;
+   
+   Double_t xmax , xmin , ymax , ymin , zmax , zmin;
+   xmax = fXmax[VIndex-1];
+   xmin = fXmin[VIndex-1];
+   ymax = fYmax[VIndex-1];
+   ymin = fYmin[VIndex-1];
+   zmax = fZmax[VIndex-1];
+   zmin = fZmin[VIndex-1];
+   Int_t nBinsX = (xmax - xmin ) / step;  
+   Int_t nBinsY = (ymax - ymin ) / step;
+   Int_t nBinsZ = (zmax - zmin ) / step;
+
+   Double_t x,y,z;
+   Double_t B;
+   TVector3 Bvec;
+
+#if defined USE_Garfield
+
+   if ( projection == "XY" ) {
+
+        TCanvas * c1 = new TCanvas("c1","");
+        TH2D * histo = new TH2D("", "", nBinsX, xmin,xmax , nBinsY,ymin,ymax);
+    
+        z = ( zmin+zmax ) / 2.0;
+        x = xmin;
+
+        for ( Int_t i=0 ; i < nBinsX ; i++ )  {
+              y = ymin;
+              for ( Int_t j=0 ; j < nBinsY ; j++) {
+                    Bvec = GetMagneticField( x , y , z );
+	            if ( Bcomp == "X" ) B = Bvec[0];
+	            else { if ( Bcomp == "Y") B = Bvec[1];
+	                   else {
+		                if( Bcomp == "Z") B = Bvec[2];
+		                else error << "You entered : "<< Bcomp<<" as a B component but you have to choose X, Y or Z" <<endl; 
+				} 
+	  		 }
+       		    histo->Fill(x,y,B);
+       		    y = y+step; 
+     	     }
+     	     x = x+step;
+       }
+
+       c1->cd();
+       histo->SetBit(TH1::kNoStats);
+       histo->GetXaxis()->SetTitle("x (mm)");
+       histo->GetYaxis()->SetTitle("y (mm)");
+
+       if( Bcomp == "X") { histo->SetTitle("B_{x} against x and y"); c1->SetTitle("B_{x} against x and y");}
+       if( Bcomp == "Y") { histo->SetTitle("B_{y} against x and y"); c1->SetTitle("B_{y} against x and y");}
+       if( Bcomp == "Z") { histo->SetTitle("B_{z} against x and y"); c1->SetTitle("B_{z} against x and y");} 
+
+       histo->Draw("COLZ0"); 
+   }
+
+   else { 
+   
+    if ( projection == "XZ" )  {
+
+       TCanvas * c1 = new TCanvas("c1","");
+       TH2D * histo = new TH2D("", "", nBinsX, xmin,xmax , nBinsZ,zmin,zmax);
+    
+       y = ( ymin+ymax ) / 2.0;
+       x = xmin;
+
+       for ( Int_t i=0 ; i < nBinsX ; i++)  {
+           z = zmin;
+           for ( Int_t j=0 ; j < nBinsZ ; j++) {
+               Bvec=GetMagneticField(x,y,z);
+	       if ( Bcomp == "X" ) B = Bvec[0];
+	       else { if ( Bcomp == "Y") B = Bvec[1];
+	              else {
+		           if ( Bcomp == "Z") B = Bvec[2];
+		           else error << "You entered : "<< Bcomp<<" as a B component but you have to choose X, Y or Z" <<endl; 
+			   } 
+	  	    }
+               histo->Fill(x,z,B);
+               z = z+step; 
+          }
+          x = x+step;
+       }
+
+       c1->cd();
+       histo->SetBit(TH1::kNoStats);
+       histo->GetXaxis()->SetTitle("x (mm)");
+       histo->GetYaxis()->SetTitle("z (mm)");
+
+       if ( Bcomp == "X") { histo->SetTitle("B_{x} against x and z"); c1->SetTitle("B_{x} against x and z");}
+       if ( Bcomp == "Y") { histo->SetTitle("B_{y} against x and z"); c1->SetTitle("B_{y} against x and z");}
+       if ( Bcomp == "Z") { histo->SetTitle("B_{z} against x and z"); c1->SetTitle("B_{z} against x and z");} 
+
+       histo->Draw("COLZ0"); 
+     }
+
+    else { 
+
+      if( projection == "YZ" )  {
+
+        TCanvas * c1 = new TCanvas("c1","");
+        TH2D * histo = new TH2D("", "", nBinsY, ymin,ymax , nBinsZ,zmin,zmax);
+    
+        x = ( xmin+xmax ) / 2.0;
+        y = ymin;
+
+        for ( Int_t i=0 ; i < nBinsY ; i++)  {
+            z = zmin;
+            for( Int_t j=0 ; j < nBinsZ ; j++)  {
+               Bvec = GetMagneticField(x,y,z);
+	       if ( Bcomp == "X" ) B = Bvec[0];
+	       else { 
+		    if ( Bcomp=="Y") B = Bvec[1];
+	            else {
+		         if ( Bcomp=="Z" ) B=Bvec[2];
+		         else error << "You entered : "<< Bcomp<<" as a B component but you have to choose X, Y or Z" <<endl;
+			 } 
+	            }
+              histo->Fill(y,z,B);
+              z = z+step; 
+           }
+           y = y+step;
+        }
+
+        c1->cd();
+        histo->SetBit(TH1::kNoStats);
+        histo->GetXaxis()->SetTitle("y (mm)");
+        histo->GetYaxis()->SetTitle("z (mm)");
+
+        if ( Bcomp == "X" ) { histo->SetTitle("B_{x} against y and z"); c1->SetTitle("B_{x} against y and z");}
+        if ( Bcomp == "Y" ) { histo->SetTitle("B_{y} against y and z"); c1->SetTitle("B_{y} against y and z");}
+        if ( Bcomp == "Z" ) { histo->SetTitle("B_{z} against y and z"); c1->SetTitle("B_{z} against y and z");} 
+
+        histo->Draw("COLZ0"); 
+    }
+
+    else error << "You entered : "<< projection <<" as a projection but you have to choose XY, XY or XZ" <<endl;
+  }
+ }
+
+#else
+
+    cout << "This REST is not compiled with garfield, it cannot get field values using Sensor !" << endl;
 #endif
 }
 
