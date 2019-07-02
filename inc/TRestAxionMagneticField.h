@@ -59,6 +59,7 @@ class TRestAxionMagneticField : public TRestMetadata {
     std::vector<Double_t> fSizeMesh;
 
     TH2D * fHisto; //!
+    TCanvas * fCanvas; //!
 
    public:
     void LoadMagneticVolumes();

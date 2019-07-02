@@ -101,7 +101,7 @@ TRestAxionMagneticField::~TRestAxionMagneticField() {
 #if defined USE_Garfield
     delete fSetOfField;
 #endif
-    delete fHisto;
+
 }
 
 TVector3 TRestAxionMagneticField::GetMagneticField(Double_t x, Double_t y, Double_t z) {
@@ -126,6 +126,8 @@ void TRestAxionMagneticField::Initialize() {
     SetLibraryVersion(LIBRARY_VERSION);
 
     fNofVolumes = 0;
+    fCanvas = NULL;
+    fHisto = NULL;
 
 #if defined USE_Garfield
     fSetOfField = new Garfield::Sensor();
@@ -134,6 +136,18 @@ void TRestAxionMagneticField::Initialize() {
 
 TCanvas * TRestAxionMagneticField::DrawHistogram(TString  projection , TString Bcomp, Int_t VIndex , Double_t step ) {
    
+   if ( fCanvas != NULL) 
+   {
+        delete fCanvas;
+        fCanvas = NULL;    
+   }
+
+   if ( fHisto != NULL) 
+   {
+        delete fHisto;
+        fHisto = NULL;    
+   }
+
    if ( VIndex == -1)
       	VIndex = 0;
 
@@ -161,7 +175,7 @@ TCanvas * TRestAxionMagneticField::DrawHistogram(TString  projection , TString B
 
    if ( projection == "XY" ) {
 
-        TCanvas * c1 = new TCanvas("c1","");
+        fCanvas = new TCanvas("fCanvas","");
         fHisto = new TH2D("", "", nBinsX, xmin,xmax , nBinsY,ymin,ymax);
     
         z = ( zmin+zmax ) / 2.0;
@@ -184,24 +198,24 @@ TCanvas * TRestAxionMagneticField::DrawHistogram(TString  projection , TString B
      	     x = x+step;
        }
 
-       c1->cd();
+       fCanvas->cd();
        fHisto->SetBit(TH1::kNoStats);
        fHisto->GetXaxis()->SetTitle("x (mm)");
        fHisto->GetYaxis()->SetTitle("y (mm)");
 
-       if( Bcomp == "X") { fHisto->SetTitle("B_{x} against x and y"); c1->SetTitle("B_{x} against x and y");}
-       if( Bcomp == "Y") { fHisto->SetTitle("B_{y} against x and y"); c1->SetTitle("B_{y} against x and y");}
-       if( Bcomp == "Z") { fHisto->SetTitle("B_{z} against x and y"); c1->SetTitle("B_{z} against x and y");} 
+       if( Bcomp == "X") { fHisto->SetTitle("B_{x} against x and y"); fCanvas->SetTitle("B_{x} against x and y");}
+       if( Bcomp == "Y") { fHisto->SetTitle("B_{y} against x and y"); fCanvas->SetTitle("B_{y} against x and y");}
+       if( Bcomp == "Z") { fHisto->SetTitle("B_{z} against x and y"); fCanvas->SetTitle("B_{z} against x and y");} 
 
        fHisto->Draw("COLZ0");
-       return c1; 
+       return fCanvas; 
    }
 
    else { 
    
     if ( projection == "XZ" )  {
 
-       TCanvas * c1 = new TCanvas("c1","");
+       TCanvas * fCanvas = new TCanvas("fCanvas","");
        fHisto = new TH2D("", "", nBinsX, xmin,xmax , nBinsZ,zmin,zmax);
     
        y = ( ymin+ymax ) / 2.0;
@@ -224,24 +238,24 @@ TCanvas * TRestAxionMagneticField::DrawHistogram(TString  projection , TString B
           x = x+step;
        }
 
-       c1->cd();
+       fCanvas->cd();
        fHisto->SetBit(TH1::kNoStats);
        fHisto->GetXaxis()->SetTitle("x (mm)");
        fHisto->GetYaxis()->SetTitle("z (mm)");
 
-       if ( Bcomp == "X") { fHisto->SetTitle("B_{x} against x and z"); c1->SetTitle("B_{x} against x and z");}
-       if ( Bcomp == "Y") { fHisto->SetTitle("B_{y} against x and z"); c1->SetTitle("B_{y} against x and z");}
-       if ( Bcomp == "Z") { fHisto->SetTitle("B_{z} against x and z"); c1->SetTitle("B_{z} against x and z");} 
+       if ( Bcomp == "X") { fHisto->SetTitle("B_{x} against x and z"); fCanvas->SetTitle("B_{x} against x and z");}
+       if ( Bcomp == "Y") { fHisto->SetTitle("B_{y} against x and z"); fCanvas->SetTitle("B_{y} against x and z");}
+       if ( Bcomp == "Z") { fHisto->SetTitle("B_{z} against x and z"); fCanvas->SetTitle("B_{z} against x and z");} 
 
        fHisto->Draw("COLZ0"); 
-       return c1; 
+       return fCanvas; 
      }
 
     else { 
 
       if( projection == "YZ" )  {
 
-        TCanvas * c1 = new TCanvas("c1","");
+        TCanvas * fCanvas = new TCanvas("fCanvas","");
         fHisto = new TH2D("", "", nBinsY, ymin,ymax , nBinsZ,zmin,zmax);
     
         x = ( xmin+xmax ) / 2.0;
@@ -265,17 +279,17 @@ TCanvas * TRestAxionMagneticField::DrawHistogram(TString  projection , TString B
            y = y+step;
         }
 
-        c1->cd();
+        fCanvas->cd();
         fHisto->SetBit(TH1::kNoStats);
         fHisto->GetXaxis()->SetTitle("y (mm)");
         fHisto->GetYaxis()->SetTitle("z (mm)");
 
-        if ( Bcomp == "X" ) { fHisto->SetTitle("B_{x} against y and z"); c1->SetTitle("B_{x} against y and z");}
-        if ( Bcomp == "Y" ) { fHisto->SetTitle("B_{y} against y and z"); c1->SetTitle("B_{y} against y and z");}
-        if ( Bcomp == "Z" ) { fHisto->SetTitle("B_{z} against y and z"); c1->SetTitle("B_{z} against y and z");} 
+        if ( Bcomp == "X" ) { fHisto->SetTitle("B_{x} against y and z"); fCanvas->SetTitle("B_{x} against y and z");}
+        if ( Bcomp == "Y" ) { fHisto->SetTitle("B_{y} against y and z"); fCanvas->SetTitle("B_{y} against y and z");}
+        if ( Bcomp == "Z" ) { fHisto->SetTitle("B_{z} against y and z"); fCanvas->SetTitle("B_{z} against y and z");} 
 
         fHisto->Draw("COLZ0");
-        return c1; 
+        return fCanvas; 
     }
 
     else error << "You entered : "<< projection <<" as a projection but you have to choose XY, XY or XZ" <<endl;
@@ -285,7 +299,7 @@ TCanvas * TRestAxionMagneticField::DrawHistogram(TString  projection , TString B
 #else
 
     cout << "This REST is not compiled with garfield, it cannot get field values using Sensor !" << endl;
-    return c1; 
+    return fCanvas; 
 #endif
 }
 
