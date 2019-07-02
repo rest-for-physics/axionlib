@@ -60,7 +60,7 @@ class TRestAxionMagneticField : public TRestMetadata {
 
    public:
     void LoadMagneticVolumes();
-    void DrawHistogram(Int_t VIndex,Double_t step,TString  projection,TString Bcomp);
+    void DrawHistogram(TString  projection, TString Bcomp, Int_t VIndex=-1, Double_t step=-1);
     void PrintMetadata();
 
     TVector3 GetMagneticField(Double_t x, Double_t y, Double_t z);

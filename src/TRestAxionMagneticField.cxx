@@ -131,9 +131,15 @@ void TRestAxionMagneticField::Initialize() {
 #endif
 }
 
-void TRestAxionMagneticField::DrawHistogram(Int_t VIndex , Double_t step , TString  projection , TString Bcomp) {
+void TRestAxionMagneticField::DrawHistogram(TString  projection , TString Bcomp, Int_t VIndex , Double_t step ) {
    
-   if (VIndex >= fNofVolumes) error << VIndex << " corresponds to none volume index " << endl;
+   if ( VIndex == -1)
+      	VIndex = 0;
+
+   if ( step == -1)
+	step = fSizeMesh[0];
+
+   if ( VIndex >= fNofVolumes ) error << VIndex << " corresponds to none volume index " << endl;
    
    Double_t xmax , xmin , ymax , ymin , zmax , zmin;
    xmax = fXmax[VIndex];
