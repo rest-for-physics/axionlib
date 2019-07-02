@@ -133,15 +133,15 @@ void TRestAxionMagneticField::Initialize() {
 
 void TRestAxionMagneticField::DrawHistogram(Int_t VIndex , Double_t step , TString  projection , TString Bcomp) {
    
-   if (VIndex > fNofVolumes || VIndex == 0) error << VIndex << " corresponds to none volume index " << endl;
+   if (VIndex >= fNofVolumes) error << VIndex << " corresponds to none volume index " << endl;
    
    Double_t xmax , xmin , ymax , ymin , zmax , zmin;
-   xmax = fXmax[VIndex-1];
-   xmin = fXmin[VIndex-1];
-   ymax = fYmax[VIndex-1];
-   ymin = fYmin[VIndex-1];
-   zmax = fZmax[VIndex-1];
-   zmin = fZmin[VIndex-1];
+   xmax = fXmax[VIndex];
+   xmin = fXmin[VIndex];
+   ymax = fYmax[VIndex];
+   ymin = fYmin[VIndex];
+   zmax = fZmax[VIndex];
+   zmin = fZmin[VIndex];
    Int_t nBinsX = (xmax - xmin ) / step;  
    Int_t nBinsY = (ymax - ymin ) / step;
    Int_t nBinsZ = (zmax - zmin ) / step;
@@ -406,13 +406,13 @@ void TRestAxionMagneticField::PrintMetadata() {
         x = fPositions[p][0];
         y = fPositions[p][1];
         z = fPositions[p][2];
-        metadata << "* Volume " << p + 1 << " : "
-                 << "  - Set in (" << x << "," << y << "," << z << ")" << endl;
+        metadata << "* Volume " << p << " : "
+                 << "  - Set in (" << x << "," << y << "," << z << ")" << " mm" << endl;
         metadata << "  - Bounds : " << endl;
-        metadata << "    xmin : " << fXmin[p] << " , xmax : " << fXmax[p] << endl;
-        metadata << "    ymin : " << fYmin[p] << " , ymax : " << fYmax[p] << endl;
-        metadata << "    zmin : " << fZmin[p] << " , zmax : " << fZmax[p] << endl;
-        metadata << "  - Size of the mesh : " << fSizeMesh[p] << endl;
+        metadata << "    xmin : " << fXmin[p] << " mm , xmax : " << fXmax[p] <<" mm" << endl;
+        metadata << "    ymin : " << fYmin[p] << " mm, ymax : " << fYmax[p] <<" mm" << endl;
+        metadata << "    zmin : " << fZmin[p] << " mm, zmax : " << fZmax[p] <<" mm" << endl;
+        metadata << "  - Size of the mesh : " << fSizeMesh[p] <<" mm" << endl;
         metadata << "  - File loaded : " << fFileNames[p] << endl;
     }
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
