@@ -132,7 +132,7 @@ void TRestAxionMagneticField::Initialize() {
 #endif
 }
 
-void TRestAxionMagneticField::DrawHistogram(TString  projection , TString Bcomp, Int_t VIndex , Double_t step ) {
+TCanvas * TRestAxionMagneticField::DrawHistogram(TString  projection , TString Bcomp, Int_t VIndex , Double_t step ) {
    
    if ( VIndex == -1)
       	VIndex = 0;
@@ -193,7 +193,8 @@ void TRestAxionMagneticField::DrawHistogram(TString  projection , TString Bcomp,
        if( Bcomp == "Y") { fHisto->SetTitle("B_{y} against x and y"); c1->SetTitle("B_{y} against x and y");}
        if( Bcomp == "Z") { fHisto->SetTitle("B_{z} against x and y"); c1->SetTitle("B_{z} against x and y");} 
 
-       fHisto->Draw("COLZ0"); 
+       fHisto->Draw("COLZ0");
+       return c1; 
    }
 
    else { 
@@ -233,6 +234,7 @@ void TRestAxionMagneticField::DrawHistogram(TString  projection , TString Bcomp,
        if ( Bcomp == "Z") { fHisto->SetTitle("B_{z} against x and z"); c1->SetTitle("B_{z} against x and z");} 
 
        fHisto->Draw("COLZ0"); 
+       return c1; 
      }
 
     else { 
@@ -273,6 +275,7 @@ void TRestAxionMagneticField::DrawHistogram(TString  projection , TString Bcomp,
         if ( Bcomp == "Z" ) { fHisto->SetTitle("B_{z} against y and z"); c1->SetTitle("B_{z} against y and z");} 
 
         fHisto->Draw("COLZ0");
+        return c1; 
     }
 
     else error << "You entered : "<< projection <<" as a projection but you have to choose XY, XY or XZ" <<endl;
@@ -282,6 +285,7 @@ void TRestAxionMagneticField::DrawHistogram(TString  projection , TString Bcomp,
 #else
 
     cout << "This REST is not compiled with garfield, it cannot get field values using Sensor !" << endl;
+    return c1; 
 #endif
 }
 

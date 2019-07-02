@@ -58,11 +58,11 @@ class TRestAxionMagneticField : public TRestMetadata {
     std::vector<Double_t> fZmax;
     std::vector<Double_t> fSizeMesh;
 
-    TH2D * fHisto;
+    TH2D * fHisto; //!
 
    public:
     void LoadMagneticVolumes();
-    void DrawHistogram(TString  projection, TString Bcomp, Int_t VIndex=-1, Double_t step=-1);
+    TCanvas * DrawHistogram(TString  projection, TString Bcomp, Int_t VIndex=-1, Double_t step=-1);
     void PrintMetadata();
 
     TVector3 GetMagneticField(Double_t x, Double_t y, Double_t z);
