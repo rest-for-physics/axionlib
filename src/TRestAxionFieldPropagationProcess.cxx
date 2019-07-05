@@ -112,17 +112,139 @@ void TRestAxionFieldPropagationProcess::Initialize() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
+
+void TRestAxionFieldPropagationProcess::InitProcess() {
+
+    debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
+
+    fAxionMagneticField = (TRestAxionMagneticField*)this->GetMetadata("TRestAxionMagneticField");
+
+    if (!fAxionMagneticField) {
+        error << "TRestAxionFieldPropagationprocess. Magnetic Field was not defined!" << endl;
+        exit(0);
+    }
+
+}
+
+std::vector <TVector3> TRestAxionFieldPropagationProcess::FindOneVolume( TVector3 pos, TVector3 dir, Double_t y, Double_t minStep )
+{
+
+    if ( dir[1] > 0 ) 
+         error << " y is ascendant, and you entered the direction vector : " << "("<<dir[0]<<","<<dir[1]<<","<<dir[2]<< ")" <<endl;
+
+    std::vector <TVector3> boundary;
+    TVector3 boundaryIn;
+    TVector3 boundaryOut;
+
+    double dr = 10.; // Can be between 1 and 10
+
+    double t = (y-pos[1])/dir[1];
+    pos[1] = y; 
+    pos[0] = pos[0]+t*dir[0];
+    pos[2] = pos[2]+t*dir[2];
+
+  
+    while ( dr > minStep )
+    {
+    	while ( fAxionMagneticField->GetMagneticField(pos[0],pos[1],pos[2]) == TVector3(0,0,0) && pos[1]>0 ) 
+        {
+                y = pos[1]-dr;
+	        t = (y-pos[1])/dir[1]; 
+                pos[1] = y; 
+                pos[0] = pos[0]+t*dir[0];
+                pos[2] = pos[2]+t*dir[2];
+        }
+
+	if ( pos[1] <= 0 ) { 
+
+	     boundaryIn = pos;
+ 	     boundaryOut = TVector3(0,0,0);
+             boundary.push_back(boundaryIn);
+             boundary.push_back(boundaryOut);
+             return boundary; }
+
+	else {
+
+	     y = pos[1]+dr;
+             t = (y-pos[1])/dir[1]; 
+             pos[1] = y; 
+             pos[0] = pos[0]+t*dir[0];
+             pos[2] = pos[2]+t*dir[2];
+             dr = dr/2.0;
+             }
+    }
+    
+    boundaryIn = pos;
+
+    while ( fAxionMagneticField->GetMagneticField(pos[0],pos[1],pos[2]) != TVector3(0,0,0) ) 
+    {
+                y = pos[1]-dr;
+	        t = (y-pos[1])/dir[1]; 
+                pos[1] = y; 
+                pos[0] = pos[0]+t*dir[0];
+                pos[2] = pos[2]+t*dir[2];
+    }
+    
+    boundaryOut = pos;
+
+    boundary.push_back(boundaryIn);
+    boundary.push_back(boundaryOut);
+               
+    return boundary;
+
+} 
+
+std::vector <std::vector <TVector3>> TRestAxionFieldPropagationProcess::FindFieldBoundaries( Double_t minStep )
+{
+
+    if ( minStep == -1 )
+         minStep = 0.01 ; 
+
+    std::vector <std::vector <TVector3>> boundaryCollection;
+
+    TVector3 posInitial = *(fInputAxionEvent->GetPosition());
+    TVector3 direction = *(fInputAxionEvent->GetDirection());
+
+    Double_t t = (10000.-posInitial[1])/direction[1]; // Translation of the axion at the plane y=10 m, it could be 20m, or 5m etc. ...
+    posInitial[1] = 10000.; 
+    posInitial[0] = posInitial[0]+t*direction[0];
+    posInitial[2] = posInitial[2]+t*direction[2];
+
+    std::vector <TVector3> bInt;
+    bInt = FindOneVolume(posInitial,direction,posInitial[1],minStep);
+
+    if ( bInt[0][1] <= 0. ) 
+         return boundaryCollection ;
+
+    else 
+    {
+         boundaryCollection.push_back( bInt );
+         bInt = FindOneVolume(bInt[1],direction,bInt[1][1],minStep);
+
+         while ( bInt[0][1] > 0 ) 
+         {
+                 boundaryCollection.push_back( bInt );
+                 bInt = FindOneVolume(bInt[1],direction,bInt[1][1],minStep);
+         }
+
+         bInt.clear();  
+         return boundaryCollection;
+    }
+   
+}
+
 TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput) {
     fInputAxionEvent = (TRestAxionEvent*)evInput;
 
     *fOutputAxionEvent = *fInputAxionEvent;
+     
 
     // fOutputAxionEvent->SetGammaProbability( 0.1 );
 
-    if (GetVerboseLevel() >= REST_Debug) {
+    /*if (GetVerboseLevel() >= REST_Debug) {
         fOutputAxionEvent->PrintEvent();
         GetChar();
-    }
+    }*/
 
     return fOutputEvent;
 }
@@ -130,4 +252,9 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML TRestAxionFieldPropagationProcess metadata section
 ///
-void TRestAxionFieldPropagationProcess::InitFromConfigFile() {}
+void TRestAxionFieldPropagationProcess::InitFromConfigFile() {
+
+
+
+
+}

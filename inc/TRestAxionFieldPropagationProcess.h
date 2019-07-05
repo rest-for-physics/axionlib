@@ -25,14 +25,11 @@
 
 #include "TRestAxionEvent.h"
 #include "TRestEventProcess.h"
+#include "TRestAxionMagneticField.h"
 
 //! A process to introduce the axion-photon conversion probability in the signal generation chain
 class TRestAxionFieldPropagationProcess : public TRestEventProcess {
 private:
-
-    /// A pointer to the specific TRestAxionEvent
-    TRestAxionEvent *fInputAxionEvent; //!
-    TRestAxionEvent *fOutputAxionEvent; //!
 
     void InitFromConfigFile();
 
@@ -40,9 +37,18 @@ private:
 
     void LoadDefaultConfig();
 
+/// A pointer to the specific TRestAxionEvent
+    TRestAxionEvent *fInputAxionEvent; //!
+    TRestAxionEvent *fOutputAxionEvent; //!
+
+/// A pointer to the magnetic field stored in TRestRun
+    TRestAxionMagneticField *fAxionMagneticField; //!
+
+
 protected:
 
 public:
+    void InitProcess();
 
     TRestEvent *ProcessEvent( TRestEvent *evInput );
 
@@ -55,6 +61,9 @@ public:
 
             EndPrintProcess();
         }
+
+    std::vector <TVector3> FindOneVolume( TVector3 pos, TVector3 dir, Double_t y, Double_t minStep );
+    std::vector <std::vector <TVector3>> FindFieldBoundaries( Double_t minStep = -1);   
 
     /// Returns a new instance of this class
     TRestEventProcess *Maker() { return new TRestAxionFieldPropagationProcess; }
