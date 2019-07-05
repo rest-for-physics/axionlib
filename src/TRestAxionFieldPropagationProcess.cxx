@@ -126,7 +126,7 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
 
 }
 
-std::vector <TVector3> TRestAxionFieldPropagationProcess::FindOneVolume( TVector3 pos, TVector3 dir, Double_t y, Double_t minStep )
+std::vector <TVector3> TRestAxionFieldPropagationProcess::FindOneVolume( TVector3 pos, TVector3 dir, Double_t minStep )
 {
 
     if ( dir[1] > 0 ) 
@@ -136,14 +136,10 @@ std::vector <TVector3> TRestAxionFieldPropagationProcess::FindOneVolume( TVector
     TVector3 boundaryIn;
     TVector3 boundaryOut;
 
-    double dr = 10.; // Can be between 1 and 10
+    Double_t dr = 10.; // Can be between 1 and 10
+    Double_t y;
+    Double_t t;
 
-    double t = (y-pos[1])/dir[1];
-    pos[1] = y; 
-    pos[0] = pos[0]+t*dir[0];
-    pos[2] = pos[2]+t*dir[2];
-
-  
     while ( dr > minStep )
     {
     	while ( fAxionMagneticField->GetMagneticField(pos[0],pos[1],pos[2]) == TVector3(0,0,0) && pos[1]>0 ) 
@@ -211,7 +207,7 @@ std::vector <std::vector <TVector3>> TRestAxionFieldPropagationProcess::FindFiel
     posInitial[2] = posInitial[2]+t*direction[2];
 
     std::vector <TVector3> bInt;
-    bInt = FindOneVolume(posInitial,direction,posInitial[1],minStep);
+    bInt = FindOneVolume(posInitial,direction,minStep);
 
     if ( bInt[0][1] <= 0. ) 
          return boundaryCollection ;
@@ -219,12 +215,12 @@ std::vector <std::vector <TVector3>> TRestAxionFieldPropagationProcess::FindFiel
     else 
     {
          boundaryCollection.push_back( bInt );
-         bInt = FindOneVolume(bInt[1],direction,bInt[1][1],minStep);
+         bInt = FindOneVolume(bInt[1],direction,minStep);
 
          while ( bInt[0][1] > 0 ) 
          {
                  boundaryCollection.push_back( bInt );
-                 bInt = FindOneVolume(bInt[1],direction,bInt[1][1],minStep);
+                 bInt = FindOneVolume(bInt[1],direction,minStep);
          }
 
          bInt.clear();  
