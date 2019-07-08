@@ -126,29 +126,130 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
 
 }
 
+
+
 std::vector <TVector3> TRestAxionFieldPropagationProcess::FindOneVolume( TVector3 pos, TVector3 dir, Double_t minStep )
 {
 
-    if ( dir[1] > 0 ) 
-         error << " y is ascendant, and you entered the direction vector : " << "("<<dir[0]<<","<<dir[1]<<","<<dir[2]<< ")" <<endl;
+  if ( dir[1] > 0 ) 
+       error << " y is ascendant, and you entered the direction vector : " << "("<<dir[0]<<","<<dir[1]<<","<<dir[2]<< ")" <<endl;
 
+  if ( dir[1] == 0 && dir[2] == 0) 
+  {
+       std::vector <TVector3> boundary;
+       TVector3 boundaryIn;
+       TVector3 boundaryOut;
+
+       Double_t dr = 5.; // Can be between 1 and 10
+ 
+       pos[0] = pos[0] + dir[0]*minStep/2.0;
+
+       while ( dr > minStep )
+       {
+    	       while ( fAxionMagneticField->GetMagneticField(pos[0],pos[1],pos[2]) == TVector3(0,0,0) && pos[0] >= -40000. && pos[0] <= 40000. ) 
+                       pos[0] = pos[0] + dir[0]*dr; 
+          
+	       if ( pos[0] < -40000.0 || pos[0] > 40000.) { 
+
+	            boundaryIn = pos;
+ 	            boundaryOut = TVector3(0,0,0);
+                    boundary.push_back(boundaryIn);
+                    boundary.push_back(boundaryOut);
+                    return boundary; }
+
+	       else {
+
+	             pos[0] = pos[0]-dir[0]*dr;
+                     dr = dr/2.0;
+
+                     }
+        }
+
+        pos[0] = pos[0] + dir[0]*dr*2.0;
+
+        boundaryIn = pos;
+
+        while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) != TVector3(0,0,0) ) 
+                pos[0] = pos[0] + dir[0]*dr;
+    
+        boundaryOut = pos;
+    
+        boundary.push_back(boundaryIn);
+        boundary.push_back(boundaryOut);
+        
+        return boundary;
+  }
+
+  if ( dir[0] == 0 && dir[1] == 0) 
+  {
+       std::vector <TVector3> boundary;
+       TVector3 boundaryIn;
+       TVector3 boundaryOut;
+
+       Double_t dr = 5.; // Can be between 1 and 10
+ 
+       pos[2] = pos[2] + dir[2]*minStep/2.0;
+
+       while ( dr > minStep )
+       {
+    	       while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) == TVector3(0,0,0) && pos[2] >= -40000. && pos[2] <= 40000. ) 
+                       pos[2] = pos[2] + dir[2]*dr; 
+                      
+          
+	       if ( pos[2] < -40000.0 || pos[2] > 40000.) { 
+
+	            boundaryIn = pos;
+ 	            boundaryOut = TVector3(0,0,0);
+                    boundary.push_back(boundaryIn);
+                    boundary.push_back(boundaryOut);
+                    return boundary; }
+
+	       else {
+
+	             pos[2] = pos[2] - dir[2]*dr;
+                     dr = dr/2.0;
+
+                     }
+        }
+
+        pos[2] = pos[2]+dir[2]*dr*2.0;
+        cout << dr << endl;
+        cout << pos[2] << endl;
+
+        boundaryIn = pos;
+
+        while ( fAxionMagneticField->GetMagneticField(pos[0],pos[1],pos[2]) != TVector3(0,0,0) ) 
+                pos[2] = pos[2] + dir[2]*dr;
+    
+        boundaryOut = pos;
+    
+        boundary.push_back(boundaryIn);
+        boundary.push_back(boundaryOut);
+        
+        return boundary;
+  }
+   
+  else
+  {
     std::vector <TVector3> boundary;
     TVector3 boundaryIn;
     TVector3 boundaryOut;
 
-    Double_t dr = 10.; // Can be between 1 and 10
+    Double_t dr = 5.; // Can be between 1 and 10
     Double_t y;
     Double_t t;
+ 
+    pos[1] = pos[1] - minStep/2.0;
 
     while ( dr > minStep )
     {
     	while ( fAxionMagneticField->GetMagneticField(pos[0],pos[1],pos[2]) == TVector3(0,0,0) && pos[1]>0 ) 
         {
-                y = pos[1]-dr;
-	        t = (y-pos[1])/dir[1]; 
+                y = pos[1] - dr;
+	        t = ( y-pos[1] ) / dir[1]; 
                 pos[1] = y; 
-                pos[0] = pos[0]+t*dir[0];
-                pos[2] = pos[2]+t*dir[2];
+                pos[0] = pos[0] + t*dir[0];
+                pos[2] = pos[2] + t*dir[2];
         }
 
 	if ( pos[1] <= 0 ) { 
@@ -161,73 +262,141 @@ std::vector <TVector3> TRestAxionFieldPropagationProcess::FindOneVolume( TVector
 
 	else {
 
-	     y = pos[1]+dr;
-             t = (y-pos[1])/dir[1]; 
+	     y = pos[1] + dr;
+             t = ( y-pos[1] ) / dir[1]; 
              pos[1] = y; 
-             pos[0] = pos[0]+t*dir[0];
-             pos[2] = pos[2]+t*dir[2];
+             pos[0] = pos[0] + t*dir[0];
+             pos[2] = pos[2] + t*dir[2];
              dr = dr/2.0;
              }
     }
     
+    y = pos[1] - dr*2.0;
+    t = ( y-pos[1] ) / dir[1];
+    pos[1] = y;
+    pos[0] = pos[0] + t*dir[0];
+    pos[2] = pos[2] + t*dir[2];
     boundaryIn = pos;
 
-    while ( fAxionMagneticField->GetMagneticField(pos[0],pos[1],pos[2]) != TVector3(0,0,0) ) 
+    while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) != TVector3(0,0,0) ) 
     {
-                y = pos[1]-dr;
-	        t = (y-pos[1])/dir[1]; 
+                y = pos[1] - dr;
+	        t = ( y-pos[1] ) / dir[1]; 
                 pos[1] = y; 
-                pos[0] = pos[0]+t*dir[0];
-                pos[2] = pos[2]+t*dir[2];
+                pos[0] = pos[0] + t*dir[0];
+                pos[2] = pos[2] + t*dir[2];
     }
     
     boundaryOut = pos;
-
+    
     boundary.push_back(boundaryIn);
     boundary.push_back(boundaryOut);
-               
+       
     return boundary;
+  }
 
 } 
 
-std::vector <std::vector <TVector3>> TRestAxionFieldPropagationProcess::FindFieldBoundaries( Double_t minStep )
+std::vector  <TVector3> TRestAxionFieldPropagationProcess::FindFieldBoundaries( Double_t minStep )
 {
 
     if ( minStep == -1 )
          minStep = 0.01 ; 
 
-    std::vector <std::vector <TVector3>> boundaryCollection;
+    std::vector <TVector3> boundaryCollection;
 
     TVector3 posInitial = *(fInputAxionEvent->GetPosition());
     TVector3 direction = *(fInputAxionEvent->GetDirection());
 
-    Double_t t = (10000.-posInitial[1])/direction[1]; // Translation of the axion at the plane y=10 m, it could be 20m, or 5m etc. ...
-    posInitial[1] = 10000.; 
-    posInitial[0] = posInitial[0]+t*direction[0];
-    posInitial[2] = posInitial[2]+t*direction[2];
-
-    std::vector <TVector3> bInt;
-    bInt = FindOneVolume(posInitial,direction,minStep);
-
-    if ( bInt[0][1] <= 0. ) 
-         return boundaryCollection ;
-
-    else 
+    if ( direction[1] == 0 && direction[2] == 0 )
     {
-         boundaryCollection.push_back( bInt );
-         bInt = FindOneVolume(bInt[1],direction,minStep);
+        posInitial[0] = -direction[0]*25000.; 
 
-         while ( bInt[0][1] > 0 ) 
-         {
-                 boundaryCollection.push_back( bInt );
-                 bInt = FindOneVolume(bInt[1],direction,minStep);
+        std::vector <TVector3> bInt;
+        bInt = FindOneVolume( posInitial,direction,minStep );
+
+        if ( bInt[0][0] < -40000. || bInt[0][0] > 40000. ) 
+             return boundaryCollection ;
+   
+        else 
+        {
+            boundaryCollection.push_back( bInt[0] );
+	    boundaryCollection.push_back( bInt[1] );
+            bInt = FindOneVolume( bInt[1],direction,minStep );
+
+            while ( bInt[0][0] >= -40000. && bInt[0][0] <= 40000. ) 
+            {
+                    boundaryCollection.push_back( bInt[0] );
+		    boundaryCollection.push_back( bInt[1] );
+                    bInt = FindOneVolume( bInt[1],direction,minStep );
+            }
+
+            bInt.clear();  
+            return boundaryCollection;
+         }
+    }
+
+    if ( direction[0] == 0 && direction[1] == 0 )
+    {
+        posInitial[2] = -direction[2]*25000.; 
+
+        std::vector <TVector3> bInt;
+        bInt = FindOneVolume( posInitial,direction,minStep );
+
+        if ( bInt[0][2] < -40000. || bInt[0][2] > 40000. ) 
+             return boundaryCollection ;
+   
+        else 
+        {
+            boundaryCollection.push_back( bInt[0] );
+	    boundaryCollection.push_back( bInt[1] );
+            bInt = FindOneVolume(bInt[1],direction,minStep);
+            while ( bInt[0][2] >= -40000. && bInt[0][2] <= 40000. ) 
+            {
+                    boundaryCollection.push_back( bInt[0] );
+		    boundaryCollection.push_back( bInt[1] );
+                    bInt = FindOneVolume( bInt[1],direction,minStep );
+            }
+
+            bInt.clear();  
+            return boundaryCollection;
          }
 
-         bInt.clear();  
-         return boundaryCollection;
+
     }
+ 
+    else 
+    {
+
+        Double_t t = ( 10000.-posInitial[1] ) / direction[1]; // Translation of the axion at the plane y=10 m, it could be 20m, or 5m etc. ...
+        posInitial[1] = 10000.; 
+        posInitial[0] = posInitial[0] + t*direction[0];
+        posInitial[2] = posInitial[2] + t*direction[2];
+
+        std::vector <TVector3> bInt;
+        bInt = FindOneVolume( posInitial,direction,minStep );
+
+        if ( bInt[0][1] <= 0. ) 
+             return boundaryCollection ;
    
+        else 
+        {
+            boundaryCollection.push_back( bInt[0] );
+	    boundaryCollection.push_back( bInt[1] );
+            bInt = FindOneVolume( bInt[1],direction,minStep );
+            while ( bInt[0][1] > 0 ) 
+            {
+                    boundaryCollection.push_back( bInt[0] );
+		    boundaryCollection.push_back( bInt[1] );
+                    bInt = FindOneVolume( bInt[1],direction,minStep );
+            }
+
+            bInt.clear();  
+            return boundaryCollection;
+        }
+    }    
 }
+
 
 TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput) {
     fInputAxionEvent = (TRestAxionEvent*)evInput;
