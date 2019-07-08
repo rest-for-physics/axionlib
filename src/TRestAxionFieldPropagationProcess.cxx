@@ -146,7 +146,7 @@ std::vector <TVector3> TRestAxionFieldPropagationProcess::FindOneVolume( TVector
 
        while ( dr > minStep )
        {
-    	       while ( fAxionMagneticField->GetMagneticField(pos[0],pos[1],pos[2]) == TVector3(0,0,0) && pos[0] >= -40000. && pos[0] <= 40000. ) 
+    	       while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) == TVector3(0,0,0) && pos[0] >= -40000. && pos[0] <= 40000. ) 
                        pos[0] = pos[0] + dir[0]*dr; 
           
 	       if ( pos[0] < -40000.0 || pos[0] > 40000.) { 
@@ -218,7 +218,7 @@ std::vector <TVector3> TRestAxionFieldPropagationProcess::FindOneVolume( TVector
 
         boundaryIn = pos;
 
-        while ( fAxionMagneticField->GetMagneticField(pos[0],pos[1],pos[2]) != TVector3(0,0,0) ) 
+        while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) != TVector3(0,0,0) ) 
                 pos[2] = pos[2] + dir[2]*dr;
     
         boundaryOut = pos;
@@ -243,7 +243,7 @@ std::vector <TVector3> TRestAxionFieldPropagationProcess::FindOneVolume( TVector
 
     while ( dr > minStep )
     {
-    	while ( fAxionMagneticField->GetMagneticField(pos[0],pos[1],pos[2]) == TVector3(0,0,0) && pos[1]>0 ) 
+    	while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) == TVector3(0,0,0) && pos[1]>0 ) 
         {
                 y = pos[1] - dr;
 	        t = ( y-pos[1] ) / dir[1]; 
@@ -297,16 +297,18 @@ std::vector <TVector3> TRestAxionFieldPropagationProcess::FindOneVolume( TVector
 
 } 
 
-std::vector  <TVector3> TRestAxionFieldPropagationProcess::FindFieldBoundaries( Double_t minStep )
+std::vector  <std::vector <TVector3> > TRestAxionFieldPropagationProcess::FindFieldBoundaries( Double_t minStep )
 {
 
     if ( minStep == -1 )
          minStep = 0.01 ; 
 
-    std::vector <TVector3> boundaryCollection;
+    std::vector <std::vector <TVector3> > boundaryCollection;
 
     TVector3 posInitial = *(fInputAxionEvent->GetPosition());
     TVector3 direction = *(fInputAxionEvent->GetDirection());
+
+    std::vector <TVector3> buffVect;
 
     if ( direction[1] == 0 && direction[2] == 0 )
     {
@@ -320,14 +322,20 @@ std::vector  <TVector3> TRestAxionFieldPropagationProcess::FindFieldBoundaries( 
    
         else 
         {
-            boundaryCollection.push_back( bInt[0] );
-	    boundaryCollection.push_back( bInt[1] );
+            buffVect.push_back( bInt[0] );
+	    buffVect.push_back( bInt[1] );
+            boundaryCollection.push_back( buffVect );
+            buffVect.clear();
+
             bInt = FindOneVolume( bInt[1],direction,minStep );
 
             while ( bInt[0][0] >= -40000. && bInt[0][0] <= 40000. ) 
             {
-                    boundaryCollection.push_back( bInt[0] );
-		    boundaryCollection.push_back( bInt[1] );
+                    buffVect.push_back( bInt[0] );
+	    	    buffVect.push_back( bInt[1] );
+            	    boundaryCollection.push_back( buffVect );
+            	    buffVect.clear();
+
                     bInt = FindOneVolume( bInt[1],direction,minStep );
             }
 
@@ -348,13 +356,20 @@ std::vector  <TVector3> TRestAxionFieldPropagationProcess::FindFieldBoundaries( 
    
         else 
         {
-            boundaryCollection.push_back( bInt[0] );
-	    boundaryCollection.push_back( bInt[1] );
+            buffVect.push_back( bInt[0] );
+	    buffVect.push_back( bInt[1] );
+            boundaryCollection.push_back( buffVect );
+            buffVect.clear();
+
             bInt = FindOneVolume(bInt[1],direction,minStep);
+
             while ( bInt[0][2] >= -40000. && bInt[0][2] <= 40000. ) 
             {
-                    boundaryCollection.push_back( bInt[0] );
-		    boundaryCollection.push_back( bInt[1] );
+                    buffVect.push_back( bInt[0] );
+	    	    buffVect.push_back( bInt[1] );
+           	    boundaryCollection.push_back( buffVect );
+            	    buffVect.clear();
+
                     bInt = FindOneVolume( bInt[1],direction,minStep );
             }
 
@@ -381,13 +396,20 @@ std::vector  <TVector3> TRestAxionFieldPropagationProcess::FindFieldBoundaries( 
    
         else 
         {
-            boundaryCollection.push_back( bInt[0] );
-	    boundaryCollection.push_back( bInt[1] );
+            buffVect.push_back( bInt[0] );
+	    buffVect.push_back( bInt[1] );
+            boundaryCollection.push_back( buffVect );
+            buffVect.clear();
+
             bInt = FindOneVolume( bInt[1],direction,minStep );
+
             while ( bInt[0][1] > 0 ) 
             {
-                    boundaryCollection.push_back( bInt[0] );
-		    boundaryCollection.push_back( bInt[1] );
+		    buffVect.push_back( bInt[0] );
+	    	    buffVect.push_back( bInt[1] );
+            	    boundaryCollection.push_back( buffVect );
+                    buffVect.clear();
+
                     bInt = FindOneVolume( bInt[1],direction,minStep );
             }
 

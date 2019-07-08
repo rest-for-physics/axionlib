@@ -63,7 +63,7 @@ public:
         }
 
     std::vector <TVector3> FindOneVolume( TVector3 pos, TVector3 dir, Double_t minStep );
-    std::vector <TVector3> FindFieldBoundaries( Double_t minStep = -1);   
+    std::vector <std::vector <TVector3> > FindFieldBoundaries( Double_t minStep = -1);   
 
     /// Returns a new instance of this class
     TRestEventProcess *Maker() { return new TRestAxionFieldPropagationProcess; }
