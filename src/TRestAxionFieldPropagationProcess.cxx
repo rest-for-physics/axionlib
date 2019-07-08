@@ -419,6 +419,63 @@ std::vector  <std::vector <TVector3> > TRestAxionFieldPropagationProcess::FindFi
     }    
 }
 
+TVectorD TRestAxionFieldPropagationProcess::GetFieldVector( TVector3 in, TVector3 out, Int_t N ) {
+   
+   if (N == 0) 
+       N=TMath::Power(10,4);
+   
+   TVectorD Bt(N); 
+ 
+   TVector3 B;
+   TVector3 direction = *(fInputAxionEvent->GetDirection());
+   Double_t Buff;
+   Double_t t;
+
+   B = fAxionMagneticField -> GetMagneticField( in[0],in[1],in[2] );
+   Bt[0] = abs( B.Dot(direction) ) ;
+
+   if ( in[1] == out[1] && in[2] == out[2] )
+   {
+        for ( Int_t i=1 ; i<N ; i++ )
+        {
+              in[0] = in[0] + ( out[0]-in[0] ) * Double_t(i) / Double_t(N-1);
+              B = fAxionMagneticField -> GetMagneticField( in[0],in[1],in[2] );
+              Bt[i] = abs( B.Dot(direction) ) ;        
+        }
+
+        return Bt;
+   }
+
+   if ( in[0] == out[0] && in[1] == out[1] )
+   {
+        for ( Int_t i=1 ; i<N ; i++ )
+        {
+              in[2] = in[2] + ( out[2]-in[2] ) * Double_t(i) / Double_t(N-1);
+              B = fAxionMagneticField -> GetMagneticField( in[0],in[1],in[2] );
+              Bt[i] = abs( B.Dot(direction) ) ;        
+        }
+
+        return Bt; 
+   }
+
+   else 
+   {
+      
+      for ( Int_t i=1 ; i<N ; i++ )
+      {
+            Buff = in[1];
+            in[1] = in[1] + ( out[1]-in[1] ) * Double_t(i) / Double_t(N-1);
+            t = (in[1]-Buff)/direction[1];
+            in[0] = in[0] + t*direction[0];
+            in[2] = in[2] + t*direction[2];
+            B = fAxionMagneticField -> GetMagneticField( in[0],in[1],in[2] );
+            Bt[i] = abs( B.Dot(direction) ) ;        
+      }
+
+      return Bt;
+   }
+}
+
 
 TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput) {
     fInputAxionEvent = (TRestAxionEvent*)evInput;
