@@ -29,6 +29,7 @@
 #include "TRestAxionEvent.h"
 #include "TRestEventProcess.h"
 #include "TRestAxionMagneticField.h"
+#include "TRestAxionPhotonConversion.h"
 
 //! A process to introduce the axion-photon conversion probability in the signal generation chain
 class TRestAxionFieldPropagationProcess : public TRestEventProcess {
@@ -46,6 +47,10 @@ private:
 
 /// A pointer to the magnetic field stored in TRestRun
     TRestAxionMagneticField *fAxionMagneticField; //!
+
+/// A pointer for the gamma conversion probability 
+    TRestAxionPhotonConversion *fAxionPhotonConversion; //!
+
 
 
 protected:

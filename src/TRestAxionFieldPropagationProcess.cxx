@@ -124,6 +124,13 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
         exit(0);
     }
 
+    fAxionPhotonConversion = (TRestAxionPhotonConversion*)this->GetMetadata("TRestAxionPhotonConversion");
+
+    if (!fAxionPhotonConversion) {
+        error << "TRestAxionPhotonConversion. Cannot access at the Gamma Transmission Probability " << endl;
+        exit(0);
+    }
+
 }
 
 
@@ -478,17 +485,41 @@ TVectorD TRestAxionFieldPropagationProcess::GetFieldVector( TVector3 in, TVector
 
 
 TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput) {
+    
     fInputAxionEvent = (TRestAxionEvent*)evInput;
+    fOutputAxionEvent = fInputAxionEvent;
+    
+    Double_t Ea = fInputAxionEvent -> GetEnergy() ;
+    Double_t ma = 1.0; // TODO : Add the axion mass information in the AxionEvent later ?
 
-    *fOutputAxionEvent = *fInputAxionEvent;
-     
+    std::vector <std::vector <TVector3>> boundaries;
+    boundaries = FindFieldBoundaries();
+    Int_t NofVolumes = boundaries.size();
+    TVectorD B;
+    TVectorD probabilities(NofVolumes);
+ 
+    for ( Int_t i=0 ; i<NofVolumes ; i++ )
+    {
+          B = GetFieldVector( boundaries[i][0], boundaries[i][1] );
 
-    // fOutputAxionEvent->SetGammaProbability( 0.1 );
+          if ( boundaries[i][0][1] == boundaries[i][1][1] && boundaries[i][0][2] == boundaries[i][1][2] )
+               probabilities[i] = fAxionPhotonConversion -> GammaTransmissionProbability( Ea, B, ma, abs( boundaries[i][0][0] - boundaries[i][1][0] ) );
+	  if ( boundaries[i][0][0] == boundaries[i][1][0] && boundaries[i][0][1] == boundaries[i][1][1] )
+               probabilities[i] = fAxionPhotonConversion -> GammaTransmissionProbability( Ea, B, ma, abs( boundaries[i][0][2] - boundaries[i][1][2] ) );
 
-    /*if (GetVerboseLevel() >= REST_Debug) {
-        fOutputAxionEvent->PrintEvent();
-        GetChar();
-    }*/
+          else 
+               probabilities[i] = fAxionPhotonConversion -> GammaTransmissionProbability( Ea, B, ma, abs( boundaries[i][0][1] - boundaries[i][1][1] ) );
+    }
+
+    Double_t probability = 0.;
+    
+    for ( Int_t i=0 ; i<NofVolumes ; i++)
+          probability = probability + probabilities[i];
+
+    fOutputAxionEvent -> SetGammaProbability( probability );
+    fOutputAxionEvent -> SetPosition( boundaries[NofVolumes][1] );
+
+    if (GetVerboseLevel() >= REST_Debug)fOutputAxionEvent->PrintEvent();
 
     return fOutputEvent;
 }
