@@ -220,8 +220,6 @@ std::vector <TVector3> TRestAxionFieldPropagationProcess::FindOneVolume( TVector
         }
 
         pos[2] = pos[2]+dir[2]*dr*2.0;
-        cout << dr << endl;
-        cout << pos[2] << endl;
 
         boundaryIn = pos;
 
@@ -265,6 +263,10 @@ std::vector <TVector3> TRestAxionFieldPropagationProcess::FindOneVolume( TVector
  	     boundaryOut = TVector3(0,0,0);
              boundary.push_back(boundaryIn);
              boundary.push_back(boundaryOut);
+         
+             debug << "(" << boundaryIn[0] << "," << boundaryIn[1] << "," << boundaryIn[2] << ")" << endl; 
+             debug << "(" << boundaryOut[0] << "," << boundaryOut[1] << "," << boundaryOut[2] << ")" << endl;
+    
              return boundary; }
 
 	else {
@@ -298,7 +300,11 @@ std::vector <TVector3> TRestAxionFieldPropagationProcess::FindOneVolume( TVector
     
     boundary.push_back(boundaryIn);
     boundary.push_back(boundaryOut);
-       
+    
+    debug << "(" << boundaryIn[0] << "," << boundaryIn[1] << "," << boundaryIn[2] << ")" << endl; 
+    debug << "(" << boundaryOut[0] << "," << boundaryOut[1] << "," << boundaryOut[2] << ")" << endl;
+    
+   
     return boundary;
   }
 
@@ -431,7 +437,9 @@ TVectorD TRestAxionFieldPropagationProcess::GetFieldVector( TVector3 in, TVector
    if (N == 0) 
        N=TMath::Power(10,4);
    
-   TVectorD Bt(N); 
+   TVectorD Bt(N);
+
+   TVector3 differential = out - in; 
  
    TVector3 B;
    TVector3 direction = *(fInputAxionEvent->GetDirection());
@@ -440,47 +448,15 @@ TVectorD TRestAxionFieldPropagationProcess::GetFieldVector( TVector3 in, TVector
 
    B = fAxionMagneticField -> GetMagneticField( in[0],in[1],in[2] );
    Bt[0] = abs( B.Dot(direction) ) ;
-
-   if ( in[1] == out[1] && in[2] == out[2] )
+   for ( Int_t i=1 ; i<N ; i++ )
    {
-        for ( Int_t i=1 ; i<N ; i++ )
-        {
-              in[0] = in[0] + ( out[0]-in[0] ) * Double_t(i) / Double_t(N-1);
-              B = fAxionMagneticField -> GetMagneticField( in[0],in[1],in[2] );
-              Bt[i] = abs( B.Dot(direction) ) ;        
-        }
-
-        return Bt;
+         in = in + differential * ( Double_t(i) / Double_t(N-1) );
+         B = fAxionMagneticField -> GetMagneticField( in[0],in[1],in[2] );
+         Bt[i] = abs( B.Dot(direction) ) ;        
    }
 
-   if ( in[0] == out[0] && in[1] == out[1] )
-   {
-        for ( Int_t i=1 ; i<N ; i++ )
-        {
-              in[2] = in[2] + ( out[2]-in[2] ) * Double_t(i) / Double_t(N-1);
-              B = fAxionMagneticField -> GetMagneticField( in[0],in[1],in[2] );
-              Bt[i] = abs( B.Dot(direction) ) ;        
-        }
-
-        return Bt; 
-   }
-
-   else 
-   {
-      
-      for ( Int_t i=1 ; i<N ; i++ )
-      {
-            Buff = in[1];
-            in[1] = in[1] + ( out[1]-in[1] ) * Double_t(i) / Double_t(N-1);
-            t = (in[1]-Buff)/direction[1];
-            in[0] = in[0] + t*direction[0];
-            in[2] = in[2] + t*direction[2];
-            B = fAxionMagneticField -> GetMagneticField( in[0],in[1],in[2] );
-            Bt[i] = abs( B.Dot(direction) ) ;        
-      }
-
-      return Bt;
-   }
+   return Bt;
+   
 }
 
 
@@ -500,7 +476,7 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
  
     for ( Int_t i=0 ; i<NofVolumes ; i++ )
     {
-          B = GetFieldVector( boundaries[i][0], boundaries[i][1] );
+          B = GetFieldVector( boundaries[i][0], boundaries[i][1], 0);
 
           if ( boundaries[i][0][1] == boundaries[i][1][1] && boundaries[i][0][2] == boundaries[i][1][2] )
                probabilities[i] = fAxionPhotonConversion -> GammaTransmissionProbability( Ea, B, ma, abs( boundaries[i][0][0] - boundaries[i][1][0] ) );
