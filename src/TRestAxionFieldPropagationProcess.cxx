@@ -135,7 +135,7 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
 
 
 
-std::vector <TVector3> TRestAxionFieldPropagationProcess::FindOneVolume( TVector3 pos, TVector3 dir, Double_t minStep )
+std::vector <TVector3> TRestAxionFieldPropagationProcess::FindBoundariesVolume( TVector3 pos, TVector3 dir, Double_t minStep )
 {
 
   if ( dir[1] > 0 ) 
@@ -328,7 +328,7 @@ std::vector  <std::vector <TVector3> > TRestAxionFieldPropagationProcess::FindFi
         posInitial[0] = -direction[0]*25000.; 
 
         std::vector <TVector3> bInt;
-        bInt = FindOneVolume( posInitial,direction,minStep );
+        bInt = FindBoundariesVolume( posInitial,direction,minStep );
 
         if ( bInt[0][0] < -40000. || bInt[0][0] > 40000. ) 
              return boundaryCollection ;
@@ -340,7 +340,7 @@ std::vector  <std::vector <TVector3> > TRestAxionFieldPropagationProcess::FindFi
             boundaryCollection.push_back( buffVect );
             buffVect.clear();
 
-            bInt = FindOneVolume( bInt[1],direction,minStep );
+            bInt = FindBoundariesVolume( bInt[1],direction,minStep );
 
             while ( bInt[0][0] >= -40000. && bInt[0][0] <= 40000. ) 
             {
@@ -349,7 +349,7 @@ std::vector  <std::vector <TVector3> > TRestAxionFieldPropagationProcess::FindFi
             	    boundaryCollection.push_back( buffVect );
             	    buffVect.clear();
 
-                    bInt = FindOneVolume( bInt[1],direction,minStep );
+                    bInt = FindBoundariesVolume( bInt[1],direction,minStep );
             }
 
             bInt.clear();  
@@ -362,7 +362,7 @@ std::vector  <std::vector <TVector3> > TRestAxionFieldPropagationProcess::FindFi
         posInitial[2] = -direction[2]*25000.; 
 
         std::vector <TVector3> bInt;
-        bInt = FindOneVolume( posInitial,direction,minStep );
+        bInt = FindBoundariesVolume( posInitial,direction,minStep );
 
         if ( bInt[0][2] < -40000. || bInt[0][2] > 40000. ) 
              return boundaryCollection ;
@@ -374,7 +374,7 @@ std::vector  <std::vector <TVector3> > TRestAxionFieldPropagationProcess::FindFi
             boundaryCollection.push_back( buffVect );
             buffVect.clear();
 
-            bInt = FindOneVolume(bInt[1],direction,minStep);
+            bInt = FindBoundariesVolume(bInt[1],direction,minStep);
 
             while ( bInt[0][2] >= -40000. && bInt[0][2] <= 40000. ) 
             {
@@ -383,7 +383,7 @@ std::vector  <std::vector <TVector3> > TRestAxionFieldPropagationProcess::FindFi
            	    boundaryCollection.push_back( buffVect );
             	    buffVect.clear();
 
-                    bInt = FindOneVolume( bInt[1],direction,minStep );
+                    bInt = FindBoundariesVolume( bInt[1],direction,minStep );
             }
 
             bInt.clear();  
@@ -402,7 +402,7 @@ std::vector  <std::vector <TVector3> > TRestAxionFieldPropagationProcess::FindFi
         posInitial[2] = posInitial[2] + t*direction[2];
 
         std::vector <TVector3> bInt;
-        bInt = FindOneVolume( posInitial,direction,minStep );
+        bInt = FindBoundariesVolume( posInitial,direction,minStep );
 
         if ( bInt[0][1] <= 0. ) 
              return boundaryCollection ;
@@ -414,7 +414,7 @@ std::vector  <std::vector <TVector3> > TRestAxionFieldPropagationProcess::FindFi
             boundaryCollection.push_back( buffVect );
             buffVect.clear();
 
-            bInt = FindOneVolume( bInt[1],direction,minStep );
+            bInt = FindBoundariesVolume( bInt[1],direction,minStep );
 
             while ( bInt[0][1] > 0 ) 
             {
@@ -423,7 +423,7 @@ std::vector  <std::vector <TVector3> > TRestAxionFieldPropagationProcess::FindFi
             	    boundaryCollection.push_back( buffVect );
                     buffVect.clear();
 
-                    bInt = FindOneVolume( bInt[1],direction,minStep );
+                    bInt = FindBoundariesVolume( bInt[1],direction,minStep );
             }
 
             bInt.clear();  

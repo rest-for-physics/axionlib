@@ -70,7 +70,7 @@ public:
             EndPrintProcess();
         }
 
-    std::vector <TVector3> FindOneVolume( TVector3 pos, TVector3 dir, Double_t minStep );
+    std::vector <TVector3> FindBoundariesVolume( TVector3 pos, TVector3 dir, Double_t minStep );
     std::vector <std::vector <TVector3> > FindFieldBoundaries( Double_t minStep = -1); 
 
     TVectorD GetFieldVector( TVector3 in, TVector3 out, Int_t N = 0 ); 
