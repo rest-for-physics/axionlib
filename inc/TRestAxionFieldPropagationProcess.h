@@ -27,72 +27,67 @@
 #include "TVectorD.h"
 
 #include "TRestAxionEvent.h"
-#include "TRestEventProcess.h"
 #include "TRestAxionMagneticField.h"
 #include "TRestAxionPhotonConversion.h"
+#include "TRestEventProcess.h"
 
 //! A process to introduce the axion-photon conversion probability in the signal generation chain
 class TRestAxionFieldPropagationProcess : public TRestEventProcess {
-private:
-
+   private:
     void InitFromConfigFile();
 
     void Initialize();
 
     void LoadDefaultConfig();
 
-    Double_t fCharSizeExp; 
+    Double_t fCharSizeExp;
 
-/// A pointer to the specific TRestAxionEvent
-    TRestAxionEvent *fInputAxionEvent; //!
-    TRestAxionEvent *fOutputAxionEvent; //!
+    /// A pointer to the specific TRestAxionEvent
+    TRestAxionEvent* fInputAxionEvent;   //!
+    TRestAxionEvent* fOutputAxionEvent;  //!
 
-/// A pointer to the magnetic field stored in TRestRun
-    TRestAxionMagneticField *fAxionMagneticField; //!
+    /// A pointer to the magnetic field stored in TRestRun
+    TRestAxionMagneticField* fAxionMagneticField;  //!
 
-/// A pointer for the gamma conversion probability 
-    TRestAxionPhotonConversion *fAxionPhotonConversion; //!
+    /// A pointer for the gamma conversion probability
+    TRestAxionPhotonConversion* fAxionPhotonConversion;  //!
 
-
-
-protected:
-
-public:
+   protected:
+   public:
     void InitProcess();
 
-    TRestEvent *ProcessEvent( TRestEvent *evInput );
+    TRestEvent* ProcessEvent(TRestEvent* evInput);
 
-    void LoadConfig( std::string cfgFilename, std::string name = "" );
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata()
-        {
-            BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-            EndPrintProcess();
-        }
+        EndPrintProcess();
+    }
 
-    TVector3 MoveOneStep( TVector3 pos, TVector3 dir, Double_t step );
-    TVector3 MoveVirtualBox( TVector3 pos, TVector3 dir, Double_t size = -1 );
+    TVector3 MoveOneStep(TVector3 pos, TVector3 dir, Double_t step);
+    TVector3 MoveVirtualBox(TVector3 pos, TVector3 dir, Double_t size = -1);
 
-    bool ConditionStop( TVector3 pos, TVector3 dir );
+    bool ConditionStop(TVector3 pos, TVector3 dir);
 
-    std::vector <TVector3> FindBoundariesVolume( TVector3 pos, TVector3 dir, Double_t minStep );
-    std::vector <std::vector <TVector3> > FindFieldBoundaries( Double_t minStep = -1); 
+    std::vector<TVector3> FindBoundariesVolume(TVector3 pos, TVector3 dir, Double_t minStep);
+    std::vector<std::vector<TVector3> > FindFieldBoundaries(Double_t minStep = -1);
 
-    TVectorD GetFieldVector( TVector3 in, TVector3 out, Int_t N = 0 ); 
+    TVectorD GetFieldVector(TVector3 in, TVector3 out, Int_t N = 0);
 
     /// Returns a new instance of this class
-    TRestEventProcess *Maker() { return new TRestAxionFieldPropagationProcess; }
+    TRestEventProcess* Maker() { return new TRestAxionFieldPropagationProcess; }
 
     /// Returns the name of this process
     TString GetProcessName() { return (TString) "axionFieldPropagation"; }
 
-    //Constructor
+    // Constructor
     TRestAxionFieldPropagationProcess();
-    TRestAxionFieldPropagationProcess( char *cfgFileName );
+    TRestAxionFieldPropagationProcess(char* cfgFileName);
 
-    //Destructor
+    // Destructor
     ~TRestAxionFieldPropagationProcess();
 
     ClassDef(TRestAxionFieldPropagationProcess, 1);

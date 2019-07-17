@@ -102,7 +102,7 @@ void TRestAxionFieldPropagationProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fCharSizeExp = 30000.; 
+    fCharSizeExp = 30000.;
 
     fInputAxionEvent = new TRestAxionEvent();
     fOutputAxionEvent = new TRestAxionEvent();
@@ -114,9 +114,7 @@ void TRestAxionFieldPropagationProcess::Initialize() {
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-
 void TRestAxionFieldPropagationProcess::InitProcess() {
-
     debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
 
     fAxionMagneticField = (TRestAxionMagneticField*)this->GetMetadata("TRestAxionMagneticField");
@@ -132,250 +130,220 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
         error << "TRestAxionPhotonConversion. Cannot access at the Gamma Transmission Probability " << endl;
         exit(0);
     }
-
 }
 
-TVector3 TRestAxionFieldPropagationProcess::MoveOneStep( TVector3 pos, TVector3 dir, Double_t step )
-{
+TVector3 TRestAxionFieldPropagationProcess::MoveOneStep(TVector3 pos, TVector3 dir, Double_t step) {
+    Double_t t;
+    Double_t f;
 
-  Double_t t;
-  Double_t f;
- 
-  Int_t i,j,k;
-  
-  if ( dir[1] != 0 ) 
-  {
-       j=1; k=2; i=0;
-  }
-  else 
-  {
-     if ( dir[0] != 0 ) 
-     {
-          j=0; i=1; k=2;
-     }
-     else
-     {
-          j=2; i=0; k=1;
-     }
-  }
+    Int_t i, j, k;
 
-  f = pos[j] + ( dir[j]/abs(dir[j]) ) * step;
-  t = (f-pos[j])/dir[j]; 
-
-  pos[j] = f; 
-  pos[i] = pos[i]+t*dir[i];
-  pos[k] = pos[k]+t*dir[k];
-
-  return pos;
-}
-
-
-TVector3 TRestAxionFieldPropagationProcess::MoveVirtualBox( TVector3 pos, TVector3 dir, Double_t size )
-{
-
-  if ( size==-1 )
-       size = fCharSizeExp;
-
-  Double_t step; 
-  Int_t i;
- 
-  if ( dir[1] != 0 ) 
-       i=1;
-  else
-  { 
-      if ( dir[0] != 0) 
-           i=0;
-      else 
-           i=2;
-  }
-
-  if ( pos[i]<size && pos[i]>-size ) return pos ;
-
-  if ( pos[i] < 0 ) size = -size;  
-       
-  step =  abs( pos[i] -size ); 
-  pos = MoveOneStep( pos,dir, step );
-
-  return pos;
-
-}
-
-bool TRestAxionFieldPropagationProcess::ConditionStop( TVector3 pos, TVector3 dir )
-{
-  if ( dir[1] != 0 )
-       return ( ( pos[1] < 0 && (dir[1] < 0) ) || ( pos[1] > fCharSizeExp && ( dir[1]>0 ) ) );
-  else 
-  {
-      if ( dir[0] != 0)
-           return ( pos[0] < - fCharSizeExp || pos[0] > fCharSizeExp ) ;
-  
-      else
-           return ( pos[2] < -fCharSizeExp || pos[2] > fCharSizeExp ) ; 
-  }             
-     
-}
-
-std::vector <TVector3> TRestAxionFieldPropagationProcess::FindBoundariesVolume( TVector3 pos, TVector3 dir, Double_t minStep )
-{
-
-  std::vector <TVector3> boundary; 
-  TVector3 boundaryIn;
-  TVector3 boundaryOut;
-
-  Double_t dr = 5.; 
-
-  pos = MoveOneStep( pos,dir,minStep);
- 
-  while ( dr > minStep )
-  {
-        while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) == TVector3(0,0,0) && not(ConditionStop(pos,dir)) ) 
-                pos = MoveOneStep( pos,dir,dr );
-
-	if ( ConditionStop( pos,dir ) ) 
-        {
-	     boundaryIn = pos;
- 	     boundaryOut = TVector3(0,0,0);
-             boundary.push_back(boundaryIn);
-             boundary.push_back(boundaryOut);
-             return boundary; 
+    if (dir[1] != 0) {
+        j = 1;
+        k = 2;
+        i = 0;
+    } else {
+        if (dir[0] != 0) {
+            j = 0;
+            i = 1;
+            k = 2;
+        } else {
+            j = 2;
+            i = 0;
+            k = 1;
         }
-
-	else 
-        {
-             pos = MoveOneStep( pos,dir,-dr );
-             dr = dr/2.0;
-        }
-  }
-  
-  pos = MoveOneStep( pos,dir,dr*2.0 );  
-  boundaryIn = pos;
-
-  while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) != TVector3(0,0,0) )
-          pos = MoveOneStep( pos,dir,dr );
-
-  boundaryOut = pos;
-    
-  boundary.push_back(boundaryIn);
-  boundary.push_back(boundaryOut);
-       
-  return boundary;
-
-}
-
-
-std::vector  <std::vector <TVector3> > TRestAxionFieldPropagationProcess::FindFieldBoundaries( Double_t minStep )
-{
-
-  if ( minStep == -1 )
-       minStep = 0.01 ; 
-
-  std::vector <std::vector <TVector3> > boundaryCollection;
-
-  TVector3 posInitial = *(fInputAxionEvent->GetPosition());
-  TVector3 direction = *(fInputAxionEvent->GetDirection());
-  direction = direction.Unit();
-
-  if ( direction == TVector3(0,0,0)  || ( direction[1]*posInitial[1] > 0 ) ) 
-       return boundaryCollection;
- 
-  std::vector <TVector3> buffVect;
-
-  posInitial = MoveVirtualBox( posInitial,direction );
-
-  std::vector <TVector3> bInt;
-  bInt = FindBoundariesVolume( posInitial,direction,minStep );
-
-  if ( ConditionStop(bInt[0],direction) ) 
-       return boundaryCollection ;
-   
-  else 
-  {
-       buffVect.push_back( bInt[0] );
-       buffVect.push_back( bInt[1] );
-       boundaryCollection.push_back( buffVect );
-       buffVect.clear();
-
-       bInt = FindBoundariesVolume(bInt[1],direction,minStep);
-
-       while ( not(ConditionStop(bInt[0],direction)) ) 
-       {
-               buffVect.push_back( bInt[0] );
-	       buffVect.push_back( bInt[1] );
-               boundaryCollection.push_back( buffVect );
-               buffVect.clear();
-
-               bInt = FindBoundariesVolume(bInt[1],direction,minStep);
-       }
-
-       bInt.clear();  
-       return boundaryCollection;
     }
-    
+
+    f = pos[j] + (dir[j] / abs(dir[j])) * step;
+    t = (f - pos[j]) / dir[j];
+
+    pos[j] = f;
+    pos[i] = pos[i] + t * dir[i];
+    pos[k] = pos[k] + t * dir[k];
+
+    return pos;
 }
 
+TVector3 TRestAxionFieldPropagationProcess::MoveVirtualBox(TVector3 pos, TVector3 dir, Double_t size) {
+    if (size == -1) size = fCharSizeExp;
 
-TVectorD TRestAxionFieldPropagationProcess::GetFieldVector( TVector3 in, TVector3 out, Int_t N ) {
-   
-   if (N == 0) 
-       N=TMath::Power(10,4);
-   
-   TVectorD Bt(N);
-   TVector3 B;
-   TVector3 direction = *(fInputAxionEvent->GetDirection());
+    Double_t step;
+    Int_t i;
 
-   TVector3 differential = out - in;
+    if (dir[1] != 0)
+        i = 1;
+    else {
+        if (dir[0] != 0)
+            i = 0;
+        else
+            i = 2;
+    }
 
-   B = fAxionMagneticField -> GetMagneticField( in[0],in[1],in[2] );
-   Bt[0] = abs( B.Perp(direction) ) ;
+    if (pos[i] < size && pos[i] > -size) return pos;
 
-   for ( Int_t i=1 ; i<N ; i++ )
-   {
-         in = in + differential * ( Double_t(i) / Double_t(N-1) );
-         B = fAxionMagneticField -> GetMagneticField( in[0],in[1],in[2] );
-         Bt[i] = abs( B.Perp(direction) ) ;        
-   }
+    if (pos[i] < 0) size = -size;
 
-   return Bt;
-   
+    step = abs(pos[i] - size);
+    pos = MoveOneStep(pos, dir, step);
+
+    return pos;
 }
 
+bool TRestAxionFieldPropagationProcess::ConditionStop(TVector3 pos, TVector3 dir) {
+    if (dir[1] != 0)
+        return ((pos[1] < 0 && (dir[1] < 0)) || (pos[1] > fCharSizeExp && (dir[1] > 0)));
+    else {
+        if (dir[0] != 0)
+            return (pos[0] < -fCharSizeExp || pos[0] > fCharSizeExp);
+
+        else
+            return (pos[2] < -fCharSizeExp || pos[2] > fCharSizeExp);
+    }
+}
+
+std::vector<TVector3> TRestAxionFieldPropagationProcess::FindBoundariesVolume(TVector3 pos, TVector3 dir,
+                                                                              Double_t minStep) {
+    std::vector<TVector3> boundary;
+    TVector3 boundaryIn;
+    TVector3 boundaryOut;
+
+    Double_t dr = 5.;
+
+    pos = MoveOneStep(pos, dir, minStep);
+
+    while (dr > minStep) {
+        while (fAxionMagneticField->GetMagneticField(pos[0], pos[1], pos[2]) == TVector3(0, 0, 0) &&
+               not(ConditionStop(pos, dir)))
+            pos = MoveOneStep(pos, dir, dr);
+
+        if (ConditionStop(pos, dir)) {
+            boundaryIn = pos;
+            boundaryOut = TVector3(0, 0, 0);
+            boundary.push_back(boundaryIn);
+            boundary.push_back(boundaryOut);
+            return boundary;
+        }
+
+        else {
+            pos = MoveOneStep(pos, dir, -dr);
+            dr = dr / 2.0;
+        }
+    }
+
+    pos = MoveOneStep(pos, dir, dr * 2.0);
+    boundaryIn = pos;
+
+    while (fAxionMagneticField->GetMagneticField(pos[0], pos[1], pos[2]) != TVector3(0, 0, 0))
+        pos = MoveOneStep(pos, dir, dr);
+
+    boundaryOut = pos;
+
+    boundary.push_back(boundaryIn);
+    boundary.push_back(boundaryOut);
+
+    return boundary;
+}
+
+std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldBoundaries(Double_t minStep) {
+    if (minStep == -1) minStep = 0.01;
+
+    std::vector<std::vector<TVector3>> boundaryCollection;
+
+    TVector3 posInitial = *(fInputAxionEvent->GetPosition());
+    TVector3 direction = *(fInputAxionEvent->GetDirection());
+    direction = direction.Unit();
+
+    if (direction == TVector3(0, 0, 0) || (direction[1] * posInitial[1] > 0)) return boundaryCollection;
+
+    std::vector<TVector3> buffVect;
+
+    posInitial = MoveVirtualBox(posInitial, direction);
+
+    std::vector<TVector3> bInt;
+    bInt = FindBoundariesVolume(posInitial, direction, minStep);
+
+    if (ConditionStop(bInt[0], direction))
+        return boundaryCollection;
+
+    else {
+        buffVect.push_back(bInt[0]);
+        buffVect.push_back(bInt[1]);
+        boundaryCollection.push_back(buffVect);
+        buffVect.clear();
+
+        bInt = FindBoundariesVolume(bInt[1], direction, minStep);
+
+        while (not(ConditionStop(bInt[0], direction))) {
+            buffVect.push_back(bInt[0]);
+            buffVect.push_back(bInt[1]);
+            boundaryCollection.push_back(buffVect);
+            buffVect.clear();
+
+            bInt = FindBoundariesVolume(bInt[1], direction, minStep);
+        }
+
+        bInt.clear();
+        return boundaryCollection;
+    }
+}
+
+TVectorD TRestAxionFieldPropagationProcess::GetFieldVector(TVector3 in, TVector3 out, Int_t N) {
+    if (N == 0) N = TMath::Power(10, 4);
+
+    TVectorD Bt(N);
+    TVector3 B;
+    TVector3 direction = *(fInputAxionEvent->GetDirection());
+
+    TVector3 differential = out - in;
+
+    B = fAxionMagneticField->GetMagneticField(in[0], in[1], in[2]);
+    Bt[0] = abs(B.Perp(direction));
+
+    for (Int_t i = 1; i < N; i++) {
+        in = in + differential * (Double_t(i) / Double_t(N - 1));
+        B = fAxionMagneticField->GetMagneticField(in[0], in[1], in[2]);
+        Bt[i] = abs(B.Perp(direction));
+    }
+
+    return Bt;
+}
 
 TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput) {
-    
     fInputAxionEvent = (TRestAxionEvent*)evInput;
     fOutputAxionEvent = fInputAxionEvent;
-    
-    Double_t Ea = fInputAxionEvent -> GetEnergy() ;
-    Double_t ma = 1.0; // TODO : Add the axion mass information in the AxionEvent later ?
 
-    std::vector <std::vector <TVector3>> boundaries;
+    Double_t Ea = fInputAxionEvent->GetEnergy();
+    Double_t ma = 1.0;  // TODO : Add the axion mass information in the AxionEvent later ?
+
+    std::vector<std::vector<TVector3>> boundaries;
     boundaries = FindFieldBoundaries();
     Int_t NofVolumes = boundaries.size();
     TVectorD B;
     TVectorD probabilities(NofVolumes);
- 
-    for ( Int_t i=0 ; i<NofVolumes ; i++ )
-    {
-          B = GetFieldVector( boundaries[i][0], boundaries[i][1], 0);
 
-          if ( boundaries[i][0][1] == boundaries[i][1][1] && boundaries[i][0][2] == boundaries[i][1][2] )
-               probabilities[i] = fAxionPhotonConversion -> GammaTransmissionProbability( Ea, B, ma, abs( boundaries[i][0][0] - boundaries[i][1][0] ) );
-	  if ( boundaries[i][0][0] == boundaries[i][1][0] && boundaries[i][0][1] == boundaries[i][1][1] )
-               probabilities[i] = fAxionPhotonConversion -> GammaTransmissionProbability( Ea, B, ma, abs( boundaries[i][0][2] - boundaries[i][1][2] ) );
+    for (Int_t i = 0; i < NofVolumes; i++) {
+        B = GetFieldVector(boundaries[i][0], boundaries[i][1], 0);
 
-          else 
-               probabilities[i] = fAxionPhotonConversion -> GammaTransmissionProbability( Ea, B, ma, abs( boundaries[i][0][1] - boundaries[i][1][1] ) );
+        if (boundaries[i][0][1] == boundaries[i][1][1] && boundaries[i][0][2] == boundaries[i][1][2])
+            probabilities[i] = fAxionPhotonConversion->GammaTransmissionProbability(
+                Ea, B, ma, abs(boundaries[i][0][0] - boundaries[i][1][0]));
+        if (boundaries[i][0][0] == boundaries[i][1][0] && boundaries[i][0][1] == boundaries[i][1][1])
+            probabilities[i] = fAxionPhotonConversion->GammaTransmissionProbability(
+                Ea, B, ma, abs(boundaries[i][0][2] - boundaries[i][1][2]));
+
+        else
+            probabilities[i] = fAxionPhotonConversion->GammaTransmissionProbability(
+                Ea, B, ma, abs(boundaries[i][0][1] - boundaries[i][1][1]));
     }
 
     Double_t probability = 0.;
-    
-    for ( Int_t i=0 ; i<NofVolumes ; i++)
-          probability = probability + probabilities[i];
 
-    fOutputAxionEvent -> SetGammaProbability( probability );
-    fOutputAxionEvent -> SetPosition( boundaries[NofVolumes][1] );
+    for (Int_t i = 0; i < NofVolumes; i++) probability = probability + probabilities[i];
 
-    if (GetVerboseLevel() >= REST_Debug)fOutputAxionEvent->PrintEvent();
+    fOutputAxionEvent->SetGammaProbability(probability);
+    fOutputAxionEvent->SetPosition(boundaries[NofVolumes][1]);
+
+    if (GetVerboseLevel() >= REST_Debug) fOutputAxionEvent->PrintEvent();
 
     return fOutputEvent;
 }
@@ -383,9 +351,4 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML TRestAxionFieldPropagationProcess metadata section
 ///
-void TRestAxionFieldPropagationProcess::InitFromConfigFile() {
-
-
-
-
-}
+void TRestAxionFieldPropagationProcess::InitFromConfigFile() {}
