@@ -218,177 +218,50 @@ bool TRestAxionFieldPropagationProcess::ConditionStop( TVector3 pos, TVector3 di
 std::vector <TVector3> TRestAxionFieldPropagationProcess::FindBoundariesVolume( TVector3 pos, TVector3 dir, Double_t minStep )
 {
 
-  if ( dir[1] > 0 ) 
-       error << " y is ascendant, and you entered the direction vector : " << "("<<dir[0]<<","<<dir[1]<<","<<dir[2]<< ")" <<endl;
+  std::vector <TVector3> boundary; 
+  TVector3 boundaryIn;
+  TVector3 boundaryOut;
 
-  if ( dir[1] == 0 && dir[2] == 0) 
-  {
-       std::vector <TVector3> boundary;
-       TVector3 boundaryIn;
-       TVector3 boundaryOut;
+  Double_t dr = 5.; 
 
-       Double_t dr = 5.; // Can be between 1 and 10
+  pos = MoveOneStep( pos,dir,minStep);
  
-       pos[0] = pos[0] + dir[0]*minStep/2.0;
-
-       while ( dr > minStep )
-       {
-    	       while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) == TVector3(0,0,0) && pos[0] >= -40000. && pos[0] <= 40000. ) 
-                       pos[0] = pos[0] + dir[0]*dr; 
-          
-	       if ( pos[0] < -40000.0 || pos[0] > 40000.) { 
-
-	            boundaryIn = pos;
- 	            boundaryOut = TVector3(0,0,0);
-                    boundary.push_back(boundaryIn);
-                    boundary.push_back(boundaryOut);
-                    return boundary; }
-
-	       else {
-
-	             pos[0] = pos[0]-dir[0]*dr;
-                     dr = dr/2.0;
-
-                     }
-        }
-
-        pos[0] = pos[0] + dir[0]*dr*2.0;
-
-        boundaryIn = pos;
-
-        while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) != TVector3(0,0,0) ) 
-                pos[0] = pos[0] + dir[0]*dr;
-    
-        boundaryOut = pos;
-    
-        boundary.push_back(boundaryIn);
-        boundary.push_back(boundaryOut);
-        
-        return boundary;
-  }
-
-  if ( dir[0] == 0 && dir[1] == 0) 
+  while ( dr > minStep )
   {
-       std::vector <TVector3> boundary;
-       TVector3 boundaryIn;
-       TVector3 boundaryOut;
+        while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) == TVector3(0,0,0) && not(ConditionStop(pos,dir)) ) 
+                pos = MoveOneStep( pos,dir,dr );
 
-       Double_t dr = 5.; // Can be between 1 and 10
- 
-       pos[2] = pos[2] + dir[2]*minStep/2.0;
-
-       while ( dr > minStep )
-       {
-    	       while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) == TVector3(0,0,0) && pos[2] >= -40000. && pos[2] <= 40000. ) 
-                       pos[2] = pos[2] + dir[2]*dr; 
-                      
-          
-	       if ( pos[2] < -40000.0 || pos[2] > 40000.) { 
-
-	            boundaryIn = pos;
- 	            boundaryOut = TVector3(0,0,0);
-                    boundary.push_back(boundaryIn);
-                    boundary.push_back(boundaryOut);
-                    return boundary; }
-
-	       else {
-
-	             pos[2] = pos[2] - dir[2]*dr;
-                     dr = dr/2.0;
-
-                     }
-        }
-
-        pos[2] = pos[2]+dir[2]*dr*2.0;
-
-        boundaryIn = pos;
-
-        while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) != TVector3(0,0,0) ) 
-                pos[2] = pos[2] + dir[2]*dr;
-    
-        boundaryOut = pos;
-    
-        boundary.push_back(boundaryIn);
-        boundary.push_back(boundaryOut);
-        
-        return boundary;
-  }
-   
-  else
-  {
-    std::vector <TVector3> boundary;
-    TVector3 boundaryIn;
-    TVector3 boundaryOut;
-
-    Double_t dr = 5.; // Can be between 1 and 10
-    Double_t y;
-    Double_t t;
- 
-    pos[1] = pos[1] - minStep/2.0;
-
-    while ( dr > minStep )
-    {
-    	while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) == TVector3(0,0,0) && pos[1]>0 ) 
+	if ( ConditionStop( pos,dir ) ) 
         {
-                y = pos[1] - dr;
-	        t = ( y-pos[1] ) / dir[1]; 
-                pos[1] = y; 
-                pos[0] = pos[0] + t*dir[0];
-                pos[2] = pos[2] + t*dir[2];
-        }
-
-	if ( pos[1] <= 0 ) { 
-
 	     boundaryIn = pos;
  	     boundaryOut = TVector3(0,0,0);
              boundary.push_back(boundaryIn);
              boundary.push_back(boundaryOut);
-         
-             debug << "(" << boundaryIn[0] << "," << boundaryIn[1] << "," << boundaryIn[2] << ")" << endl; 
-             debug << "(" << boundaryOut[0] << "," << boundaryOut[1] << "," << boundaryOut[2] << ")" << endl;
-    
-             return boundary; }
+             return boundary; 
+        }
 
-	else {
-
-	     y = pos[1] + dr;
-             t = ( y-pos[1] ) / dir[1]; 
-             pos[1] = y; 
-             pos[0] = pos[0] + t*dir[0];
-             pos[2] = pos[2] + t*dir[2];
+	else 
+        {
+             pos = MoveOneStep( pos,dir,-dr );
              dr = dr/2.0;
-             }
-    }
-    
-    y = pos[1] - dr*2.0;
-    t = ( y-pos[1] ) / dir[1];
-    pos[1] = y;
-    pos[0] = pos[0] + t*dir[0];
-    pos[2] = pos[2] + t*dir[2];
-    boundaryIn = pos;
-
-    while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) != TVector3(0,0,0) ) 
-    {
-                y = pos[1] - dr;
-	        t = ( y-pos[1] ) / dir[1]; 
-                pos[1] = y; 
-                pos[0] = pos[0] + t*dir[0];
-                pos[2] = pos[2] + t*dir[2];
-    }
-    
-    boundaryOut = pos;
-    
-    boundary.push_back(boundaryIn);
-    boundary.push_back(boundaryOut);
-    
-    debug << "(" << boundaryIn[0] << "," << boundaryIn[1] << "," << boundaryIn[2] << ")" << endl; 
-    debug << "(" << boundaryOut[0] << "," << boundaryOut[1] << "," << boundaryOut[2] << ")" << endl;
-    
-   
-    return boundary;
+        }
   }
+  
+  pos = MoveOneStep( pos,dir,dr*2.0 );  
+  boundaryIn = pos;
 
-} 
+  while ( fAxionMagneticField -> GetMagneticField(pos[0],pos[1],pos[2]) != TVector3(0,0,0) )
+          pos = MoveOneStep( pos,dir,dr );
+
+  boundaryOut = pos;
+    
+  boundary.push_back(boundaryIn);
+  boundary.push_back(boundaryOut);
+       
+  return boundary;
+
+}
+
 
 std::vector  <std::vector <TVector3> > TRestAxionFieldPropagationProcess::FindFieldBoundaries( Double_t minStep )
 {
