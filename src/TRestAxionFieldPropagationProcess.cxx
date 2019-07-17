@@ -124,12 +124,15 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
         exit(0);
     }
 
-    fAxionPhotonConversion = (TRestAxionPhotonConversion*)this->GetMetadata("TRestAxionPhotonConversion");
+    fAxionBufferGas = (TRestAxionBufferGas*)this->GetMetadata("TRestAxionBufferGas");
 
-    if (!fAxionPhotonConversion) {
-        error << "TRestAxionPhotonConversion. Cannot access at the Gamma Transmission Probability " << endl;
+    if (!fAxionBufferGas) {
+        error << "TRestAxionBufferGas. Cannot access the buffer gas" << endl;
         exit(0);
     }
+
+    fAxionPhotonConversion = new TRestAxionPhotonConversion();
+    fAxionPhotonConversion->SetBufferGas(fAxionBufferGas);
 }
 
 TVector3 TRestAxionFieldPropagationProcess::MoveOneStep(TVector3 pos, TVector3 dir, Double_t step) {

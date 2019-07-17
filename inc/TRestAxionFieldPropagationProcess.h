@@ -52,6 +52,9 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
     /// A pointer for the gamma conversion probability
     TRestAxionPhotonConversion* fAxionPhotonConversion;  //!
 
+    /// A pointer for the gamma conversion probability
+    TRestAxionBufferGas* fAxionBufferGas;  //!
+
    protected:
    public:
     void InitProcess();
