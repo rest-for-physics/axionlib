@@ -18,6 +18,8 @@ internal values are saved.
 	<parameter name="outputFile" value="./Run_[fExperimentName].root" />
 
 	<TRestAxionSolarModel name="sunPrimakoff" file="metadata.rml" verboseLevel="warning" />
+    <TRestAxionMagneticField name="bFieldBabyIAXO" file="metadata.rml"/>
+    <TRestAxionBufferGas name="helium" file="metadata.rml"/>
     <!--<TRestAxionLikelihood name="babyIAXO" file="metadata.rml" verboseLevel="debug" />-->
 
   </TRestRun>
@@ -52,6 +54,7 @@ internal values are saved.
 	<addProcess type="TRestAxionFieldPropagationProcess" name="babyMagnet" value="ON" verboseLevel="info" >
 	</addProcess>
 
+    <!--
 	<addProcess type="TRestAxionTransmissionProcess" name="magnetWindow" value="ON" verboseLevel="info" >
 	</addProcess>
 
@@ -60,6 +63,7 @@ internal values are saved.
 
 	<addProcess type="TRestAxionTransmissionProcess" name="detectorWindow" value="ON" verboseLevel="info" >
 	</addProcess>
+    -->
 
 	<!--	file="processes.rml"/> -->
 
@@ -74,7 +78,8 @@ internal values are saved.
   <addTask command="EventProcess->RunProcess()" value="ON"/>
 
   <globals>
-    <parameter name="outputLevel" value="internalvar" /> <!-- options are : nooutput(0), observable(1), internalvar(2), fulloutput(3) -->
+      <!--<parameter name="outputLevel" value="internalvar" /> -->
+      <!-- options are : nooutput(0), observable(1), internalvar(2), fulloutput(3) --> -
     <parameter name="verboseLevel" value="essential" /> <!-- options are : silent(0), essential(1), info(2), info(3), extreme(4) -->
     <parameter name="inputFile" value=""/>
     <searchPath value="$ENV{REST_INPUTDATA}/definitions/"/>
