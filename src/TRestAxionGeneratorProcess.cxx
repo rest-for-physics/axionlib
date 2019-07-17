@@ -184,12 +184,9 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
 /// \brief The main processing event function
 ///
 TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
-    /*
-      fOutputEvent->SetID( fCounter );
-      fCounter++;
-    */
-
     debug << "TRestAxionGeneratorProcess::ProcessEvent : " << fCounter << endl;
+    fOutputAxionEvent->SetID(fCounter);
+    fCounter++;
 
     fOutputAxionEvent->SetEnergy(GenerateEnergy());
     fOutputAxionEvent->SetPosition(GeneratePosition());
