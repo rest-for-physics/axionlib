@@ -76,9 +76,17 @@ void TRestAxionBufferGas::Initialize() {
 void TRestAxionBufferGas::InitFromConfigFile() {
     this->Initialize();
 
-    // Initialize the metadata members from a configfile
+    size_t position = 0;
+    string gasDefinition;
 
-    // fClassMember = GetParameter( "paramName", "defaultValue" );
+    while ((gasDefinition = GetKEYDefinition("gas", position)) != "") {
+        TString gasName = GetFieldValue("name", gasDefinition);
+        // TODO We haven't yet implemented density units in TRestSystemOfUnits
+        // gasDensity should be in g/cm3
+        Double_t gasDensity = StringToDouble(GetFieldValue("density", gasDefinition));
+
+        SetGasDensity(gasName, gasDensity);
+    }
 
     PrintMetadata();
 }

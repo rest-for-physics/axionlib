@@ -27,64 +27,63 @@
 
 //! A metadata class to define theoretical axion models and calculations related
 class TRestAxionBufferGas : public TRestMetadata {
-private:
+   private:
     void Initialize();
 
     void InitFromConfigFile();
 
     // Name of the buffer gas (He, Ne, Ar, Xe, ..., etc )
-    std::vector <TString> fBufferGasName; //->
+    std::vector<TString> fBufferGasName;  //->
 
     // Gas density of the corresponding gasName in g/cm3
-    std::vector <Double_t> fBufferGasDensity; //->
+    std::vector<Double_t> fBufferGasDensity;  //->
 
     // Energy values for gas absorption coefficient
-    std::vector <std::vector <Double_t> > fAbsEnergy; //->
+    std::vector<std::vector<Double_t> > fAbsEnergy;  //->
 
     // Gas absorption coefficient in cm2/g
-    std::vector <std::vector <Double_t> > fGasAbsCoefficient; //->
+    std::vector<std::vector<Double_t> > fGasAbsCoefficient;  //->
 
     // Energy values for gas form factor
-    std::vector <std::vector <Double_t> > fFactorEnergy; //->
+    std::vector<std::vector<Double_t> > fFactorEnergy;  //->
 
     // Gas form factor
-    std::vector <std::vector <Double_t> > fGasFormFactor; //->
+    std::vector<std::vector<Double_t> > fGasFormFactor;  //->
 
-    void ReadGasData( TString gasName );
+    void ReadGasData(TString gasName);
 
-    Int_t FindGasIndex( TString gName );
-    Int_t GetEnergyIndex( std::vector <Double_t> enVector, Double_t energy );
+    Int_t FindGasIndex(TString gName);
+    Int_t GetEnergyIndex(std::vector<Double_t> enVector, Double_t energy);
 
-public:
-
-    void SetGasDensity( TString gasName, Double_t density );
-    Double_t GetGasDensity( TString gasName );
+   public:
+    void SetGasDensity(TString gasName, Double_t density);
+    Double_t GetGasDensity(TString gasName);
 
     // Returns value in cm2/g
-    Double_t GetAbsorptionCoefficient( TString gasName, Double_t energy );
-    Double_t GetFormFactor( TString gasName, Double_t energy );
+    Double_t GetAbsorptionCoefficient(TString gasName, Double_t energy);
+    Double_t GetFormFactor(TString gasName, Double_t energy);
 
     // Returns absorption length in cm-1
-    Double_t GetPhotonAbsorptionLength( Double_t energy );
+    Double_t GetPhotonAbsorptionLength(Double_t energy);
 
     // Returns absorption length in eV
-    Double_t GetPhotonAbsorptionLengthIneV( Double_t energy );
+    Double_t GetPhotonAbsorptionLengthIneV(Double_t energy);
 
     // Transforms cm-1 to eV (This method might be transferred to REST_Physics)
-    Double_t cmToeV( double l_Inv );
+    Double_t cmToeV(double l_Inv);
 
     // in eV
-    Double_t GetPhotonMass( double en );
+    Double_t GetPhotonMass(double en);
 
-    void PrintAbsorptionGasData( TString gasName );
-    void PrintFormFactorGasData( TString gasName );
+    void PrintAbsorptionGasData(TString gasName);
+    void PrintFormFactorGasData(TString gasName);
 
-    void PrintMetadata( );
+    void PrintMetadata();
 
-    //Constructors
+    // Constructors
     TRestAxionBufferGas();
-    TRestAxionBufferGas( const char *cfgFileName, std::string name = "");
-    //Destructor
+    TRestAxionBufferGas(const char* cfgFileName, std::string name = "");
+    // Destructor
     ~TRestAxionBufferGas();
 
     ClassDef(TRestAxionBufferGas, 1);

@@ -6,10 +6,14 @@
     </TRestAxionMagneticField>
 
 	<TRestAxionSolarModel name="sunPrimakoff" verboseLevel="debug" >
-		<parameter name="mode" value="table"/>
+		<!--<parameter name="mode" value="table"/>-->
 		<!--<parameter name="solarAxionModel" value="Primakoff_Gianotti_201904.dat"/>-->
 		<parameter name="solarAxionModel" value="arXiv_0702006_Primakoff"/>
 	</TRestAxionSolarModel>
+
+	<TRestAxionBufferGas name="helium" verboseLevel="debug" >
+		<gas name="He" density="0.176e-3"/>
+	</TRestAxionBufferGas>
 
 	<TRestAxionLikelihood name="babyIAXO" >
 		<parameter name="Bmag" value="1.73T"/>
