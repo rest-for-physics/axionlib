@@ -46,9 +46,10 @@
 using namespace std;
 using namespace TMath;
 
-ClassImp(TRestAxionEvent)
+ClassImp(TRestAxionEvent);
 
-    TRestAxionEvent::TRestAxionEvent() {
+TRestAxionEvent::TRestAxionEvent() {
+    Initialize();
     fPad = NULL;
 }
 
