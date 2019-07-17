@@ -102,6 +102,8 @@ void TRestAxionFieldPropagationProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
+    fCharSizeExp = 30000.; 
+
     fInputAxionEvent = new TRestAxionEvent();
     fOutputAxionEvent = new TRestAxionEvent();
 
@@ -133,7 +135,85 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
 
 }
 
+TVector3 TRestAxionFieldPropagationProcess::MoveOneStep( TVector3 pos, TVector3 dir, Double_t step )
+{
 
+  Double_t t;
+  Double_t f;
+ 
+  Int_t i,j,k;
+  
+  if ( dir[1] != 0 ) 
+  {
+       j=1; k=2; i=0;
+  }
+  else 
+  {
+     if ( dir[0] != 0 ) 
+     {
+          j=0; i=1; k=2;
+     }
+     else
+     {
+          j=2; i=0; k=1;
+     }
+  }
+
+  f = pos[j] + ( dir[j]/abs(dir[j]) ) * step;
+  t = (f-pos[j])/dir[j]; 
+
+  pos[j] = f; 
+  pos[i] = pos[i]+t*dir[i];
+  pos[k] = pos[k]+t*dir[k];
+
+  return pos;
+}
+
+
+TVector3 TRestAxionFieldPropagationProcess::MoveVirtualBox( TVector3 pos, TVector3 dir, Double_t size )
+{
+
+  if ( size==-1 )
+       size = fCharSizeExp;
+
+  Double_t step; 
+  Int_t i;
+ 
+  if ( dir[1] != 0 ) 
+       i=1;
+  else
+  { 
+      if ( dir[0] != 0) 
+           i=0;
+      else 
+           i=2;
+  }
+
+  if ( pos[i]<size && pos[i]>-size ) return pos ;
+
+  if ( pos[i] < 0 ) size = -size;  
+       
+  step =  abs( pos[i] -size ); 
+  pos = MoveOneStep( pos,dir, step );
+
+  return pos;
+
+}
+
+bool TRestAxionFieldPropagationProcess::ConditionStop( TVector3 pos, TVector3 dir )
+{
+  if ( dir[1] != 0 )
+       return ( ( pos[1] < 0 && (dir[1] < 0) ) || ( pos[1] > fCharSizeExp && ( dir[1]>0 ) ) );
+  else 
+  {
+      if ( dir[0] != 0)
+           return ( pos[0] < - fCharSizeExp || pos[0] > fCharSizeExp ) ;
+  
+      else
+           return ( pos[2] < -fCharSizeExp || pos[2] > fCharSizeExp ) ; 
+  }             
+     
+}
 
 std::vector <TVector3> TRestAxionFieldPropagationProcess::FindBoundariesVolume( TVector3 pos, TVector3 dir, Double_t minStep )
 {

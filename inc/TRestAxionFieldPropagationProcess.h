@@ -41,6 +41,8 @@ private:
 
     void LoadDefaultConfig();
 
+    Double_t fCharSizeExp; 
+
 /// A pointer to the specific TRestAxionEvent
     TRestAxionEvent *fInputAxionEvent; //!
     TRestAxionEvent *fOutputAxionEvent; //!
@@ -69,6 +71,11 @@ public:
 
             EndPrintProcess();
         }
+
+    TVector3 MoveOneStep( TVector3 pos, TVector3 dir, Double_t step );
+    TVector3 MoveVirtualBox( TVector3 pos, TVector3 dir, Double_t size = -1 );
+
+    bool ConditionStop( TVector3 pos, TVector3 dir );
 
     std::vector <TVector3> FindBoundariesVolume( TVector3 pos, TVector3 dir, Double_t minStep );
     std::vector <std::vector <TVector3> > FindFieldBoundaries( Double_t minStep = -1); 
