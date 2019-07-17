@@ -438,21 +438,19 @@ TVectorD TRestAxionFieldPropagationProcess::GetFieldVector( TVector3 in, TVector
        N=TMath::Power(10,4);
    
    TVectorD Bt(N);
-
-   TVector3 differential = out - in; 
- 
    TVector3 B;
    TVector3 direction = *(fInputAxionEvent->GetDirection());
-   Double_t Buff;
-   Double_t t;
+
+   TVector3 differential = out - in;
 
    B = fAxionMagneticField -> GetMagneticField( in[0],in[1],in[2] );
-   Bt[0] = abs( B.Dot(direction) ) ;
+   Bt[0] = abs( B.Perp(direction) ) ;
+
    for ( Int_t i=1 ; i<N ; i++ )
    {
          in = in + differential * ( Double_t(i) / Double_t(N-1) );
          B = fAxionMagneticField -> GetMagneticField( in[0],in[1],in[2] );
-         Bt[i] = abs( B.Dot(direction) ) ;        
+         Bt[i] = abs( B.Perp(direction) ) ;        
    }
 
    return Bt;
