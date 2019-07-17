@@ -266,124 +266,53 @@ std::vector <TVector3> TRestAxionFieldPropagationProcess::FindBoundariesVolume( 
 std::vector  <std::vector <TVector3> > TRestAxionFieldPropagationProcess::FindFieldBoundaries( Double_t minStep )
 {
 
-    if ( minStep == -1 )
-         minStep = 0.01 ; 
+  if ( minStep == -1 )
+       minStep = 0.01 ; 
 
-    std::vector <std::vector <TVector3> > boundaryCollection;
+  std::vector <std::vector <TVector3> > boundaryCollection;
 
-    TVector3 posInitial = *(fInputAxionEvent->GetPosition());
-    TVector3 direction = *(fInputAxionEvent->GetDirection());
+  TVector3 posInitial = *(fInputAxionEvent->GetPosition());
+  TVector3 direction = *(fInputAxionEvent->GetDirection());
+  direction = direction.Unit();
 
-    std::vector <TVector3> buffVect;
-
-    if ( direction[1] == 0 && direction[2] == 0 )
-    {
-        posInitial[0] = -direction[0]*25000.; 
-
-        std::vector <TVector3> bInt;
-        bInt = FindBoundariesVolume( posInitial,direction,minStep );
-
-        if ( bInt[0][0] < -40000. || bInt[0][0] > 40000. ) 
-             return boundaryCollection ;
-   
-        else 
-        {
-            buffVect.push_back( bInt[0] );
-	    buffVect.push_back( bInt[1] );
-            boundaryCollection.push_back( buffVect );
-            buffVect.clear();
-
-            bInt = FindBoundariesVolume( bInt[1],direction,minStep );
-
-            while ( bInt[0][0] >= -40000. && bInt[0][0] <= 40000. ) 
-            {
-                    buffVect.push_back( bInt[0] );
-	    	    buffVect.push_back( bInt[1] );
-            	    boundaryCollection.push_back( buffVect );
-            	    buffVect.clear();
-
-                    bInt = FindBoundariesVolume( bInt[1],direction,minStep );
-            }
-
-            bInt.clear();  
-            return boundaryCollection;
-         }
-    }
-
-    if ( direction[0] == 0 && direction[1] == 0 )
-    {
-        posInitial[2] = -direction[2]*25000.; 
-
-        std::vector <TVector3> bInt;
-        bInt = FindBoundariesVolume( posInitial,direction,minStep );
-
-        if ( bInt[0][2] < -40000. || bInt[0][2] > 40000. ) 
-             return boundaryCollection ;
-   
-        else 
-        {
-            buffVect.push_back( bInt[0] );
-	    buffVect.push_back( bInt[1] );
-            boundaryCollection.push_back( buffVect );
-            buffVect.clear();
-
-            bInt = FindBoundariesVolume(bInt[1],direction,minStep);
-
-            while ( bInt[0][2] >= -40000. && bInt[0][2] <= 40000. ) 
-            {
-                    buffVect.push_back( bInt[0] );
-	    	    buffVect.push_back( bInt[1] );
-           	    boundaryCollection.push_back( buffVect );
-            	    buffVect.clear();
-
-                    bInt = FindBoundariesVolume( bInt[1],direction,minStep );
-            }
-
-            bInt.clear();  
-            return boundaryCollection;
-         }
-
-
-    }
+  if ( direction == TVector3(0,0,0)  || ( direction[1]*posInitial[1] > 0 ) ) 
+       return boundaryCollection;
  
-    else 
-    {
+  std::vector <TVector3> buffVect;
 
-        Double_t t = ( 10000.-posInitial[1] ) / direction[1]; // Translation of the axion at the plane y=10 m, it could be 20m, or 5m etc. ...
-        posInitial[1] = 10000.; 
-        posInitial[0] = posInitial[0] + t*direction[0];
-        posInitial[2] = posInitial[2] + t*direction[2];
+  posInitial = MoveVirtualBox( posInitial,direction );
 
-        std::vector <TVector3> bInt;
-        bInt = FindBoundariesVolume( posInitial,direction,minStep );
+  std::vector <TVector3> bInt;
+  bInt = FindBoundariesVolume( posInitial,direction,minStep );
 
-        if ( bInt[0][1] <= 0. ) 
-             return boundaryCollection ;
+  if ( ConditionStop(bInt[0],direction) ) 
+       return boundaryCollection ;
    
-        else 
-        {
-            buffVect.push_back( bInt[0] );
-	    buffVect.push_back( bInt[1] );
-            boundaryCollection.push_back( buffVect );
-            buffVect.clear();
+  else 
+  {
+       buffVect.push_back( bInt[0] );
+       buffVect.push_back( bInt[1] );
+       boundaryCollection.push_back( buffVect );
+       buffVect.clear();
 
-            bInt = FindBoundariesVolume( bInt[1],direction,minStep );
+       bInt = FindBoundariesVolume(bInt[1],direction,minStep);
 
-            while ( bInt[0][1] > 0 ) 
-            {
-		    buffVect.push_back( bInt[0] );
-	    	    buffVect.push_back( bInt[1] );
-            	    boundaryCollection.push_back( buffVect );
-                    buffVect.clear();
+       while ( not(ConditionStop(bInt[0],direction)) ) 
+       {
+               buffVect.push_back( bInt[0] );
+	       buffVect.push_back( bInt[1] );
+               boundaryCollection.push_back( buffVect );
+               buffVect.clear();
 
-                    bInt = FindBoundariesVolume( bInt[1],direction,minStep );
-            }
+               bInt = FindBoundariesVolume(bInt[1],direction,minStep);
+       }
 
-            bInt.clear();  
-            return boundaryCollection;
-        }
-    }    
+       bInt.clear();  
+       return boundaryCollection;
+    }
+    
 }
+
 
 TVectorD TRestAxionFieldPropagationProcess::GetFieldVector( TVector3 in, TVector3 out, Int_t N ) {
    
