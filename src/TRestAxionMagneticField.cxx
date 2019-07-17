@@ -335,8 +335,8 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 #else
 
     cout << "This REST is not compiled with garfield, it cannot get field values using Sensor !" << endl;
-    return fCanvas;
 #endif
+    return fCanvas;
 }
 
 void TRestAxionMagneticField::LoadMagneticVolumes() {
