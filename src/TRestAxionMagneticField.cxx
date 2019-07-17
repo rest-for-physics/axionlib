@@ -27,7 +27,7 @@
 /// class will evaluate if a coordinate (x,y,z) is in a given magnetic
 /// region, and it will return a non-zero value of the magnetic field in
 /// case (x,y,z) is inside a magnetic region.
-/// 
+///
 /// We can add any number of magnetic volumes inside the RML definition
 /// as shown in the following piece of code.
 ///
@@ -101,7 +101,6 @@ TRestAxionMagneticField::~TRestAxionMagneticField() {
 #if defined USE_Garfield
     delete fSetOfField;
 #endif
-
 }
 
 TVector3 TRestAxionMagneticField::GetMagneticField(Double_t x, Double_t y, Double_t z) {
@@ -134,172 +133,209 @@ void TRestAxionMagneticField::Initialize() {
 #endif
 }
 
-TCanvas * TRestAxionMagneticField::DrawHistogram(TString  projection , TString Bcomp, Int_t VIndex , Double_t step ) {
-   
-   if ( fCanvas != NULL) 
-   {
+TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcomp, Int_t VIndex,
+                                                Double_t step) {
+    if (fCanvas != NULL) {
         delete fCanvas;
-        fCanvas = NULL;    
-   }
+        fCanvas = NULL;
+    }
 
-   if ( fHisto != NULL) 
-   {
+    if (fHisto != NULL) {
         delete fHisto;
-        fHisto = NULL;    
-   }
+        fHisto = NULL;
+    }
 
-   if ( VIndex == -1)
-      	VIndex = 0;
+    if (VIndex == -1) VIndex = 0;
 
-   if ( step == -1)
-	step = fSizeMesh[0];
+    if (step == -1) step = fSizeMesh[0];
 
-   if ( VIndex >= fNofVolumes ) error << VIndex << " corresponds to none volume index " << endl;
-   
-   Double_t xmax , xmin , ymax , ymin , zmax , zmin;
-   xmax = fXmax[VIndex];
-   xmin = fXmin[VIndex];
-   ymax = fYmax[VIndex];
-   ymin = fYmin[VIndex];
-   zmax = fZmax[VIndex];
-   zmin = fZmin[VIndex];
-   Int_t nBinsX = (xmax - xmin ) / step;  
-   Int_t nBinsY = (ymax - ymin ) / step;
-   Int_t nBinsZ = (zmax - zmin ) / step;
+    if (VIndex >= fNofVolumes) error << VIndex << " corresponds to none volume index " << endl;
 
-   Double_t x,y,z;
-   Double_t B;
-   TVector3 Bvec;
+    Double_t xmax, xmin, ymax, ymin, zmax, zmin;
+    xmax = fXmax[VIndex];
+    xmin = fXmin[VIndex];
+    ymax = fYmax[VIndex];
+    ymin = fYmin[VIndex];
+    zmax = fZmax[VIndex];
+    zmin = fZmin[VIndex];
+    Int_t nBinsX = (xmax - xmin) / step;
+    Int_t nBinsY = (ymax - ymin) / step;
+    Int_t nBinsZ = (zmax - zmin) / step;
+
+    Double_t x, y, z;
+    Double_t B;
+    TVector3 Bvec;
 
 #if defined USE_Garfield
 
-   if ( projection == "XY" ) {
+    if (projection == "XY") {
+        fCanvas = new TCanvas("fCanvas", "");
+        fHisto = new TH2D("", "", nBinsX, xmin, xmax, nBinsY, ymin, ymax);
 
-        fCanvas = new TCanvas("fCanvas","");
-        fHisto = new TH2D("", "", nBinsX, xmin,xmax , nBinsY,ymin,ymax);
-    
-        z = ( zmin+zmax ) / 2.0;
+        z = (zmin + zmax) / 2.0;
         x = xmin;
 
-        for ( Int_t i=0 ; i < nBinsX ; i++ )  {
-              y = ymin;
-              for ( Int_t j=0 ; j < nBinsY ; j++) {
-                    Bvec = GetMagneticField( x , y , z );
-	            if ( Bcomp == "X" ) B = Bvec[0];
-	            else { if ( Bcomp == "Y") B = Bvec[1];
-	                   else {
-		                if( Bcomp == "Z") B = Bvec[2];
-		                else error << "You entered : "<< Bcomp<<" as a B component but you have to choose X, Y or Z" <<endl; 
-				} 
-	  		 }
-       		    fHisto->Fill(x,y,B);
-       		    y = y+step; 
-     	     }
-     	     x = x+step;
-       }
-
-       fCanvas->cd();
-       fHisto->SetBit(TH1::kNoStats);
-       fHisto->GetXaxis()->SetTitle("x (mm)");
-       fHisto->GetYaxis()->SetTitle("y (mm)");
-
-       if( Bcomp == "X") { fHisto->SetTitle("B_{x} against x and y"); fCanvas->SetTitle("B_{x} against x and y");}
-       if( Bcomp == "Y") { fHisto->SetTitle("B_{y} against x and y"); fCanvas->SetTitle("B_{y} against x and y");}
-       if( Bcomp == "Z") { fHisto->SetTitle("B_{z} against x and y"); fCanvas->SetTitle("B_{z} against x and y");} 
-
-       fHisto->Draw("COLZ0");
-       return fCanvas; 
-   }
-
-   else { 
-   
-    if ( projection == "XZ" )  {
-
-       TCanvas * fCanvas = new TCanvas("fCanvas","");
-       fHisto = new TH2D("", "", nBinsX, xmin,xmax , nBinsZ,zmin,zmax);
-    
-       y = ( ymin+ymax ) / 2.0;
-       x = xmin;
-
-       for ( Int_t i=0 ; i < nBinsX ; i++)  {
-           z = zmin;
-           for ( Int_t j=0 ; j < nBinsZ ; j++) {
-               Bvec=GetMagneticField(x,y,z);
-	       if ( Bcomp == "X" ) B = Bvec[0];
-	       else { if ( Bcomp == "Y") B = Bvec[1];
-	              else {
-		           if ( Bcomp == "Z") B = Bvec[2];
-		           else error << "You entered : "<< Bcomp<<" as a B component but you have to choose X, Y or Z" <<endl; 
-			   } 
-	  	    }
-               fHisto->Fill(x,z,B);
-               z = z+step; 
-          }
-          x = x+step;
-       }
-
-       fCanvas->cd();
-       fHisto->SetBit(TH1::kNoStats);
-       fHisto->GetXaxis()->SetTitle("x (mm)");
-       fHisto->GetYaxis()->SetTitle("z (mm)");
-
-       if ( Bcomp == "X") { fHisto->SetTitle("B_{x} against x and z"); fCanvas->SetTitle("B_{x} against x and z");}
-       if ( Bcomp == "Y") { fHisto->SetTitle("B_{y} against x and z"); fCanvas->SetTitle("B_{y} against x and z");}
-       if ( Bcomp == "Z") { fHisto->SetTitle("B_{z} against x and z"); fCanvas->SetTitle("B_{z} against x and z");} 
-
-       fHisto->Draw("COLZ0"); 
-       return fCanvas; 
-     }
-
-    else { 
-
-      if( projection == "YZ" )  {
-
-        TCanvas * fCanvas = new TCanvas("fCanvas","");
-        fHisto = new TH2D("", "", nBinsY, ymin,ymax , nBinsZ,zmin,zmax);
-    
-        x = ( xmin+xmax ) / 2.0;
-        y = ymin;
-
-        for ( Int_t i=0 ; i < nBinsY ; i++)  {
-            z = zmin;
-            for( Int_t j=0 ; j < nBinsZ ; j++)  {
-               Bvec = GetMagneticField(x,y,z);
-	       if ( Bcomp == "X" ) B = Bvec[0];
-	       else { 
-		    if ( Bcomp=="Y") B = Bvec[1];
-	            else {
-		         if ( Bcomp=="Z" ) B=Bvec[2];
-		         else error << "You entered : "<< Bcomp<<" as a B component but you have to choose X, Y or Z" <<endl;
-			 } 
-	            }
-              fHisto->Fill(y,z,B);
-              z = z+step; 
-           }
-           y = y+step;
+        for (Int_t i = 0; i < nBinsX; i++) {
+            y = ymin;
+            for (Int_t j = 0; j < nBinsY; j++) {
+                Bvec = GetMagneticField(x, y, z);
+                if (Bcomp == "X")
+                    B = Bvec[0];
+                else {
+                    if (Bcomp == "Y")
+                        B = Bvec[1];
+                    else {
+                        if (Bcomp == "Z")
+                            B = Bvec[2];
+                        else
+                            error << "You entered : " << Bcomp
+                                  << " as a B component but you have to choose X, Y or Z" << endl;
+                    }
+                }
+                fHisto->Fill(x, y, B);
+                y = y + step;
+            }
+            x = x + step;
         }
 
         fCanvas->cd();
         fHisto->SetBit(TH1::kNoStats);
-        fHisto->GetXaxis()->SetTitle("y (mm)");
-        fHisto->GetYaxis()->SetTitle("z (mm)");
+        fHisto->GetXaxis()->SetTitle("x (mm)");
+        fHisto->GetYaxis()->SetTitle("y (mm)");
 
-        if ( Bcomp == "X" ) { fHisto->SetTitle("B_{x} against y and z"); fCanvas->SetTitle("B_{x} against y and z");}
-        if ( Bcomp == "Y" ) { fHisto->SetTitle("B_{y} against y and z"); fCanvas->SetTitle("B_{y} against y and z");}
-        if ( Bcomp == "Z" ) { fHisto->SetTitle("B_{z} against y and z"); fCanvas->SetTitle("B_{z} against y and z");} 
+        if (Bcomp == "X") {
+            fHisto->SetTitle("B_{x} against x and y");
+            fCanvas->SetTitle("B_{x} against x and y");
+        }
+        if (Bcomp == "Y") {
+            fHisto->SetTitle("B_{y} against x and y");
+            fCanvas->SetTitle("B_{y} against x and y");
+        }
+        if (Bcomp == "Z") {
+            fHisto->SetTitle("B_{z} against x and y");
+            fCanvas->SetTitle("B_{z} against x and y");
+        }
 
         fHisto->Draw("COLZ0");
-        return fCanvas; 
+        return fCanvas;
     }
 
-    else error << "You entered : "<< projection <<" as a projection but you have to choose XY, XY or XZ" <<endl;
-  }
- }
+    else {
+        if (projection == "XZ") {
+            TCanvas* fCanvas = new TCanvas("fCanvas", "");
+            fHisto = new TH2D("", "", nBinsX, xmin, xmax, nBinsZ, zmin, zmax);
+
+            y = (ymin + ymax) / 2.0;
+            x = xmin;
+
+            for (Int_t i = 0; i < nBinsX; i++) {
+                z = zmin;
+                for (Int_t j = 0; j < nBinsZ; j++) {
+                    Bvec = GetMagneticField(x, y, z);
+                    if (Bcomp == "X")
+                        B = Bvec[0];
+                    else {
+                        if (Bcomp == "Y")
+                            B = Bvec[1];
+                        else {
+                            if (Bcomp == "Z")
+                                B = Bvec[2];
+                            else
+                                error << "You entered : " << Bcomp
+                                      << " as a B component but you have to choose X, Y or Z" << endl;
+                        }
+                    }
+                    fHisto->Fill(x, z, B);
+                    z = z + step;
+                }
+                x = x + step;
+            }
+
+            fCanvas->cd();
+            fHisto->SetBit(TH1::kNoStats);
+            fHisto->GetXaxis()->SetTitle("x (mm)");
+            fHisto->GetYaxis()->SetTitle("z (mm)");
+
+            if (Bcomp == "X") {
+                fHisto->SetTitle("B_{x} against x and z");
+                fCanvas->SetTitle("B_{x} against x and z");
+            }
+            if (Bcomp == "Y") {
+                fHisto->SetTitle("B_{y} against x and z");
+                fCanvas->SetTitle("B_{y} against x and z");
+            }
+            if (Bcomp == "Z") {
+                fHisto->SetTitle("B_{z} against x and z");
+                fCanvas->SetTitle("B_{z} against x and z");
+            }
+
+            fHisto->Draw("COLZ0");
+            return fCanvas;
+        }
+
+        else {
+            if (projection == "YZ") {
+                TCanvas* fCanvas = new TCanvas("fCanvas", "");
+                fHisto = new TH2D("", "", nBinsY, ymin, ymax, nBinsZ, zmin, zmax);
+
+                x = (xmin + xmax) / 2.0;
+                y = ymin;
+
+                for (Int_t i = 0; i < nBinsY; i++) {
+                    z = zmin;
+                    for (Int_t j = 0; j < nBinsZ; j++) {
+                        Bvec = GetMagneticField(x, y, z);
+                        if (Bcomp == "X")
+                            B = Bvec[0];
+                        else {
+                            if (Bcomp == "Y")
+                                B = Bvec[1];
+                            else {
+                                if (Bcomp == "Z")
+                                    B = Bvec[2];
+                                else
+                                    error << "You entered : " << Bcomp
+                                          << " as a B component but you have to choose X, Y or Z" << endl;
+                            }
+                        }
+                        fHisto->Fill(y, z, B);
+                        z = z + step;
+                    }
+                    y = y + step;
+                }
+
+                fCanvas->cd();
+                fHisto->SetBit(TH1::kNoStats);
+                fHisto->GetXaxis()->SetTitle("y (mm)");
+                fHisto->GetYaxis()->SetTitle("z (mm)");
+
+                if (Bcomp == "X") {
+                    fHisto->SetTitle("B_{x} against y and z");
+                    fCanvas->SetTitle("B_{x} against y and z");
+                }
+                if (Bcomp == "Y") {
+                    fHisto->SetTitle("B_{y} against y and z");
+                    fCanvas->SetTitle("B_{y} against y and z");
+                }
+                if (Bcomp == "Z") {
+                    fHisto->SetTitle("B_{z} against y and z");
+                    fCanvas->SetTitle("B_{z} against y and z");
+                }
+
+                fHisto->Draw("COLZ0");
+                return fCanvas;
+            }
+
+            else
+                error << "You entered : " << projection
+                      << " as a projection but you have to choose XY, XY or XZ" << endl;
+        }
+    }
 
 #else
 
     cout << "This REST is not compiled with garfield, it cannot get field values using Sensor !" << endl;
-    return fCanvas; 
+    return fCanvas;
 #endif
 }
 
@@ -389,14 +425,14 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
             fSetOfField->AddComponent(mesh);
             fNofVolumes++;
 
-            fXmin.push_back(xmin+fPositions[n][0]);
-            fXmax.push_back(xmax+fPositions[n][0]);
+            fXmin.push_back(xmin + fPositions[n][0]);
+            fXmax.push_back(xmax + fPositions[n][0]);
 
-            fYmin.push_back(ymin+fPositions[n][1]);
-            fYmax.push_back(ymax+fPositions[n][1]);
+            fYmin.push_back(ymin + fPositions[n][1]);
+            fYmax.push_back(ymax + fPositions[n][1]);
 
-            fZmin.push_back(zmin+fPositions[n][2]);
-            fZmax.push_back(zmax+fPositions[n][2]);
+            fZmin.push_back(zmin + fPositions[n][2]);
+            fZmax.push_back(zmax + fPositions[n][2]);
             fSizeMesh.push_back(sizeMesh);
         } else
             cout << " Cannot find the file " << endl;
@@ -432,12 +468,13 @@ void TRestAxionMagneticField::PrintMetadata() {
         y = fPositions[p][1];
         z = fPositions[p][2];
         metadata << "* Volume " << p << " : "
-                 << "  - Set in (" << x << "," << y << "," << z << ")" << " mm" << endl;
+                 << "  - Set in (" << x << "," << y << "," << z << ")"
+                 << " mm" << endl;
         metadata << "  - Bounds : " << endl;
-        metadata << "    xmin : " << fXmin[p] << " mm , xmax : " << fXmax[p] <<" mm" << endl;
-        metadata << "    ymin : " << fYmin[p] << " mm, ymax : " << fYmax[p] <<" mm" << endl;
-        metadata << "    zmin : " << fZmin[p] << " mm, zmax : " << fZmax[p] <<" mm" << endl;
-        metadata << "  - Size of the mesh : " << fSizeMesh[p] <<" mm" << endl;
+        metadata << "    xmin : " << fXmin[p] << " mm , xmax : " << fXmax[p] << " mm" << endl;
+        metadata << "    ymin : " << fYmin[p] << " mm, ymax : " << fYmax[p] << " mm" << endl;
+        metadata << "    zmin : " << fZmin[p] << " mm, zmax : " << fZmax[p] << " mm" << endl;
+        metadata << "  - Size of the mesh : " << fSizeMesh[p] << " mm" << endl;
         metadata << "  - File loaded : " << fFileNames[p] << endl;
     }
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
