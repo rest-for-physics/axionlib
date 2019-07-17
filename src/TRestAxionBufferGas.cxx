@@ -177,6 +177,9 @@ void TRestAxionBufferGas::ReadGasData(TString gasName) {
 }
 
 Double_t TRestAxionBufferGas::GetFormFactor(TString gasName, Double_t energy) {
+    // In case we are in vacuum
+    if (GetNumberOfGases() == 0) return 0;
+
     Int_t gasIndex = FindGasIndex(gasName);
     debug << "TRestAxionBufferGas::GetFormFactor. Gas index = " << gasIndex << endl;
 
@@ -185,11 +188,16 @@ Double_t TRestAxionBufferGas::GetFormFactor(TString gasName, Double_t energy) {
         gasIndex = FindGasIndex(gasName);
     }
 
+    if (gasIndex == -1) {
+        error << "TRestAxionBufferGas::GetFormFactor. Gas: " << gasName << " Not Found!" << endl;
+        exit(1);
+    }
+
     Int_t energyIndex = GetEnergyIndex(fFactorEnergy[gasIndex], energy);
     debug << "Energy index : " << energyIndex << endl;
 
     if (energyIndex == -1) {
-        error << "TRestAxionBufferGas::GetAbsorptionCoefficient. Energy out of range" << endl;
+        error << "TRestAxionBufferGas::GetFormFactor. Energy out of range" << endl;
         exit(1);
     }
 
@@ -265,6 +273,16 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en)  // in eV
 Double_t TRestAxionBufferGas::GetAbsorptionCoefficient(TString gasName, Double_t energy) {
     Int_t gasIndex = FindGasIndex(gasName);
     debug << "TRestAxionBufferGas::GetAbsorptionCoefficient. Gas index = " << gasIndex << endl;
+
+    if (gasIndex == -1) {
+        ReadGasData(gasName);
+        gasIndex = FindGasIndex(gasName);
+    }
+
+    if (gasIndex == -1) {
+        error << "TRestAxionBufferGas::GetAbsorptionCoefficient. Gas: " << gasName << " Not Found!" << endl;
+        exit(1);
+    }
 
     Int_t energyIndex = GetEnergyIndex(fAbsEnergy[gasIndex], energy);
     debug << "Energy index : " << energyIndex << endl;

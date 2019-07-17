@@ -59,6 +59,8 @@ class TRestAxionBufferGas : public TRestMetadata {
     void SetGasDensity(TString gasName, Double_t density);
     Double_t GetGasDensity(TString gasName);
 
+    Int_t GetNumberOfGases() { return (Int_t)fBufferGasName.size(); }
+
     // Returns value in cm2/g
     Double_t GetAbsorptionCoefficient(TString gasName, Double_t energy);
     Double_t GetFormFactor(TString gasName, Double_t energy);
