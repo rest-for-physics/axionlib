@@ -47,16 +47,16 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     Int_t fNofVolumes;  //<
 
-    std::vector<TVector3> fPositions;
-    std::vector<TString> fFileNames;
+    std::vector<TVector3> fPositions;  //<
+    std::vector<TString> fFileNames;   //<
 
-    std::vector<Double_t> fXmax;
-    std::vector<Double_t> fXmin;
-    std::vector<Double_t> fYmax;
-    std::vector<Double_t> fYmin;
-    std::vector<Double_t> fZmin;
-    std::vector<Double_t> fZmax;
-    std::vector<Double_t> fSizeMesh;
+    std::vector<Double_t> fXmax;      //<
+    std::vector<Double_t> fXmin;      //<
+    std::vector<Double_t> fYmax;      //<
+    std::vector<Double_t> fYmin;      //<
+    std::vector<Double_t> fZmin;      //<
+    std::vector<Double_t> fZmax;      //<
+    std::vector<Double_t> fSizeMesh;  //<
 
     TH2D* fHisto;      //!
     TCanvas* fCanvas;  //!
