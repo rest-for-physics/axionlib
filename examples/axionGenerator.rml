@@ -51,10 +51,10 @@ internal values are saved.
 		<observable name="posY" value="ON" />
 	</addProcess>
 
+    <!--
 	<addProcess type="TRestAxionFieldPropagationProcess" name="babyMagnet" value="ON" verboseLevel="info" >
 	</addProcess>
 
-    <!--
 	<addProcess type="TRestAxionTransmissionProcess" name="magnetWindow" value="ON" verboseLevel="info" >
 	</addProcess>
 
