@@ -316,7 +316,7 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     fOutputAxionEvent = fInputAxionEvent;
 
     Double_t Ea = fInputAxionEvent->GetEnergy();
-    Double_t ma = 1.0;  // TODO : Add the axion mass information in the AxionEvent later ?
+    Double_t ma = fInputAxionEvent->GetMass();
 
     std::vector<std::vector<TVector3>> boundaries;
     boundaries = FindFieldBoundaries();
