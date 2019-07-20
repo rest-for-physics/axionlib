@@ -66,6 +66,13 @@ class TRestAxionMagneticField : public TRestMetadata {
     TCanvas* DrawHistogram(TString projection, TString Bcomp, Int_t VIndex = -1, Double_t step = -1);
     void PrintMetadata();
 
+    std::vector<Double_t> GetXmin() { return fXmin; }
+    std::vector<Double_t> GetYmin() { return fYmin; }
+    std::vector<Double_t> GetZmin() { return fZmin; }
+    std::vector<Double_t> GetXmax() { return fXmax; }
+    std::vector<Double_t> GetYmax() { return fYmax; }
+    std::vector<Double_t> GetZmax() { return fZmax; }
+
     TVector3 GetMagneticField(Double_t x, Double_t y, Double_t z);
 
     // Constructors
