@@ -70,13 +70,17 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
         EndPrintProcess();
     }
 
-    TVector3 MoveOneStep(TVector3 pos, TVector3 dir, Double_t step);
-    TVector3 MoveVirtualBox(TVector3 pos, TVector3 dir, Double_t size = -1);
+    
+    /// Methods used in FindFieldBoundaries method
+    TVector3 MoveToPlan(TVector3 pos, TVector3 dir, Double_t f, Int_t i);
+    bool IsInBoundedPlan(TVector3 pos, Int_t i, Int_t p);
+    std::vector <TVector3> InOut(std::vector <TVector3> bounds, TVector3 dir ); 
+    std::vector <TVector3 > FindBoundariesOneVolume(TVector3 pos, TVector3 dir, Int_t p);
+    std::vector <TVector3> FieldBoundary(std::vector <TVector3> boundaries, Double_t minStep);
 
-    bool ConditionStop(TVector3 pos, TVector3 dir);
-
-    std::vector<TVector3> FindBoundariesVolume(TVector3 pos, TVector3 dir, Double_t minStep);
-    std::vector<std::vector<TVector3> > FindFieldBoundaries(Double_t minStep = -1);
+   
+    /// Returns the boundaries of the axion passed through magnetic fields
+    std::vector<std::vector<TVector3>> FindFieldBoundaries(Double_t minStep = -1);   
 
     TVectorD GetFieldVector(TVector3 in, TVector3 out, Int_t N = 0);
 

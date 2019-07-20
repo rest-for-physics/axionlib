@@ -135,160 +135,252 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
     fAxionPhotonConversion->SetBufferGas(fAxionBufferGas);
 }
 
-TVector3 TRestAxionFieldPropagationProcess::MoveOneStep(TVector3 pos, TVector3 dir, Double_t step) {
-    Double_t t;
-    Double_t f;
-
-    Int_t i, j, k;
-
-    if (dir[1] != 0) {
-        j = 1;
-        k = 2;
-        i = 0;
-    } else {
-        if (dir[0] != 0) {
-            j = 0;
-            i = 1;
-            k = 2;
-        } else {
-            j = 2;
-            i = 0;
-            k = 1;
-        }
-    }
-
-    f = pos[j] + (dir[j] / abs(dir[j])) * step;
-    t = (f - pos[j]) / dir[j];
-
-    pos[j] = f;
-    pos[i] = pos[i] + t * dir[i];
-    pos[k] = pos[k] + t * dir[k];
+TVector3 TRestAxionFieldPropagationProcess::MoveToPlan(TVector3 pos, TVector3 dir, Double_t f, Int_t i) 
+{
+    if ( dir[i] == 0 ) error << "The component of the direction you chose is equal to 0 " << endl;
+    
+    Double_t t = (f-pos[i])/dir[i];
+    pos[i] = f;
+    pos[(i+1)%3] = pos[(i+1)%3] + t * dir[(i+1)%3];    
+    pos[(i+2)%3] = pos[(i+2)%3] + t * dir[(i+2)%3];
 
     return pos;
 }
 
-TVector3 TRestAxionFieldPropagationProcess::MoveVirtualBox(TVector3 pos, TVector3 dir, Double_t size) {
-    if (size == -1) size = fCharSizeExp;
 
-    Double_t step;
-    Int_t i;
+bool TRestAxionFieldPropagationProcess::IsInBoundedPlan(TVector3 pos, Int_t i, Int_t p) 
+{
+    Double_t minCond1, maxCond1, minCond2, maxCond2;
+    Int_t j, k;
 
-    if (dir[1] != 0)
-        i = 1;
-    else {
-        if (dir[0] != 0)
+    if ( i==0 ) 
+    {
+         minCond1 = ( fAxionMagneticField->GetYmin() )[p]; maxCond1 = ( fAxionMagneticField->GetYmax() )[p];
+         minCond2 = ( fAxionMagneticField->GetZmin() )[p]; maxCond2 = ( fAxionMagneticField->GetZmax() )[p];
+         j = 1; k = 2;
+    }
+    if ( i==1 ) 
+    {
+         minCond1 = ( fAxionMagneticField->GetXmin() )[p]; maxCond1 = ( fAxionMagneticField->GetXmax() )[p];
+         minCond2 = ( fAxionMagneticField->GetZmin() )[p]; maxCond2 = ( fAxionMagneticField->GetZmax() )[p];
+         j = 0; k = 2;
+    }
+    if ( i==2 ) 
+    {
+         minCond1 = ( fAxionMagneticField->GetXmin() )[p]; maxCond1 = ( fAxionMagneticField->GetXmax() )[p];
+         minCond2 = ( fAxionMagneticField->GetYmin() )[p]; maxCond2 = ( fAxionMagneticField->GetYmax() )[p];
+         j = 0 ; k = 1;  
+    }
+  
+    bool cond1 = ( pos[j] <= maxCond1 && pos[j] >= minCond1 );
+    bool cond2 = ( pos[k] <= maxCond2 && pos[k] >= minCond2 );
+
+    return cond1 && cond2;
+
+}
+
+std::vector <TVector3> TRestAxionFieldPropagationProcess::InOut(std::vector <TVector3> bounds, TVector3 dir ) 
+{
+
+    Int_t i = 0;
+
+    TVector3 in = bounds[0];
+    TVector3 out = bounds[1];
+
+    while ( i < 3 && dir[i] * ( out[i]-in[i] ) >= 0 )
+            i = i+1 ;
+ 
+    if ( i < 3 )
+    {
+         bounds[0] = out;
+         bounds[1] = in;
+    }
+
+    return bounds;
+    
+}
+
+std::vector <TVector3 > TRestAxionFieldPropagationProcess::FindBoundariesOneVolume(TVector3 pos, TVector3 dir, Int_t p)
+{
+     std::vector <TVector3> boundaries;
+     TVector3 in;
+     TVector3 out;
+
+     Int_t i = 0;
+     Int_t j = 0;
+
+     TVectorD f(6);
+     f[0] = ( fAxionMagneticField -> GetXmin() )[p]; f[1] = ( fAxionMagneticField -> GetXmax() )[p];
+     f[2] = ( fAxionMagneticField -> GetYmin() )[p]; f[3] = ( fAxionMagneticField -> GetYmax() )[p];
+     f[4] = ( fAxionMagneticField -> GetZmin() )[p]; f[5] = ( fAxionMagneticField -> GetZmin() )[p];
+
+     Int_t nFace = 0; 
+
+     while ( nFace < 6 && i <= 0 )
+     {
+             if ( dir[Int_t(nFace/2)] != 0 )
+             {
+                  if ( (pos[Int_t(nFace/2)] - f[nFace]) * dir[Int_t(nFace/2)] <= 0 )
+                  {  
+                        in = MoveToPlan(pos,dir,f[nFace],Int_t(nFace/2)); 
+                        if ( IsInBoundedPlan(in,Int_t(nFace/2),p) ) 
+                             i = i+1; 
+         
+                  }
+             }
+             nFace = nFace + 1;
+     
+     }
+
+     if ( i == 1 )   
+     {
+          while ( nFace < 6 && j <= 0 )
+          {
+                  if ( dir[Int_t(nFace/2)] != 0 )
+                  {
+                       if ( (pos[Int_t(nFace/2)] - f[nFace]) * dir[Int_t(nFace/2)] <= 0 )
+                      {
+                             out = MoveToPlan(pos,dir,f[nFace],Int_t(nFace/2)); 
+                             if ( IsInBoundedPlan(out,Int_t(nFace/2),p) )  
+                                  j = j+1;
+                      }
+                  }
+                  nFace = nFace + 1;
+          }
+     }     
+     
+     if ( i+j == 2 && in != out)
+     {
+        boundaries.push_back(in);
+        boundaries.push_back(out);
+        return boundaries;
+     }
+    
+     else return boundaries;
+             
+}
+std::vector <TVector3> TRestAxionFieldPropagationProcess::FieldBoundary(std::vector <TVector3> boundaries, Double_t minStep)
+{
+    std::vector <TVector3> boundariesField;
+
+    TVector3 in = boundaries[0];
+    TVector3 out = boundaries[1];
+    TVector3 diff = out-in;
+
+    Int_t N=10;
+    
+    Int_t i = 0;
+
+    while ( 1.0/Double_t(N) > minStep )
+    {
+            while ( ( fAxionMagneticField -> GetMagneticField(in[0], in[1], in[2]) ) == TVector3(0, 0, 0) && i<N)
+            {
+                    in = in + Double_t(i) / Double_t(N) * diff;
+                    i = i+1;
+            }
+            
+            if ( i==N ) return boundariesField;
+            
+            in = in - 1.0 / Double_t(N) * diff;
+            N = 10 * N;
             i = 0;
-        else
-            i = 2;
-    }
+     }
 
-    if (pos[i] < size && pos[i] > -size) return pos;
+     in = in + 10.0 / Double_t (N) * diff;
+     boundariesField.push_back(in);
+   
+     N = 10;
+     i = 0;
 
-    if (pos[i] < 0) size = -size;
+    while ( 1.0/Double_t(N) > minStep )
+    {
+            while ( ( fAxionMagneticField -> GetMagneticField(in[0], in[1], in[2]) == TVector3(0,0,0) ) && i<N)
+            {
+                    out = out - Double_t(i) / Double_t(N) * diff;
+                    i = i+1;
+            }
+            
+            out = out + 1.0 / Double_t(N) * diff;
+            N = 10 * N;
+            i = 0;
+     }
 
-    step = abs(pos[i] - size);
-    pos = MoveOneStep(pos, dir, step);
+     out = out - 10.0 / Double_t (N) * diff;
+     boundariesField.push_back(out);
 
-    return pos;
+     return boundariesField;        
 }
 
-bool TRestAxionFieldPropagationProcess::ConditionStop(TVector3 pos, TVector3 dir) {
-    if (dir[1] != 0)
-        return ((pos[1] < 0 && (dir[1] < 0)) || (pos[1] > fCharSizeExp && (dir[1] > 0)));
-    else {
-        if (dir[0] != 0)
-            return (pos[0] < -fCharSizeExp || pos[0] > fCharSizeExp);
 
-        else
-            return (pos[2] < -fCharSizeExp || pos[2] > fCharSizeExp);
-    }
-}
-
-std::vector<TVector3> TRestAxionFieldPropagationProcess::FindBoundariesVolume(TVector3 pos, TVector3 dir,
-                                                                              Double_t minStep) {
-    std::vector<TVector3> boundary;
-    TVector3 boundaryIn;
-    TVector3 boundaryOut;
-
-    Double_t dr = 5.;
-
-    pos = MoveOneStep(pos, dir, minStep);
-
-    while (dr > minStep) {
-        while (fAxionMagneticField->GetMagneticField(pos[0], pos[1], pos[2]) == TVector3(0, 0, 0) &&
-               not(ConditionStop(pos, dir)))
-            pos = MoveOneStep(pos, dir, dr);
-
-        if (ConditionStop(pos, dir)) {
-            boundaryIn = pos;
-            boundaryOut = TVector3(0, 0, 0);
-            boundary.push_back(boundaryIn);
-            boundary.push_back(boundaryOut);
-            return boundary;
-        }
-
-        else {
-            pos = MoveOneStep(pos, dir, -dr);
-            dr = dr / 2.0;
-        }
-    }
-
-    pos = MoveOneStep(pos, dir, dr * 2.0);
-    boundaryIn = pos;
-
-    while (fAxionMagneticField->GetMagneticField(pos[0], pos[1], pos[2]) != TVector3(0, 0, 0))
-        pos = MoveOneStep(pos, dir, dr);
-
-    boundaryOut = pos;
-
-    boundary.push_back(boundaryIn);
-    boundary.push_back(boundaryOut);
-
-    return boundary;
-}
-
-std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldBoundaries(Double_t minStep) {
+std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldBoundaries(Double_t minStep) 
+{
     if (minStep == -1) minStep = 0.01;
 
     std::vector<std::vector<TVector3>> boundaryCollection;
+    std::vector<std::vector<TVector3>> boundaryFinalCollection;
+    std::vector<TVector3> buffVect;
+    TVector3 boundaryIn;
+    TVector3 boundaryOut;
 
     TVector3 posInitial = *(fInputAxionEvent->GetPosition());
     TVector3 direction = *(fInputAxionEvent->GetDirection());
     direction = direction.Unit();
 
-    if (direction == TVector3(0, 0, 0) || (direction[1] * posInitial[1] > 0)) return boundaryCollection;
-
-    std::vector<TVector3> buffVect;
-
-    posInitial = MoveVirtualBox(posInitial, direction);
-
-    std::vector<TVector3> bInt;
-    bInt = FindBoundariesVolume(posInitial, direction, minStep);
-
-    if (ConditionStop(bInt[0], direction))
+    if (direction == TVector3(0, 0, 0) ) // No moves 
         return boundaryCollection;
 
-    else {
-        buffVect.push_back(bInt[0]);
-        buffVect.push_back(bInt[1]);
-        boundaryCollection.push_back(buffVect);
-        buffVect.clear();
+    if ( ( fAxionMagneticField -> GetXmin() ).size() == 0 ) 
+         error << " The magnetic field has not been loaded " << endl;
+   
+    /*** Find global boundaries volume ***/
+    
+    Int_t N = ( fAxionMagneticField -> GetXmin() ).size();
 
-        bInt = FindBoundariesVolume(bInt[1], direction, minStep);
 
-        while (not(ConditionStop(bInt[0], direction))) {
-            buffVect.push_back(bInt[0]);
-            buffVect.push_back(bInt[1]);
-            boundaryCollection.push_back(buffVect);
-            buffVect.clear();
-
-            bInt = FindBoundariesVolume(bInt[1], direction, minStep);
-        }
-
-        bInt.clear();
-        return boundaryCollection;
+    for (Int_t p=0 ; p<N ; p++)
+    {
+          buffVect = FindBoundariesOneVolume( posInitial, direction, p);
+          if ( buffVect.size() == 2 )
+          {
+              buffVect = InOut( buffVect,direction );
+              boundaryCollection.push_back(buffVect);
+              buffVect.clear();
+          }
     }
+   
+    debug << " Number of volume boundaries : " << 2 * boundaryCollection.size() << endl;
+
+    for (Int_t p=0 ; p < boundaryCollection.size() ; p++) 
+    {
+         debug << "for" << p << " in : (" << boundaryCollection[p][0].X() << ","  << boundaryCollection[p][0].Y() << "," << boundaryCollection[p][0].Z() << ")" << endl;
+         debug << "for" << p << " out : (" << boundaryCollection[p][1].X() << ","  << boundaryCollection[p][1].Y() << "," << boundaryCollection[p][1].Z() << ")" << endl; 
+    }
+
+   /*** Find precise boundaries field ***/ 
+   
+    for ( Int_t i = 0 ; i < boundaryCollection.size() ; i ++ )
+    {
+              buffVect = FieldBoundary( boundaryCollection[i],minStep) ;
+              if ( buffVect.size() == 2)
+              {
+                   boundaryFinalCollection.push_back(buffVect);
+                   buffVect.clear();
+              }
+    }
+
+    debug << " Number of field boundaries : " << 2 * boundaryFinalCollection.size() << endl;
+
+    for (Int_t p=0 ; p < boundaryFinalCollection.size() ; p++) 
+    {
+         debug << "for" << p << " in : (" << boundaryFinalCollection[p][0].X() << ","  << boundaryFinalCollection[p][0].Y() << "," << boundaryFinalCollection[p][0].Z() << ")" << endl;
+         debug << "for" << p << " out : (" << boundaryFinalCollection[p][1].X() << ","  << boundaryFinalCollection[p][1].Y() << "," << boundaryFinalCollection[p][1].Z() << ")" << endl; 
+    }
+
+    
+    return boundaryFinalCollection;  
+
 }
+
 
 TVectorD TRestAxionFieldPropagationProcess::GetFieldVector(TVector3 in, TVector3 out, Int_t N) {
     if (N == 0) N = TMath::Power(10, 4);
