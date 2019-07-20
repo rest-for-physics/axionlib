@@ -321,30 +321,30 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     std::vector<std::vector<TVector3>> boundaries;
     boundaries = FindFieldBoundaries();
     Int_t NofVolumes = boundaries.size();
-    TVectorD B;
-    TVectorD probabilities(NofVolumes);
-
-    for (Int_t i = 0; i < NofVolumes; i++) {
-        B = GetFieldVector(boundaries[i][0], boundaries[i][1], 0);
-
-        if (boundaries[i][0][1] == boundaries[i][1][1] && boundaries[i][0][2] == boundaries[i][1][2])
-            probabilities[i] = fAxionPhotonConversion->GammaTransmissionProbability(
-                Ea, B, ma, abs(boundaries[i][0][0] - boundaries[i][1][0]));
-        if (boundaries[i][0][0] == boundaries[i][1][0] && boundaries[i][0][1] == boundaries[i][1][1])
-            probabilities[i] = fAxionPhotonConversion->GammaTransmissionProbability(
-                Ea, B, ma, abs(boundaries[i][0][2] - boundaries[i][1][2]));
-
-        else
-            probabilities[i] = fAxionPhotonConversion->GammaTransmissionProbability(
-                Ea, B, ma, abs(boundaries[i][0][1] - boundaries[i][1][1]));
-    }
 
     Double_t probability = 0.;
 
-    for (Int_t i = 0; i < NofVolumes; i++) probability = probability + probabilities[i];
+    if ( NofVolumes !=0 )
+    {
+         TVectorD B;
+         TVectorD probabilities(NofVolumes);
 
-    fOutputAxionEvent->SetGammaProbability(probability);
-    fOutputAxionEvent->SetPosition(boundaries[NofVolumes][1]);
+         TVector3 lengthVector ;
+         Double_t length;
+
+         for ( Int_t i = 0; i < NofVolumes; i++ ) {
+               lengthVector = boundaries[i][0]-boundaries[i][1];
+               length = sqrt( lengthVector.Mag2() );
+               B = GetFieldVector(boundaries[i][0], boundaries[i][1], 0);
+               probabilities[i] = fAxionPhotonConversion->GammaTransmissionProbability(Ea, B, ma, length);
+         }
+
+         for (Int_t i = 0; i < NofVolumes; i++) probability = probability + probabilities[i];
+    }
+
+
+    fOutputAxionEvent->SetGammaProbability(probability); // Sum of probabilities or difference with the initial probability ?
+    fOutputAxionEvent->SetPosition(boundaries[NofVolumes][1]); // TODO : Set the position after propagation of the axion at a fixed diatnce 
 
     if (GetVerboseLevel() >= REST_Debug) fOutputAxionEvent->PrintEvent();
 
