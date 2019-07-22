@@ -210,9 +210,9 @@ void TRestAxionGeneratorProcess::InitFromConfigFile() {
     fEnergyStep = GetDoubleParameterWithUnits("energyStep", 1.e-3);
 
     fAngularDistribution = GetParameter("angularDistribution", "flux");
-    fAngularDirection = StringTo3DVector(GetParameter("direction", "(0,0,1)"));
+    fAngularDirection = StringTo3DVector(GetParameter("angularDirection"));//, "(0,0,1)"));
 
     fSpatialDistribution = GetParameter("spatialDistribution", "circleWall");
     fSpatialRadius = GetDoubleParameterWithUnits("spatialRadius", 10.e3);
-    fSpatialOrigin = Get3DVectorParameterWithUnits("spatialOrigin", TVector3(0, 0, -30000));
+    fSpatialOrigin = Get3DVectorParameterWithUnits("spatialOrigin");//, TVector3(0, 0, -30000));
 }
