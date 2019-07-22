@@ -115,7 +115,7 @@ void TRestAxionFieldPropagationProcess::Initialize() {
 /// \brief The main processing event function
 ///
 void TRestAxionFieldPropagationProcess::InitProcess() {
-    debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
+    debug   << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
 
     fAxionMagneticField = (TRestAxionMagneticField*)this->GetMetadata("TRestAxionMagneticField");
 
@@ -348,13 +348,17 @@ std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldB
           }
     }
    
-    debug << " Number of volume boundaries : " << 2 * boundaryCollection.size() << endl;
+    debug << "+------------------------+" << endl;
+    debug   << " Number of volume boundaries : " << 2 * boundaryCollection.size() << endl;
+    debug << "+------------------------+" << endl;
 
+    debug << "+------------------------+" << endl;
     for (Int_t p=0 ; p < boundaryCollection.size() ; p++) 
     {
-         debug << "for" << p << " in : (" << boundaryCollection[p][0].X() << ","  << boundaryCollection[p][0].Y() << "," << boundaryCollection[p][0].Z() << ")" << endl;
-         debug << "for" << p << " out : (" << boundaryCollection[p][1].X() << ","  << boundaryCollection[p][1].Y() << "," << boundaryCollection[p][1].Z() << ")" << endl; 
+         debug   << "for" << p << " in : (" << boundaryCollection[p][0].X() << ","  << boundaryCollection[p][0].Y() << "," << boundaryCollection[p][0].Z() << ")" << endl;
+         debug   << "for" << p << " out : (" << boundaryCollection[p][1].X() << ","  << boundaryCollection[p][1].Y() << "," << boundaryCollection[p][1].Z() << ")" << endl; 
     }
+    debug << "+------------------------+" << endl;
 
    /*** Find precise boundaries field ***/ 
    
@@ -368,14 +372,19 @@ std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldB
               }
     }
 
-    debug << " Number of field boundaries : " << 2 * boundaryFinalCollection.size() << endl;
+    boundaryCollection.clear();
 
+    debug << "+------------------------+" << endl;
+    debug   << " Number of field boundaries : " << 2 * boundaryFinalCollection.size() << endl;
+    debug << "+------------------------+" << endl;
+
+    debug << "+------------------------+" << endl;
     for (Int_t p=0 ; p < boundaryFinalCollection.size() ; p++) 
     {
-         debug << "for" << p << " in : (" << boundaryFinalCollection[p][0].X() << ","  << boundaryFinalCollection[p][0].Y() << "," << boundaryFinalCollection[p][0].Z() << ")" << endl;
-         debug << "for" << p << " out : (" << boundaryFinalCollection[p][1].X() << ","  << boundaryFinalCollection[p][1].Y() << "," << boundaryFinalCollection[p][1].Z() << ")" << endl; 
+         debug   << "for" << p << " in : (" << boundaryFinalCollection[p][0].X() << ","  << boundaryFinalCollection[p][0].Y() << "," << boundaryFinalCollection[p][0].Z() << ")" << endl;
+         debug   << "for" << p << " out : (" << boundaryFinalCollection[p][1].X() << ","  << boundaryFinalCollection[p][1].Y() << "," << boundaryFinalCollection[p][1].Z() << ")" << endl; 
     }
-
+    debug << "+------------------------+" << endl;
     
     return boundaryFinalCollection;  
 
@@ -407,18 +416,31 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     fInputAxionEvent = (TRestAxionEvent*)evInput;
     fOutputAxionEvent = fInputAxionEvent;
 
+    debug << "+------------------------+" << endl;
+    debug  << "Position of the axion input : " << endl;
+    debug  << "(" << fInputAxionEvent->GetPositionX() << ","<< fInputAxionEvent->GetPositionY() << ","<< fInputAxionEvent->GetPositionZ() << ")";
+    debug  << "Direction of the axion input : " << endl;
+    debug   << "(" << fInputAxionEvent->GetDirectionX() << ","<< fInputAxionEvent->GetDirectionY() << ","<< fInputAxionEvent->GetDirectionZ() << ")";
+    debug << "+------------------------+" << endl;
+     
     Double_t Ea = fInputAxionEvent->GetEnergy();
     Double_t ma = fInputAxionEvent->GetMass();
-
+    
     std::vector<std::vector<TVector3>> boundaries;
     boundaries = FindFieldBoundaries();
     Int_t NofVolumes = boundaries.size();
 
+    debug << "+------------------------+" << endl;
+    debug   << "Number of magnetic field through which the axion passes : " << NofVolumes << endl; 
+    debug << "+------------------------+" << endl;
+
     Double_t probability = 0.;
+
+    Int_t N = TMath::Power(10,4);
 
     if ( NofVolumes !=0 )
     {
-         TVectorD B;
+         TVectorD B(N);
          TVectorD probabilities(NofVolumes);
 
          TVector3 lengthVector ;
@@ -434,13 +456,14 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
          for (Int_t i = 0; i < NofVolumes; i++) probability = probability + probabilities[i];
     }
 
+    fOutputAxionEvent->SetGammaProbability(probability);
+    //fOutputAxionEvent->SetPosition(TVector3(0,0,0)); // TODO : Set the position after propagation of the axion at a fixed diatnce 
 
-    fOutputAxionEvent->SetGammaProbability(probability); // Sum of probabilities or difference with the initial probability ?
-    fOutputAxionEvent->SetPosition(boundaries[NofVolumes][1]); // TODO : Set the position after propagation of the axion at a fixed diatnce 
-
-    if (GetVerboseLevel() >= REST_Debug) fOutputAxionEvent->PrintEvent();
-
-    return fOutputEvent;
+    if (GetVerboseLevel() >= REST_Debug   ) fOutputAxionEvent->PrintEvent();
+    
+    boundaries.clear();
+    
+    return fOutputAxionEvent;
 }
 
 ///////////////////////////////////////////////
