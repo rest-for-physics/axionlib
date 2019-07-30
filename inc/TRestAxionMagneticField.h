@@ -29,10 +29,9 @@
 #include <ComponentBase.hh>
 #include <ComponentVoxel.hh>
 #include <Sensor.hh>
+using namespace Garfield;
 #else
 class Sensor;
-class ComponentVoxel;
-class ComponentBase;
 #endif
 
 class TRestAxionMagneticField : public TRestMetadata {
@@ -41,25 +40,24 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     void InitFromConfigFile();
 
+    Sensor* fSetOfField;  //!
+
     Int_t fNofVolumes;  //<
 
     std::vector<TVector3> fPositions;  //<
     std::vector<TString> fFileNames;   //<
 
-    std::vector<Double_t> fXmax;      //<
-    std::vector<Double_t> fXmin;      //<
-    std::vector<Double_t> fYmax;      //<
-    std::vector<Double_t> fYmin;      //<
-    std::vector<Double_t> fZmin;      //<
-    std::vector<Double_t> fZmax;      //<
+    std::vector<Double_t> fXmax;  //<
+    std::vector<Double_t> fXmin;  //<
+    std::vector<Double_t> fYmax;  //<
+    std::vector<Double_t> fYmin;  //<
+    std::vector<Double_t> fZmin;  //<
+    std::vector<Double_t> fZmax;  //<
+
     std::vector<Double_t> fSizeMesh;  //<
 
     TH2D* fHisto;      //!
     TCanvas* fCanvas;  //!
-
-#ifdef USE_Garfield
-    Garfield::Sensor* fSetOfField;  //!
-#endif
 
    public:
     void LoadMagneticVolumes();

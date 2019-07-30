@@ -74,9 +74,6 @@
 #include "TRestAxionMagneticField.h"
 
 using namespace std;
-#ifdef USE_Garfield
-using namespace Garfield;
-#endif
 
 ClassImp(TRestAxionMagneticField);
 
@@ -129,7 +126,7 @@ void TRestAxionMagneticField::Initialize() {
     fHisto = NULL;
 
 #if defined USE_Garfield
-    fSetOfField = new Garfield::Sensor();
+    fSetOfField = new Sensor();
 #endif
 }
 
@@ -413,7 +410,7 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
             int ny = (int)(2 * ymax / sizeMesh) + 1;
             int nz = (int)(2 * zmax / sizeMesh) + 1;
 
-            Garfield::ComponentVoxel* mesh = new Garfield::ComponentVoxel();
+            ComponentVoxel* mesh = new ComponentVoxel();
             cout << "Setting Garfield mesh : Positions size : " << fPositions.size() << endl;
             mesh->SetMesh(nx, ny, nz, xmin + fPositions[n][0], xmax + fPositions[n][0],
                           ymin + fPositions[n][1], ymax + fPositions[n][1], zmin + fPositions[n][2],
