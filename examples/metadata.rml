@@ -11,7 +11,7 @@
 		<parameter name="solarAxionModel" value="arXiv_0702006_Primakoff"/>
 	</TRestAxionSolarModel>
 
-	<TRestAxionBufferGas name="helium" verboseLevel="debug" >
+	<TRestAxionBufferGas name="helium" verboseLevel="warning" >
 		<gas name="He" density="0.176e-3"/>
 	</TRestAxionBufferGas>
 
