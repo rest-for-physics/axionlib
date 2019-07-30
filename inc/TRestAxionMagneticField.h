@@ -41,10 +41,6 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     void InitFromConfigFile();
 
-#ifdef USE_Garfield
-    Garfield::Sensor* fSetOfField;  //!
-#endif
-
     Int_t fNofVolumes;  //<
 
     std::vector<TVector3> fPositions;  //<
@@ -60,6 +56,10 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     TH2D* fHisto;      //!
     TCanvas* fCanvas;  //!
+
+#ifdef USE_Garfield
+    Garfield::Sensor* fSetOfField;  //!
+#endif
 
    public:
     void LoadMagneticVolumes();
