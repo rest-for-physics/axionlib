@@ -102,8 +102,6 @@ void TRestAxionFieldPropagationProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fCharSizeExp = 30000.;
-
     fInputAxionEvent = new TRestAxionEvent();
     fOutputAxionEvent = new TRestAxionEvent();
 

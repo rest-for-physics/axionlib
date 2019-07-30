@@ -40,7 +40,6 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
 
     void LoadDefaultConfig();
 
-    Double_t fCharSizeExp;
 
     /// A pointer to the specific TRestAxionEvent
     TRestAxionEvent* fInputAxionEvent;   //!
