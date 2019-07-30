@@ -184,6 +184,8 @@ void TRestAxionSolarModel::InitFromConfigFile() {
             }
         }
     }
+
+    PrintMetadata();
 }
 
 void TRestAxionSolarModel::PrintMetadata() {

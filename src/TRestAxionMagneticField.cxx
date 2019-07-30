@@ -414,6 +414,7 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
             int nz = (int)(2 * zmax / sizeMesh) + 1;
 
             Garfield::ComponentVoxel* mesh = new Garfield::ComponentVoxel();
+            cout << "Setting Garfield mesh : Positions size : " << fPositions.size() << endl;
             mesh->SetMesh(nx, ny, nz, xmin + fPositions[n][0], xmax + fPositions[n][0],
                           ymin + fPositions[n][1], ymax + fPositions[n][1], zmin + fPositions[n][2],
                           zmax + fPositions[n][2]);
@@ -444,6 +445,7 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
 
 void TRestAxionMagneticField::InitFromConfigFile() {
     this->Initialize();
+
     string bVolume;
     size_t pos = 0;
     while ((bVolume = GetKEYDefinition("addMagneticVolume", pos)) != "") {
@@ -455,6 +457,8 @@ void TRestAxionMagneticField::InitFromConfigFile() {
     }
 
     LoadMagneticVolumes();
+
+    PrintMetadata();
 }
 
 void TRestAxionMagneticField::PrintMetadata() {
