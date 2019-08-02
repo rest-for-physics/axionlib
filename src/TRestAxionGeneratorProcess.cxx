@@ -203,6 +203,29 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
 
         return position;
     }
+
+    if (fSpatialDistribution == "sphereIn") {
+        Double_t r, x ,y, z;
+        fRandom -> Sphere (x,y,z,fSpatialRadius);
+        position = TVector3(x, y, z) + fSpatialOrigin; 
+      
+        fAngularDirection = -TVector3(x, y, z);
+        fAngularDirection = fAngularDirection.Unit();
+
+        return position; 
+    }
+
+    if (fSpatialDistribution == "sphereOut") {
+        Double_t r, x ,y, z;
+        fRandom -> Sphere (x,y,z,fSpatialRadius);
+        position = TVector3(x, y, z) + fSpatialOrigin; 
+      
+        fAngularDirection = TVector3(x, y, z);
+        fAngularDirection = fAngularDirection.Unit();
+
+        return position; 
+    }
+
     warning << "Spatial distribution : " << fSpatialDistribution << " is not defined!" << endl;
 
     return position;
