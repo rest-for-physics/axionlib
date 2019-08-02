@@ -38,9 +38,9 @@ internal values are saved.
 		<parameter name="energyRange" value="(0,15)keV" />
 
 		<parameter name="angularDistribution" value="flux" />
-		<parameter name="angularDirection" value="(0,0,1)" />
+		<parameter name="angularDirection" value="(0,0,-1)" />
 
-		<parameter name="spatialDistribution" value="circleWall" />
+		<parameter name="spatialDistribution" value="circleWallXY" /> <!-- sphereIn or sphereOut -->
 		<parameter name="spatialRadius" value="30cm" />
 		<parameter name="spatialOrigin" value="(0,0,-40)m" />
 	</addProcess>
@@ -51,8 +51,9 @@ internal values are saved.
 		<observable name="posY" value="ON" />
 	</addProcess>
 
-    <!--
 	<addProcess type="TRestAxionFieldPropagationProcess" name="babyMagnet" value="ON" verboseLevel="info" >
+                <parameter name="mode" value="distance" />
+                <parameter name="distance" value="40000 mm" />
 	</addProcess>
 
 	<addProcess type="TRestAxionTransmissionProcess" name="magnetWindow" value="ON" verboseLevel="info" >
@@ -63,7 +64,7 @@ internal values are saved.
 
 	<addProcess type="TRestAxionTransmissionProcess" name="detectorWindow" value="ON" verboseLevel="info" >
 	</addProcess>
-    -->
+  
 
 	<!--	file="processes.rml"/> -->
 
