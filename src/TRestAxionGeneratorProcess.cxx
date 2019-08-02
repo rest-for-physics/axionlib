@@ -159,8 +159,7 @@ TVector3 TRestAxionGeneratorProcess::GenerateDirection() {
 TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
     TVector3 position;
 
-    // For the moment "circleWall" just generates in the XY-plane
-    if (fSpatialDistribution == "circleWall") {
+    if (fSpatialDistribution == "circleWallXY") {
         Double_t r, x, y;
 
         do {
@@ -175,6 +174,35 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
         return position;
     }
 
+    if (fSpatialDistribution == "circleWallXZ") {
+        Double_t r, x, z;
+
+        do {
+            x = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
+            z = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
+
+            r = x * x + z * z;
+        } while (r > fSpatialRadius * fSpatialRadius);
+
+        position = TVector3(x, 0, z) + fSpatialOrigin;
+
+        return position;
+    }
+
+    if (fSpatialDistribution == "circleWallYZ") {
+        Double_t r, y, z;
+
+        do {
+            y = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
+            z = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
+
+            r = y * y + z * z;
+        } while (r > fSpatialRadius * fSpatialRadius);
+
+        position = TVector3(0, y, z) + fSpatialOrigin;
+
+        return position;
+    }
     warning << "Spatial distribution : " << fSpatialDistribution << " is not defined!" << endl;
 
     return position;
