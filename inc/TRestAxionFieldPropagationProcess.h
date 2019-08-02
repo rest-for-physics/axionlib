@@ -54,6 +54,12 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
     /// A pointer for the gamma conversion probability
     TRestAxionBufferGas* fAxionBufferGas;  //!
 
+    /// Variables for the OutputAxionEvent position
+    TString fMode;
+    TVector3 fFinalNormalPlan;
+    TVector3 fFinalPositionPlan;
+    Double_t fDistance;
+
    protected:
    public:
     void InitProcess();
@@ -82,6 +88,10 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
     std::vector<std::vector<TVector3>> FindFieldBoundaries(Double_t minStep = -1);   
 
     TVectorD GetFieldVector(TVector3 in, TVector3 out, Int_t N = 0);
+
+    /// Returns the final position of the OutputAxionEvent after a fixed distance or in a fixed plan
+    TVector3 FinalPositionInPlan(TVector3 pos, TVector3 dir,TVector3 normalPlan,TVector3 pointPlan);
+    TVector3 MoveToFinalDistance(TVector3 pos, TVector3 dir, Double_t distance);
 
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestAxionFieldPropagationProcess; }

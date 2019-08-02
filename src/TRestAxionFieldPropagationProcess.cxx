@@ -107,6 +107,10 @@ void TRestAxionFieldPropagationProcess::Initialize() {
 
     fInputEvent = fInputAxionEvent;
     fOutputEvent = fOutputAxionEvent;
+
+    fFinalNormalPlan = TVector3();
+    fFinalPositionPlan = TVector3();
+    fDistance = 0.0;
 }
 
 ///////////////////////////////////////////////
@@ -145,6 +149,26 @@ TVector3 TRestAxionFieldPropagationProcess::MoveToPlan(TVector3 pos, TVector3 di
     return pos;
 }
 
+TVector3 TRestAxionFieldPropagationProcess::FinalPositionInPlan(TVector3 pos, TVector3 dir,TVector3 normalPlan,TVector3 pointPlan)
+{
+   if ( normalPlan.Dot(dir)==0 ) return pos;
+
+   Double_t t, d ;
+   d = normalPlan.Dot(pos);
+   t = - ( normalPlan.Dot(pos) + d ) / ( normalPlan.Dot(dir) ) ;
+
+   pos = pos + t * dir;
+   
+   return pos;
+}
+
+TVector3 TRestAxionFieldPropagationProcess::MoveToFinalDistance(TVector3 pos, TVector3 dir, Double_t distance)
+{
+   Double_t t = distance / dir.Mag();
+   pos = pos + t * dir;
+
+   return pos;
+}
 
 bool TRestAxionFieldPropagationProcess::IsInBoundedPlan(TVector3 pos, Int_t i, Int_t p) 
 {
@@ -414,11 +438,14 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     fInputAxionEvent = (TRestAxionEvent*)evInput;
     fOutputAxionEvent = fInputAxionEvent;
 
+    TVector3 position = *(fInputAxionEvent->GetPosition());
+    TVector3 direction = *(fInputAxionEvent->GetDirection());
+
     debug << "+------------------------+" << endl;
-    debug  << "Position of the axion input : " << endl;
-    debug  << "(" << fInputAxionEvent->GetPositionX() << ","<< fInputAxionEvent->GetPositionY() << ","<< fInputAxionEvent->GetPositionZ() << ")";
-    debug  << "Direction of the axion input : " << endl;
-    debug   << "(" << fInputAxionEvent->GetDirectionX() << ","<< fInputAxionEvent->GetDirectionY() << ","<< fInputAxionEvent->GetDirectionZ() << ")";
+    debug << "Initial position of the axion input : " << endl;
+    debug << "(" << position.X() << ","<< position.Y()  << ","<< position.Z() << ")";
+    debug << "Direction of the axion input : " << endl;
+    debug << "(" << direction.X() << ","<< direction.Y() << ","<< direction.Z() << ")";
     debug << "+------------------------+" << endl;
      
     Double_t Ea = fInputAxionEvent->GetEnergy();
@@ -429,7 +456,7 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     Int_t NofVolumes = boundaries.size();
 
     debug << "+------------------------+" << endl;
-    debug   << "Number of magnetic field through which the axion passes : " << NofVolumes << endl; 
+    debug  << "Number of magnetic field through which the axion passes : " << NofVolumes << endl; 
     debug << "+------------------------+" << endl;
 
     Double_t probability = 0.;
@@ -455,7 +482,14 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     }
 
     fOutputAxionEvent->SetGammaProbability(probability);
-    //fOutputAxionEvent->SetPosition(TVector3(0,0,0)); // TODO : Set the position after propagation of the axion at a fixed diatnce 
+
+    if (fMode == "plan") fOutputAxionEvent->SetPosition( FinalPositionInPlan(position,direction,fFinalNormalPlan,fFinalPositionPlan) );
+    if (fMode == "distance") fOutputAxionEvent->SetPosition( MoveToFinalDistance(position,direction,fDistance) );
+
+    debug << "+------------------------+" << endl;
+    debug << "Final position of the axion input : " << endl;
+    debug << "(" << fOutputAxionEvent->GetPositionX() << ","<< fOutputAxionEvent->GetPositionY()<< ","<< fOutputAxionEvent->GetPositionZ() << ")";
+    debug << "+------------------------+" << endl;
 
     if (GetVerboseLevel() >= REST_Debug   ) fOutputAxionEvent->PrintEvent();
     
@@ -467,4 +501,13 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML TRestAxionFieldPropagationProcess metadata section
 ///
-void TRestAxionFieldPropagationProcess::InitFromConfigFile() {}
+void TRestAxionFieldPropagationProcess::InitFromConfigFile() {
+    this->Initialize();
+
+    fMode = GetParameter("mode");
+    fFinalNormalPlan = Get3DVectorParameterWithUnits("finalNPlan");
+    fFinalPositionPlan = Get3DVectorParameterWithUnits("finalPositionPlan");
+    fDistance = GetDoubleParameterWithUnits("distance");
+
+    PrintMetadata();
+}
