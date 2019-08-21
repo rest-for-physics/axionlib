@@ -158,10 +158,9 @@ TVector3 TRestAxionGeneratorProcess::GenerateDirection() {
 
 TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
     TVector3 position;
+    Double_t r, x, y, z;
 
     if (fSpatialDistribution == "circleWallXY") {
-        Double_t r, x, y;
-
         do {
             x = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
             y = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
@@ -175,8 +174,6 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
     }
 
     if (fSpatialDistribution == "circleWallXZ") {
-        Double_t r, x, z;
-
         do {
             x = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
             z = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
@@ -190,8 +187,6 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
     }
 
     if (fSpatialDistribution == "circleWallYZ") {
-        Double_t r, y, z;
-
         do {
             y = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
             z = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
@@ -205,7 +200,6 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
     }
 
     if (fSpatialDistribution == "sphereIn") {
-        Double_t r, x ,y, z;
         fRandom -> Sphere (x,y,z,fSpatialRadius);
         position = TVector3(x, y, z) + fSpatialOrigin; 
       
@@ -216,7 +210,6 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
     }
 
     if (fSpatialDistribution == "sphereOut") {
-        Double_t r, x ,y, z;
         fRandom -> Sphere (x,y,z,fSpatialRadius);
         position = TVector3(x, y, z) + fSpatialOrigin; 
       
@@ -242,6 +235,7 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     fOutputAxionEvent->SetEnergy(GenerateEnergy());
     fOutputAxionEvent->SetPosition(GeneratePosition());
     fOutputAxionEvent->SetDirection(GenerateDirection());
+    fOutputAxionEvent->SetMass(fAxionMass);
 
     // cout << "anaTree : " << fAnalysisTree << endl;
     // fAnalysisTree->SetObservableValue( this, "energy", fOutputAxionEvent->GetEnergy() );
@@ -257,13 +251,14 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
 ///
 void TRestAxionGeneratorProcess::InitFromConfigFile() {
     // These 2-params should be moved to TRestAxionSolarModel
-    fEnergyRange = Get2DVectorParameterWithUnits("energyRange", TVector2(0, 10));
-    fEnergyStep = GetDoubleParameterWithUnits("energyStep", 1.e-3);
+    fEnergyRange = Get2DVectorParameterWithUnits("energyRange");
+    fEnergyStep = GetDoubleParameterWithUnits("energyStep");
 
     fAngularDistribution = GetParameter("angularDistribution", "flux");
-    fAngularDirection = StringTo3DVector(GetParameter("angularDirection"));//, "(0,0,1)"));
+    fAngularDirection = StringTo3DVector(GetParameter("angularDirection"));
 
     fSpatialDistribution = GetParameter("spatialDistribution", "circleWall");
-    fSpatialRadius = GetDoubleParameterWithUnits("spatialRadius", 10.e3);
-    fSpatialOrigin = Get3DVectorParameterWithUnits("spatialOrigin");//, TVector3(0, 0, -30000));
+    fSpatialRadius = GetDoubleParameterWithUnits("spatialRadius");
+    fSpatialOrigin = Get3DVectorParameterWithUnits("spatialOrigin");
 }
+
