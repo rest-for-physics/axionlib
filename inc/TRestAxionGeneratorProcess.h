@@ -52,6 +52,9 @@ private:
     /// Energy step
     Double_t fEnergyStep; //->
 
+    /// Axion mass
+    Double_t fAxionMass; //->
+
     /// The angular distribution generator type
     TString fAngularDistribution; //->
 
@@ -66,6 +69,9 @@ private:
 
     /// The spatial origin from the spatial distribution
     TVector3 fSpatialOrigin; //->
+    
+    /// The normal vector of the wall (later we could include rotations because it is not possible with the magnet volumes)
+    TVector3 fNormalVecPlan; //->
 
     void InitFromConfigFile();
 
