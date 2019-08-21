@@ -70,8 +70,15 @@ private:
     /// The spatial origin from the spatial distribution
     TVector3 fSpatialOrigin; //->
     
-    /// The normal vector of the wall (later we could include rotations because it is not possible with the magnet volumes)
-    TVector3 fNormalVecPlan; //->
+    /// Rotation vector (according to x,y,z) for the circle wall defined from the plan (X,Y) - insead of rotating magnet Volumes
+    TVector3 fRotation; //->
+
+    /// The normal vector of the wall (other way to do a rotation)
+    TVector3 fNormalPlan; //->
+
+    /// Mode of rotated circle Wall construction
+    TString fMode; //->
+
 
     void InitFromConfigFile();
 

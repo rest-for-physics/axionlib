@@ -160,6 +160,35 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
     TVector3 position;
     Double_t r, x, y, z;
 
+    if (fSpatialDistribution == "circleWall") {
+        do {
+            x = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
+            y = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
+
+            r = x*x + y*y;
+        } while (r > fSpatialRadius * fSpatialRadius );
+
+        position = TVector3(x, y, z); //+ fSpatialOrigin;
+
+        if (fMode == "XYZRotation") {
+            position.RotateX(fRotation.X());
+            position.RotateY(fRotation.Y());
+            position.RotateZ(fRotation.Z());
+            position = position + fSpatialOrigin;    
+        }
+ 
+        if (fMode == "nPlanRotation") {
+            fNormalPlan = fNormalPlan.Unit();
+            TVector3 rotVec(0,-fNormalPlan.X(),fNormalPlan.Y());
+            Double_t angle = fNormalPlan.Angle(TVector3(1,0,0));
+            position.Rotate(angle,rotVec);
+            position = position + fSpatialOrigin;    
+        }
+          
+        return position;
+    }
+    
+
     if (fSpatialDistribution == "circleWallXY") {
         do {
             x = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
@@ -255,10 +284,14 @@ void TRestAxionGeneratorProcess::InitFromConfigFile() {
     fEnergyStep = GetDoubleParameterWithUnits("energyStep");
 
     fAngularDistribution = GetParameter("angularDistribution", "flux");
-    fAngularDirection = StringTo3DVector(GetParameter("angularDirection"));
+    fAngularDirection = Get3DVectorParameterWithUnits("angularDirection");
 
     fSpatialDistribution = GetParameter("spatialDistribution", "circleWall");
     fSpatialRadius = GetDoubleParameterWithUnits("spatialRadius");
     fSpatialOrigin = Get3DVectorParameterWithUnits("spatialOrigin");
+
+    fRotation = StringTo3DVector(GetParameter("rotation")); 
+    fNormalPlan = Get3DVectorParameterWithUnits("normalWall"); 
+    fMode = GetParameter("mode"); 
 }
 
