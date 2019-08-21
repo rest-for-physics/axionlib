@@ -154,7 +154,7 @@ TVector3 TRestAxionFieldPropagationProcess::FinalPositionInPlan(TVector3 pos, TV
    if ( normalPlan.Dot(dir)==0 ) return pos;
 
    Double_t t, d ;
-   d = normalPlan.Dot(pos);
+   d = - normalPlan.Dot(pointPlan);
    t = - ( normalPlan.Dot(pos) + d ) / ( normalPlan.Dot(dir) ) ;
 
    pos = pos + t * dir;
@@ -234,7 +234,7 @@ std::vector <TVector3 > TRestAxionFieldPropagationProcess::FindBoundariesOneVolu
      TVectorD f(6);
      f[0] = ( fAxionMagneticField -> GetXmin() )[p]; f[1] = ( fAxionMagneticField -> GetXmax() )[p];
      f[2] = ( fAxionMagneticField -> GetYmin() )[p]; f[3] = ( fAxionMagneticField -> GetYmax() )[p];
-     f[4] = ( fAxionMagneticField -> GetZmin() )[p]; f[5] = ( fAxionMagneticField -> GetZmin() )[p];
+     f[4] = ( fAxionMagneticField -> GetZmin() )[p]; f[5] = ( fAxionMagneticField -> GetZmax() )[p];
 
      Int_t nFace = 0; 
 
@@ -443,9 +443,9 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
 
     debug << "+------------------------+" << endl;
     debug << "Initial position of the axion input : " << endl;
-    debug << "(" << position.X() << ","<< position.Y()  << ","<< position.Z() << ")";
+    debug << "(" << position.X() << ","<< position.Y()  << ","<< position.Z() << ")" << endl;
     debug << "Direction of the axion input : " << endl;
-    debug << "(" << direction.X() << ","<< direction.Y() << ","<< direction.Z() << ")";
+    debug << "(" << direction.X() << ","<< direction.Y() << ","<< direction.Z() << ")" << endl;
     debug << "+------------------------+" << endl;
      
     Double_t Ea = fInputAxionEvent->GetEnergy();
@@ -481,6 +481,10 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
          for (Int_t i = 0; i < NofVolumes; i++) probability = probability + probabilities[i];
     }
 
+    debug << "+------------------------+" << endl;
+    debug << "Conversion probability : " << endl;
+    debug << "+------------------------+" << endl;
+
     fOutputAxionEvent->SetGammaProbability(probability);
 
     if (fMode == "plan") fOutputAxionEvent->SetPosition( FinalPositionInPlan(position,direction,fFinalNormalPlan,fFinalPositionPlan) );
@@ -488,7 +492,7 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
 
     debug << "+------------------------+" << endl;
     debug << "Final position of the axion input : " << endl;
-    debug << "(" << fOutputAxionEvent->GetPositionX() << ","<< fOutputAxionEvent->GetPositionY()<< ","<< fOutputAxionEvent->GetPositionZ() << ")";
+    debug << "(" << fOutputAxionEvent->GetPositionX() << ","<< fOutputAxionEvent->GetPositionY()<< ","<< fOutputAxionEvent->GetPositionZ() << ")"<< endl;
     debug << "+------------------------+" << endl;
 
     if (GetVerboseLevel() >= REST_Debug   ) fOutputAxionEvent->PrintEvent();
@@ -511,3 +515,4 @@ void TRestAxionFieldPropagationProcess::InitFromConfigFile() {
 
     PrintMetadata();
 }
+
