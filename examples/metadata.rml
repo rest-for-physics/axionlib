@@ -1,8 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
 <axion>
 
     <TRestAxionMagneticField name="bFieldBabyIAXO" title="bFieldBabyIAXO" >
-        <addMagneticVolume fileName="Bykovskiy_201906.dat" position="(0,750,0)mm" />
-        <addMagneticVolume fileName="Bykovskiy_201906.dat" position="(0,-750,0)mm" />
+        <addMagneticVolume fileName="Bykovskiy_201906.dat" position="(0,0,0)mm" />
+        <!--<addMagneticVolume fileName="Bykovskiy_201906.dat" position="(0,750,0)mm" />
+        <addMagneticVolume fileName="Bykovskiy_201906.dat" position="(0,-750,0)mm" />-->
     </TRestAxionMagneticField>
 
 	<TRestAxionSolarModel name="sunPrimakoff" verboseLevel="debug" >
@@ -12,7 +15,7 @@
 	</TRestAxionSolarModel>
 
 	<TRestAxionBufferGas name="helium" verboseLevel="warning" >
-		<gas name="He" density="0.176e-3"/>
+		<gas name="He" density="0.0025e-6"/>
 	</TRestAxionBufferGas>
 
 	<TRestAxionLikelihood name="babyIAXO" >
@@ -35,3 +38,4 @@
 
 	</TRestAxionLikelihood>
 </axion>
+

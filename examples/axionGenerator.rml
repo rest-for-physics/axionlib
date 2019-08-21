@@ -12,10 +12,11 @@ internal values are saved.
     <parameter name="runType" value="simulation"/>
     <parameter name="runNumber" value="auto"/> <!-- it will find next run number from database when we use "auto" -->
     <parameter name="runTag" value="Template"/>
-    <parameter name="runDescription" value="We launch just 100 events to check everything is ok."/>
+    <parameter name="runDescription" value="We launched 100000 events to check everything is ok for 1 volume and from a plane YZ."/>
     <parameter name="user" value="${USER}"/>
     <parameter name="verboseLevel" value="2"/>
-	<parameter name="outputFile" value="./Run_[fExperimentName].root" />
+	<parameter name="outputFile" value="./Run_[fExperimentName]_1Volume_XY.root" />
+	<!--<parameter name="outputFile" value="./Run_[fExperimentName]_1Volume_sphereIn.root" />-->
 
 	<TRestAxionSolarModel name="sunPrimakoff" file="metadata.rml" verboseLevel="warning" />
     <TRestAxionMagneticField name="bFieldBabyIAXO" file="metadata.rml"/>
@@ -26,34 +27,39 @@ internal values are saved.
 
 
   <TRestProcessRunner name="EventProcess" verboseLevel="info">
-    <parameter name="eventsToProcess" value="1000" />
+    <parameter name="eventsToProcess" value="10000" />
     <parameter name="threadNumber" value="1"/>
 
     <parameter name="inputAnalysis" value="on"/>
-    <parameter name="inputEvent" value="off"/>
+    <parameter name="inputEvent" value="on"/>
     <parameter name="outputEvent" value="on"/>
 
 	<addProcess type="TRestAxionGeneratorProcess" name="axionGen" value="ON" verboseLevel="info" >
 		<parameter name="energyStep" value="1.e-3keV" />
-		<parameter name="energyRange" value="(0,15)keV" />
+		<parameter name="energyRange" value="(0,15)keV" /> 
+		<parameter name="axionMass" value="2.0e-3eV" />
 
 		<parameter name="angularDistribution" value="flux" />
-		<parameter name="angularDirection" value="(0,0,-1)" />
+		<parameter name="angularDirection" value="(0,0,1)mm" />
 
-		<parameter name="spatialDistribution" value="circleWallXY" /> <!-- sphereIn or sphereOut -->
-		<parameter name="spatialRadius" value="30cm" />
-		<parameter name="spatialOrigin" value="(0,0,-40)m" />
+		<parameter name="spatialDistribution" value="circleWallXY" /> <!--circleWallYZ or sphereIn or sphereOut -->
+		<parameter name="spatialRadius" value="500mm" /> 
+		<parameter name="spatialOrigin" value="(0,0,-10000)mm" />
 	</addProcess>
 
-	<addProcess type="TRestAxionAnalysisProcess" name="axGen" value="ON" verboseLevel="info" >
+	<addProcess type="TRestAxionAnalysisProcess" name="axGen1" value="ON" verboseLevel="info" >
 		<observable name="energy" value="ON" />
 		<observable name="posX" value="ON" />
 		<observable name="posY" value="ON" />
+                <observable name="posZ" value="ON" /> 
+                <observable name="probability" value="ON" />
 	</addProcess>
 
 	<addProcess type="TRestAxionFieldPropagationProcess" name="babyMagnet" value="ON" verboseLevel="info" >
-                <parameter name="mode" value="distance" />
-                <parameter name="distance" value="40000 mm" />
+                <parameter name="mode" value="plan" /> <!-- plan or distance -->
+                <parameter name="distance" value="30000 mm" />
+                <parameter name="finalNPlan" value="(0,0,1)mm" />
+                <parameter name="finalPositionPlan" value="(0,0,10000)mm" />
 	</addProcess>
 
 	<addProcess type="TRestAxionTransmissionProcess" name="magnetWindow" value="ON" verboseLevel="info" >
@@ -65,6 +71,13 @@ internal values are saved.
 	<addProcess type="TRestAxionTransmissionProcess" name="detectorWindow" value="ON" verboseLevel="info" >
 	</addProcess>
   
+        <addProcess type="TRestAxionAnalysisProcess" name="axGen2" value="ON" verboseLevel="info" >
+		<observable name="energy" value="ON" />
+		<observable name="posX" value="ON" />
+		<observable name="posY" value="ON" />
+                <observable name="posZ" value="ON" /> 
+                <observable name="probability" value="ON" />
+	</addProcess>
 
 	<!--	file="processes.rml"/> -->
 
