@@ -15,7 +15,7 @@ internal values are saved.
     <parameter name="runDescription" value="We launched 100000 events to check everything is ok for 1 volume and from a plane YZ."/>
     <parameter name="user" value="${USER}"/>
     <parameter name="verboseLevel" value="2"/>
-	<parameter name="outputFile" value="./Run_[fExperimentName]_1Volume_XY.root" />
+	<parameter name="outputFile" value="./Run_[fExperimentName]_1Volume_randomWall.root" />
 	<!--<parameter name="outputFile" value="./Run_[fExperimentName]_1Volume_sphereIn.root" />-->
 
 	<TRestAxionSolarModel name="sunPrimakoff" file="metadata.rml" verboseLevel="warning" />
@@ -40,11 +40,14 @@ internal values are saved.
 		<parameter name="axionMass" value="2.0e-3eV" />
 
 		<parameter name="angularDistribution" value="flux" />
-		<parameter name="angularDirection" value="(0,0,1)mm" />
+		<parameter name="angularDirection" value="(-1,0,1)mm" /> <!-- "(-1,0,5)mm"-->
 
-		<parameter name="spatialDistribution" value="circleWallXY" /> <!--circleWallYZ or sphereIn or sphereOut -->
-		<parameter name="spatialRadius" value="500mm" /> 
-		<parameter name="spatialOrigin" value="(0,0,-10000)mm" />
+		<parameter name="spatialDistribution" value="circleWallXY" /> <!--circleWall or circleWallYZ or sphereIn or sphereOut -->
+		<parameter name="spatialRadius" value="6500mm" /> 
+		<parameter name="spatialOrigin" value="(10000,0,-1000)mm" /> 
+		<!--<parameter name="mode" value="nPlanRotation" />--> <!-- XYZRotation or nPlanRotation-->
+		<!--<parameter name="rotation" value="(0,-0.789,0)" />--> 
+		<!--<parameter name="normalWall" value="(-1,0,5)mm" />--> <!-- "(1,0,-10)mm"  -->
 	</addProcess>
 
 	<addProcess type="TRestAxionAnalysisProcess" name="axGen1" value="ON" verboseLevel="info" >
