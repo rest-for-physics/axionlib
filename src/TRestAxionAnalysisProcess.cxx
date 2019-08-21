@@ -122,6 +122,8 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     SetObservableValue("posY", fAxionEvent->GetPosition()->Y());
     SetObservableValue("posZ", fAxionEvent->GetPosition()->Z());
 
+    SetObservableValue("probability",fAxionEvent->GetGammaProbability());
+
     if (GetVerboseLevel() >= REST_Debug) fAxionEvent->PrintEvent();
 
     return fOutputEvent;
@@ -131,3 +133,4 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 /// \brief Function reading input parameters from the RML TRestAxionAnalysisProcess metadata section
 ///
 void TRestAxionAnalysisProcess::InitFromConfigFile() {}
+
