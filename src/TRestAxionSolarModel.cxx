@@ -173,8 +173,8 @@ void TRestAxionSolarModel::InitFromConfigFile() {
         debug << "File : " << fullPathName << endl;
 
         if (fullPathName == "") {
-            error << "File not found : " << fSolarAxionModel << endl;
-            error << "Solar model table will not be loaded!!" << endl;
+            ferr << "File not found : " << fSolarAxionModel << endl;
+            ferr << "Solar model table will not be loaded!!" << endl;
         } else {
             TRestTools::ReadASCIITable(fullPathName, fSolarTable);
             for (int n = 0; n < fSolarTable.size(); n++) {

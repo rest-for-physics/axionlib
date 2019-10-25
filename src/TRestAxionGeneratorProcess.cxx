@@ -115,7 +115,7 @@ void TRestAxionGeneratorProcess::InitProcess() {
     fAxionSolarModel = (TRestAxionSolarModel*)this->GetMetadata("TRestAxionSolarModel");
 
     if (!fAxionSolarModel) {
-        error << "TRestAxionGeneratorProcess. Axion model was not defined!" << endl;
+        ferr << "TRestAxionGeneratorProcess. Axion model was not defined!" << endl;
         exit(0);
     }
 }
@@ -165,29 +165,28 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
             x = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
             y = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
 
-            r = x*x + y*y;
-        } while (r > fSpatialRadius * fSpatialRadius );
+            r = x * x + y * y;
+        } while (r > fSpatialRadius * fSpatialRadius);
 
-        position = TVector3(x, y, z); //+ fSpatialOrigin;
+        position = TVector3(x, y, z);  //+ fSpatialOrigin;
 
         if (fMode == "XYZRotation") {
             position.RotateX(fRotation.X());
             position.RotateY(fRotation.Y());
             position.RotateZ(fRotation.Z());
-            position = position + fSpatialOrigin;    
+            position = position + fSpatialOrigin;
         }
- 
+
         if (fMode == "nPlanRotation") {
             fNormalPlan = fNormalPlan.Unit();
-            TVector3 rotVec(0,-fNormalPlan.X(),fNormalPlan.Y());
-            Double_t angle = fNormalPlan.Angle(TVector3(1,0,0));
-            position.Rotate(angle,rotVec);
-            position = position + fSpatialOrigin;    
+            TVector3 rotVec(0, -fNormalPlan.X(), fNormalPlan.Y());
+            Double_t angle = fNormalPlan.Angle(TVector3(1, 0, 0));
+            position.Rotate(angle, rotVec);
+            position = position + fSpatialOrigin;
         }
-          
+
         return position;
     }
-    
 
     if (fSpatialDistribution == "circleWallXY") {
         do {
@@ -229,23 +228,23 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
     }
 
     if (fSpatialDistribution == "sphereIn") {
-        fRandom -> Sphere (x,y,z,fSpatialRadius);
-        position = TVector3(x, y, z) + fSpatialOrigin; 
-      
+        fRandom->Sphere(x, y, z, fSpatialRadius);
+        position = TVector3(x, y, z) + fSpatialOrigin;
+
         fAngularDirection = -TVector3(x, y, z);
         fAngularDirection = fAngularDirection.Unit();
 
-        return position; 
+        return position;
     }
 
     if (fSpatialDistribution == "sphereOut") {
-        fRandom -> Sphere (x,y,z,fSpatialRadius);
-        position = TVector3(x, y, z) + fSpatialOrigin; 
-      
+        fRandom->Sphere(x, y, z, fSpatialRadius);
+        position = TVector3(x, y, z) + fSpatialOrigin;
+
         fAngularDirection = TVector3(x, y, z);
         fAngularDirection = fAngularDirection.Unit();
 
-        return position; 
+        return position;
     }
 
     warning << "Spatial distribution : " << fSpatialDistribution << " is not defined!" << endl;
@@ -290,8 +289,8 @@ void TRestAxionGeneratorProcess::InitFromConfigFile() {
     fSpatialRadius = GetDoubleParameterWithUnits("spatialRadius");
     fSpatialOrigin = Get3DVectorParameterWithUnits("spatialOrigin");
 
-    fRotation = StringTo3DVector(GetParameter("rotation")); 
-    fNormalPlan = Get3DVectorParameterWithUnits("normalWall"); 
-    fMode = GetParameter("mode"); 
+    fRotation = StringTo3DVector(GetParameter("rotation"));
+    fNormalPlan = Get3DVectorParameterWithUnits("normalWall");
+    fMode = GetParameter("mode");
 }
 

@@ -110,8 +110,8 @@ void TRestAxionBufferGas::ReadGasData(TString gasName) {
     debug << "TRestAxionBufferGas::ReadGasData. Reading factor file : " << factorFileName << endl;
 
     if (!TRestTools::fileExists((string)factorFileName)) {
-        error << "TRestAxionBufferGas::ReadGasData( " << gasName << " )" << endl;
-        error << "Gas factor file not found : " << factorFileName << endl;
+        ferr << "TRestAxionBufferGas::ReadGasData( " << gasName << " )" << endl;
+        ferr << "Gas factor file not found : " << factorFileName << endl;
         exit(1);
     }
 
@@ -141,8 +141,8 @@ void TRestAxionBufferGas::ReadGasData(TString gasName) {
     debug << "TRestAxionBufferGas::ReadGasData. Reading factor file : " << absFileName << endl;
 
     if (!TRestTools::fileExists((string)absFileName)) {
-        error << "TRestAxionBufferGas::ReadGasData( " << gasName << " )" << endl;
-        error << "Gas absorption file not found : " << absFileName << endl;
+        ferr << "TRestAxionBufferGas::ReadGasData( " << gasName << " )" << endl;
+        ferr << "Gas absorption file not found : " << absFileName << endl;
         exit(1);
     }
 
@@ -189,7 +189,7 @@ Double_t TRestAxionBufferGas::GetFormFactor(TString gasName, Double_t energy) {
     }
 
     if (gasIndex == -1) {
-        error << "TRestAxionBufferGas::GetFormFactor. Gas: " << gasName << " Not Found!" << endl;
+        ferr << "TRestAxionBufferGas::GetFormFactor. Gas: " << gasName << " Not Found!" << endl;
         exit(1);
     }
 
@@ -197,7 +197,7 @@ Double_t TRestAxionBufferGas::GetFormFactor(TString gasName, Double_t energy) {
     debug << "Energy index : " << energyIndex << endl;
 
     if (energyIndex == -1) {
-        error << "TRestAxionBufferGas::GetFormFactor. Energy out of range" << endl;
+        ferr << "TRestAxionBufferGas::GetFormFactor. Energy out of range" << endl;
         exit(1);
     }
 
@@ -213,7 +213,7 @@ Double_t TRestAxionBufferGas::GetFormFactor(TString gasName, Double_t energy) {
     double n = y1 - m * x1;
 
     if (m * energy + n < 0) {
-        error << "TRestAxionBufferGas::GetAbsorptionCoefficient. Negative coeffient" << endl;
+        ferr << "TRestAxionBufferGas::GetAbsorptionCoefficient. Negative coeffient" << endl;
         cout << "y2 : " << y2 << " y1 : " << y1 << endl;
         cout << "x2 : " << x2 << " x1 : " << x1 << endl;
         cout << "m : " << m << " n : " << n << endl;
@@ -259,9 +259,9 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en)  // in eV
         if (fBufferGasName[n] == "Xe") W_value = 131.293;
 
         if (W_value == 0) {
-            error << "Gas name : " << fBufferGasName[n] << " is not implemented in TRestBufferGas!!" << endl;
-            error << "W value must be defined in TRestAxionBufferGas::GetPhotonMass" << endl;
-            error << "This gas will not contribute to the calculation of the photon mass!" << endl;
+            ferr << "Gas name : " << fBufferGasName[n] << " is not implemented in TRestBufferGas!!" << endl;
+            ferr << "W value must be defined in TRestAxionBufferGas::GetPhotonMass" << endl;
+            ferr << "This gas will not contribute to the calculation of the photon mass!" << endl;
         } else {
             photonMass += fBufferGasDensity[n] * GetFormFactor(fBufferGasName[n], en) / W_value;
         }
@@ -280,7 +280,7 @@ Double_t TRestAxionBufferGas::GetAbsorptionCoefficient(TString gasName, Double_t
     }
 
     if (gasIndex == -1) {
-        error << "TRestAxionBufferGas::GetAbsorptionCoefficient. Gas: " << gasName << " Not Found!" << endl;
+        ferr << "TRestAxionBufferGas::GetAbsorptionCoefficient. Gas: " << gasName << " Not Found!" << endl;
         exit(1);
     }
 
@@ -288,7 +288,7 @@ Double_t TRestAxionBufferGas::GetAbsorptionCoefficient(TString gasName, Double_t
     debug << "Energy index : " << energyIndex << endl;
 
     if (energyIndex == -1) {
-        error << "TRestAxionBufferGas::GetAbsorptionCoefficient. Energy out of range" << endl;
+        ferr << "TRestAxionBufferGas::GetAbsorptionCoefficient. Energy out of range" << endl;
         exit(1);
     }
 
@@ -304,7 +304,7 @@ Double_t TRestAxionBufferGas::GetAbsorptionCoefficient(TString gasName, Double_t
     double n = y1 - m * x1;
 
     if (m * energy + n < 0) {
-        error << "TRestAxionBufferGas::GetAbsorptionCoefficient. Negative coeffient" << endl;
+        ferr << "TRestAxionBufferGas::GetAbsorptionCoefficient. Negative coeffient" << endl;
         cout << "y2 : " << y2 << " y1 : " << y1 << endl;
         cout << "x2 : " << x2 << " x1 : " << x1 << endl;
         cout << "m : " << m << " n : " << n << endl;

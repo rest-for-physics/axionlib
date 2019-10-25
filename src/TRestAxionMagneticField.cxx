@@ -146,7 +146,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 
     if (step == -1) step = fSizeMesh[0];
 
-    if (VIndex >= fNofVolumes) error << VIndex << " corresponds to none volume index " << endl;
+    if (VIndex >= fNofVolumes) ferr << VIndex << " corresponds to none volume index " << endl;
 
     Double_t xmax, xmin, ymax, ymin, zmax, zmin;
     xmax = fXmax[VIndex];
@@ -185,8 +185,8 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                         if (Bcomp == "Z")
                             B = Bvec[2];
                         else
-                            error << "You entered : " << Bcomp
-                                  << " as a B component but you have to choose X, Y or Z" << endl;
+                            ferr << "You entered : " << Bcomp
+                                 << " as a B component but you have to choose X, Y or Z" << endl;
                     }
                 }
                 fHisto->Fill(x, y, B);
@@ -238,8 +238,8 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                             if (Bcomp == "Z")
                                 B = Bvec[2];
                             else
-                                error << "You entered : " << Bcomp
-                                      << " as a B component but you have to choose X, Y or Z" << endl;
+                                ferr << "You entered : " << Bcomp
+                                     << " as a B component but you have to choose X, Y or Z" << endl;
                         }
                     }
                     fHisto->Fill(x, z, B);
@@ -291,8 +291,8 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                                 if (Bcomp == "Z")
                                     B = Bvec[2];
                                 else
-                                    error << "You entered : " << Bcomp
-                                          << " as a B component but you have to choose X, Y or Z" << endl;
+                                    ferr << "You entered : " << Bcomp
+                                         << " as a B component but you have to choose X, Y or Z" << endl;
                             }
                         }
                         fHisto->Fill(y, z, B);
@@ -324,8 +324,8 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
             }
 
             else
-                error << "You entered : " << projection
-                      << " as a projection but you have to choose XY, XY or XZ" << endl;
+                ferr << "You entered : " << projection
+                     << " as a projection but you have to choose XY, XY or XZ" << endl;
         }
     }
 
