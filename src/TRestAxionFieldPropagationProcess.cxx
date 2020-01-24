@@ -404,7 +404,7 @@ TVectorD TRestAxionFieldPropagationProcess::GetFieldVector(TVector3 in, TVector3
     Bt[0] = abs(B.Perp(direction));
 
     for (Int_t i = 1; i < N; i++) {
-        in = in + differential * (Double_t(i) / Double_t(N - 1));
+        in = in + differential * (1.0 / Double_t(N - 1));
         B = fAxionMagneticField->GetMagneticField(in[0], in[1], in[2]);
         Bt[i] = abs(B.Perp(direction));
     }
