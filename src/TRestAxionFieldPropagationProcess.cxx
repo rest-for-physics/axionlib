@@ -284,7 +284,7 @@ std::vector<TVector3> TRestAxionFieldPropagationProcess::FieldBoundary(std::vect
 
     while (1.0 / Double_t(N) > minStep) {
         while ((fAxionMagneticField->GetMagneticField(in[0], in[1], in[2])) == TVector3(0, 0, 0) && i < N) {
-            in = in + Double_t(i) / Double_t(N) * diff;
+            in = in + 1.0 / Double_t(N) * diff;
             i = i + 1;
         }
 
@@ -302,8 +302,8 @@ std::vector<TVector3> TRestAxionFieldPropagationProcess::FieldBoundary(std::vect
     i = 0;
 
     while (1.0 / Double_t(N) > minStep) {
-        while ((fAxionMagneticField->GetMagneticField(in[0], in[1], in[2]) == TVector3(0, 0, 0)) && i < N) {
-            out = out - Double_t(i) / Double_t(N) * diff;
+        while ((fAxionMagneticField->GetMagneticField(out[0], out[1], out[2]) == TVector3(0, 0, 0)) && i < N) {
+            out = out - 1.0 / Double_t(N) * diff;
             i = i + 1;
         }
 
