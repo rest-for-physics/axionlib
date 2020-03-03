@@ -173,35 +173,38 @@ bool TRestAxionFieldPropagationProcess::IsInBoundedPlan(TVector3 pos, Int_t i, I
     Double_t minCond1, maxCond1, minCond2, maxCond2;
     Int_t j, k;
 
-    if (i == 0) {
-        minCond1 = (fAxionMagneticField->GetYmin())[p];
-        maxCond1 = (fAxionMagneticField->GetYmax())[p];
-        minCond2 = (fAxionMagneticField->GetZmin())[p];
-        maxCond2 = (fAxionMagneticField->GetZmax())[p];
-        j = 1;
-        k = 2;
-    }
-    if (i == 1) {
-        minCond1 = (fAxionMagneticField->GetXmin())[p];
-        maxCond1 = (fAxionMagneticField->GetXmax())[p];
-        minCond2 = (fAxionMagneticField->GetZmin())[p];
-        maxCond2 = (fAxionMagneticField->GetZmax())[p];
-        j = 0;
-        k = 2;
-    }
-    if (i == 2) {
-        minCond1 = (fAxionMagneticField->GetXmin())[p];
-        maxCond1 = (fAxionMagneticField->GetXmax())[p];
-        minCond2 = (fAxionMagneticField->GetYmin())[p];
-        maxCond2 = (fAxionMagneticField->GetYmax())[p];
-        j = 0;
-        k = 1;
-    }
+    /*
+if (i == 0) {
+    minCond1 = (fAxionMagneticField->GetYmin())[p];
+    maxCond1 = (fAxionMagneticField->GetYmax())[p];
+    minCond2 = (fAxionMagneticField->GetZmin())[p];
+    maxCond2 = (fAxionMagneticField->GetZmax())[p];
+    j = 1;
+    k = 2;
+}
+if (i == 1) {
+    minCond1 = (fAxionMagneticField->GetXmin())[p];
+    maxCond1 = (fAxionMagneticField->GetXmax())[p];
+    minCond2 = (fAxionMagneticField->GetZmin())[p];
+    maxCond2 = (fAxionMagneticField->GetZmax())[p];
+    j = 0;
+    k = 2;
+}
+if (i == 2) {
+    minCond1 = (fAxionMagneticField->GetXmin())[p];
+    maxCond1 = (fAxionMagneticField->GetXmax())[p];
+    minCond2 = (fAxionMagneticField->GetYmin())[p];
+    maxCond2 = (fAxionMagneticField->GetYmax())[p];
+    j = 0;
+    k = 1;
+}
 
     bool cond1 = (pos[j] <= maxCond1 && pos[j] >= minCond1);
     bool cond2 = (pos[k] <= maxCond2 && pos[k] >= minCond2);
 
     return cond1 && cond2;
+    */
+    return false;
 }
 
 std::vector<TVector3> TRestAxionFieldPropagationProcess::InOut(std::vector<TVector3> bounds, TVector3 dir) {
@@ -223,52 +226,55 @@ std::vector<TVector3> TRestAxionFieldPropagationProcess::InOut(std::vector<TVect
 std::vector<TVector3> TRestAxionFieldPropagationProcess::FindBoundariesOneVolume(TVector3 pos, TVector3 dir,
                                                                                  Int_t p) {
     std::vector<TVector3> boundaries;
-    TVector3 in;
-    TVector3 out;
+    /*
+TVector3 in;
+TVector3 out;
 
-    Int_t i = 0;
-    Int_t j = 0;
+Int_t i = 0;
+Int_t j = 0;
 
-    TVectorD f(6);
-    f[0] = (fAxionMagneticField->GetXmin())[p];
-    f[1] = (fAxionMagneticField->GetXmax())[p];
-    f[2] = (fAxionMagneticField->GetYmin())[p];
-    f[3] = (fAxionMagneticField->GetYmax())[p];
-    f[4] = (fAxionMagneticField->GetZmin())[p];
-    f[5] = (fAxionMagneticField->GetZmax())[p];
+TVectorD f(6);
+f[0] = (fAxionMagneticField->GetXmin())[p];
+f[1] = (fAxionMagneticField->GetXmax())[p];
+f[2] = (fAxionMagneticField->GetYmin())[p];
+f[3] = (fAxionMagneticField->GetYmax())[p];
+f[4] = (fAxionMagneticField->GetZmin())[p];
+f[5] = (fAxionMagneticField->GetZmax())[p];
 
-    Int_t nFace = 0;
+Int_t nFace = 0;
 
-    while (nFace < 6 && i <= 0) {
+while (nFace < 6 && i <= 0) {
+    if (dir[Int_t(nFace / 2)] != 0) {
+        if ((pos[Int_t(nFace / 2)] - f[nFace]) * dir[Int_t(nFace / 2)] <= 0) {
+            in = MoveToPlan(pos, dir, f[nFace], Int_t(nFace / 2));
+            if (IsInBoundedPlan(in, Int_t(nFace / 2), p)) i = i + 1;
+        }
+    }
+    nFace = nFace + 1;
+}
+
+if (i == 1) {
+    while (nFace < 6 && j <= 0) {
         if (dir[Int_t(nFace / 2)] != 0) {
             if ((pos[Int_t(nFace / 2)] - f[nFace]) * dir[Int_t(nFace / 2)] <= 0) {
-                in = MoveToPlan(pos, dir, f[nFace], Int_t(nFace / 2));
-                if (IsInBoundedPlan(in, Int_t(nFace / 2), p)) i = i + 1;
+                out = MoveToPlan(pos, dir, f[nFace], Int_t(nFace / 2));
+                if (IsInBoundedPlan(out, Int_t(nFace / 2), p)) j = j + 1;
             }
         }
         nFace = nFace + 1;
     }
+}
 
-    if (i == 1) {
-        while (nFace < 6 && j <= 0) {
-            if (dir[Int_t(nFace / 2)] != 0) {
-                if ((pos[Int_t(nFace / 2)] - f[nFace]) * dir[Int_t(nFace / 2)] <= 0) {
-                    out = MoveToPlan(pos, dir, f[nFace], Int_t(nFace / 2));
-                    if (IsInBoundedPlan(out, Int_t(nFace / 2), p)) j = j + 1;
-                }
-            }
-            nFace = nFace + 1;
-        }
-    }
+if (i + j == 2 && in != out) {
+    boundaries.push_back(in);
+    boundaries.push_back(out);
+    return boundaries;
+}
 
-    if (i + j == 2 && in != out) {
-        boundaries.push_back(in);
-        boundaries.push_back(out);
-        return boundaries;
-    }
-
-    else
-        return boundaries;
+else
+    return boundaries;
+            */
+    return boundaries;
 }
 std::vector<TVector3> TRestAxionFieldPropagationProcess::FieldBoundary(std::vector<TVector3> boundaries,
                                                                        Double_t minStep) {
@@ -302,7 +308,8 @@ std::vector<TVector3> TRestAxionFieldPropagationProcess::FieldBoundary(std::vect
     i = 0;
 
     while (1.0 / Double_t(N) > minStep) {
-        while ((fAxionMagneticField->GetMagneticField(out[0], out[1], out[2]) == TVector3(0, 0, 0)) && i < N) {
+        while ((fAxionMagneticField->GetMagneticField(out[0], out[1], out[2]) == TVector3(0, 0, 0)) &&
+               i < N) {
             out = out - 1.0 / Double_t(N) * diff;
             i = i + 1;
         }
@@ -319,75 +326,76 @@ std::vector<TVector3> TRestAxionFieldPropagationProcess::FieldBoundary(std::vect
 }
 
 std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldBoundaries(Double_t minStep) {
-    if (minStep == -1) minStep = 0.01;
-
     std::vector<std::vector<TVector3>> boundaryCollection;
     std::vector<std::vector<TVector3>> boundaryFinalCollection;
-    std::vector<TVector3> buffVect;
-    TVector3 boundaryIn;
-    TVector3 boundaryOut;
+    /*
+if (minStep == -1) minStep = 0.01;
+std::vector<TVector3> buffVect;
+TVector3 boundaryIn;
+TVector3 boundaryOut;
 
-    TVector3 posInitial = *(fInputAxionEvent->GetPosition());
-    TVector3 direction = *(fInputAxionEvent->GetDirection());
-    direction = direction.Unit();
+TVector3 posInitial = *(fInputAxionEvent->GetPosition());
+TVector3 direction = *(fInputAxionEvent->GetDirection());
+direction = direction.Unit();
 
-    if (direction == TVector3(0, 0, 0))  // No moves
-        return boundaryCollection;
+if (direction == TVector3(0, 0, 0))  // No moves
+    return boundaryCollection;
 
-    if ((fAxionMagneticField->GetXmin()).size() == 0)
-        ferr << " The magnetic field has not been loaded " << endl;
+if ((fAxionMagneticField->GetXmin()).size() == 0)
+    ferr << " The magnetic field has not been loaded " << endl;
 
-    /*** Find global boundaries volume ***/
+// Find global boundaries volume
 
-    Int_t N = (fAxionMagneticField->GetXmin()).size();
+Int_t N = (fAxionMagneticField->GetXmin()).size();
 
-    for (Int_t p = 0; p < N; p++) {
-        buffVect = FindBoundariesOneVolume(posInitial, direction, p);
-        if (buffVect.size() == 2) {
-            buffVect = InOut(buffVect, direction);
-            boundaryCollection.push_back(buffVect);
-            buffVect.clear();
-        }
+for (Int_t p = 0; p < N; p++) {
+    buffVect = FindBoundariesOneVolume(posInitial, direction, p);
+    if (buffVect.size() == 2) {
+        buffVect = InOut(buffVect, direction);
+        boundaryCollection.push_back(buffVect);
+        buffVect.clear();
     }
+}
 
-    debug << "+------------------------+" << endl;
-    debug << " Number of volume boundaries : " << 2 * boundaryCollection.size() << endl;
-    debug << "+------------------------+" << endl;
+debug << "+------------------------+" << endl;
+debug << " Number of volume boundaries : " << 2 * boundaryCollection.size() << endl;
+debug << "+------------------------+" << endl;
 
-    debug << "+------------------------+" << endl;
-    for (Int_t p = 0; p < boundaryCollection.size(); p++) {
-        debug << "for" << p << " in : (" << boundaryCollection[p][0].X() << ","
-              << boundaryCollection[p][0].Y() << "," << boundaryCollection[p][0].Z() << ")" << endl;
-        debug << "for" << p << " out : (" << boundaryCollection[p][1].X() << ","
-              << boundaryCollection[p][1].Y() << "," << boundaryCollection[p][1].Z() << ")" << endl;
+debug << "+------------------------+" << endl;
+for (Int_t p = 0; p < boundaryCollection.size(); p++) {
+    debug << "for" << p << " in : (" << boundaryCollection[p][0].X() << ","
+          << boundaryCollection[p][0].Y() << "," << boundaryCollection[p][0].Z() << ")" << endl;
+    debug << "for" << p << " out : (" << boundaryCollection[p][1].X() << ","
+          << boundaryCollection[p][1].Y() << "," << boundaryCollection[p][1].Z() << ")" << endl;
+}
+debug << "+------------------------+" << endl;
+
+// Find precise boundaries field
+
+for (Int_t i = 0; i < boundaryCollection.size(); i++) {
+    buffVect = FieldBoundary(boundaryCollection[i], minStep);
+    if (buffVect.size() == 2) {
+        boundaryFinalCollection.push_back(buffVect);
+        buffVect.clear();
     }
-    debug << "+------------------------+" << endl;
+}
 
-    /*** Find precise boundaries field ***/
+boundaryCollection.clear();
 
-    for (Int_t i = 0; i < boundaryCollection.size(); i++) {
-        buffVect = FieldBoundary(boundaryCollection[i], minStep);
-        if (buffVect.size() == 2) {
-            boundaryFinalCollection.push_back(buffVect);
-            buffVect.clear();
-        }
-    }
+debug << "+------------------------+" << endl;
+debug << " Number of field boundaries : " << 2 * boundaryFinalCollection.size() << endl;
+debug << "+------------------------+" << endl;
 
-    boundaryCollection.clear();
+debug << "+------------------------+" << endl;
+for (Int_t p = 0; p < boundaryFinalCollection.size(); p++) {
+    debug << "for" << p << " in : (" << boundaryFinalCollection[p][0].X() << ","
+          << boundaryFinalCollection[p][0].Y() << "," << boundaryFinalCollection[p][0].Z() << ")" << endl;
+    debug << "for" << p << " out : (" << boundaryFinalCollection[p][1].X() << ","
+          << boundaryFinalCollection[p][1].Y() << "," << boundaryFinalCollection[p][1].Z() << ")" << endl;
+}
+debug << "+------------------------+" << endl;
 
-    debug << "+------------------------+" << endl;
-    debug << " Number of field boundaries : " << 2 * boundaryFinalCollection.size() << endl;
-    debug << "+------------------------+" << endl;
-
-    debug << "+------------------------+" << endl;
-    for (Int_t p = 0; p < boundaryFinalCollection.size(); p++) {
-        debug << "for" << p << " in : (" << boundaryFinalCollection[p][0].X() << ","
-              << boundaryFinalCollection[p][0].Y() << "," << boundaryFinalCollection[p][0].Z() << ")" << endl;
-        debug << "for" << p << " out : (" << boundaryFinalCollection[p][1].X() << ","
-              << boundaryFinalCollection[p][1].Y() << "," << boundaryFinalCollection[p][1].Z() << ")" << endl;
-    }
-    debug << "+------------------------+" << endl;
-
+    */
     return boundaryFinalCollection;
 }
 
