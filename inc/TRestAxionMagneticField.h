@@ -47,6 +47,7 @@ struct MagneticFieldVolume {
     std::vector<std::vector<std::vector<TVector3>>> field;
 };
 
+/// A class to load magnetic field maps and provide an easy access to it.
 class TRestAxionMagneticField : public TRestMetadata {
    private:
     /// The name of the filenames containing the field data
@@ -55,14 +56,13 @@ class TRestAxionMagneticField : public TRestMetadata {
     /// The absolute position of each of the magnetic volumes defined in this class
     std::vector<TVector3> fPositions;  //<
 
-    /// A magnetic field volume structure. We do not store the volumes, we know the data filenames and
-    /// positions
+    /// A magnetic field volume structure to store field data and mesh.
     std::vector<MagneticFieldVolume> fMagneticFieldVolumes;  //!
 
-    /// Helper histogram to plot the field
+    /// A helper histogram to plot the field
     TH2D* fHisto;  //!
 
-    /// A canvas to generate plots
+    /// A canvas to insert the histogram drawing
     TCanvas* fCanvas;  //!
 
     void Initialize();
@@ -76,6 +76,7 @@ class TRestAxionMagneticField : public TRestMetadata {
     TVector3 GetMagneticVolumeNode(MagneticFieldVolume mVol, TVector3 pos);
 
    public:
+    /// The number of magnetic volumes loaded into the object
     Int_t GetNumberOfVolumes() { return fMagneticFieldVolumes.size(); }
 
     TVector3 GetMagneticField(Double_t x, Double_t y, Double_t z);

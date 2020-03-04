@@ -31,29 +31,28 @@
 /// We can add any number of magnetic volumes inside the RML definition
 /// as shown in the following piece of code.
 ///
+/// \code
 /// <TRestAxionMagneticField>
 ///         <addMagneticVolume file="magnetic.file" position="(30,0,0)mm" />
 ///         <addMagneticVolume file="magnetic.file" position="(-30,0,0)mm" />
 /// <TRestAxionMagneticField/>
 ///
+/// \endcode
+///
 /// where we produce 2 magnetic regions, using the same magnetic map provided
 /// in file `magnetic.file` and shifted by x=-30mm and x=30mm. The parameters
 /// available in the `addMagneticVolume` definition are described in this list.
 ///
-/// - file : This allows to specify the filename that contains the values of the
+/// - *file* : This allows to specify the filename that contains the values of the
 /// magnetic field. Few files will be found under `data/magneticField`. They all
 /// contain 3 columns for the position in the volume and 3 columns to define the
 /// magnetic field vector. It is not the full path but only the name of the file.
 ///
-/// - position : By convention, the volume is build using the coordinates provided
+/// - *position* : By convention, the volume is build using the coordinates provided
 /// in the magnetic field file given. However, it is possible to translate the
 /// volume using the `position` field.
 ///
-///
-/// \warning It seems to be difficult to apply rotations to the field coordinates,
-/// and assign it to Garfield methods. It seems also not possible to rotate the field
-/// in Garfield routines. Still, we may keep always our magnet in horizontal position
-/// to perform our studies.
+/// \todo Magnetic field volume rotations are not implemented. Are they necessary?
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -63,6 +62,7 @@
 ///
 /// 2019-June: First concept and implementation of TRestAxionMagneticField class.
 ///            Eve Pachoud
+///
 /// 2020-February: Reviewing TRestAxionMagneticField class.
 ///            Javier Galan
 ///
@@ -127,6 +127,9 @@ void TRestAxionMagneticField::Initialize() {
     fHisto = NULL;
 }
 
+///////////////////////////////////////////////
+/// \brief A method that creates a canvas where magnetic field map is drawn
+///
 TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcomp, Int_t VIndex,
                                                 Double_t step) {
     /* Quarantined
