@@ -447,6 +447,71 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
 }
 
 ///////////////////////////////////////////////
+/// \brief It returns the intensity of the transversal magnetic field component for the defined propagation
+/// direction at the position given by argument.
+///
+Double_t TRestAxionMagneticField::GetTransversalComponent(TVector3 position, TVector3 direction) {
+    return abs(GetMagneticField(position).Perp(direction));
+}
+
+///////////////////////////////////////////////
+/// \brief It returns a vector describing the transversal magnetic field component between `from` and `to`
+/// positions given by argument.
+///
+/// The differential element `dl` is by default 1mm, but it can be modified through the third argument of this
+/// function.
+///
+/// The maximum number of divisions of the output vector can be fixed by the forth argument. In that case, the
+/// differential element `dl` length might be increased to fullfil such condition.
+///
+std::vector<Double_t> TRestAxionMagneticField::GetTransversalComponentAlongPath(TVector3 from, TVector3 to,
+                                                                                Double_t dl, Int_t Nmax) {
+    Double_t length = (to - from).Mag();
+
+    Double_t diff = dl;
+    if (Nmax > 0) {
+        if (length / dl > Nmax) {
+            diff = (Int_t)length / dl;
+
+            warning << "TRestAxionMagneticField::GetTransversalComponentAlongPath. Nmax reached!" << endl;
+        }
+    }
+
+    TVector3 direction = (to - from).Unit();
+
+    std::vector<Double_t> Bt;
+    for (Double_t d = 0; d < length; d += diff) {
+        Bt.push_back(GetTransversalComponent(from + d * direction, direction));
+    }
+
+    return Bt;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the average of the transversal magnetic field intensity between the 3-d coordinates
+/// `from` and `to`.
+///
+/// The differential element `dl` defines the integration step, and it is by default 1mm, but it can be
+/// modified through the third argument of this function.
+///
+/// The maximum number of divisions of the output vector can be fixed by the forth argument. In that case, the
+/// differential element `dl` length might be increased to fullfil such condition.
+///
+Double_t TRestAxionMagneticField::GetTransversalFieldAverage(TVector3 from, TVector3 to, Double_t dl,
+                                                             Int_t Nmax) {
+    Double_t length = (to - from).Mag();
+
+    Double_t Bavg = 0.;
+    std::vector<Double_t> Bt = GetTransversalComponentAlongPath(from, to, dl, Nmax);
+    for (auto& b : Bt) Bavg += b;
+
+    if (length > 0) return Bavg / length;
+
+    warning << "TRestAxionMagneticField::GetTransversalFieldAverage. Lenght is zero!" << endl;
+    return 0.;
+}
+
+///////////////////////////////////////////////
 /// \brief It returns the corresponding mesh node in the magnetic volume
 ///
 /// The corresponging node to x,y,z is the bottom, down, left node in the cell volume

@@ -83,6 +83,13 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     TVector3 GetMagneticField(TVector3 pos);
 
+    Double_t GetTransversalComponent(TVector3 position, TVector3 direction);
+
+    std::vector<Double_t> GetTransversalComponentAlongPath(TVector3 from, TVector3 to, Double_t dl = 1.,
+                                                           Int_t Nmax = 0);
+
+    Double_t GetTransversalFieldAverage(TVector3 from, TVector3 to, Double_t dl = 1., Int_t Nmax = 0);
+
     TCanvas* DrawHistogram(TString projection, TString Bcomp, Int_t VIndex = -1, Double_t step = -1);
 
     void PrintMetadata();
