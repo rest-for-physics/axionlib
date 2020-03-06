@@ -27,29 +27,20 @@
 
 #include "TRestMesh.h"
 
-#if defined USE_Garfield
-#include <ComponentBase.hh>
-#include <ComponentVoxel.hh>
-#include <Sensor.hh>
-using namespace Garfield;
-#else
-class Sensor;
-#endif
-
-struct MagneticFieldVolume {
-    // Offset position applied to the volume
-    TVector3 position;
-
-    // A description of the grid, mesh size, and number of nodes
-    TRestMesh mesh;
-
-    // The field data connected to the grid defined by the mesh
-    std::vector<std::vector<std::vector<TVector3>>> field;
-};
-
 /// A class to load magnetic field maps and provide an easy access to it.
 class TRestAxionMagneticField : public TRestMetadata {
    private:
+    struct MagneticFieldVolume {
+        // Offset position applied to the volume
+        TVector3 position;
+
+        // A description of the grid, mesh size, and number of nodes
+        TRestMesh mesh;
+
+        // The field data connected to the grid defined by the mesh
+        std::vector<std::vector<std::vector<TVector3>>> field;
+    };
+
     /// The name of the filenames containing the field data
     std::vector<string> fFileNames;  //<
 
