@@ -40,7 +40,6 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
 
     void LoadDefaultConfig();
 
-
     /// A pointer to the specific TRestAxionEvent
     TRestAxionEvent* fInputAxionEvent;   //!
     TRestAxionEvent* fOutputAxionEvent;  //!
@@ -75,22 +74,20 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
         EndPrintProcess();
     }
 
-    
     /// Methods used in FindFieldBoundaries method
     TVector3 MoveToPlan(TVector3 pos, TVector3 dir, Double_t f, Int_t i);
     bool IsInBoundedPlan(TVector3 pos, Int_t i, Int_t p);
-    std::vector <TVector3> InOut(std::vector <TVector3> bounds, TVector3 dir ); 
-    std::vector <TVector3 > FindBoundariesOneVolume(TVector3 pos, TVector3 dir, Int_t p);
-    std::vector <TVector3> FieldBoundary(std::vector <TVector3> boundaries, Double_t minStep);
+    std::vector<TVector3> InOut(std::vector<TVector3> bounds, TVector3 dir);
+    std::vector<TVector3> FindBoundariesOneVolume(TVector3 pos, TVector3 dir, Int_t p);
+    std::vector<TVector3> FieldBoundary(std::vector<TVector3> boundaries, Double_t minStep);
 
-   
     /// Returns the boundaries of the axion passed through magnetic fields
-    std::vector<std::vector<TVector3>> FindFieldBoundaries(Double_t minStep = -1);   
+    std::vector<std::vector<TVector3>> FindFieldBoundaries(Double_t minStep = -1);
 
-    TVectorD GetFieldVector(TVector3 in, TVector3 out, Int_t N = 0);
+    // TVectorD GetFieldVector(TVector3 in, TVector3 out, Int_t N = 0);
 
     /// Returns the final position of the OutputAxionEvent after a fixed distance or in a fixed plan
-    TVector3 FinalPositionInPlan(TVector3 pos, TVector3 dir,TVector3 normalPlan,TVector3 pointPlan);
+    TVector3 FinalPositionInPlan(TVector3 pos, TVector3 dir, TVector3 normalPlan, TVector3 pointPlan);
     TVector3 MoveToFinalDistance(TVector3 pos, TVector3 dir, Double_t distance);
 
     /// Returns a new instance of this class

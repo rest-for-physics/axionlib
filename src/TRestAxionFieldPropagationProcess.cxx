@@ -399,6 +399,14 @@ debug << "+------------------------+" << endl;
     return boundaryFinalCollection;
 }
 
+/* This method is now obsolete. It seems to me there is a problem here, there are two directional vectors
+defined.
+The one defined by in/out coordinates, and the one defined by axion direction.
+
+This method will be substituted by
+std::vector<Double_t> TRestAxionMagneticField::GetTransversalComponentAlongPath(TVector3 from, TVector3 to,
+Double_t dl, Int_t Nmax );
+
 TVectorD TRestAxionFieldPropagationProcess::GetFieldVector(TVector3 in, TVector3 out, Int_t N) {
     if (N == 0) N = TMath::Power(10, 4);
 
@@ -418,7 +426,7 @@ TVectorD TRestAxionFieldPropagationProcess::GetFieldVector(TVector3 in, TVector3
     }
 
     return Bt;
-}
+} */
 
 TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput) {
     fInputAxionEvent = (TRestAxionEvent*)evInput;
@@ -459,7 +467,7 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
         for (Int_t i = 0; i < NofVolumes; i++) {
             lengthVector = boundaries[i][0] - boundaries[i][1];
             length = sqrt(lengthVector.Mag2());
-            B = GetFieldVector(boundaries[i][0], boundaries[i][1], 0);
+            // B = GetFieldVector(boundaries[i][0], boundaries[i][1], 0);
             probabilities[i] = fAxionPhotonConversion->GammaTransmissionProbability(Ea, B, ma, length);
         }
 
