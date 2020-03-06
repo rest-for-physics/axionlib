@@ -461,8 +461,8 @@ Double_t TRestAxionMagneticField::GetTransversalComponent(TVector3 position, TVe
 /// The differential element `dl` is by default 1mm, but it can be modified through the third argument of this
 /// function.
 ///
-/// The maximum number of divisions of the output vector can be fixed by the forth argument. In that case, the
-/// differential element `dl` length might be increased to fullfil such condition.
+/// The maximum number of divisions (unlimited by default) of the output vector can be fixed by the forth
+/// argument. In that case, the differential element `dl` length might be increased to fullfil such condition.
 ///
 std::vector<Double_t> TRestAxionMagneticField::GetTransversalComponentAlongPath(TVector3 from, TVector3 to,
                                                                                 Double_t dl, Int_t Nmax) {
@@ -471,9 +471,10 @@ std::vector<Double_t> TRestAxionMagneticField::GetTransversalComponentAlongPath(
     Double_t diff = dl;
     if (Nmax > 0) {
         if (length / dl > Nmax) {
-            diff = (Int_t)length / dl;
-
+            diff = length / Nmax;
             warning << "TRestAxionMagneticField::GetTransversalComponentAlongPath. Nmax reached!" << endl;
+            warning << "Nmax = " << Nmax << endl;
+            warning << "Adjusting differential step to : " << diff << " mm" << endl;
         }
     }
 
