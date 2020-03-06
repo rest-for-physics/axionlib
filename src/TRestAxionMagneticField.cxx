@@ -508,7 +508,7 @@ Double_t TRestAxionMagneticField::GetTransversalFieldAverage(TVector3 from, TVec
 
     if (length > 0) return Bavg / length;
 
-    warning << "TRestAxionMagneticField::GetTransversalFieldAverage. Lenght is zero!" << endl;
+    error << "TRestAxionMagneticField::GetTransversalFieldAverage. Lenght is zero!" << endl;
     return 0.;
 }
 
