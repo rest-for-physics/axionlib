@@ -53,6 +53,9 @@ class TRestAxionMagneticField : public TRestMetadata {
     /// The absolute position of each of the magnetic volumes defined in this class
     std::vector<TVector3> fPositions;  //<
 
+    /// The absolute position of each of the magnetic volumes defined in this class
+    std::vector<Double_t> fMeshSize;  //<
+
     /// A magnetic field volume structure to store field data and mesh.
     std::vector<MagneticFieldVolume> fMagneticFieldVolumes;  //!
 
@@ -87,7 +90,7 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     Double_t GetTransversalFieldAverage(TVector3 from, TVector3 to, Double_t dl = 1., Int_t Nmax = 0);
 
-    TCanvas* DrawHistogram(TString projection, TString Bcomp, Int_t VIndex = -1, Double_t step = -1);
+    TCanvas* DrawHistogram(TString projection, TString Bcomp, Int_t volIndex = -1, Double_t step = -1);
 
     void PrintMetadata();
 

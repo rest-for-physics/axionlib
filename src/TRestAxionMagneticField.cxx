@@ -129,103 +129,65 @@ void TRestAxionMagneticField::Initialize() {
 ///////////////////////////////////////////////
 /// \brief A method that creates a canvas where magnetic field map is drawn
 ///
-TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcomp, Int_t VIndex,
+TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcomp, Int_t volIndex,
                                                 Double_t step) {
-    /* Quarantined
-if (fCanvas != NULL) {
-    delete fCanvas;
-    fCanvas = NULL;
-}
-
-if (fHisto != NULL) {
-    delete fHisto;
-    fHisto = NULL;
-}
-
-if (VIndex == -1) VIndex = 0;
-
-if (step == -1) step = fSizeMesh[0];
-
-if (VIndex >= GetNumberOfVolumes()) ferr << VIndex << " corresponds to none volume index " << endl;
-
-Double_t xmax, xmin, ymax, ymin, zmax, zmin;
-xmax = fXmax[VIndex];
-xmin = fXmin[VIndex];
-ymax = fYmax[VIndex];
-ymin = fYmin[VIndex];
-zmax = fZmax[VIndex];
-zmin = fZmin[VIndex];
-Int_t nBinsX = (xmax - xmin) / step;
-Int_t nBinsY = (ymax - ymin) / step;
-Int_t nBinsZ = (zmax - zmin) / step;
-
-Double_t x, y, z;
-Double_t B;
-TVector3 Bvec;
-
-if (projection == "XY") {
-    fCanvas = new TCanvas("fCanvas", "");
-    fHisto = new TH2D("", "", nBinsX, xmin, xmax, nBinsY, ymin, ymax);
-
-    z = (zmin + zmax) / 2.0;
-    x = xmin;
-
-    for (Int_t i = 0; i < nBinsX; i++) {
-        y = ymin;
-        for (Int_t j = 0; j < nBinsY; j++) {
-            Bvec = GetMagneticField(x, y, z);
-            if (Bcomp == "X")
-                B = Bvec[0];
-            else {
-                if (Bcomp == "Y")
-                    B = Bvec[1];
-                else {
-                    if (Bcomp == "Z")
-                        B = Bvec[2];
-                    else
-                        ferr << "You entered : " << Bcomp
-                             << " as a B component but you have to choose X, Y or Z" << endl;
-                }
-            }
-            fHisto->Fill(x, y, B);
-            y = y + step;
-        }
-        x = x + step;
+    if (fCanvas != NULL) {
+        delete fCanvas;
+        fCanvas = NULL;
     }
 
-    fCanvas->cd();
-    fHisto->SetBit(TH1::kNoStats);
-    fHisto->GetXaxis()->SetTitle("x (mm)");
-    fHisto->GetYaxis()->SetTitle("y (mm)");
-
-    if (Bcomp == "X") {
-        fHisto->SetTitle("B_{x} against x and y");
-        fCanvas->SetTitle("B_{x} against x and y");
-    }
-    if (Bcomp == "Y") {
-        fHisto->SetTitle("B_{y} against x and y");
-        fCanvas->SetTitle("B_{y} against x and y");
-    }
-    if (Bcomp == "Z") {
-        fHisto->SetTitle("B_{z} against x and y");
-        fCanvas->SetTitle("B_{z} against x and y");
+    if (fHisto != NULL) {
+        delete fHisto;
+        fHisto = NULL;
     }
 
-    fHisto->Draw("COLZ0");
-    return fCanvas;
-}
+    if (volIndex < 0) volIndex = 0;
 
-else {
-    if (projection == "XZ") {
-        TCanvas* fCanvas = new TCanvas("fCanvas", "");
-        fHisto = new TH2D("", "", nBinsX, xmin, xmax, nBinsZ, zmin, zmax);
+    if (volIndex >= GetNumberOfVolumes()) {
+        ferr << volIndex << " corresponds to none volume index " << endl;
+        ferr << "Total number of volumes : " << GetNumberOfVolumes() << endl;
+        ferr << "Setting volIndex to the first volume" << endl;
+        volIndex = 0;
+    }
 
-        y = (ymin + ymax) / 2.0;
-        x = xmin;
+    if (step < 0) step = fMeshSize[volIndex];
+
+    MagneticFieldVolume vol = fMagneticFieldVolumes[volIndex];
+
+    Double_t centerX = fPositions[volIndex][0];
+    Double_t centerY = fPositions[volIndex][1];
+    Double_t centerZ = fPositions[volIndex][2];
+
+    Double_t halfSizeX = vol.mesh.GetNetSizeX() / 2.;
+    Double_t halfSizeY = vol.mesh.GetNetSizeY() / 2.;
+    Double_t halfSizeZ = vol.mesh.GetNetSizeZ() / 2.;
+
+    Double_t xMin = centerX - halfSizeX;
+    Double_t yMin = centerY - halfSizeY;
+    Double_t zMin = centerZ - halfSizeZ;
+
+    Double_t xMax = centerX + halfSizeX;
+    Double_t yMax = centerY + halfSizeY;
+    Double_t zMax = centerZ + halfSizeZ;
+
+    Int_t nBinsX = (xMax - xMin) / step;
+    Int_t nBinsY = (yMax - yMin) / step;
+    Int_t nBinsZ = (zMax - zMin) / step;
+
+    Double_t x, y, z;
+    Double_t B;
+    TVector3 Bvec;
+
+    if (projection == "XY") {
+        fCanvas = new TCanvas("fCanvas", "");
+        fHisto = new TH2D("", "", nBinsX, xMin, xMax, nBinsY, yMin, yMax);
+
+        z = (zMin + zMax) / 2.0;
+        x = xMin;
 
         for (Int_t i = 0; i < nBinsX; i++) {
-            z = zmin;
-            for (Int_t j = 0; j < nBinsZ; j++) {
+            y = yMin;
+            for (Int_t j = 0; j < nBinsY; j++) {
                 Bvec = GetMagneticField(x, y, z);
                 if (Bcomp == "X")
                     B = Bvec[0];
@@ -240,8 +202,8 @@ else {
                                  << " as a B component but you have to choose X, Y or Z" << endl;
                     }
                 }
-                fHisto->Fill(x, z, B);
-                z = z + step;
+                fHisto->Fill(x, y, B);
+                y = y + step;
             }
             x = x + step;
         }
@@ -249,19 +211,19 @@ else {
         fCanvas->cd();
         fHisto->SetBit(TH1::kNoStats);
         fHisto->GetXaxis()->SetTitle("x (mm)");
-        fHisto->GetYaxis()->SetTitle("z (mm)");
+        fHisto->GetYaxis()->SetTitle("y (mm)");
 
         if (Bcomp == "X") {
-            fHisto->SetTitle("B_{x} against x and z");
-            fCanvas->SetTitle("B_{x} against x and z");
+            fHisto->SetTitle("B_{x} against x and y");
+            fCanvas->SetTitle("B_{x} against x and y");
         }
         if (Bcomp == "Y") {
-            fHisto->SetTitle("B_{y} against x and z");
-            fCanvas->SetTitle("B_{y} against x and z");
+            fHisto->SetTitle("B_{y} against x and y");
+            fCanvas->SetTitle("B_{y} against x and y");
         }
         if (Bcomp == "Z") {
-            fHisto->SetTitle("B_{z} against x and z");
-            fCanvas->SetTitle("B_{z} against x and z");
+            fHisto->SetTitle("B_{z} against x and y");
+            fCanvas->SetTitle("B_{z} against x and y");
         }
 
         fHisto->Draw("COLZ0");
@@ -269,15 +231,15 @@ else {
     }
 
     else {
-        if (projection == "YZ") {
+        if (projection == "XZ") {
             TCanvas* fCanvas = new TCanvas("fCanvas", "");
-            fHisto = new TH2D("", "", nBinsY, ymin, ymax, nBinsZ, zmin, zmax);
+            fHisto = new TH2D("", "", nBinsX, xMin, xMax, nBinsZ, zMin, zMax);
 
-            x = (xmin + xmax) / 2.0;
-            y = ymin;
+            y = (yMin + yMax) / 2.0;
+            x = xMin;
 
-            for (Int_t i = 0; i < nBinsY; i++) {
-                z = zmin;
+            for (Int_t i = 0; i < nBinsX; i++) {
+                z = zMin;
                 for (Int_t j = 0; j < nBinsZ; j++) {
                     Bvec = GetMagneticField(x, y, z);
                     if (Bcomp == "X")
@@ -293,40 +255,92 @@ else {
                                      << " as a B component but you have to choose X, Y or Z" << endl;
                         }
                     }
-                    fHisto->Fill(y, z, B);
+                    fHisto->Fill(x, z, B);
                     z = z + step;
                 }
-                y = y + step;
+                x = x + step;
             }
 
             fCanvas->cd();
             fHisto->SetBit(TH1::kNoStats);
-            fHisto->GetXaxis()->SetTitle("y (mm)");
+            fHisto->GetXaxis()->SetTitle("x (mm)");
             fHisto->GetYaxis()->SetTitle("z (mm)");
 
             if (Bcomp == "X") {
-                fHisto->SetTitle("B_{x} against y and z");
-                fCanvas->SetTitle("B_{x} against y and z");
+                fHisto->SetTitle("B_{x} against x and z");
+                fCanvas->SetTitle("B_{x} against x and z");
             }
             if (Bcomp == "Y") {
-                fHisto->SetTitle("B_{y} against y and z");
-                fCanvas->SetTitle("B_{y} against y and z");
+                fHisto->SetTitle("B_{y} against x and z");
+                fCanvas->SetTitle("B_{y} against x and z");
             }
             if (Bcomp == "Z") {
-                fHisto->SetTitle("B_{z} against y and z");
-                fCanvas->SetTitle("B_{z} against y and z");
+                fHisto->SetTitle("B_{z} against x and z");
+                fCanvas->SetTitle("B_{z} against x and z");
             }
 
             fHisto->Draw("COLZ0");
             return fCanvas;
         }
 
-        else
-            ferr << "You entered : " << projection
-                 << " as a projection but you have to choose XY, XY or XZ" << endl;
+        else {
+            if (projection == "YZ") {
+                TCanvas* fCanvas = new TCanvas("fCanvas", "");
+                fHisto = new TH2D("", "", nBinsY, yMin, yMax, nBinsZ, zMin, zMax);
+
+                x = (xMin + xMax) / 2.0;
+                y = yMin;
+
+                for (Int_t i = 0; i < nBinsY; i++) {
+                    z = zMin;
+                    for (Int_t j = 0; j < nBinsZ; j++) {
+                        Bvec = GetMagneticField(x, y, z);
+                        if (Bcomp == "X")
+                            B = Bvec[0];
+                        else {
+                            if (Bcomp == "Y")
+                                B = Bvec[1];
+                            else {
+                                if (Bcomp == "Z")
+                                    B = Bvec[2];
+                                else
+                                    ferr << "You entered : " << Bcomp
+                                         << " as a B component but you have to choose X, Y or Z" << endl;
+                            }
+                        }
+                        fHisto->Fill(y, z, B);
+                        z = z + step;
+                    }
+                    y = y + step;
+                }
+
+                fCanvas->cd();
+                fHisto->SetBit(TH1::kNoStats);
+                fHisto->GetXaxis()->SetTitle("y (mm)");
+                fHisto->GetYaxis()->SetTitle("z (mm)");
+
+                if (Bcomp == "X") {
+                    fHisto->SetTitle("B_{x} against y and z");
+                    fCanvas->SetTitle("B_{x} against y and z");
+                }
+                if (Bcomp == "Y") {
+                    fHisto->SetTitle("B_{y} against y and z");
+                    fCanvas->SetTitle("B_{y} against y and z");
+                }
+                if (Bcomp == "Z") {
+                    fHisto->SetTitle("B_{z} against y and z");
+                    fCanvas->SetTitle("B_{z} against y and z");
+                }
+
+                fHisto->Draw("COLZ0");
+                return fCanvas;
+            }
+
+            else
+                ferr << "You entered : " << projection
+                     << " as a projection but you have to choose XY, XY or XZ" << endl;
+        }
     }
-}
-    */
 
     return fCanvas;
 }
@@ -379,6 +393,7 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         Double_t zmax = fieldData[0][2];
 
         Double_t sizeMesh = fieldData[0][3];
+        fMeshSize.push_back(sizeMesh);
 
         // We keep in the vector only the field data. We remove first row
         fieldData.erase(fieldData.begin());
