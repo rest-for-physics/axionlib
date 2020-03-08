@@ -31,13 +31,12 @@
 /// We can add any number of magnetic volumes inside the RML definition
 /// as shown in the following piece of code.
 ///
-/// \code
+/// ~~~
 /// <TRestAxionMagneticField>
 ///         <addMagneticVolume file="magnetic.file" position="(30,0,0)mm" />
 ///         <addMagneticVolume file="magnetic.file" position="(-30,0,0)mm" />
 /// <TRestAxionMagneticField/>
-///
-/// \endcode
+/// ~~~
 ///
 /// where we produce 2 magnetic regions, using the same magnetic map provided
 /// in file `magnetic.file` and shifted by x=-30mm and x=30mm. The parameters
@@ -444,6 +443,7 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
             return fMagneticFieldVolumes[n].field[nX][nY][nZ];
         }
     }
+    return TVector3(0, 0, 0);
 }
 
 ///////////////////////////////////////////////
@@ -508,7 +508,7 @@ Double_t TRestAxionMagneticField::GetTransversalFieldAverage(TVector3 from, TVec
 
     if (length > 0) return Bavg / length;
 
-    error << "TRestAxionMagneticField::GetTransversalFieldAverage. Lenght is zero!" << endl;
+    ferr << "TRestAxionMagneticField::GetTransversalFieldAverage. Lenght is zero!" << endl;
     return 0.;
 }
 
