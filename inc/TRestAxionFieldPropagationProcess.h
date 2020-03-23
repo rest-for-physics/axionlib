@@ -74,7 +74,8 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
         EndPrintProcess();
     }
 
-    /// Methods used in FindFieldBoundaries method
+    // Methods used in FindFieldBoundaries method
+    TVector3 MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a);
     TVector3 MoveToPlan(TVector3 pos, TVector3 dir, Double_t f, Int_t i);
     bool IsInBoundedPlan(TVector3 pos, Int_t i, Int_t p);
     std::vector<TVector3> InOut(std::vector<TVector3> bounds, TVector3 dir);
@@ -89,6 +90,7 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
     /// Returns the final position of the OutputAxionEvent after a fixed distance or in a fixed plan
     TVector3 FinalPositionInPlan(TVector3 pos, TVector3 dir, TVector3 normalPlan, TVector3 pointPlan);
     TVector3 MoveToFinalDistance(TVector3 pos, TVector3 dir, Double_t distance);
+    TVector3 MoveByDistance(TVector3 pos, TVector3 dir, Double_t d);
 
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestAxionFieldPropagationProcess; }

@@ -171,6 +171,28 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
     fAxionPhotonConversion->SetBufferGas(fAxionBufferGas);
 }
 
+///////////////////////////////////////////////
+/// \brief This method will translate the vector with direction `dir` starting at position `pos` to the plane
+/// defined by the normal vector plane, `n` that contains the point `a` in the plane.
+///
+TVector3 TRestAxionFieldPropagationProcess::MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a) {
+    if (n * dir == 0) {
+        ferr << "The vector is parallel to the plane!!" << endl;
+        ferr << "Position will not be translated" << endl;
+    } else {
+        Double_t t = (n * a - n * pos) / (n * dir);
+
+        return pos + t * dir;
+    }
+    return pos;
+}
+
+///////////////////////////////////////////////
+/// \brief This method is obsolete.
+///
+/// It is more intuitive to define the vector position and direction, and
+/// plane vector and point. Then use this information to find the intersection. Instead of defining a
+/// component and an impact factor.
 TVector3 TRestAxionFieldPropagationProcess::MoveToPlan(TVector3 pos, TVector3 dir, Double_t f, Int_t i) {
     if (dir[i] == 0) ferr << "The component of the direction you chose is equal to 0 " << endl;
 
@@ -182,6 +204,10 @@ TVector3 TRestAxionFieldPropagationProcess::MoveToPlan(TVector3 pos, TVector3 di
     return pos;
 }
 
+///////////////////////////////////////////////
+/// \brief This method is obsolete.
+///
+/// Re-implementation of MoveToPlane
 TVector3 TRestAxionFieldPropagationProcess::FinalPositionInPlan(TVector3 pos, TVector3 dir,
                                                                 TVector3 normalPlan, TVector3 pointPlan) {
     if (normalPlan.Dot(dir) == 0) return pos;
@@ -195,12 +221,23 @@ TVector3 TRestAxionFieldPropagationProcess::FinalPositionInPlan(TVector3 pos, TV
     return pos;
 }
 
+///////////////////////////////////////////////
+/// \brief This method is obsolete.
+///
+/// Re-implementation in MoveByDistance
 TVector3 TRestAxionFieldPropagationProcess::MoveToFinalDistance(TVector3 pos, TVector3 dir,
                                                                 Double_t distance) {
     Double_t t = distance / dir.Mag();
     pos = pos + t * dir;
 
     return pos;
+}
+
+///////////////////////////////////////////////
+/// \brief This method transports a position `pos` by a distance `d` in the direction defined by `dir`.
+///
+TVector3 TRestAxionFieldPropagationProcess::MoveByDistance(TVector3 pos, TVector3 dir, Double_t d) {
+    return pos + d * dir.Unit();
 }
 
 bool TRestAxionFieldPropagationProcess::IsInBoundedPlan(TVector3 pos, Int_t i, Int_t p) {
@@ -257,6 +294,14 @@ std::vector<TVector3> TRestAxionFieldPropagationProcess::InOut(std::vector<TVect
     return bounds;
 }
 
+///////////////////////////////////////////////
+/// \brief Finds the in/out particle trajectory boundaries for a particular magnetic volume.
+///
+/// This method checks if the particle (with the initial position `pos` and direction `dir`) passes through
+/// the magnetic ﬁeld region speciﬁed by the input parameter p. It is done by searching for the points where
+/// the particle trajectory intersects the boundary planes of that region. If two such points (entry point and
+/// exit point) are found, their coordinates are stored in the vector boundaries. In the example shown in Fig.
+/// 1 these points are: IN 1 and OUT 1 for the region #1 and IN2  and OUT 2 for the region #2.
 std::vector<TVector3> TRestAxionFieldPropagationProcess::FindBoundariesOneVolume(TVector3 pos, TVector3 dir,
                                                                                  Int_t p) {
     std::vector<TVector3> boundaries;
