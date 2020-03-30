@@ -53,13 +53,26 @@ using namespace REST_Physics;
 using mpfr::mpreal;
 
 ClassImp(TRestAxionPhotonConversion);
-//______________________________________________________________________________
-TRestAxionPhotonConversion::TRestAxionPhotonConversion() : TRestMetadata() {
-    // TRestAxionPhotonConversion default constructor
-    Initialize();
-}
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestAxionPhotonConversion::TRestAxionPhotonConversion() : TRestMetadata() { Initialize(); }
+
+///////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param name The name of the specific metadata. It will be used to find the
+/// corresponding TRestG4Metadata section inside the RML.
+///
 TRestAxionPhotonConversion::TRestAxionPhotonConversion(const char* cfgFileName, string name)
     : TRestMetadata(cfgFileName) {
     cout << "Entering TRestAxionPhotonConversion constructor( cfgFileName, name )" << endl;
@@ -71,11 +84,17 @@ TRestAxionPhotonConversion::TRestAxionPhotonConversion(const char* cfgFileName, 
     PrintMetadata();
 }
 
-//______________________________________________________________________________
-TRestAxionPhotonConversion::~TRestAxionPhotonConversion() {
-    // TRestAxionPhotonConversion destructor
-}
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
+TRestAxionPhotonConversion::~TRestAxionPhotonConversion() {}
 
+///////////////////////////////////////////////
+/// \brief Initialization of TRestAxionPhotonConversion class
+///
+/// It will set the default real precision to be used with mpfr types. Now it is 100, not sure now if 100 is
+/// the number of digits, perhaps we can optimize this in future.
+///
 void TRestAxionPhotonConversion::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
@@ -83,18 +102,56 @@ void TRestAxionPhotonConversion::Initialize() {
     mpreal::set_default_prec(mpfr::digits2bits(100));
 }
 
-double TRestAxionPhotonConversion::BLFactor(Double_t Lcoh, Double_t Bmag)  // (BL/2)**2
-{
-    // If we provide the values as argument we update the class members,
-    // If not, we use the existing values in the class member
+///////////////////////////////////////////////
+/// \brief It updates the internal class members, used as calculation parameters, using the values given as
+/// argument.
+///
+/// If the value given by argument is -1, the argument variable will be updated with the internal data member
+/// values.
+///
+void TRestAxionPhotonConversion::UpdateParameters(Double_t& Bmag, Double_t& ma, Double_t& Lcoh) {
+    if (ma == -1)
+        ma = fAxionMass;
+    else
+        fAxionMass = ma;
+
     if (Lcoh == -1)
         Lcoh = fCohLength;
     else
         fCohLength = Lcoh;
+
     if (Bmag == -1)
         Bmag = fBMag;
     else
         fBMag = Bmag;
+
+    if (Lcoh == 0) warning << "TRestAxionPhotonConversion::GammaTransmissionProbability. Lcoh = 0" << endl;
+}
+
+///////////////////////////////////////////////
+/// \brief Performs the calculation of (BL) factor in natural units.
+///
+double TRestAxionPhotonConversion::BL(Double_t Lcoh, Double_t Bmag)  // (BL/2)**2
+{
+    Double_t ma = -1;
+    UpdateParameters(Bmag, ma, Lcoh);
+
+    Double_t lengthInMeters = fCohLength / 1000.;
+
+    Double_t tm = lightSpeed / naturalElectron * 1.0e-9;  // GeV
+    Double_t sol = lengthInMeters * Bmag * tm;
+    sol = sol * 1.0e-10;
+
+    return sol;
+}
+
+///////////////////////////////////////////////
+/// \brief Performs the calculation of (BL/2)^2 factor in natural units.
+///
+double TRestAxionPhotonConversion::BLHalfSquared(Double_t Lcoh, Double_t Bmag)  // (BL/2)**2
+{
+    Double_t ma = -1;
+    UpdateParameters(Bmag, ma, Lcoh);
 
     Double_t lengthInMeters = fCohLength / 1000.;
 
@@ -105,31 +162,20 @@ double TRestAxionPhotonConversion::BLFactor(Double_t Lcoh, Double_t Bmag)  // (B
     return sol;
 }
 
-/// mgamma will be obtainned from buffer gas definition
+///////////////////////////////////////////////
+/// \brief Performs the calculation of axion-photon conversion probability using directly the van Bibber
+/// relation.
 ///
-/// If ma, Lcoh, Bmag = -1. Value will be taken from the class members definition.
+/// mgamma will be obtainned from buffer gas definition.
+///
+/// If ma, Lcoh, or Bmag = -1, the value will be taken from the class members definition.
 /// Otherwise, members of the class will be updated
 //
 /// Ea in keV, ma in eV, mgamma in eV, Lcoh in mm, Bmag in T
+///
 Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, Double_t Bmag, Double_t ma,
                                                                   Double_t Lcoh) {
-    // If we provide the values as argument we update the class members,
-    // If not, we use the existing values in the class member
-    if (ma == -1)
-        ma = fAxionMass;
-    else
-        fAxionMass = ma;
-    if (Lcoh == -1)
-        Lcoh = fCohLength;
-    else
-        fCohLength = Lcoh;
-    if (Bmag == -1)
-        Bmag = fBMag;
-    else
-        fBMag = Bmag;
-
-    if (Bmag == 0) warning << "TRestAxionPhotonConversion::GammaTransmissionProbability. Bmag = 0" << endl;
-    if (Lcoh == 0) warning << "TRestAxionPhotonConversion::GammaTransmissionProbability. Lcoh = 0" << endl;
+    UpdateParameters(Bmag, ma, Lcoh);
 
     mpreal axionMass = fAxionMass;
     mpreal cohLength = fCohLength / 1000.;  // Default REST units are mm;
@@ -153,7 +199,7 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, D
     debug << " Bmag : " << Bmag << " T" << endl;
     debug << "+--------------------------------------------------------------------------+" << endl;
 
-    if (ma == 0.0 && photonMass == 0.0) return BLFactor();
+    if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared();
 
     mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
     mpreal l = cohLength * PhMeterIneV;
@@ -177,31 +223,29 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, D
     MFactor = 1.0 / MFactor;
 
     debug << "Mfactor : " << MFactor << endl;
-    debug << "BLFactor : " << BLFactor() << endl;
+    debug << "(BL/2)^2 : " << BLHalfSquared() << endl;
     debug << "cos(phi) : " << cos(phi) << endl;
     debug << "Exp(-GammaL) : " << exp(-GammaL) << endl;
 
-    double sol = (double)(MFactor * BLFactor() * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
+    double sol = (double)(MFactor * BLHalfSquared() * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
 
     debug << "Axion-photon transmission probability : " << sol << endl;
 
     return sol;
 }
 
+///////////////////////////////////////////////
+/// \brief Performs the calculation of axion-photon conversion probability using directly the van Bibber
+/// relation.
+///
+/// It does it for an arbitrary magnetic field vector.
+///
+/// This method might  become obsolete if we accept that the magnetic field average is enough.
+///
 Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, TVectorD B, Double_t ma,
                                                                   Double_t Lcoh) {
-    // If we provide the values as argument we update the class members,
-    // If not, we use the existing values in the class member
-    if (ma == -1)
-        ma = fAxionMass;
-    else
-        fAxionMass = ma;
-    if (Lcoh == -1)
-        Lcoh = fCohLength;
-    else
-        fCohLength = Lcoh;
-
-    if (Lcoh == 0) warning << "TRestAxionPhotonConversion::GammaTransmissionProbability. Lcoh = 0" << endl;
+    Double_t Bmag = -1;
+    UpdateParameters(Bmag, ma, Lcoh);
 
     Double_t axionMass = fAxionMass;
     Double_t cohLength = fCohLength / 1000.;  // Default REST units are mm;
@@ -298,17 +342,18 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, T
     return sol;
 }
 
-//______________________________________________________________________________
-void TRestAxionPhotonConversion::InitFromConfigFile() {
-    this->Initialize();
+///////////////////////////////////////////////
+/// \brief Initialization of TRestAxionPhotonConversion field members through a RML file
+///
+/// This class does not take any member value from RML. Parameters such as B,L,ma are updated through function
+/// arguments.
+///
+void TRestAxionPhotonConversion::InitFromConfigFile() { this->Initialize(); }
 
-    // Initialize the metadata members from a configfile
-
-    // fClassMember = GetParameter( "paramName", "defaultValue" );
-
-    PrintMetadata();
-}
-
+///////////////////////////////////////////////
+/// \brief It prints out the last parameters used in the conversion probability calculations which will be
+/// also printed out.
+///
 void TRestAxionPhotonConversion::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
