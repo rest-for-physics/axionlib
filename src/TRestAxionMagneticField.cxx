@@ -371,6 +371,15 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
             debug << "Bx: " << data[n][3] << " By: " << data[n][4] << " Bz: " << data[n][5] << endl;
         }
 
+        
+        if (mVol.field[nX][nY][nZ] != TVector3(0.0, 0.0, 0.0)) {
+            warning << "X: " << data[n][0] << " Y: " << data[n][1] << " Z: " << data[n][2] << endl;
+            warning << "nX: " << nX << " nY: " << nY << " nZ: " << nZ << endl;
+            warning << "WARNING: field[nX][nY][nZ] element not equal to initial value (0, 0, 0) !!" << endl;
+            warning << "It has value: " << "mVol.field[" << nX << "][" << nY << "][" << nZ<< "] = (" << mVol.field[nX][nY][nZ].X() << " , " << mVol.field[nX][nY][nZ].Y() << " , " << mVol.field[nX][nY][nZ].Z() << ")" << endl;
+            warning << "Values to write: " << "Bx: " << data[n][3] << " By: " << data[n][4] << " Bz: " << data[n][5] << endl << endl;
+        }
+        
         mVol.field[nX][nY][nZ] = TVector3(data[n][3], data[n][4], data[n][5]);
     }
 }
