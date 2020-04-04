@@ -361,9 +361,9 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
 
     debug << "TRestAxionMagneticField::LoadMagneticFieldData. Printing first 5 data rows" << endl;
     for (Int_t n = 0; n < data.size(); n++) {
-        Int_t nX = mVol.mesh.GetNodeX(data[n][0]);
-        Int_t nY = mVol.mesh.GetNodeY(data[n][1]);
-        Int_t nZ = mVol.mesh.GetNodeZ(data[n][2]);
+        Int_t nX = mVol.mesh.GetNodeX((Int_t)data[n][0]);
+        Int_t nY = mVol.mesh.GetNodeY((Int_t)data[n][1]);
+        Int_t nZ = mVol.mesh.GetNodeZ((Int_t)data[n][2]);
 
         if (n < 5) {
             debug << "X: " << data[n][0] << " Y: " << data[n][1] << " Z: " << data[n][2] << endl;
@@ -371,15 +371,21 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
             debug << "Bx: " << data[n][3] << " By: " << data[n][4] << " Bz: " << data[n][5] << endl;
         }
 
-        
         if (mVol.field[nX][nY][nZ] != TVector3(0.0, 0.0, 0.0)) {
             warning << "X: " << data[n][0] << " Y: " << data[n][1] << " Z: " << data[n][2] << endl;
             warning << "nX: " << nX << " nY: " << nY << " nZ: " << nZ << endl;
             warning << "WARNING: field[nX][nY][nZ] element not equal to initial value (0, 0, 0) !!" << endl;
-            warning << "It has value: " << "mVol.field[" << nX << "][" << nY << "][" << nZ<< "] = (" << mVol.field[nX][nY][nZ].X() << " , " << mVol.field[nX][nY][nZ].Y() << " , " << mVol.field[nX][nY][nZ].Z() << ")" << endl;
-            warning << "Values to write: " << "Bx: " << data[n][3] << " By: " << data[n][4] << " Bz: " << data[n][5] << endl << endl;
+            warning << "It has value: "
+                    << "mVol.field[" << nX << "][" << nY << "][" << nZ << "] = ("
+                    << mVol.field[nX][nY][nZ].X() << " , " << mVol.field[nX][nY][nZ].Y() << " , "
+                    << mVol.field[nX][nY][nZ].Z() << ")" << endl;
+            warning << "Values to write: "
+                    << "Bx: " << data[n][3] << " By: " << data[n][4] << " Bz: " << data[n][5] << endl
+                    << endl;
+
+            this->SetError("There was a problem assigning the field matrix!");
         }
-        
+
         mVol.field[nX][nY][nZ] = TVector3(data[n][3], data[n][4], data[n][5]);
     }
 }
@@ -570,6 +576,8 @@ void TRestAxionMagneticField::InitFromConfigFile() {
     }
 
     LoadMagneticVolumes();
+
+    // TODO we should check that the volumes do not overlap
 }
 
 ///////////////////////////////////////////////
