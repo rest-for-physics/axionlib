@@ -25,29 +25,29 @@
 
 #include <TRestMetadata.h>
 
-//! A metadata class to define theoretical axion models and calculations related
+//! A metadata class to define the gas properties used in axion searches
 class TRestAxionBufferGas : public TRestMetadata {
    private:
     void Initialize();
 
     void InitFromConfigFile();
 
-    // Name of the buffer gas (He, Ne, Ar, Xe, ..., etc )
+    /// Name of the buffer gas (He, Ne, Ar, Xe, ..., etc )
     std::vector<TString> fBufferGasName;  //->
 
-    // Gas density of the corresponding gasName in g/cm3
+    /// Gas density of the corresponding gasName in g/cm3
     std::vector<Double_t> fBufferGasDensity;  //->
 
-    // Energy values for gas absorption coefficient
+    /// Energy values for gas absorption coefficient in keV
     std::vector<std::vector<Double_t> > fAbsEnergy;  //->
 
-    // Gas absorption coefficient in cm2/g
+    /// Gas absorption coefficient in cm2/g
     std::vector<std::vector<Double_t> > fGasAbsCoefficient;  //->
 
-    // Energy values for gas form factor
+    /// Energy values for gas form factor in keV
     std::vector<std::vector<Double_t> > fFactorEnergy;  //->
 
-    // Gas form factor
+    /// Gas form factor
     std::vector<std::vector<Double_t> > fGasFormFactor;  //->
 
     void ReadGasData(TString gasName);
@@ -61,22 +61,18 @@ class TRestAxionBufferGas : public TRestMetadata {
 
     void SetGasMixture(TString gasMixture, TString gasDensities);
 
+    /// It returns the number of gases in the mixture
     Int_t GetNumberOfGases() { return (Int_t)fBufferGasName.size(); }
 
-    /// Returns value in cm2/g
     Double_t GetAbsorptionCoefficient(TString gasName, Double_t energy);
     Double_t GetFormFactor(TString gasName, Double_t energy);
 
-    /// Returns absorption length in cm-1
     Double_t GetPhotonAbsorptionLength(Double_t energy);
 
-    /// Returns absorption length in eV
     Double_t GetPhotonAbsorptionLengthIneV(Double_t energy);
 
-    /// Transforms cm-1 to eV (This method might be transferred to REST_Physics)
     Double_t cmToeV(double l_Inv);
 
-    /// Returns the effective photon mass in eV
     Double_t GetPhotonMass(double en);
 
     void PrintAbsorptionGasData(TString gasName);
@@ -84,10 +80,9 @@ class TRestAxionBufferGas : public TRestMetadata {
 
     void PrintMetadata();
 
-    // Constructors
     TRestAxionBufferGas();
     TRestAxionBufferGas(const char* cfgFileName, std::string name = "");
-    // Destructor
+
     ~TRestAxionBufferGas();
 
     ClassDef(TRestAxionBufferGas, 1);

@@ -21,10 +21,45 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionBufferGas is a class used to ...
+/// TRestAxionBufferGas is a class used to create an interface to the gas
+/// properties used in axion searches, such as the photon density and photon
+/// absorption.
 ///
+/// This class will allow us to create an arbitray gas mixture by specifying
+/// the atomic components, and its contribution to the density. The available
+/// elements can be found at the `data/bufferGas/` directory, which are
+/// currenty He, Ne, Ar and Xe.
 ///
-/// TODO. Create an appropriate documentation here.
+/// The following examples show how to create a particular gas mixture. Both
+/// examples should lead to the same mixture.
+///
+/// Example 1:
+///
+/// \code
+/// TRestAxionBufferGas *gas = new TRestAxionBufferGas();
+///
+/// //Density units must be expressed here in g/cm3
+/// gas->SetGasDensity( "He", 2.6e-9 );
+/// gas->SetGasDensity( "Xe", 5.6e-9 );
+/// \endcode
+///
+/// Example 2:
+///
+/// \code
+/// TRestAxionBufferGas *gas = new TRestAxionBufferGas();
+///
+/// gas->SetGasMixture( "He+Xe", "2.6e-6g/dm3+5.6mg/m3" );
+/// \endcode
+///
+/// The corresponding RML section for initialization through a configuration
+/// file would be as follows.
+///
+/// \code
+///	<TRestAxionBufferGas name="heliumAndXenon" verboseLevel="warning" >
+///		<gas name="He" density="2.6e-9"/>
+///		<gas name="Xe" density="5.6mg/cm3"/>
+///	</TRestAxionBufferGas>
+/// \endcode
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -48,13 +83,26 @@ using namespace std;
 using namespace REST_Units;
 
 ClassImp(TRestAxionBufferGas);
-//______________________________________________________________________________
-TRestAxionBufferGas::TRestAxionBufferGas() : TRestMetadata() {
-    // TRestAxionBufferGas default constructor
-    Initialize();
-}
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestAxionBufferGas::TRestAxionBufferGas() : TRestMetadata() { Initialize(); }
+
+///////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param name The name of the specific metadata. It will be used to find the
+/// corresponding TRestG4Metadata section inside the RML.
+///
 TRestAxionBufferGas::TRestAxionBufferGas(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
     cout << "Entering TRestAxionBufferGas constructor( cfgFileName, name )" << endl;
 
@@ -65,11 +113,14 @@ TRestAxionBufferGas::TRestAxionBufferGas(const char* cfgFileName, string name) :
     PrintMetadata();
 }
 
-//______________________________________________________________________________
-TRestAxionBufferGas::~TRestAxionBufferGas() {
-    // TRestAxionBufferGas destructor
-}
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
+TRestAxionBufferGas::~TRestAxionBufferGas() {}
 
+///////////////////////////////////////////////
+/// \brief Initialization of TRestAxionBufferGas members. It removes all gases.
+///
 void TRestAxionBufferGas::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
@@ -84,7 +135,9 @@ void TRestAxionBufferGas::Initialize() {
     fGasFormFactor.clear();
 }
 
-//______________________________________________________________________________
+///////////////////////////////////////////////
+/// \brief Initialization of TRestAxionBufferGas field members through a RML file
+///
 void TRestAxionBufferGas::InitFromConfigFile() {
     this->Initialize();
 
@@ -93,23 +146,33 @@ void TRestAxionBufferGas::InitFromConfigFile() {
 
     while ((gasDefinition = GetKEYDefinition("gas", position)) != "") {
         TString gasName = GetFieldValue("name", gasDefinition);
-        // TODO We haven't yet implemented density units in TRestSystemOfUnits
-        // gasDensity should be in g/cm3
-        Double_t gasDensity = StringToDouble(GetFieldValue("density", gasDefinition));
-
+        Double_t gasDensity = GetDblFieldValueWithUnits("density", gasDefinition) * units("g/cm3");
         SetGasDensity(gasName, gasDensity);
     }
 
     PrintMetadata();
 }
 
+///////////////////////////////////////////////
+/// \brief It adds a new gas component to the mixture. If it already exists it will update its density.
+///
 void TRestAxionBufferGas::SetGasDensity(TString gasName, Double_t density) {
     Int_t gasIndex = FindGasIndex(gasName);
 
     fBufferGasDensity[gasIndex] = density;
 }
 
+///////////////////////////////////////////////
+/// \brief It re-initializes the gas mixture to the one provided by argument.
+///
+/// The first argument must be the gas components separated by the sign +.
+/// The second argument are the corresponding densities with units.
+///
+/// Example : SetGasMixture("Ne+Xe", "2e-3g/cm3+3mg/cm3" );
+///
 void TRestAxionBufferGas::SetGasMixture(TString gasMixture, TString gasDensities) {
+    Initialize();
+
     std::vector<string> names = Split((string)gasMixture, "+");
     std::vector<string> densities = Split((string)gasDensities, "+");
 
@@ -123,13 +186,30 @@ void TRestAxionBufferGas::SetGasMixture(TString gasMixture, TString gasDensities
     }
 }
 
-// Returns the gas density in g/cm3
+///////////////////////////////////////////////
+/// \brief It returns the gas density - from the chosen gasName component - in g/cm3.
+///
 Double_t TRestAxionBufferGas::GetGasDensity(TString gasName) {
     Int_t gasIndex = FindGasIndex(gasName);
+
+    if (gasIndex < 0) {
+        ferr << "TRestAxionBufferGas::GetGasDensity. Gas name : " << gasName << " not found!" << endl;
+        return 0;
+    }
 
     return fBufferGasDensity[gasIndex];
 }
 
+///////////////////////////////////////////////
+/// \brief It reads the data files from the corresponding gas component.
+///
+/// This method will need to find under `data/bufferGas/` the corresponding
+/// scattering form factors and absorption files for component X, i.e. X.nff
+/// and X.abs.
+///
+/// TODO. This method might better use SearchFile method that searches in
+/// globals <searchPath definition.
+///
 void TRestAxionBufferGas::ReadGasData(TString gasName) {
     TString factorFileName = (TString)getenv("REST_PATH") + "/data/bufferGas/" + gasName + ".nff";
 
@@ -202,6 +282,11 @@ void TRestAxionBufferGas::ReadGasData(TString gasName) {
     fBufferGasDensity.push_back(0);
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the atomic form factor of the `gasName` component at the given energy.
+///
+/// Energy input parameter must be given in keV
+///
 Double_t TRestAxionBufferGas::GetFormFactor(TString gasName, Double_t energy) {
     // In case we are in vacuum
     if (GetNumberOfGases() == 0) return 0;
@@ -239,7 +324,7 @@ Double_t TRestAxionBufferGas::GetFormFactor(TString gasName, Double_t energy) {
     double n = y1 - m * x1;
 
     if (m * energy + n < 0) {
-        ferr << "TRestAxionBufferGas::GetAbsorptionCoefficient. Negative coeffient" << endl;
+        ferr << "TRestAxionBufferGas::GetAbsorptionCoefficient. Negative coefficient" << endl;
         cout << "y2 : " << y2 << " y1 : " << y1 << endl;
         cout << "x2 : " << x2 << " x1 : " << x1 << endl;
         cout << "m : " << m << " n : " << n << endl;
@@ -250,7 +335,10 @@ Double_t TRestAxionBufferGas::GetFormFactor(TString gasName, Double_t energy) {
     return (m * energy + n);
 }
 
-// energy in keV ---> returns Gamma in cm-1
+///////////////////////////////////////////////
+/// \brief It returns the inverse of the absorption lenght, for the gas mixture, in cm-1, for the given
+/// energy in keV.
+///
 Double_t TRestAxionBufferGas::GetPhotonAbsorptionLength(Double_t energy) {
     Double_t attLength = 0;
     for (unsigned int n = 0; n < fBufferGasName.size(); n++)
@@ -259,30 +347,34 @@ Double_t TRestAxionBufferGas::GetPhotonAbsorptionLength(Double_t energy) {
     return attLength;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the inverse of the absorption lenght, for the gas mixture, in eV, for the given
+/// energy in keV.
+///
 Double_t TRestAxionBufferGas::GetPhotonAbsorptionLengthIneV(Double_t energy) {
     return cmToeV(GetPhotonAbsorptionLength(energy));
 }
 
-// Transforms cm-1 to eV
+///////////////////////////////////////////////
+/// \brief It transforms cm-1 to eV
+///
 Double_t TRestAxionBufferGas::cmToeV(double l_Inv)  // E in keV, P in bar ---> Gamma in cm-1
 {
     return l_Inv / REST_Physics::PhMeterIneV / 0.01;
 }
 
-Double_t TRestAxionBufferGas::GetPhotonMass(double en)  // in eV
-{
+///////////////////////////////////////////////
+/// \brief It returns the equivalent photon mass (in eV) for the gas mixture at the given input energy
+/// expressed in keV.
+///
+Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
     Double_t photonMass = 0;
     for (unsigned int n = 0; n < fBufferGasName.size(); n++) {
-        // const double Wa_Helium = 4.002; // g/mol
-        // const double Wa_Neon = 20.179; // g/mol
-        // const double Wa_Argon = 39.948; // g/mol
-        // const double Wa_Xenon = 131.293; // g/mol
-
         Double_t W_value = 0;
-        if (fBufferGasName[n] == "He") W_value = 4.002;
-        if (fBufferGasName[n] == "Ne") W_value = 20.179;
-        if (fBufferGasName[n] == "Ar") W_value = 39.948;
-        if (fBufferGasName[n] == "Xe") W_value = 131.293;
+        if (fBufferGasName[n] == "He") W_value = 4.002;    // g/mol
+        if (fBufferGasName[n] == "Ne") W_value = 20.179;   // g/mol
+        if (fBufferGasName[n] == "Ar") W_value = 39.948;   // g/mol
+        if (fBufferGasName[n] == "Xe") W_value = 131.293;  // g/mol
 
         if (W_value == 0) {
             ferr << "Gas name : " << fBufferGasName[n] << " is not implemented in TRestBufferGas!!" << endl;
@@ -296,6 +388,10 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en)  // in eV
     return 28.77 * TMath::Sqrt(photonMass);
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the absorption coefficient, in cm2/g, for the given gas component and
+/// energy in keV.
+///
 Double_t TRestAxionBufferGas::GetAbsorptionCoefficient(TString gasName, Double_t energy) {
     Int_t gasIndex = FindGasIndex(gasName);
     debug << "TRestAxionBufferGas::GetAbsorptionCoefficient. Gas index = " << gasIndex << endl;
@@ -341,6 +437,9 @@ Double_t TRestAxionBufferGas::GetAbsorptionCoefficient(TString gasName, Double_t
     return (m * energy + n);
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the vector element index, from `enVector`, that is just below the given input energy.
+///
 Int_t TRestAxionBufferGas::GetEnergyIndex(std::vector<Double_t> enVector, Double_t energy) {
     for (unsigned int n = 0; n < enVector.size(); n++)
         if (energy < enVector[n]) return n - 1;
@@ -348,6 +447,9 @@ Int_t TRestAxionBufferGas::GetEnergyIndex(std::vector<Double_t> enVector, Double
     return -1;
 }
 
+///////////////////////////////////////////////
+/// \brief It returns the internal index of the gas component given by `gasName`.
+///
 Int_t TRestAxionBufferGas::FindGasIndex(TString gasName) {
     Int_t nGases = (Int_t)fBufferGasName.size();
 
@@ -360,6 +462,10 @@ Int_t TRestAxionBufferGas::FindGasIndex(TString gasName) {
     return FindGasIndex(gasName);
 }
 
+///////////////////////////////////////////////
+/// \brief Prints out the absorption coefficients as function of the energy for the given gas component, for
+/// debugging pourposes.
+///
 void TRestAxionBufferGas::PrintAbsorptionGasData(TString gasName) {
     Int_t gasIndex = FindGasIndex(gasName);
 
@@ -368,6 +474,10 @@ void TRestAxionBufferGas::PrintAbsorptionGasData(TString gasName) {
              << " -- abs coeff : " << fGasAbsCoefficient[gasIndex][n] << endl;
 }
 
+///////////////////////////////////////////////
+/// \brief Prints out the atomic form factors as function of the energy for the given gas component, for
+/// debugging pourposes.
+///
 void TRestAxionBufferGas::PrintFormFactorGasData(TString gasName) {
     Int_t gasIndex = FindGasIndex(gasName);
 
@@ -376,6 +486,9 @@ void TRestAxionBufferGas::PrintFormFactorGasData(TString gasName) {
              << endl;
 }
 
+///////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestAxionBufferGas
+///
 void TRestAxionBufferGas::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
