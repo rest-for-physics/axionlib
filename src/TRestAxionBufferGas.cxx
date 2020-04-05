@@ -22,8 +22,8 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// TRestAxionBufferGas is a class used to create an interface to the gas
-/// properties used in axion searches, such as the photon density and photon
-/// absorption.
+/// properties used in axion search calculations, such as the photon density
+/// and photon absorption.
 ///
 /// This class will allow us to create an arbitray gas mixture by specifying
 /// the atomic components, and its contribution to the density. The available

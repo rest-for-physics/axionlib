@@ -25,7 +25,7 @@
 
 #include <TRestMetadata.h>
 
-//! A metadata class to define the gas properties used in axion searches
+//! A metadata class to define the gas properties used in axion search calculations.
 class TRestAxionBufferGas : public TRestMetadata {
    private:
     void Initialize();
