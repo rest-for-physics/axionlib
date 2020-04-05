@@ -59,22 +59,24 @@ class TRestAxionBufferGas : public TRestMetadata {
     void SetGasDensity(TString gasName, Double_t density);
     Double_t GetGasDensity(TString gasName);
 
+    void SetGasMixture(TString gasMixture, TString gasDensities);
+
     Int_t GetNumberOfGases() { return (Int_t)fBufferGasName.size(); }
 
-    // Returns value in cm2/g
+    /// Returns value in cm2/g
     Double_t GetAbsorptionCoefficient(TString gasName, Double_t energy);
     Double_t GetFormFactor(TString gasName, Double_t energy);
 
-    // Returns absorption length in cm-1
+    /// Returns absorption length in cm-1
     Double_t GetPhotonAbsorptionLength(Double_t energy);
 
-    // Returns absorption length in eV
+    /// Returns absorption length in eV
     Double_t GetPhotonAbsorptionLengthIneV(Double_t energy);
 
-    // Transforms cm-1 to eV (This method might be transferred to REST_Physics)
+    /// Transforms cm-1 to eV (This method might be transferred to REST_Physics)
     Double_t cmToeV(double l_Inv);
 
-    // in eV
+    /// Returns the effective photon mass in eV
     Double_t GetPhotonMass(double en);
 
     void PrintAbsorptionGasData(TString gasName);

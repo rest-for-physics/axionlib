@@ -44,6 +44,9 @@
 #include "TRestAxionBufferGas.h"
 using namespace std;
 
+#include "TRestSystemOfUnits.h"
+using namespace REST_Units;
+
 ClassImp(TRestAxionBufferGas);
 //______________________________________________________________________________
 TRestAxionBufferGas::TRestAxionBufferGas() : TRestMetadata() {
@@ -70,6 +73,15 @@ TRestAxionBufferGas::~TRestAxionBufferGas() {
 void TRestAxionBufferGas::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
+
+    fBufferGasName.clear();
+    fBufferGasDensity.clear();
+
+    fAbsEnergy.clear();
+    fGasAbsCoefficient.clear();
+
+    fFactorEnergy.clear();
+    fGasFormFactor.clear();
 }
 
 //______________________________________________________________________________
@@ -95,6 +107,20 @@ void TRestAxionBufferGas::SetGasDensity(TString gasName, Double_t density) {
     Int_t gasIndex = FindGasIndex(gasName);
 
     fBufferGasDensity[gasIndex] = density;
+}
+
+void TRestAxionBufferGas::SetGasMixture(TString gasMixture, TString gasDensities) {
+    std::vector<string> names = Split((string)gasMixture, "+");
+    std::vector<string> densities = Split((string)gasDensities, "+");
+
+    if (names.size() == densities.size()) {
+        for (int n = 0; n < names.size(); n++) {
+            Double_t density = GetValueInRESTUnits(densities[n]);
+            SetGasDensity(names[n], density * units("g/cm3"));
+        }
+    } else {
+        this->SetError("SetGasMixture. Number of gases does not match the densities!");
+    }
 }
 
 // Returns the gas density in g/cm3
