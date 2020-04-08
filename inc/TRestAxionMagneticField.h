@@ -34,24 +34,24 @@
 #include "TRestAxionBufferGas.h"
 #include "TRestMesh.h"
 
+/// A structure to define the properties and store the field data of a single magnetic volume
+struct MagneticFieldVolume {
+    /// Offset position applied to the volume
+    TVector3 position;
+
+    /// A description of the grid, mesh size, and number of nodes
+    TRestMesh mesh;
+
+    /// The field data connected to the grid defined by the mesh
+    std::vector<std::vector<std::vector<TVector3>>> field;
+
+    /// A pointer to the gas properties
+    TRestAxionBufferGas* bGas = NULL;
+};
+
 /// A class to load magnetic field maps and provide an evaluate the field including interpolation.
 class TRestAxionMagneticField : public TRestMetadata {
    private:
-    /// A structure to define the properties and store the field data of a single magnetic volume
-    struct MagneticFieldVolume {
-        /// Offset position applied to the volume
-        TVector3 position;
-
-        /// A description of the grid, mesh size, and number of nodes
-        TRestMesh mesh;
-
-        /// The field data connected to the grid defined by the mesh
-        std::vector<std::vector<std::vector<TVector3>>> field;
-
-        /// A pointer to the gas properties
-        TRestAxionBufferGas* bGas = NULL;
-    };
-
     /// The name of the filenames containing the field data
     std::vector<string> fFileNames;  //<
 
@@ -93,6 +93,14 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     /// The number of magnetic volumes loaded into the object
     Int_t GetNumberOfVolumes() { return fPositions.size(); }
+
+    /// It returns a  pointer to the corresponding magnetic volume id
+    const MagneticFieldVolume* GetMagneticVolume(Int_t id) {
+        if (fMagneticFieldVolumes.size() > id)
+            return &fMagneticFieldVolumes[id];
+        else
+            return NULL;
+    }
 
     TVector3 GetMagneticField(Double_t x, Double_t y, Double_t z);
     TVector3 GetMagneticField(TVector3 pos);
