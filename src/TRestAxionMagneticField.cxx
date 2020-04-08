@@ -28,19 +28,23 @@
 /// region, and it will return a non-zero value of the magnetic field in
 /// case (x,y,z) is inside a magnetic region.
 ///
+/// TODO Description of magnetic field interpolation
+///
+/// ### RML definition
+///
 /// We can add any number of magnetic volumes inside the RML definition
-/// as shown in the following piece of code.
+/// as shown in the following piece of code,
 ///
 /// ~~~
 /// <TRestAxionMagneticField>
-///         <addMagneticVolume file="magnetic.file" position="(30,0,0)mm" />
-///         <addMagneticVolume file="magnetic.file" position="(-30,0,0)mm" />
+///         <addMagneticVolume file="magnetic.file" position="(30,0,0)cm" />
+///         <addMagneticVolume file="magnetic.file" position="(-30,0,0)cm" />
 /// <TRestAxionMagneticField/>
 /// ~~~
 ///
 /// where we produce 2 magnetic regions, using the same magnetic map provided
-/// in file `magnetic.file` and shifted by x=-30mm and x=30mm. The parameters
-/// available in the `addMagneticVolume` definition are described in this list.
+/// in file `magnetic.file` and shifted by x=-30cm and x=30cm. The following
+/// parameters must be defined at each `addMagneticVolume` entry.
 ///
 /// - *file* : This allows to specify the filename that contains the values of the
 /// magnetic field. Few files will be found under `data/magneticField`. They all
@@ -51,7 +55,39 @@
 /// in the magnetic field file given. However, it is possible to translate the
 /// volume using the `position` field.
 ///
-/// \todo Magnetic field volume rotations are not implemented. Are they necessary?
+/// ### Adding gas properties to each of the magnetic volumes.
+///
+/// On top of the magnetic field map that we associate to a magnetic region (or
+/// volume) we can - optionally - assign gas properties to the volume. This is done
+/// using an interface to the TRestAxionBufferGas. And we may initialize as follows
+/// at the `addMagneticVolume` entry in the corresponding RML section.
+///
+/// ~~~
+/// <TRestAxionMagneticField>
+///         <addMagneticVolume file="magnetic.file" position="(30,0,0)cm"
+//							gasMixture="He" gasDensity="0.1mg/dm3"/>
+///         <addMagneticVolume file="magnetic.file" position="(-30,0,0)cm"
+//							gasMixture="He+Xe" gasDensity="3g/m3+0.2mg/dm3"/>
+/// <TRestAxionMagneticField/>
+/// ~~~
+///
+/// ### The magnetic field file format.
+///
+/// For the moment, the file used for magnetic field description is written in
+/// plain-text format. The data file should describe a box delimited by the
+/// vertexes `(-xMax, -yMax, -zMax)` and `(xMax,yMax,zMax)`. The field `(Bx,By,Bz)`
+/// is given for all the points in a regular grid inside that box with a grid
+/// element given by `meshSize`.
+///
+/// The first row in the file corresponds with the values of `xMax`, `yMax`,
+/// `zMax` and `meshSize`. The next rows provide the magnetic field vector
+/// at each of the elements of the grid,  where we will find the followoing
+/// data components `x`, `y`, `z`  and `Bx`, `By`,`Bz`.
+///
+/// ### Visualizing the magnetic field
+///
+/// TODO Review and validate DrawHistogram drawing method and describe its
+/// use here.
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -62,12 +98,13 @@
 /// 2019-June: First concept and implementation of TRestAxionMagneticField class.
 ///            Eve Pachoud
 ///
-/// 2020-February: Reviewing TRestAxionMagneticField class.
-///            Javier Galan
+/// 2020-April: Reviewing and validating TRestAxionMagneticField class.
+///            Javier Galan and Krešimir Jakovčić
 ///
 /// \class      TRestAxionMagneticField
 /// \author     Eve Pachoud
-/// \author     Javier Galan
+/// \author     Javier Galan <javier.galan@unizar.es>
+/// \author     Krešimir Jakovčić <kjakov@irb.hr>
 ///
 /// <hr>
 ///
@@ -95,10 +132,11 @@ TRestAxionMagneticField::TRestAxionMagneticField() : TRestMetadata() { Initializ
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// corresponding TRestG4Metadata section inside the RML.
+/// corresponding TRestAxionMagneticField section inside the RML.
 ///
 TRestAxionMagneticField::TRestAxionMagneticField(const char* cfgFileName, string name)
     : TRestMetadata(cfgFileName) {
+    cout << "Constructor 2" << endl;
     debug << "Entering TRestAxionMagneticField constructor( cfgFileName, name )" << endl;
 
     Initialize();
@@ -113,6 +151,7 @@ TRestAxionMagneticField::TRestAxionMagneticField(const char* cfgFileName, string
 ///
 TRestAxionMagneticField::~TRestAxionMagneticField() {
     debug << "Entering ... TRestAxionMagneticField() destructor." << endl;
+    for (int n = 0; n < fMagneticFieldVolumes.size(); n++) delete fMagneticFieldVolumes[n].bGas;
 }
 
 ///////////////////////////////////////////////
@@ -129,8 +168,12 @@ void TRestAxionMagneticField::Initialize() {
 ///////////////////////////////////////////////
 /// \brief A method that creates a canvas where magnetic field map is drawn
 ///
+/// TODO detailed documentation
+///
 TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcomp, Int_t volIndex,
                                                 Double_t step) {
+    if (!FieldLoaded()) LoadMagneticVolumes();
+
     if (fCanvas != NULL) {
         delete fCanvas;
         fCanvas = NULL;
@@ -384,6 +427,7 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
                     << endl;
 
             this->SetError("There was a problem assigning the field matrix!");
+            GetChar();
         }
 
         mVol.field[nX][nY][nZ] = TVector3(data[n][3], data[n][4], data[n][5]);
@@ -396,6 +440,7 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
 /// This method will be made private since it will only be used internally.
 ///
 void TRestAxionMagneticField::LoadMagneticVolumes() {
+    cout << "Calling load magnetic volumes" << endl;
     for (unsigned int n = 0; n < fPositions.size(); n++) {
         string fullPathName = SearchFile((string)fFileNames[n]);
 
@@ -442,6 +487,9 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         mVolume.position = fPositions[n];
         mVolume.mesh = restMesh;
 
+        if (mVolume.bGas == NULL) mVolume.bGas = new TRestAxionBufferGas();
+        if (fGasMixtures[n] != "vacuum") mVolume.bGas->SetGasMixture(fGasMixtures[n], fGasDensities[n]);
+
         LoadMagneticFieldData(mVolume, fieldData);
 
         fMagneticFieldVolumes.push_back(mVolume);
@@ -459,21 +507,116 @@ TVector3 TRestAxionMagneticField::GetMagneticField(Double_t x, Double_t y, Doubl
 /// \brief It returns the magnetic field vector at TVector3(pos)
 ///
 TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
-    for (int n = 0; n < fMagneticFieldVolumes.size(); n++) {
-        TVector3 relativePosition = pos - fPositions[n];
-        if (fMagneticFieldVolumes[n].mesh.IsInside(relativePosition)) {
-            TVector3 node = GetMagneticVolumeNode(fMagneticFieldVolumes[n], pos);
-            Int_t nX = node.X();
-            Int_t nY = node.Y();
-            Int_t nZ = node.Z();
+    Int_t id = GetVolumeIndex(pos);
 
-            // We just return the field at nX, nY, nZ.
-            // Which is the bottom,left,down node.
-            // We could interpolate here using the other nodes field nX+1,nY+1,nZ+1
-            return fMagneticFieldVolumes[n].field[nX][nY][nZ];
-        }
+    if (id >= 0) {
+        TVector3 node = GetMagneticVolumeNode(fMagneticFieldVolumes[id], pos);
+        Int_t nX = node.X();
+        Int_t nY = node.Y();
+        Int_t nZ = node.Z();
+
+        // We just return the field at nX, nY, nZ.
+        // Which is the bottom,left,down node.
+        // We could interpolate here using the other nodes field nX+1,nY+1,nZ+1
+        return fMagneticFieldVolumes[id].field[nX][nY][nZ];
+
+    } else {
+        warning << "TRestAxionMagneticField::GetMagneticField position is outside any volume" << endl;
     }
     return TVector3(0, 0, 0);
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the effective photon mass in eV for the given position `(x,y,z)` and energy `en` using
+/// the gas properties defined at the corresponding magnetic volume.
+///
+Double_t TRestAxionMagneticField::GetPhotonMass(Double_t x, Double_t y, Double_t z, Double_t en) {
+    return GetPhotonMass(TVector3(x, y, z), en);
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the effective photon mass in eV for the given position `pos` and energy `en` using the
+/// gas properties defined at the corresponding magnetic volume.
+///
+Double_t TRestAxionMagneticField::GetPhotonMass(TVector3 pos, Double_t en) {
+    Int_t id = GetVolumeIndex(pos);
+
+    return GetPhotonMass(id, en);
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the effective photon mass in eV at the corresponding magnetic volume id.
+///
+Double_t TRestAxionMagneticField::GetPhotonMass(Int_t id, Double_t en) {
+    if (id >= 0) {
+        return fMagneticFieldVolumes[id].bGas->GetPhotonMass(en);
+    } else {
+        warning << "TRestAxionMagneticField::GetPhotonMass position is outside any volume" << endl;
+    }
+    return -1;
+}
+///////////////////////////////////////////////
+/// \brief It returns the photon absorption length in cm-1 for the given position `(x,y,z)` and energy `en`
+/// using the gas properties defined at the corresponding magnetic volume.
+///
+Double_t TRestAxionMagneticField::GetPhotonAbsorptionLength(Double_t x, Double_t y, Double_t z, Double_t en) {
+    return GetPhotonMass(TVector3(x, y, z), en);
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the photon absorption length in cm-1 for the given position `pos` and energy `en` using
+/// the gas properties defined at the corresponding magnetic volume.
+///
+Double_t TRestAxionMagneticField::GetPhotonAbsorptionLength(TVector3 pos, Double_t en) {
+    Int_t id = GetVolumeIndex(pos);
+
+    return GetPhotonAbsorptionLength(id, en);
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the photon absorption length in cm-1 for the given position `pos` and energy `en` at the
+/// given volume id.
+///
+Double_t TRestAxionMagneticField::GetPhotonAbsorptionLength(Int_t id, Double_t en) {
+    if (id >= 0) {
+        return fMagneticFieldVolumes[id].bGas->GetPhotonAbsorptionLength(en);
+    } else {
+        warning << "TRestAxionMagneticField::GetPhotonAbsorptionLength position is outside any volume"
+                << endl;
+    }
+    return -1;
+}
+
+///////////////////////////////////////////////
+/// \brief it returns the corresponding volume index at the given position. If not found it will return
+/// -1.
+///
+Int_t TRestAxionMagneticField::GetVolumeIndex(TVector3 pos) {
+    if (!FieldLoaded()) LoadMagneticVolumes();
+
+    for (int n = 0; n < fMagneticFieldVolumes.size(); n++) {
+        TVector3 relativePosition = pos - fPositions[n];
+        if (fMagneticFieldVolumes[n].mesh.IsInside(relativePosition)) return n;
+    }
+    return -1;
+}
+
+///////////////////////////////////////////////
+/// \brief it returns the volume position (or center) for the given volume `id`.
+///
+TVector3 TRestAxionMagneticField::GetVolumeCenter(Int_t id) { return GetVolumePosition(id); }
+
+///////////////////////////////////////////////
+/// \brief it returns the volume position (or center) for the given volume `id`.
+///
+TVector3 TRestAxionMagneticField::GetVolumePosition(Int_t id) {
+    if (GetNumberOfVolumes() > id)
+        return fPositions[id];
+    else {
+        warning << "TRestAxionMagneticField::GetVolumePosition. Id : " << id << " out of range!" << endl;
+        warning << "Number of volumes defined : " << GetNumberOfVolumes() << endl;
+        return TVector3(0, 0, 0);
+    }
 }
 
 ///////////////////////////////////////////////
@@ -573,6 +716,14 @@ void TRestAxionMagneticField::InitFromConfigFile() {
 
         TVector3 position = Get3DVectorFieldValueWithUnits("position", bVolume);
         fPositions.push_back(position);
+
+        TString gasMixture = GetFieldValue("gasMixture", bVolume);
+        if (gasMixture == "Not defined") gasMixture = "vacuum";
+        fGasMixtures.push_back(gasMixture);
+
+        TString gasDensity = GetFieldValue("gasDensity", bVolume);
+        if (gasDensity == "Not defined") gasDensity = "0";
+        fGasDensities.push_back(gasDensity);
     }
 
     LoadMagneticVolumes();
@@ -581,15 +732,17 @@ void TRestAxionMagneticField::InitFromConfigFile() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Prints on screen the details about the Geant4 simulation
-/// conditions, stored in TRestG4Metadata.
+/// \brief Prints on screen the information about the metadata members of TRestAxionMagneticField
 ///
 void TRestAxionMagneticField::PrintMetadata() {
+    if (!FieldLoaded()) LoadMagneticVolumes();
+
     TRestMetadata::PrintMetadata();
 
     metadata << " - Number of magnetic volumes : " << GetNumberOfVolumes() << endl;
     metadata << " ------------------------------------------------ " << endl;
     for (int p = 0; p < GetNumberOfVolumes(); p++) {
+        if (p > 0) metadata << " ------------------------------------------------ " << endl;
         MagneticFieldVolume vol = fMagneticFieldVolumes[p];
 
         Double_t centerX = fPositions[p][0];
@@ -608,14 +761,15 @@ void TRestAxionMagneticField::PrintMetadata() {
         Double_t yMax = centerY + halfSizeY;
         Double_t zMax = centerZ + halfSizeZ;
 
-        metadata << "* Volume " << p << " : "
-                 << "  - Set in (" << centerX << "," << centerY << "," << centerZ << ")"
-                 << " mm" << endl;
+        metadata << "* Volume " << p << " centered at  (" << centerX << "," << centerY << "," << centerZ
+                 << ") mm" << endl;
         metadata << "  - Bounds : " << endl;
         metadata << "    xmin : " << xMin << " mm , xmax : " << xMax << " mm" << endl;
         metadata << "    ymin : " << yMin << " mm, ymax : " << yMax << " mm" << endl;
         metadata << "    zmin : " << zMin << " mm, zmax : " << zMax << " mm" << endl;
         metadata << "  - File loaded : " << fFileNames[p] << endl;
+        metadata << "  - Buffer gas mixture : " << fGasMixtures[p] << endl;
+        metadata << "  - Buffer gas densities : " << fGasDensities[p] << endl;
     }
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }

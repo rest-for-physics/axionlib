@@ -31,20 +31,25 @@
 #include "TVector3.h"
 #include "TVectorD.h"
 
+#include "TRestAxionBufferGas.h"
 #include "TRestMesh.h"
 
 /// A class to load magnetic field maps and provide an evaluate the field including interpolation.
 class TRestAxionMagneticField : public TRestMetadata {
    private:
+    /// A structure to define the properties and store the field data of a single magnetic volume
     struct MagneticFieldVolume {
-        // Offset position applied to the volume
+        /// Offset position applied to the volume
         TVector3 position;
 
-        // A description of the grid, mesh size, and number of nodes
+        /// A description of the grid, mesh size, and number of nodes
         TRestMesh mesh;
 
-        // The field data connected to the grid defined by the mesh
+        /// The field data connected to the grid defined by the mesh
         std::vector<std::vector<std::vector<TVector3>>> field;
+
+        /// A pointer to the gas properties
+        TRestAxionBufferGas* bGas = NULL;
     };
 
     /// The name of the filenames containing the field data
@@ -53,8 +58,14 @@ class TRestAxionMagneticField : public TRestMetadata {
     /// The absolute position of each of the magnetic volumes defined in this class
     std::vector<TVector3> fPositions;  //<
 
-    /// The absolute position of each of the magnetic volumes defined in this class
+    /// The size of a grid element from the mesh in mm
     std::vector<Double_t> fMeshSize;  //<
+
+    /// The gas mixture components that define the medium in each magnetic volume
+    std::vector<TString> fGasMixtures;  //<
+
+    /// The gas components densities corresponding to the gas mixture defined for each volume
+    std::vector<TString> fGasDensities;  //<
 
     /// A magnetic field volume structure to store field data and mesh.
     std::vector<MagneticFieldVolume> fMagneticFieldVolumes;  //!
@@ -69,19 +80,35 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     void InitFromConfigFile();
 
-    void LoadMagneticVolumes();
-
     void LoadMagneticFieldData(MagneticFieldVolume& mVol, std::vector<std::vector<Double_t>> data);
 
     TVector3 GetMagneticVolumeNode(MagneticFieldVolume mVol, TVector3 pos);
 
+    /// \brief This private method returns true if the magnetic field volumes loaded are the same as
+    /// the volumes defined.
+    Bool_t FieldLoaded() { return GetNumberOfVolumes() == fMagneticFieldVolumes.size(); }
+
    public:
+    void LoadMagneticVolumes();
+
     /// The number of magnetic volumes loaded into the object
-    Int_t GetNumberOfVolumes() { return fMagneticFieldVolumes.size(); }
+    Int_t GetNumberOfVolumes() { return fPositions.size(); }
 
     TVector3 GetMagneticField(Double_t x, Double_t y, Double_t z);
-
     TVector3 GetMagneticField(TVector3 pos);
+
+    Double_t GetPhotonMass(Double_t x, Double_t y, Double_t z, Double_t en);
+    Double_t GetPhotonMass(TVector3 pos, Double_t en);
+    Double_t GetPhotonMass(Int_t id, Double_t en);
+
+    Double_t GetPhotonAbsorptionLength(Double_t x, Double_t y, Double_t z, Double_t en);
+    Double_t GetPhotonAbsorptionLength(TVector3 pos, Double_t en);
+    Double_t GetPhotonAbsorptionLength(Int_t id, Double_t en);
+
+    Int_t GetVolumeIndex(TVector3 pos);
+
+    TVector3 GetVolumePosition(Int_t id);
+    TVector3 GetVolumeCenter(Int_t id);
 
     Double_t GetTransversalComponent(TVector3 position, TVector3 direction);
 
@@ -98,6 +125,6 @@ class TRestAxionMagneticField : public TRestMetadata {
     TRestAxionMagneticField(const char* cfgFileName, std::string name = "");
     ~TRestAxionMagneticField();
 
-    ClassDef(TRestAxionMagneticField, 1);
+    ClassDef(TRestAxionMagneticField, 2);
 };
 #endif
