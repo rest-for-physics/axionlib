@@ -109,6 +109,10 @@ void TRestAxionGeneratorProcess::Initialize() {
     fRandom = new TRandom3(0);
 }
 
+///////////////////////////////////////////////
+/// \brief Process initialization. Data members that require initialization just before start processing
+/// should be initialized here.
+///
 void TRestAxionGeneratorProcess::InitProcess() {
     debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
 
