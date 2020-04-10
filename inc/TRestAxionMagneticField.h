@@ -88,19 +88,25 @@ class TRestAxionMagneticField : public TRestMetadata {
     /// the volumes defined.
     Bool_t FieldLoaded() { return GetNumberOfVolumes() == fMagneticFieldVolumes.size(); }
 
+    /// It returns a  pointer to the corresponding magnetic volume id
+    MagneticFieldVolume* GetMagneticVolume(Int_t id) {
+        if (!FieldLoaded()) LoadMagneticVolumes();
+        if (fMagneticFieldVolumes.size() > id)
+            return &fMagneticFieldVolumes[id];
+        else {
+            ferr << "TRestAxionMagneticField::GetMagneticVolume. Id outside limits!" << endl;
+            return NULL;
+        }
+    }
+
    public:
     void LoadMagneticVolumes();
 
     /// The number of magnetic volumes loaded into the object
     Int_t GetNumberOfVolumes() { return fPositions.size(); }
 
-    /// It returns a  pointer to the corresponding magnetic volume id
-    const MagneticFieldVolume* GetMagneticVolume(Int_t id) {
-        if (fMagneticFieldVolumes.size() > id)
-            return &fMagneticFieldVolumes[id];
-        else
-            return NULL;
-    }
+    std::vector<TVector3> GetVolumeBoundaries(Int_t id, TVector3 pos, TVector3 dir);
+    std::vector<TVector3> GetFieldBoundaries(Int_t id, TVector3 pos, TVector3 dir, Double_t precision = 0);
 
     TVector3 GetMagneticField(Double_t x, Double_t y, Double_t z);
     TVector3 GetMagneticField(TVector3 pos);

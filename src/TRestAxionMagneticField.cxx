@@ -113,6 +113,9 @@
 
 using namespace std;
 
+#include "TRestPhysics.h"
+using namespace REST_Physics;
+
 ClassImp(TRestAxionMagneticField);
 
 ///////////////////////////////////////////////
@@ -168,7 +171,7 @@ void TRestAxionMagneticField::Initialize() {
 ///////////////////////////////////////////////
 /// \brief A method that creates a canvas where magnetic field map is drawn
 ///
-/// TODO detailed documentation
+/// TODO Add detailed documentation here
 ///
 TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcomp, Int_t volIndex,
                                                 Double_t step) {
@@ -195,15 +198,16 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 
     if (step < 0) step = fMeshSize[volIndex];
 
-    MagneticFieldVolume vol = fMagneticFieldVolumes[volIndex];
+    MagneticFieldVolume* vol = GetMagneticVolume(volIndex);
+    if (!vol) return fCanvas;
 
     Double_t centerX = fPositions[volIndex][0];
     Double_t centerY = fPositions[volIndex][1];
     Double_t centerZ = fPositions[volIndex][2];
 
-    Double_t halfSizeX = vol.mesh.GetNetSizeX() / 2.;
-    Double_t halfSizeY = vol.mesh.GetNetSizeY() / 2.;
-    Double_t halfSizeZ = vol.mesh.GetNetSizeZ() / 2.;
+    Double_t halfSizeX = vol->mesh.GetNetSizeX() / 2.;
+    Double_t halfSizeY = vol->mesh.GetNetSizeY() / 2.;
+    Double_t halfSizeZ = vol->mesh.GetNetSizeZ() / 2.;
 
     Double_t xMin = centerX - halfSizeX;
     Double_t yMin = centerY - halfSizeY;
@@ -555,6 +559,7 @@ Double_t TRestAxionMagneticField::GetPhotonMass(Int_t id, Double_t en) {
     }
     return -1;
 }
+
 ///////////////////////////////////////////////
 /// \brief It returns the photon absorption length in cm-1 for the given position `(x,y,z)` and energy `en`
 /// using the gas properties defined at the corresponding magnetic volume.
@@ -703,6 +708,62 @@ TVector3 TRestAxionMagneticField::GetMagneticVolumeNode(MagneticFieldVolume mVol
 }
 
 ///////////////////////////////////////////////
+/// \brief Finds the in/out particle trajectory boundaries for a particular magnetic region bounding box.
+///
+/// This method checks if the trajectory defined by the position `pos` and direction `dir` passes through
+/// the magnetic ﬁeld region/volume `id` given. If two such points (entry point and exit point) are found,
+/// their coordinates are returned. In the example shown in Fig. 1 from TRestAxionFieldPropagationProcess
+/// these points are: IN 1 and OUT 1 for the region #1 and IN2 and OUT 2 for the region #2.
+///
+/// If no intersection is found, or the particle is not moving towards the volume, the returned std::vector
+/// will be empty.
+///
+std::vector<TVector3> TRestAxionMagneticField::GetVolumeBoundaries(Int_t id, TVector3 pos, TVector3 dir) {
+    MagneticFieldVolume* vol = GetMagneticVolume(id);
+
+    std::vector<TVector3> boundaries;
+
+    if (vol) boundaries = vol->mesh.GetTrackBoundaries(pos, dir);
+
+    return boundaries;
+}
+
+///////////////////////////////////////////////
+/// \brief Finds the in/out particle trajectory boundaries for a particular magnetic region, similar to
+/// the method TRestAxionMagneticField::GetVolumeBoudaries, but requiring that the in/out points are the
+/// first/last points where the **transversal** field intensity is not zero.
+///
+/// If no precision is given, the mesh size of the corresponding volume will be used as reference. The
+/// precision will be meshSize/2.
+///
+/// If no intersection is found the returned std::vector will be empty.
+///
+std::vector<TVector3> TRestAxionMagneticField::GetFieldBoundaries(Int_t id, TVector3 pos, TVector3 dir,
+                                                                  Double_t precision) {
+    std::vector<TVector3> volumeBoundaries = GetVolumeBoundaries(id, pos, dir);
+    if (volumeBoundaries.size() != 2) return volumeBoundaries;
+
+    MagneticFieldVolume* vol = GetMagneticVolume(id);
+    if (!vol) return volumeBoundaries;
+
+    if (precision == 0) precision = fMeshSize[id] / 2.;
+
+    TVector3 unit = dir.Unit();
+
+    TVector3 in = volumeBoundaries[0];
+    while (GetTransversalComponent(in, dir) == 0) in = MoveByDistanceFast(in, unit, precision);
+
+    TVector3 out = volumeBoundaries[1];
+    while (GetTransversalComponent(out, -dir) == 0) out = MoveByDistanceFast(out, -unit, precision);
+
+    std::vector<TVector3> fieldBoundaries;
+    fieldBoundaries.push_back(in);
+    fieldBoundaries.push_back(out);
+
+    return fieldBoundaries;
+}
+
+///////////////////////////////////////////////
 /// \brief Initialization of TRestAxionMagnetic field members through a RML file
 ///
 void TRestAxionMagneticField::InitFromConfigFile() {
@@ -735,23 +796,21 @@ void TRestAxionMagneticField::InitFromConfigFile() {
 /// \brief Prints on screen the information about the metadata members of TRestAxionMagneticField
 ///
 void TRestAxionMagneticField::PrintMetadata() {
-    if (!FieldLoaded()) LoadMagneticVolumes();
-
     TRestMetadata::PrintMetadata();
 
     metadata << " - Number of magnetic volumes : " << GetNumberOfVolumes() << endl;
     metadata << " ------------------------------------------------ " << endl;
     for (int p = 0; p < GetNumberOfVolumes(); p++) {
         if (p > 0) metadata << " ------------------------------------------------ " << endl;
-        MagneticFieldVolume vol = fMagneticFieldVolumes[p];
+        MagneticFieldVolume* vol = GetMagneticVolume(p);
 
         Double_t centerX = fPositions[p][0];
         Double_t centerY = fPositions[p][1];
         Double_t centerZ = fPositions[p][2];
 
-        Double_t halfSizeX = vol.mesh.GetNetSizeX() / 2.;
-        Double_t halfSizeY = vol.mesh.GetNetSizeY() / 2.;
-        Double_t halfSizeZ = vol.mesh.GetNetSizeZ() / 2.;
+        Double_t halfSizeX = vol->mesh.GetNetSizeX() / 2.;
+        Double_t halfSizeY = vol->mesh.GetNetSizeY() / 2.;
+        Double_t halfSizeZ = vol->mesh.GetNetSizeZ() / 2.;
 
         Double_t xMin = centerX - halfSizeX;
         Double_t yMin = centerY - halfSizeY;
