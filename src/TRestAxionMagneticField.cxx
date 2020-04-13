@@ -35,12 +35,12 @@
 /// We can add any number of magnetic volumes inside the RML definition
 /// as shown in the following piece of code,
 ///
-/// ~~~
+/// \code
 /// <TRestAxionMagneticField>
 ///         <addMagneticVolume file="magnetic.file" position="(30,0,0)cm" />
 ///         <addMagneticVolume file="magnetic.file" position="(-30,0,0)cm" />
 /// <TRestAxionMagneticField/>
-/// ~~~
+/// \endcode
 ///
 /// where we produce 2 magnetic regions, using the same magnetic map provided
 /// in file `magnetic.file` and shifted by x=-30cm and x=30cm. The following
@@ -62,14 +62,14 @@
 /// using an interface to the TRestAxionBufferGas. And we may initialize as follows
 /// at the `addMagneticVolume` entry in the corresponding RML section.
 ///
-/// ~~~
+/// \code
 /// <TRestAxionMagneticField>
 ///         <addMagneticVolume file="magnetic.file" position="(30,0,0)cm"
-//							gasMixture="He" gasDensity="0.1mg/dm3"/>
+///							gasMixture="He" gasDensity="0.1mg/dm3"/>
 ///         <addMagneticVolume file="magnetic.file" position="(-30,0,0)cm"
-//							gasMixture="He+Xe" gasDensity="3g/m3+0.2mg/dm3"/>
+///							gasMixture="He+Xe" gasDensity="3g/m3+0.2mg/dm3"/>
 /// <TRestAxionMagneticField/>
-/// ~~~
+/// \endcode
 ///
 /// ### The magnetic field file format.
 ///
