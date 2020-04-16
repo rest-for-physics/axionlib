@@ -525,6 +525,11 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
 
         fMagneticFieldVolumes.push_back(mVolume);
     }
+
+    if (CheckOverlaps()) {
+        ferr << "TRestAxionMagneticField::LoadMagneticVolumes. Volumes overlap!" << endl;
+        exit(1);
+    }
 }
 
 ///////////////////////////////////////////////
