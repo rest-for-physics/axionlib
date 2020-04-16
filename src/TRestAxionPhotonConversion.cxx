@@ -57,32 +57,7 @@ ClassImp(TRestAxionPhotonConversion);
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestAxionPhotonConversion::TRestAxionPhotonConversion() : TRestMetadata() { Initialize(); }
-
-///////////////////////////////////////////////
-/// \brief Constructor loading data from a config file
-///
-/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
-/// the path to the config file must be specified using full path, absolute or
-/// relative.
-///
-/// The default behaviour is that the config file must be specified with
-/// full path, absolute or relative.
-///
-/// \param cfgFileName A const char* giving the path to an RML file.
-/// \param name The name of the specific metadata. It will be used to find the
-/// corresponding TRestG4Metadata section inside the RML.
-///
-TRestAxionPhotonConversion::TRestAxionPhotonConversion(const char* cfgFileName, string name)
-    : TRestMetadata(cfgFileName) {
-    cout << "Entering TRestAxionPhotonConversion constructor( cfgFileName, name )" << endl;
-
-    Initialize();
-
-    LoadConfigFromFile(fConfigFileName, name);
-
-    PrintMetadata();
-}
+TRestAxionPhotonConversion::TRestAxionPhotonConversion() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
@@ -92,15 +67,10 @@ TRestAxionPhotonConversion::~TRestAxionPhotonConversion() {}
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestAxionPhotonConversion class
 ///
-/// It will set the default real precision to be used with mpfr types. Now it is 100, not sure now if 100 is
-/// the number of digits, perhaps we can optimize this in future.
+/// It will set the default real precision to be used with mpfr types. Now it is 100, not sure if 100 is
+/// the number of digits, we need to optimize this in future.
 ///
-void TRestAxionPhotonConversion::Initialize() {
-    SetSectionName(this->ClassName());
-    SetLibraryVersion(LIBRARY_VERSION);
-
-    mpreal::set_default_prec(mpfr::digits2bits(100));
-}
+void TRestAxionPhotonConversion::Initialize() { mpreal::set_default_prec(mpfr::digits2bits(100)); }
 
 ///////////////////////////////////////////////
 /// \brief It updates the internal class members, used as calculation parameters, using the values given as
@@ -342,25 +312,3 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, T
     return sol;
 }
 
-///////////////////////////////////////////////
-/// \brief Initialization of TRestAxionPhotonConversion field members through a RML file
-///
-/// This class does not take any member value from RML. Parameters such as B,L,ma are updated through function
-/// arguments.
-///
-void TRestAxionPhotonConversion::InitFromConfigFile() { this->Initialize(); }
-
-///////////////////////////////////////////////
-/// \brief It prints out the last parameters used in the conversion probability calculations which will be
-/// also printed out.
-///
-void TRestAxionPhotonConversion::PrintMetadata() {
-    TRestMetadata::PrintMetadata();
-
-    metadata << " - Magnetic field : " << fBMag << " T" << endl;
-    metadata << " - Coherence length : " << fCohLength * REST_Units::cm << " cm" << endl;
-    metadata << " - Axion mass : " << fAxionMass << " eV" << endl;
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-
-    if (fBufferGas) fBufferGas->PrintMetadata();
-}

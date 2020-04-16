@@ -23,16 +23,12 @@
 #ifndef _TRestAxionPhotonConversion
 #define _TRestAxionPhotonConversion
 
-#include <TRestMetadata.h>
-
 #include "TRestAxionBufferGas.h"
 
-//! A metadata class to define analytical axion-photon conversion probabilities for axion helioscopes
-class TRestAxionPhotonConversion : public TRestMetadata {
+//! A basic class to define analytical axion-photon conversion calculations for axion helioscopes
+class TRestAxionPhotonConversion : public TObject {
    private:
     void Initialize();
-
-    void InitFromConfigFile();
 
     /// Axion mass in eV
     Double_t fAxionMass = 0;  //->
@@ -84,10 +80,7 @@ class TRestAxionPhotonConversion : public TRestMetadata {
 
     Double_t GammaTransmissionProbability(Double_t Ea, TVectorD B, Double_t ma = -1, Double_t Lcoh = -1);
 
-    void PrintMetadata();
-
     TRestAxionPhotonConversion();
-    TRestAxionPhotonConversion(const char* cfgFileName, std::string name = "");
     ~TRestAxionPhotonConversion();
 
     ClassDef(TRestAxionPhotonConversion, 1);
