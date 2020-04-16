@@ -737,6 +737,24 @@ TVector3 TRestAxionMagneticField::GetMagneticVolumeNode(MagneticFieldVolume mVol
 }
 
 ///////////////////////////////////////////////
+/// \brief It will return true if the magnetic the regions overlap
+///
+Bool_t TRestAxionMagneticField::CheckOverlaps() {
+    for (int n = 0; n < GetNumberOfVolumes(); n++) {
+        for (int m = n + 1; m < GetNumberOfVolumes(); m++) {
+            TVector3 b = GetMagneticVolume(m)->mesh.GetVertex(0);
+            TVector3 t = GetMagneticVolume(m)->mesh.GetVertex(1);
+            cout << "n : " << n << " m : " << m << endl;
+            t.Print();
+            b.Print();
+            if (GetMagneticVolume(n)->mesh.IsInside(b)) return true;
+            if (GetMagneticVolume(n)->mesh.IsInside(t)) return true;
+        }
+    }
+    return false;
+}
+
+///////////////////////////////////////////////
 /// \brief Finds the in/out particle trajectory boundaries for a particular magnetic region bounding box.
 ///
 /// This method checks if the trajectory defined by the position `pos` and direction `dir` passes through
@@ -744,7 +762,8 @@ TVector3 TRestAxionMagneticField::GetMagneticVolumeNode(MagneticFieldVolume mVol
 /// their coordinates are returned. In the example shown in Fig. 1 from TRestAxionFieldPropagationProcess
 /// these points are: IN 1 and OUT 1 for the region #1 and IN2 and OUT 2 for the region #2.
 ///
-/// If no intersection is found, or the particle is not moving towards the volume, the returned std::vector
+/// If no intersection is found, or the particle is not moving towards the volume, the returned
+/// std::vector
 /// will be empty.
 ///
 std::vector<TVector3> TRestAxionMagneticField::GetVolumeBoundaries(Int_t id, TVector3 pos, TVector3 dir) {

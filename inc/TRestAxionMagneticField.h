@@ -114,6 +114,8 @@ class TRestAxionMagneticField : public TRestMetadata {
     /// The number of magnetic volumes loaded into the object
     Int_t GetNumberOfVolumes() { return fPositions.size(); }
 
+    Bool_t CheckOverlaps();
+
     std::vector<TVector3> GetVolumeBoundaries(Int_t id, TVector3 pos, TVector3 dir);
     std::vector<TVector3> GetFieldBoundaries(Int_t id, TVector3 pos, TVector3 dir, Double_t precision = 0);
 
