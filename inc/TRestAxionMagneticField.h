@@ -58,6 +58,9 @@ class TRestAxionMagneticField : public TRestMetadata {
     /// The absolute position of each of the magnetic volumes defined in this class
     std::vector<TVector3> fPositions;  //<
 
+    /// A constant field component that will be added to the field map
+    std::vector<TVector3> fConstantField;  //<
+
     /// The size of a grid element from the mesh in mm
     std::vector<Double_t> fMeshSize;  //<
 
@@ -101,6 +104,12 @@ class TRestAxionMagneticField : public TRestMetadata {
 
    public:
     void LoadMagneticVolumes();
+
+    /// It returns true if no magnetic field map was loaded for that volume
+    Bool_t IsFieldConstant(Int_t id) {
+        if (GetMagneticVolume(id)) return GetMagneticVolume(id)->field.size() == 0;
+        return true;
+    }
 
     /// The number of magnetic volumes loaded into the object
     Int_t GetNumberOfVolumes() { return fPositions.size(); }

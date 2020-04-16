@@ -22,11 +22,11 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// TRestAxionMagneticField is a class that allows to load externally
-/// defined magnetic fields, and create magnetic volume regions using those
-/// pre-generated definitions. Once the field maps have been loaded this
-/// class will evaluate if a coordinate (x,y,z) is in a given magnetic
-/// region, and it will return a non-zero value of the magnetic field in
-/// case (x,y,z) is inside a magnetic region.
+/// defined magnetic fields, and create magnetic volume regions associated to
+/// those pre-generated definitions. Once the field maps have been loaded this
+/// class will be able to evaluate the field vector at any coordinate (x,y,z).
+/// If the coordinate (x,y,z) is ourside any defined region, the returned
+/// field will be (0,0,0).
 ///
 /// TODO Description of magnetic field interpolation
 ///
@@ -44,16 +44,30 @@
 ///
 /// where we produce 2 magnetic regions, using the same magnetic map provided
 /// in file `magnetic.file` and shifted by x=-30cm and x=30cm. The following
-/// parameters must be defined at each `addMagneticVolume` entry.
+/// parameters might be defined at each `addMagneticVolume` entry.
 ///
 /// - *file* : This allows to specify the filename that contains the values of the
 /// magnetic field. Few files will be found under `data/magneticField`. They all
 /// contain 3 columns for the position in the volume and 3 columns to define the
 /// magnetic field vector. It is not the full path but only the name of the file.
+/// The default value is "noField.dat".
 ///
 /// - *position* : By convention, the volume is build using the coordinates provided
 /// in the magnetic field file given. However, it is possible to translate the
-/// volume using the `position` field.
+/// volume using the `position` field. The default value is (0,0,0).
+///
+/// - *field* : A 3D vector given in magnetic field units. If no units are given
+/// the vector is assumed to be expressed in Teslas. This field will be added as an
+/// offset to the magnetic field map given. The default value is (0,0,0).
+///
+/// All parameteres are optional, and if not provided they will take their default
+/// values.
+///
+/// \note If no magnetic field map is provided we still need to provide a file
+/// defining the boundary box size and mesh size, such as the default file provided
+/// `data/magneticFile/noField.dat`. We can still define a constant magnetic field
+/// vector for that volume using the `field` parameter. In that case
+/// the method TRestMagneticField::IsFieldConstant will return true.
 ///
 /// ### Adding gas properties to each of the magnetic volumes.
 ///
@@ -71,13 +85,19 @@
 /// <TRestAxionMagneticField/>
 /// \endcode
 ///
+/// \note If no magnetic field map, neither a constant field is provided, this
+/// class might still serve to define different regions distributed in the space
+/// that describe different gas properties, even though the magnetic field will
+/// be equal to zero.
+///
 /// ### The magnetic field file format.
 ///
 /// For the moment, the file used for magnetic field description is written in
 /// plain-text format. The data file should describe a box delimited by the
 /// vertexes `(-xMax, -yMax, -zMax)` and `(xMax,yMax,zMax)`. The field `(Bx,By,Bz)`
 /// is given for all the points in a regular grid inside that box with a grid
-/// element given by `meshSize`.
+/// element given by `meshSize`, default units are `T` for the field and `mm` for
+/// distances.
 ///
 /// The first row in the file corresponds with the values of `xMax`, `yMax`,
 /// `zMax` and `meshSize`. The next rows provide the magnetic field vector
@@ -444,12 +464,14 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
 /// This method will be made private since it will only be used internally.
 ///
 void TRestAxionMagneticField::LoadMagneticVolumes() {
-    cout << "Calling load magnetic volumes" << endl;
     for (unsigned int n = 0; n < fPositions.size(); n++) {
         string fullPathName = SearchFile((string)fFileNames[n]);
 
         std::vector<std::vector<Double_t>> fieldData;
-        TRestTools::ReadASCIITable(fullPathName, fieldData);
+        if (!TRestTools::ReadASCIITable(fullPathName, fieldData)) {
+            ferr << "Problem reading file : " << fullPathName << endl;
+            exit(1);
+        }
 
         // First line are the limits of field and size of mesh
         Double_t xmax = fieldData[0][0];
@@ -457,7 +479,6 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         Double_t zmax = fieldData[0][2];
 
         Double_t sizeMesh = fieldData[0][3];
-        fMeshSize.push_back(sizeMesh);
 
         // We keep in the vector only the field data. We remove first row
         fieldData.erase(fieldData.begin());
@@ -471,8 +492,12 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
             cout << "xMax: " << xmax << " yMax: " << ymax << " zMax: " << zmax << endl;
             cout << "Mesh size : " << sizeMesh << endl;
 
-            cout << "Printing beginning of magnetic file table : " << fieldData.size() << endl;
-            TRestTools::PrintTable(fieldData, 0, 5);
+            if (fieldData.size() > 4) {
+                cout << "Printing beginning of magnetic file table : " << fieldData.size() << endl;
+                TRestTools::PrintTable(fieldData, 0, 5);
+            } else {
+                cout << "The data file constains no field map" << endl;
+            }
         }
 
         // Number of nodes
@@ -480,8 +505,11 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         Int_t ny = (Int_t)(2 * ymax / sizeMesh) + 1;
         Int_t nz = (Int_t)(2 * zmax / sizeMesh) + 1;
 
+        fMeshSize.push_back(sizeMesh);
+
         // We create an auxiliar mesh helping to initialize the fieldMap
         // The mesh is centered at zero. Absolute position is defined in the Magnetic volume
+        // TODO It would be interesting that TRestMesh could be used in cylindrical coordinates.
         TRestMesh restMesh;
         restMesh.SetSize(2 * xmax, 2 * ymax, 2 * zmax);
         restMesh.SetOrigin(TVector3(-xmax, -ymax, -zmax));
@@ -494,7 +522,7 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         if (mVolume.bGas == NULL) mVolume.bGas = new TRestAxionBufferGas();
         if (fGasMixtures[n] != "vacuum") mVolume.bGas->SetGasMixture(fGasMixtures[n], fGasDensities[n]);
 
-        LoadMagneticFieldData(mVolume, fieldData);
+        if (fieldData.size() > 0) LoadMagneticFieldData(mVolume, fieldData);
 
         fMagneticFieldVolumes.push_back(mVolume);
     }
@@ -514,6 +542,7 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
     Int_t id = GetVolumeIndex(pos);
 
     if (id >= 0) {
+        if (IsFieldConstant(id)) return fConstantField[id];
         TVector3 node = GetMagneticVolumeNode(fMagneticFieldVolumes[id], pos);
         Int_t nX = node.X();
         Int_t nY = node.Y();
@@ -522,7 +551,7 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
         // We just return the field at nX, nY, nZ.
         // Which is the bottom,left,down node.
         // We could interpolate here using the other nodes field nX+1,nY+1,nZ+1
-        return fMagneticFieldVolumes[id].field[nX][nY][nZ];
+        return fMagneticFieldVolumes[id].field[nX][nY][nZ] + fConstantField[id];
 
     } else {
         warning << "TRestAxionMagneticField::GetMagneticField position is outside any volume" << endl;
@@ -743,6 +772,8 @@ std::vector<TVector3> TRestAxionMagneticField::GetFieldBoundaries(Int_t id, TVec
     std::vector<TVector3> volumeBoundaries = GetVolumeBoundaries(id, pos, dir);
     if (volumeBoundaries.size() != 2) return volumeBoundaries;
 
+    if (IsFieldConstant(id)) return volumeBoundaries;
+
     MagneticFieldVolume* vol = GetMagneticVolume(id);
     if (!vol) return volumeBoundaries;
 
@@ -773,10 +804,22 @@ void TRestAxionMagneticField::InitFromConfigFile() {
     size_t pos = 0;
     while ((bVolume = GetKEYDefinition("addMagneticVolume", pos)) != "") {
         string filename = GetFieldValue("fileName", bVolume);
-        fFileNames.push_back(filename);
+        if (filename == "Not defined")
+            fFileNames.push_back("noField.dat");
+        else
+            fFileNames.push_back(filename);
 
         TVector3 position = Get3DVectorFieldValueWithUnits("position", bVolume);
-        fPositions.push_back(position);
+        if (position == TVector3(-1, -1, -1))
+            fPositions.push_back(TVector3(0, 0, 0));
+        else
+            fPositions.push_back(position);
+
+        TVector3 field = Get3DVectorFieldValueWithUnits("field", bVolume);
+        if (field == TVector3(-1, -1, -1))
+            fConstantField.push_back(TVector3(0, 0, 0));
+        else
+            fConstantField.push_back(field);
 
         TString gasMixture = GetFieldValue("gasMixture", bVolume);
         if (gasMixture == "Not defined") gasMixture = "vacuum";
@@ -785,6 +828,16 @@ void TRestAxionMagneticField::InitFromConfigFile() {
         TString gasDensity = GetFieldValue("gasDensity", bVolume);
         if (gasDensity == "Not defined") gasDensity = "0";
         fGasDensities.push_back(gasDensity);
+
+        debug << "Reading new magnetic volume" << endl;
+        debug << "-----" << endl;
+        debug << "Filename : " << filename << endl;
+        debug << "Position: ( " << position.X() << ", " << position.Y() << ", " << position.Z() << ") mm"
+              << endl;
+        debug << "Field: ( " << field.X() << ", " << field.Y() << ", " << field.Z() << ") T" << endl;
+        debug << "Gas mixture : " << gasMixture << endl;
+        debug << "Gas density : " << gasDensity << endl;
+        debug << "----" << endl;
     }
 
     LoadMagneticVolumes();
