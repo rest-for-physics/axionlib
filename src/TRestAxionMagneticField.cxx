@@ -159,7 +159,6 @@ TRestAxionMagneticField::TRestAxionMagneticField() : TRestMetadata() { Initializ
 ///
 TRestAxionMagneticField::TRestAxionMagneticField(const char* cfgFileName, string name)
     : TRestMetadata(cfgFileName) {
-    cout << "Constructor 2" << endl;
     debug << "Entering TRestAxionMagneticField constructor( cfgFileName, name )" << endl;
 
     Initialize();
@@ -742,11 +741,8 @@ TVector3 TRestAxionMagneticField::GetMagneticVolumeNode(MagneticFieldVolume mVol
 Bool_t TRestAxionMagneticField::CheckOverlaps() {
     for (int n = 0; n < GetNumberOfVolumes(); n++) {
         for (int m = n + 1; m < GetNumberOfVolumes(); m++) {
-            TVector3 b = GetMagneticVolume(m)->mesh.GetVertex(0);
-            TVector3 t = GetMagneticVolume(m)->mesh.GetVertex(1);
-            cout << "n : " << n << " m : " << m << endl;
-            t.Print();
-            b.Print();
+            TVector3 b = GetMagneticVolume(m)->mesh.GetVertex(0) - fPositions[m];
+            TVector3 t = GetMagneticVolume(m)->mesh.GetVertex(1) - fPositions[m];
             if (GetMagneticVolume(n)->mesh.IsInside(b)) return true;
             if (GetMagneticVolume(n)->mesh.IsInside(t)) return true;
         }
