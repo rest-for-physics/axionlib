@@ -73,40 +73,13 @@ TRestAxionPhotonConversion::~TRestAxionPhotonConversion() {}
 void TRestAxionPhotonConversion::Initialize() { mpreal::set_default_prec(mpfr::digits2bits(100)); }
 
 ///////////////////////////////////////////////
-/// \brief It updates the internal class members, used as calculation parameters, using the values given as
-/// argument.
-///
-/// If the value given by argument is -1, the argument variable will be updated with the internal data member
-/// values.
-///
-void TRestAxionPhotonConversion::UpdateParameters(Double_t& Bmag, Double_t& ma, Double_t& Lcoh) {
-    if (ma == -1)
-        ma = fAxionMass;
-    else
-        fAxionMass = ma;
-
-    if (Lcoh == -1)
-        Lcoh = fCohLength;
-    else
-        fCohLength = Lcoh;
-
-    if (Bmag == -1)
-        Bmag = fBMag;
-    else
-        fBMag = Bmag;
-
-    if (Lcoh == 0) warning << "TRestAxionPhotonConversion::GammaTransmissionProbability. Lcoh = 0" << endl;
-}
-
-///////////////////////////////////////////////
 /// \brief Performs the calculation of (BL) factor in natural units.
 ///
-double TRestAxionPhotonConversion::BL(Double_t Lcoh, Double_t Bmag)  // (BL/2)**2
-{
-    Double_t ma = -1;
-    UpdateParameters(Bmag, ma, Lcoh);
-
-    Double_t lengthInMeters = fCohLength / 1000.;
+/// `Lcoh` should be expressed in `mm`, and `Bmag` in `T`.
+/// The result will be given for an axion-photon coupling of 10^{-10} GeV^{-1}
+///
+double TRestAxionPhotonConversion::BL(Double_t Bmag, Double_t Lcoh) {
+    Double_t lengthInMeters = Lcoh / 1000.;
 
     Double_t tm = lightSpeed / naturalElectron * 1.0e-9;  // GeV
     Double_t sol = lengthInMeters * Bmag * tm;
@@ -118,12 +91,12 @@ double TRestAxionPhotonConversion::BL(Double_t Lcoh, Double_t Bmag)  // (BL/2)**
 ///////////////////////////////////////////////
 /// \brief Performs the calculation of (BL/2)^2 factor in natural units.
 ///
-double TRestAxionPhotonConversion::BLHalfSquared(Double_t Lcoh, Double_t Bmag)  // (BL/2)**2
+/// `Lcoh` should be expressed in `mm`, and `Bmag` in `T`.
+/// The result will be given for an axion-photon coupling of 10^{-10} GeV^{-1}
+///
+double TRestAxionPhotonConversion::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**2
 {
-    Double_t ma = -1;
-    UpdateParameters(Bmag, ma, Lcoh);
-
-    Double_t lengthInMeters = fCohLength / 1000.;
+    Double_t lengthInMeters = Lcoh / 1000.;
 
     Double_t tm = lightSpeed / naturalElectron * 1.0e-9;  // gev
     Double_t sol = lengthInMeters * Bmag * tm / 2;
@@ -136,29 +109,19 @@ double TRestAxionPhotonConversion::BLHalfSquared(Double_t Lcoh, Double_t Bmag)  
 /// \brief Performs the calculation of axion-photon conversion probability using directly the van Bibber
 /// relation.
 ///
-/// mgamma will be obtainned from buffer gas definition.
+/// m_gamma will be obtainned from buffer gas definition. If no buffer gas has been assigned the medium
+/// will be assumed to be vacuum.
 ///
-/// If ma, Lcoh, or Bmag = -1, the value will be taken from the class members definition.
-/// Otherwise, members of the class will be updated
-//
 /// Ea in keV, ma in eV, mgamma in eV, Lcoh in mm, Bmag in T
 ///
 Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, Double_t Bmag, Double_t ma,
                                                                   Double_t Lcoh) {
-    UpdateParameters(Bmag, ma, Lcoh);
-
-    mpreal axionMass = fAxionMass;
-    mpreal cohLength = fCohLength / 1000.;  // Default REST units are mm;
-    mpreal bMag = fBMag;
+    mpreal axionMass = ma;
+    mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
+    mpreal bMag = Bmag;
 
     mpreal photonMass = 0.;
-    if (!fBufferGas) {
-        warning << "TRestAxionPhotonConversion::GammaTransmissionProbability. No buffer gas definition found!"
-                << endl;
-        warning << "Assuming vacuum medium. mgamma = 0" << endl;
-    } else {
-        photonMass = fBufferGas->GetPhotonMass(Ea);
-    }
+    if (fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
 
     debug << "+--------------------------------------------------------------------------+" << endl;
     debug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary" << endl;
@@ -169,7 +132,7 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, D
     debug << " Bmag : " << Bmag << " T" << endl;
     debug << "+--------------------------------------------------------------------------+" << endl;
 
-    if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared();
+    if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(Bmag, Lcoh);
 
     mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
     mpreal l = cohLength * PhMeterIneV;
@@ -177,7 +140,6 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, D
 
     mpreal Gamma = 0.;
     if (fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
-
     mpreal GammaL = Gamma * cohLength * 100;
 
     debug << "+------------------------+" << endl;
@@ -193,11 +155,12 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, D
     MFactor = 1.0 / MFactor;
 
     debug << "Mfactor : " << MFactor << endl;
-    debug << "(BL/2)^2 : " << BLHalfSquared() << endl;
+    debug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << endl;
     debug << "cos(phi) : " << cos(phi) << endl;
     debug << "Exp(-GammaL) : " << exp(-GammaL) << endl;
 
-    double sol = (double)(MFactor * BLHalfSquared() * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
+    double sol =
+        (double)(MFactor * BLHalfSquared(Bmag, Lcoh) * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
 
     debug << "Axion-photon transmission probability : " << sol << endl;
 
@@ -214,11 +177,7 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, D
 ///
 Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, TVectorD B, Double_t ma,
                                                                   Double_t Lcoh) {
-    Double_t Bmag = -1;
-    UpdateParameters(Bmag, ma, Lcoh);
-
-    Double_t axionMass = fAxionMass;
-    Double_t cohLength = fCohLength / 1000.;  // Default REST units are mm;
+    Double_t cohLength = Lcoh / 1000.;  // Default REST units are mm;
     Double_t photonMass = 0.;
     if (!fBufferGas) {
         warning << "TRestAxionPhotonConversion::GammaTransmissionProbability. No buffer gas definition found!"

@@ -288,8 +288,10 @@ Double_t TRestAxionLikelihood::GetSignal(Double_t ma, Double_t g10_4, Double_t r
     Double_t dE = 0.01;
     for (Double_t en = fErange.X(); en < fErange.Y(); en = en + dE) {
         Double_t Phi_a = fAxionSolarModel->GetDifferentialSolarAxionFlux(en);
-        Double_t Pa_g = fPhotonConversion->GammaTransmissionProbability(en, fBmag, ma);
+        // TODO Needs to be readapted to the new TRestAxionPhotonConversion implementation
+        // Double_t Pa_g = fPhotonConversion->GammaTransmissionProbability(en, fBmag, ma);
 
+        Double_t Pa_g = 0;  // Just dummy 0 probability!!
         Double_t nGamma = Pa_g * Phi_a;
 
         signal += nGamma;
@@ -359,8 +361,9 @@ void TRestAxionLikelihood::InitFromConfigFile() {
     fRmag = GetDblParameterWithUnits("Rmag", 300);
     fLmag = GetDblParameterWithUnits("Lmag", 4500.);
 
-    fPhotonConversion->SetCoherenceLength(fLmag);
-    fPhotonConversion->SetMagneticField(fBmag);
+    /// This needs to be reviewed. TRestAxionPhotonConversion does not store those parameter anymore.
+    // fPhotonConversion->SetCoherenceLength(fLmag);
+    // fPhotonConversion->SetMagneticField(fBmag);
 
     fEfficiency = StringToDouble(GetParameter("efficiency", "1"));
 
