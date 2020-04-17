@@ -69,10 +69,7 @@ TRestAxionTransmissionProcess::TRestAxionTransmissionProcess(char* cfgFileName) 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionTransmissionProcess::~TRestAxionTransmissionProcess() {
-    delete fInputAxionEvent;
-    delete fOutputAxionEvent;
-}
+TRestAxionTransmissionProcess::~TRestAxionTransmissionProcess() { delete fAxionEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
@@ -103,28 +100,22 @@ void TRestAxionTransmissionProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fInputAxionEvent = new TRestAxionEvent();
-    fOutputAxionEvent = new TRestAxionEvent();
-
-    fInputEvent = fInputAxionEvent;
-    fOutputEvent = fOutputAxionEvent;
+    fAxionEvent = new TRestAxionEvent();
 }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
 TRestEvent* TRestAxionTransmissionProcess::ProcessEvent(TRestEvent* evInput) {
-    fInputAxionEvent = (TRestAxionEvent*)evInput;
-
-    *fOutputAxionEvent = *fInputAxionEvent;
+    fAxionEvent = (TRestAxionEvent*)evInput;
 
     if (GetVerboseLevel() >= REST_Debug) {
-        fOutputAxionEvent->PrintEvent();
+        fAxionEvent->PrintEvent();
 
         if (GetVerboseLevel() >= REST_Extreme) GetChar();
     }
 
-    return fOutputEvent;
+    return fAxionEvent;
 }
 
 ///////////////////////////////////////////////

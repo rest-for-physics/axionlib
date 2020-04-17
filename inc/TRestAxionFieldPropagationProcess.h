@@ -41,8 +41,7 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
     void LoadDefaultConfig();
 
     /// A pointer to the specific TRestAxionEvent
-    TRestAxionEvent* fInputAxionEvent;   //!
-    TRestAxionEvent* fOutputAxionEvent;  //!
+    TRestAxionEvent* fAxionEvent;  //!
 
     /// A pointer to the magnetic field stored in TRestRun
     TRestAxionMagneticField* fAxionMagneticField;  //!
@@ -53,7 +52,7 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
     /// A pointer for the gamma conversion probability
     TRestAxionBufferGas* fAxionBufferGas;  //!
 
-    /// Variables for the OutputAxionEvent position
+    /// Variables for the output AxionEvent position
     TString fMode;
     TVector3 fFinalNormalPlan;
     TVector3 fFinalPositionPlan;
@@ -62,6 +61,9 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
    protected:
    public:
     void InitProcess();
+
+    any GetInputEvent() { return fAxionEvent; }
+    any GetOutputEvent() { return fAxionEvent; }
 
     TRestEvent* ProcessEvent(TRestEvent* evInput);
 
@@ -74,9 +76,6 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
         EndPrintProcess();
     }
 
-    // Methods used in FindFieldBoundaries method
-    TVector3 MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a);
-    TVector3 MoveToPlan(TVector3 pos, TVector3 dir, Double_t f, Int_t i);
     bool IsInBoundedPlan(TVector3 pos, Int_t i, Int_t p);
     std::vector<TVector3> InOut(std::vector<TVector3> bounds, TVector3 dir);
     std::vector<TVector3> FindBoundariesOneVolume(TVector3 pos, TVector3 dir, Int_t p);
@@ -87,10 +86,10 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
 
     // TVectorD GetFieldVector(TVector3 in, TVector3 out, Int_t N = 0);
 
-    /// Returns the final position of the OutputAxionEvent after a fixed distance or in a fixed plan
-    TVector3 FinalPositionInPlan(TVector3 pos, TVector3 dir, TVector3 normalPlan, TVector3 pointPlan);
-    TVector3 MoveToFinalDistance(TVector3 pos, TVector3 dir, Double_t distance);
-    TVector3 MoveByDistance(TVector3 pos, TVector3 dir, Double_t d);
+    // Obsolete
+    // TVector3 MoveToFinalDistance(TVector3 pos, TVector3 dir, Double_t distance);
+    // TVector3 MoveToPlan(TVector3 pos, TVector3 dir, Double_t f, Int_t i);
+    // TVector3 FinalPositionInPlan(TVector3 pos, TVector3 dir, TVector3 normalPlan, TVector3 pointPlan);
 
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestAxionFieldPropagationProcess; }

@@ -27,12 +27,10 @@
 #include "TRestEventProcess.h"
 
 //! A process to introduce the response from optics in the axion signal generation chain
-class TRestAxionOpticsResponseProcess:public TRestEventProcess {
-private:
-
+class TRestAxionOpticsResponseProcess : public TRestEventProcess {
+   private:
     /// A pointer to the specific TRestAxionEvent
-    TRestAxionEvent *fInputAxionEvent; //!
-    TRestAxionEvent *fOutputAxionEvent; //!
+    TRestAxionEvent* fAxionEvent;  //!
 
     void InitFromConfigFile();
 
@@ -40,33 +38,33 @@ private:
 
     void LoadDefaultConfig();
 
-protected:
+   protected:
+   public:
+    TRestEvent* ProcessEvent(TRestEvent* evInput);
 
-public:
+    any GetInputEvent() { return fAxionEvent; }
+    any GetOutputEvent() { return fAxionEvent; }
 
-    TRestEvent *ProcessEvent( TRestEvent *evInput );
-
-    void LoadConfig( std::string cfgFilename, std::string name = "" );
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata()
-        {
-            BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-            EndPrintProcess();
-        }
+        EndPrintProcess();
+    }
 
     /// Returns a new instance of this class
-    TRestEventProcess *Maker() { return new TRestAxionOpticsResponseProcess; }
+    TRestEventProcess* Maker() { return new TRestAxionOpticsResponseProcess; }
 
     /// Returns the name of this process
     TString GetProcessName() { return (TString) "axionOpticsResponse"; }
 
-    //Constructor
+    // Constructor
     TRestAxionOpticsResponseProcess();
-    TRestAxionOpticsResponseProcess( char *cfgFileName );
+    TRestAxionOpticsResponseProcess(char* cfgFileName);
 
-    //Destructor
+    // Destructor
     ~TRestAxionOpticsResponseProcess();
 
     ClassDef(TRestAxionOpticsResponseProcess, 1);

@@ -28,11 +28,9 @@
 
 //! A template process to serve as a copy/paste for creating new TRestAxion___Process
 class TRestAxionTemplateProcess : public TRestEventProcess {
-private:
-
+   private:
     /// A pointer to the specific TRestAxionEvent
-    TRestAxionEvent *fInputAxionEvent; //!
-    TRestAxionEvent *fOutputAxionEvent; //!
+    TRestAxionEvent* fAxionEvent;  //!
 
     void InitFromConfigFile();
 
@@ -40,33 +38,33 @@ private:
 
     void LoadDefaultConfig();
 
-protected:
+   protected:
+   public:
+    TRestEvent* ProcessEvent(TRestEvent* evInput);
 
-public:
+    any GetInputEvent() { return fAxionEvent; }
+    any GetOutputEvent() { return fAxionEvent; }
 
-    TRestEvent *ProcessEvent( TRestEvent *evInput );
-
-    void LoadConfig( std::string cfgFilename, std::string name = "" );
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata()
-        {
-            BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-            EndPrintProcess();
-        }
+        EndPrintProcess();
+    }
 
     /// Returns a new instance of this class
-    TRestEventProcess *Maker() { return new TRestAxionTemplateProcess; }
+    TRestEventProcess* Maker() { return new TRestAxionTemplateProcess; }
 
     /// Returns the name of this process
     TString GetProcessName() { return (TString) "axionTemplate"; }
 
-    //Constructor
+    // Constructor
     TRestAxionTemplateProcess();
-    TRestAxionTemplateProcess( char *cfgFileName );
+    TRestAxionTemplateProcess(char* cfgFileName);
 
-    //Destructor
+    // Destructor
     ~TRestAxionTemplateProcess();
 
     ClassDef(TRestAxionTemplateProcess, 1);

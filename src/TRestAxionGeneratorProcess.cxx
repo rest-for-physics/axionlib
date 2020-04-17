@@ -103,9 +103,6 @@ void TRestAxionGeneratorProcess::Initialize() {
 
     fIsExternal = true;
 
-    fInputEvent = NULL;
-    fOutputEvent = fOutputAxionEvent;
-
     fRandom = new TRandom3(0);
 }
 
@@ -260,6 +257,8 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
 /// \brief The main processing event function
 ///
 TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
+    fOutputAxionEvent = (TRestAxionEvent*)evInput;
+
     debug << "TRestAxionGeneratorProcess::ProcessEvent : " << fCounter << endl;
     fOutputAxionEvent->SetID(fCounter);
     fCounter++;

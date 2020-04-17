@@ -32,53 +32,52 @@
 
 //! A process to generate axions following a particular solar axion model
 class TRestAxionGeneratorProcess : public TRestEventProcess {
-private:
-
+   private:
     /// A pointer to the specific TRestAxionEvent output
-    TRestAxionEvent *fOutputAxionEvent; //!
+    TRestAxionEvent* fOutputAxionEvent;  //!
 
     /// Used internally to define the event id
-    Int_t fCounter = 0; //!
+    Int_t fCounter = 0;  //!
 
     /// A pointer to the axion model stored in TRestRun
-    TRestAxionSolarModel *fAxionSolarModel; //!
+    TRestAxionSolarModel* fAxionSolarModel;  //!
 
     /// Random number generator
-    TRandom3 *fRandom; //!
+    TRandom3* fRandom;  //!
 
     /// The solar energy range
-    TVector2 fEnergyRange; //->
+    TVector2 fEnergyRange;  //->
 
     /// Energy step
-    Double_t fEnergyStep; //->
+    Double_t fEnergyStep;  //->
 
     /// Axion mass
-    Double_t fAxionMass; //->
+    Double_t fAxionMass;  //->
 
     /// The angular distribution generator type
-    TString fAngularDistribution; //->
+    TString fAngularDistribution;  //->
 
     /// The main direction of the angular distribution
-    TVector3 fAngularDirection; //->
+    TVector3 fAngularDirection;  //->
 
     /// The spatial distribution generator type
-    TString fSpatialDistribution; //->
+    TString fSpatialDistribution;  //->
 
     /// The spatial distribution generator type
-    Double_t fSpatialRadius; //->
+    Double_t fSpatialRadius;  //->
 
     /// The spatial origin from the spatial distribution
-    TVector3 fSpatialOrigin; //->
-    
-    /// Rotation vector (according to x,y,z) for the circle wall defined from the plan (X,Y) - insead of rotating magnet Volumes
-    TVector3 fRotation; //->
+    TVector3 fSpatialOrigin;  //->
+
+    /// Rotation vector (according to x,y,z) for the circle wall defined from the plan (X,Y) - insead of
+    /// rotating magnet Volumes
+    TVector3 fRotation;  //->
 
     /// The normal vector of the wall (other way to do a rotation)
-    TVector3 fNormalPlan; //->
+    TVector3 fNormalPlan;  //->
 
     /// Mode of rotated circle Wall construction
-    TString fMode; //->
-
+    TString fMode;  //->
 
     void InitFromConfigFile();
 
@@ -86,55 +85,58 @@ private:
 
     void LoadDefaultConfig();
 
-    Double_t GenerateEnergy( );
-    TVector3 GeneratePosition( );
-    TVector3 GenerateDirection( );
+    Double_t GenerateEnergy();
+    TVector3 GeneratePosition();
+    TVector3 GenerateDirection();
 
-protected:
-
-public:
+   protected:
+   public:
     void InitProcess();
 
-    TRestEvent *ProcessEvent( TRestEvent *eventInput );
+    any GetInputEvent() { return (TRestEvent*)NULL; }
+    any GetOutputEvent() { return fOutputAxionEvent; }
 
-    void LoadConfig( std::string cfgFilename, std::string name = "" );
+    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata()
-        {
-            BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-	    metadata << "Energy distribution" << endl;
-	    metadata << "---------------------" << endl;
-	    metadata << "Energy range : (" << fEnergyRange.X() << ", " << fEnergyRange.Y() << ") keV" << endl;
-	    metadata << "Energy step : " << fEnergyStep << " keV" << endl;
-	    metadata << " " << endl;
+        metadata << "Energy distribution" << endl;
+        metadata << "---------------------" << endl;
+        metadata << "Energy range : (" << fEnergyRange.X() << ", " << fEnergyRange.Y() << ") keV" << endl;
+        metadata << "Energy step : " << fEnergyStep << " keV" << endl;
+        metadata << " " << endl;
 
-	    metadata << "Angular distribution" << endl;
-	    metadata << "----------------------" << endl;
-	    metadata << "Type : " << fAngularDistribution << endl;
-	    metadata << "Main direction : (" << fAngularDirection.X() << "," << fAngularDirection.Y() << "," << fAngularDirection.Z() << ")" << endl;
-	    metadata << " " << endl;
-	    metadata << "Spatial distribution" << endl;
-	    metadata << "----------------------" << endl;
-	    metadata << "Type : " << fSpatialDistribution << endl;
-	    metadata << "Radius : " << fSpatialRadius << " mm" << endl;
-	    metadata << "Origin : (" << fSpatialOrigin.X() << "," << fSpatialOrigin.Y() << "," << fSpatialOrigin.Z() << ")" << endl;
+        metadata << "Angular distribution" << endl;
+        metadata << "----------------------" << endl;
+        metadata << "Type : " << fAngularDistribution << endl;
+        metadata << "Main direction : (" << fAngularDirection.X() << "," << fAngularDirection.Y() << ","
+                 << fAngularDirection.Z() << ")" << endl;
+        metadata << " " << endl;
+        metadata << "Spatial distribution" << endl;
+        metadata << "----------------------" << endl;
+        metadata << "Type : " << fSpatialDistribution << endl;
+        metadata << "Radius : " << fSpatialRadius << " mm" << endl;
+        metadata << "Origin : (" << fSpatialOrigin.X() << "," << fSpatialOrigin.Y() << ","
+                 << fSpatialOrigin.Z() << ")" << endl;
 
-            EndPrintProcess();
-        }
+        EndPrintProcess();
+    }
 
     /// Returns a new instance of this class
-    TRestEventProcess *Maker() { return new TRestAxionGeneratorProcess; }
+    TRestEventProcess* Maker() { return new TRestAxionGeneratorProcess; }
 
     /// Returns the name of this process
     TString GetProcessName() { return (TString) "axionGenerator"; }
 
-    //Constructor
+    // Constructor
     TRestAxionGeneratorProcess();
-    TRestAxionGeneratorProcess( char *cfgFileName );
+    TRestAxionGeneratorProcess(char* cfgFileName);
 
-    //Destructor
+    // Destructor
     ~TRestAxionGeneratorProcess();
 
     ClassDef(TRestAxionGeneratorProcess, 1);
