@@ -26,7 +26,7 @@
 #include "TRestAxionEvent.h"
 #include "TRestEventProcess.h"
 
-#include "TRestAxionSolarModel.h"
+#include "TRestAxionSpectrum.h"
 
 #include "TRandom3.h"
 
@@ -41,7 +41,7 @@ private:
     Int_t fCounter = 0; //!
 
     /// A pointer to the axion model stored in TRestRun
-    TRestAxionSolarModel *fAxionSolarModel; //!
+    TRestAxionSpectrum *fAxionSpectrum; //!
 
     /// Random number generator
     TRandom3 *fRandom; //!
@@ -69,7 +69,7 @@ private:
 
     /// The spatial origin from the spatial distribution
     TVector3 fSpatialOrigin; //->
-    
+
     /// Rotation vector (according to x,y,z) for the circle wall defined from the plan (X,Y) - insead of rotating magnet Volumes
     TVector3 fRotation; //->
 

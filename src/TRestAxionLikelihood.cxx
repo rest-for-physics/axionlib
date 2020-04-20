@@ -89,7 +89,7 @@ void TRestAxionLikelihood::Initialize() {
     fPhotonConversion->AssignBufferGas(fBufferGas);
 
     // Solar axion flux on earth
-    fAxionSolarModel = new TRestAxionSolarModel(fConfigFileName.c_str());
+    fAxionSpectrum = new TRestAxionSpectrum(fConfigFileName.c_str());
 
     fRandom = new TRandom3(0);
 }
@@ -287,7 +287,7 @@ Double_t TRestAxionLikelihood::GetSignal(Double_t ma, Double_t g10_4, Double_t r
     Double_t signal = 0;
     Double_t dE = 0.01;
     for (Double_t en = fErange.X(); en < fErange.Y(); en = en + dE) {
-        Double_t Phi_a = fAxionSolarModel->GetDifferentialSolarAxionFlux(en);
+        Double_t Phi_a = fAxionSpectrum->GetDifferentialSolarAxionFlux(en);
         Double_t Pa_g = fPhotonConversion->GammaTransmissionProbability(en, fBmag, ma);
 
         Double_t nGamma = Pa_g * Phi_a;

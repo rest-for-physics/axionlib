@@ -112,9 +112,9 @@ void TRestAxionGeneratorProcess::Initialize() {
 void TRestAxionGeneratorProcess::InitProcess() {
     debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
 
-    fAxionSolarModel = (TRestAxionSolarModel*)this->GetMetadata("TRestAxionSolarModel");
+    fAxionSpectrum = (TRestAxionSpectrum*)this->GetMetadata("TRestAxionSpectrum");
 
-    if (!fAxionSolarModel) {
+    if (!fAxionSpectrum) {
         ferr << "TRestAxionGeneratorProcess. Axion model was not defined!" << endl;
         exit(0);
     }
@@ -126,13 +126,13 @@ void TRestAxionGeneratorProcess::InitProcess() {
 Double_t TRestAxionGeneratorProcess::GenerateEnergy() {
     debug << "Entering TRestAxionGeneratorProcess::GenerateEnergy() ..." << endl;
     Double_t solarFlux =
-        fAxionSolarModel->GetSolarAxionFlux(fEnergyRange.X(), fEnergyRange.Y(), 1., fEnergyStep);
+        fAxionSpectrum->GetSolarAxionFlux(fEnergyRange.X(), fEnergyRange.Y(), fEnergyStep);
 
     Double_t random = solarFlux * fRandom->Uniform(0, 1.0);
 
     Double_t sum = 0;
     for (double en = fEnergyRange.X(); en < fEnergyRange.Y(); en += fEnergyStep) {
-        sum += fAxionSolarModel->GetDifferentialSolarAxionFlux(en, 1.0) * fEnergyStep;
+        sum += fAxionSpectrum->GetDifferentialSolarAxionFlux(en) * fEnergyStep;
 
         if (random < sum) {
             debug << "TRestAxionGeneratorProcess::GenerateEnergy. Energy = " << en << endl;
@@ -293,4 +293,3 @@ void TRestAxionGeneratorProcess::InitFromConfigFile() {
     fNormalPlan = Get3DVectorParameterWithUnits("normalWall");
     fMode = GetParameter("mode");
 }
-

@@ -1,6 +1,7 @@
 #----------------------------------------------------------------------------
 # Setup the project
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
+include(ExternalProject)
 set(CMAKE_MACOSX_RPATH 1)
 
 ## --------------------------------------------------------------------------
@@ -41,6 +42,39 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 #    message(STATUS "To enable Garfield features and link Garfield libraries run cmake adding : -DREST_GARFIELD=ON")
 #endif ()
 
+#-------------------------------------------------------------------------------------------------------
+# Clone/download the SolarAxionFlux library
+set(SOLAXFLUX_DIR "${PROJECT_SOURCE_DIR}/ext/solaraxionflux")
+if(EXISTS $ENV{SOLAXFLUX_ROOT}/lib/libaxionflux.so)
+  message("-- External solar axion flux library found: $ENV{SOLAXFLUX_ROOT}/lib/libaxionflux.so")
+  set(SOLAXFLUX_DIR $ENV{SOLAXFLUX_ROOT})
+else()
+  if(DEFINED ENV{SOLAXFLUX_ROOT})
+    message("-- SOLAXFLUX_ROOT defined but solar axion flux library does NOT exist in $ENV{SOLAXFLUX_ROOT}/lib...")
+  endif()
+  message("-- NO appropriate solar axion flux library was found! It will be downloaded and installed when installing this library...")
+  ExternalProject_Add(solaxflux
+                      SOURCE_DIR ${SOLAXFLUX_DIR}
+                      GIT_REPOSITORY https://github.com/sebhoof/SolarAxionFlux
+                      GIT_TAG master
+                      GIT_PROGRESS ON
+                      GIT_SHALLOW ON
+                      GIT_SUBMODULES ""
+                      GIT_CONFIG advice.detachedHead=False
+                      CMAKE_CACHE_ARGS "-DPYTHON_SUPPORT:STRING=OFF;-DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}"
+                      INSTALL_COMMAND ""
+                      COMMAND ${CMAKE_COMMAND} -E rm -rf ${PROJECT_SOURCE_DIR}/data/opacity_tables
+                      COMMAND ${CMAKE_COMMAND} -E rm -f ${PROJECT_SOURCE_DIR}/data/solarModel/SolarModel_B16-AGSS09.dat
+                      COMMAND ${CMAKE_COMMAND} -E rm -f ${PROJECT_SOURCE_DIR}/data/solarModel/alpha_B16-AGSS09.dat
+                      COMMAND ${CMAKE_COMMAND} -E create_symlink ${SOLAXFLUX_DIR}/data/opacity_tables ${PROJECT_SOURCE_DIR}/data/opacity_tables
+                      COMMAND ${CMAKE_COMMAND} -E create_symlink ${SOLAXFLUX_DIR}/data/SolarModel_B16-AGSS09.dat ${PROJECT_SOURCE_DIR}/data/solarModel/SolarModel_B16-AGSS09.dat
+                      COMMAND ${CMAKE_COMMAND} -E create_symlink ${SOLAXFLUX_DIR}/data/alpha_B16-AGSS09.dat ${PROJECT_SOURCE_DIR}/data/alpha_B16-AGSS09.dat)
+endif()
+set(incdir ${incdir} ${SOLAXFLUX_DIR}/include)
+set(lnklib ${lnklib} -L/${SOLAXFLUX_DIR}/lib/ -laxionflux)
+
+#-------------------------------------------------------------------------------------------------------
+
 # find REST
 IF(NOT DEFINED REST_PATH)
 	IF(DEFINED ENV{REST_PATH})
@@ -64,15 +98,15 @@ include(MacroRootDict)
 #----------------------------------------------------------------------------
 # Set include and lib
 if(DEFINED rest_include_dirs)
-    set(incdir ${PROJECT_SOURCE_DIR}/inc ${ROOT_INCLUDE_DIRS} ${rest_include_dirs} /usr/local/include)
+    set(incdir ${incdir} ${PROJECT_SOURCE_DIR}/inc ${ROOT_INCLUDE_DIRS} ${rest_include_dirs} /usr/local/include)
 else()
-    set(incdir ${PROJECT_SOURCE_DIR}/inc ${ROOT_INCLUDE_DIRS} ${REST_PATH}/include /usr/local/include)
+    set(incdir ${incdir} ${PROJECT_SOURCE_DIR}/inc ${ROOT_INCLUDE_DIRS} ${REST_PATH}/include /usr/local/include)
 endif()
 
 if(DEFINED rest_libraries)
-    set(lnklib ${rest_libraries} ${ROOT_LIBRARIES} -L/usr/local/lib -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lmpfr ${external_libs})
+    set(lnklib ${lnklib} ${rest_libraries} ${ROOT_LIBRARIES} -L/usr/local/lib -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lmpfr ${external_libs})
 else()
-    set(lnklib -L/usr/local/lib -L${REST_PATH}/lib/ -lRestTools -lRestCore -lRestEvents -lRestMetadata ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lmpfr ${external_libs})
+    set(lnklib ${lnklib} -L/usr/local/lib -L${REST_PATH}/lib/ -lRestTools -lRestCore -lRestEvents -lRestMetadata ${ROOT_LIBRARIES} -lGui -lEve -lRGL -lGeom -lGdml -lMinuit -lmpfr ${external_libs})
 message( "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n
           After \"make install\" this package will add additional library in ${REST_PATH}/lib\n\n
           This will take effect in the next launch of restManager/restRoot
