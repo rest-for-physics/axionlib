@@ -34,7 +34,8 @@
 #include "TRestAxionBufferGas.h"
 #include "TRestMesh.h"
 
-/// A structure to define the properties and store the field data of a single magnetic volume
+/// A structure to define the properties and store the field data of a single magnetic volume inside
+/// TRestAxionMagneticField
 struct MagneticFieldVolume {
     /// Offset position applied to the volume
     TVector3 position;
@@ -49,7 +50,7 @@ struct MagneticFieldVolume {
     TRestAxionBufferGas* bGas = NULL;
 };
 
-/// A class to load magnetic field maps and provide an evaluate the field including interpolation.
+/// A class to load magnetic field maps and evaluate the field on those maps including interpolation.
 class TRestAxionMagneticField : public TRestMetadata {
    private:
     /// The name of the filenames containing the field data
