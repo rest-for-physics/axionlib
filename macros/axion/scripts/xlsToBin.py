@@ -120,13 +120,14 @@ for x in xyzBdata:
         print  x[0:6]
         print  y[0:6]
     # The original file was only missing the z-axis, when we change the sign of z-axis we must change the sign of Bz.
-    y[2] = -y[2]
-    y[5] = -y[5]
-    count = count + 1
-    fbin.write(struct.pack('<%df' % len(y), *y))
-    if( count < 6 ):
-        print len(y)
-        print  x[0:6]
-        print  y[0:6]
+    if y[2] > 0:
+        y[2] = -y[2]
+        y[5] = -y[5]
+        count = count + 1
+        fbin.write(struct.pack('<%df' % len(y), *y))
+        if( count < 6 ):
+            print len(y)
+            print  x[0:6]
+            print  y[0:6]
 fbin.close()
 print "Lines writen : " + str(count)
