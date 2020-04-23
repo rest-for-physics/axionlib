@@ -63,7 +63,7 @@ class TRestAxionMagneticField : public TRestMetadata {
     std::vector<TVector3> fConstantField;  //<
 
     /// The size of a grid element from the mesh in mm
-    std::vector<Double_t> fMeshSize;  //<
+    std::vector<TVector3> fMeshSize;  //<
 
     /// The gas mixture components that define the medium in each magnetic volume
     std::vector<TString> fGasMixtures;  //<
@@ -73,6 +73,9 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     /// A magnetic field volume structure to store field data and mesh.
     std::vector<MagneticFieldVolume> fMagneticFieldVolumes;  //!
+
+    /// A vector to store the maximum bounding box values
+    std::vector<TVector3> fBoundMax;  //!
 
     /// A helper histogram to plot the field
     TH2D* fHisto;  //!
@@ -84,7 +87,7 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     void InitFromConfigFile();
 
-    void LoadMagneticFieldData(MagneticFieldVolume& mVol, std::vector<std::vector<Double_t>> data);
+    void LoadMagneticFieldData(MagneticFieldVolume& mVol, std::vector<std::vector<Float_t>> data);
 
     TVector3 GetMagneticVolumeNode(MagneticFieldVolume mVol, TVector3 pos);
 
