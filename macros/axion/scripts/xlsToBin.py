@@ -14,7 +14,8 @@ from pandas import DataFrame, read_csv
 import matplotlib.pyplot as plt
 import pandas as pd 
 
-# Field map is provided only for the top magnetic bore. We will recenter the field map.
+# Field map is provided only for the top magnetic bore. We will recenter the field map. 
+# Since this is a condition for TRestAxionMagneticField.
 xCenter = 0
 yCenter = 0
 zCenter = 0.7975
@@ -103,20 +104,29 @@ fbin = open('output.bin', 'wb')
 count = 0
 for x in xyzBdata:
     # We recenter the volume and redefine axis (x becomes z, y becomes x and z becomes y)
-    y = [x[1]-yCenter,x[2]-zCenter,x[0]-xCenter,x[4],x[5],x[3]]
+    # XLS file distances are expressed in m. We translate to mm.
+    y = [1000*(x[1]-yCenter),1000*(x[2]-zCenter),1000*(x[0]-xCenter),x[4],x[5],x[3]]
 
     # Baby-IAXO is symmetric respect to z (direction along axis) and x (direction parallel to the ground).
     # I.e. x and y in the previous axis definition.
     # The y-axis symmetry (in the new axis definition) affects the second bore that is not described in this map.
-    # Therefore, we register everything in the binary file for y-axis, while for x and z we register 
-    # only positive values to apply later on the corresponding symmetry.
-    #
-    if y[0] >= 0 and y[2] >= 0:
-        count = count + 1
-        fbin.write(struct.pack('<%df' % len(y), *y))
-        if( count < 6 ):
-            print len(y)
-            print  x[0:6]
-            print  y[0:6]
+    # We apply the corresponding symmetries to define the full map of one magnetic bore in the output binary file.
+
+    
+    count = count + 1
+    fbin.write(struct.pack('<%df' % len(y), *y))
+    if( count < 6 ):
+        print len(y)
+        print  x[0:6]
+        print  y[0:6]
+    # The original file was only missing the z-axis, when we change the sign of z-axis we must change the sign of Bz.
+    y[2] = -y[2]
+    y[5] = -y[5]
+    count = count + 1
+    fbin.write(struct.pack('<%df' % len(y), *y))
+    if( count < 6 ):
+        print len(y)
+        print  x[0:6]
+        print  y[0:6]
 fbin.close()
 print "Lines writen : " + str(count)
