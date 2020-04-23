@@ -569,6 +569,7 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
                             << endl;
                 }
             }
+            fBoundMax[n] = TVector3(xMax, yMax, zMax);
 
             debug << "Reading mesh size" << endl;
             meshSizeX = TRestTools::GetLowestIncreaseFromTable(fieldData, 0);
@@ -585,6 +586,7 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
                             << endl;
                 }
             }
+            fMeshSize[n] = TVector3(meshSizeX, meshSizeY, meshSizeZ);
         }
 
         if (GetVerboseLevel() >= REST_Debug) {
@@ -633,6 +635,15 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
 
         if (fieldData.size() > 0) LoadMagneticFieldData(mVolume, fieldData);
 
+        if (fBoundMax[n] == TVector3(0, 0, 0)) {
+            ferr << "The bounding box was not defined for volume " << n << "!" << endl;
+            ferr << "Please review RML configuration for TRestAxionMagneticField" << endl;
+            exit(22);
+        } else if (fMeshSize[n] == TVector3(0, 0, 0)) {
+            ferr << "The mesh grid size was not defined for volume " << n << "!" << endl;
+            ferr << "Please review RML configuration for TRestAxionMagneticField" << endl;
+            exit(22);
+        }
         fMagneticFieldVolumes.push_back(mVolume);
     }
 
