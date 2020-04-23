@@ -2,6 +2,21 @@
 
 A REST library used to generate solar axions and obtain the detection probability function. The library allows to define a generic helioscope setup - buffer gas, magnetic field, optics response, photon transmission - through REST metadata structures.
 
+### Retrieving RestAxionLib with sub-modules
+
+The data directory inside RestAxionLib is an idependent projec repository installed as a submodule. In order to download the RestAxionLib project, and all the sub-modules we need to clone using the following.
+
+```
+git clone --recursive git@lfna.unizar.es:iaxo/RestAxionLib.git
+```
+
+If `--recursive` is not used the directory `/data` will not be populated. The `data` repository will not be updated as often as the code repository, but to make sure we get the latest data we should pull the code using the following command.
+
+```
+git pull --recurse-submodules
+```
+
+
 ### Prerequisites
 
 As any REST library, RestAxionLib requires a running installion of REST Framework. But on top of that, some calculations require higher precision arithmetics and we need to use a external library named `mpfr`. 
