@@ -16,6 +16,12 @@ If `--recursive` is not used the directory `/data` will not be populated. The `d
 git pull --recurse-submodules
 ```
 
+If the repository was cloned without `--recursive` option, then it is possible to download the modules later using
+
+```
+git submodule update --init --recursive
+```
+
 
 ### Prerequisites
 
