@@ -1,0 +1,3 @@
+[submodule "data"]
+	path = data
+	url = git@lfna.unizar.es:iaxo/restaxionlib-data.git
