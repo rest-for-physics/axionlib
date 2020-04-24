@@ -663,27 +663,101 @@ TVector3 TRestAxionMagneticField::GetMagneticField(Double_t x, Double_t y, Doubl
 }
 
 ///////////////////////////////////////////////
-/// \brief It returns the magnetic field vector at TVector3(pos)
+/// \brief It returns the magnetic field vector at TVector3(pos) using trilinear interpolation
+/// that is implemented following instructions given at https://en.wikipedia.org/wiki/Trilinear_interpolation
 ///
 TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
     Int_t id = GetVolumeIndex(pos);
+    TVector3 relativePosition = pos - fMagneticFieldVolumes[id].position;
+    
 
-    if (id >= 0) {
+    if (id < 0) {
+        warning << "TRestAxionMagneticField::GetMagneticField position is outside any volume" << endl;
+        return TVector3(0, 0, 0);
+    } else {
         if (IsFieldConstant(id)) return fConstantField[id];
         TVector3 node = GetMagneticVolumeNode(fMagneticFieldVolumes[id], pos);
         Int_t nX = node.X();
         Int_t nY = node.Y();
         Int_t nZ = node.Z();
-
-        // We just return the field at nX, nY, nZ.
-        // Which is the bottom,left,down node.
-        // We could interpolate here using the other nodes field nX+1,nY+1,nZ+1
-        return fMagneticFieldVolumes[id].field[nX][nY][nZ] + fConstantField[id];
-
-    } else {
-        warning << "TRestAxionMagneticField::GetMagneticField position is outside any volume" << endl;
+        
+        Int_t nX_1, nY_1, nZ_1;
+        
+        if ((nX + 1) < fMagneticFieldVolumes[id].mesh.GetNodesX()) nX_1 = nX + 1;
+            else nX_1 = nX;
+        if ((nY + 1) < fMagneticFieldVolumes[id].mesh.GetNodesY()) nY_1 = nY + 1;
+            else nY_1 = nY;
+        if ((nZ + 1) < fMagneticFieldVolumes[id].mesh.GetNodesZ()) nZ_1 = nZ + 1;
+            else nZ_1 = nZ;
+            
+        TVector3 C000 = fMagneticFieldVolumes[id].field[nX][nY][nZ] + fConstantField[id];
+        TVector3 C100 = fMagneticFieldVolumes[id].field[nX_1][nY][nZ] + fConstantField[id];
+        TVector3 C010 = fMagneticFieldVolumes[id].field[nX][nY_1][nZ] + fConstantField[id];
+        TVector3 C110 = fMagneticFieldVolumes[id].field[nX_1][nY_1][nZ] + fConstantField[id];
+        TVector3 C001 = fMagneticFieldVolumes[id].field[nX][nY][nZ_1] + fConstantField[id];
+        TVector3 C101 = fMagneticFieldVolumes[id].field[nX_1][nY][nZ_1] + fConstantField[id];
+        TVector3 C011 = fMagneticFieldVolumes[id].field[nX][nY_1][nZ_1] + fConstantField[id];
+        TVector3 C111 = fMagneticFieldVolumes[id].field[nX_1][nY_1][nZ_1] + fConstantField[id];
+        
+        Double_t x0 = fMagneticFieldVolumes[id].mesh.GetX(nX);
+        Double_t x1 = fMagneticFieldVolumes[id].mesh.GetX(nX_1);
+        Double_t xd;
+        if (x0 == x1) xd = 0;
+            else xd = (relativePosition.X() - x0) / (x1 - x0);
+        if ((xd < 0) || (xd > 1)) warning << "TRestAxionMagneticField::GetMagneticField  Error: xd NOT between 0 and 1" << endl;
+        
+        Double_t y0 = fMagneticFieldVolumes[id].mesh.GetY(nY);
+        Double_t y1 = fMagneticFieldVolumes[id].mesh.GetY(nY_1);
+        Double_t yd;
+        if (y0 == y1) yd = 0;
+            else yd = (relativePosition.Y() - y0) / (y1 - y0);
+        if ((yd < 0) || (yd > 1)) warning << "TRestAxionMagneticField::GetMagneticField  Error: yd NOT between 0 and 1" << endl;
+        
+        Double_t z0 = fMagneticFieldVolumes[id].mesh.GetZ(nZ);
+        Double_t z1 = fMagneticFieldVolumes[id].mesh.GetZ(nZ_1);
+        Double_t zd;
+        if (z0 == z1) zd = 0;
+            else zd = (relativePosition.Z() - z0) / (z1 - z0);
+        if ((zd < 0) || (zd > 1)) warning << "TRestAxionMagneticField::GetMagneticField  Error: zd NOT between 0 and 1" << endl;
+        
+        // first we interpolate along x-axis    
+        TVector3 C00 = C000 * (1.0 - xd) + C100 * xd;
+        TVector3 C01 = C001 * (1.0 - xd) + C101 * xd;
+        TVector3 C10 = C010 * (1.0 - xd) + C110 * xd;
+        TVector3 C11 = C011 * (1.0 - xd) + C111 * xd;
+        
+        // then we interpolate along y-axis
+        TVector3 C0 = C00 * (1.0 - yd) + C10 * yd;
+        TVector3 C1 = C01 * (1.0 - yd) + C11 * yd;
+        
+        //finally we interpolate along z-axis
+        TVector3 C = C0 * (1.0 - zd) + C1 * zd;
+        
+        
+        debug << "position = (" << pos.X() << ", " << pos.Y() << ", " << pos.Z() << ")       ";
+        debug << "relativePosition = (" << relativePosition.X() << ", " << relativePosition.Y() << ", " << relativePosition.Z() << ")" << endl;
+        debug << "nX = " << nX << " nY = " << nY << " nZ = " << nZ << "     nX_1 = " << nX_1 << "   nY_1 = " << nY_1 << "   nZ_1 = " << nZ_1 << endl << endl;
+        debug << "C000 = (" << C000.X() << ", " << C000.Y() << ", " << C000.Z() << ")" << endl << endl;
+        debug << "C100 = (" << C100.X() << ", " << C100.Y() << ", " << C100.Z() << ")" << endl << endl;
+        debug << "C010 = (" << C010.X() << ", " << C010.Y() << ", " << C010.Z() << ")" << endl << endl;
+        debug << "C110 = (" << C110.X() << ", " << C110.Y() << ", " << C110.Z() << ")" << endl << endl;
+        debug << "C001 = (" << C001.X() << ", " << C001.Y() << ", " << C001.Z() << ")" << endl << endl;
+        debug << "C101 = (" << C101.X() << ", " << C101.Y() << ", " << C101.Z() << ")" << endl << endl;
+        debug << "C011 = (" << C011.X() << ", " << C011.Y() << ", " << C011.Z() << ")" << endl << endl;
+        debug << "C111 = (" << C111.X() << ", " << C111.Y() << ", " << C111.Z() << ")" << endl << endl;
+        debug << " -------------------------------------------------------" << endl;
+        debug << "C00 = (" << C00.X() << ", " << C00.Y() << ", " << C00.Z() << ")" << endl << endl;
+        debug << "C01 = (" << C01.X() << ", " << C01.Y() << ", " << C01.Z() << ")" << endl << endl;
+        debug << "C10 = (" << C10.X() << ", " << C10.Y() << ", " << C10.Z() << ")" << endl << endl;
+        debug << "C11 = (" << C11.X() << ", " << C11.Y() << ", " << C11.Z() << ")" << endl << endl;
+        debug << " -------------------------------------------------------" << endl;
+        debug << "C0 = (" << C0.X() << ", " << C0.Y() << ", " << C0.Z() << ")" << endl << endl;
+        debug << "C1 = (" << C1.X() << ", " << C1.Y() << ", " << C1.Z() << ")" << endl << endl;
+        debug << " -------------------------------------------------------" << endl;
+        debug << "C = (" << C.X() << ", " << C.Y() << ", " << C.Z() << ")" << endl << endl;
+        
+        return C;        
     }
-    return TVector3(0, 0, 0);
 }
 
 ///////////////////////////////////////////////
