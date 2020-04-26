@@ -625,6 +625,10 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         restMesh.SetSize(2 * xMax, 2 * yMax, 2 * zMax);
         restMesh.SetOrigin(TVector3(-xMax, -yMax, -zMax));
         restMesh.SetNodes(nx, ny, nz);
+        if (fMeshType[n] == "cylinder")
+            restMesh.SetCylindrical(true);
+        else
+            restMesh.SetCylindrical(false);
 
         MagneticFieldVolume mVolume;
         mVolume.position = fPositions[n];
@@ -982,6 +986,12 @@ void TRestAxionMagneticField::InitFromConfigFile() {
             fMeshSize.push_back(TVector3(0, 0, 0));
         else
             fMeshSize.push_back(meshSize);
+
+        string type = GetFieldValue("meshType", bVolume);
+        if (type == "Not defined")
+            fMeshType.push_back("cylinder");
+        else
+            fMeshType.push_back(type);
 
         TString gasMixture = GetFieldValue("gasMixture", bVolume);
         if (gasMixture == "Not defined") gasMixture = "vacuum";
