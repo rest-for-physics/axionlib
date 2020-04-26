@@ -74,6 +74,14 @@
 /// dimensions will be extracted from the field map. In that case, this parameter
 /// will be only used for validation.
 ///
+/// - *meshType* : It defines the type of mesh boundary. The default value will
+/// be cylinder. It defines a cylinder with its axis sitting on z. The radius of
+/// the cylinder will be the first component of the *meshSize* 3D vector. The
+/// second component will be ignored, as it is defined inside TRestMesh. This
+/// will affect to the identification of field boundaries, and to the evaluation
+/// of the field, which will only happen when the evaluated coordinates are
+/// inside the bounding volume.
+///
 /// All parameteres are optional, and if not provided they will take their default
 /// values.
 ///
