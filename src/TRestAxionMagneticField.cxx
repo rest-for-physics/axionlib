@@ -475,14 +475,20 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
 
     debug << "TRestAxionMagneticField::LoadMagneticFieldData. Printing first 5 data rows" << endl;
     for (Int_t n = 0; n < data.size(); n++) {
-        Int_t nX = mVol.mesh.GetNodeX((Int_t)data[n][0]);
-        Int_t nY = mVol.mesh.GetNodeY((Int_t)data[n][1]);
-        Int_t nZ = mVol.mesh.GetNodeZ((Int_t)data[n][2]);
+        // The magnetic field map is centered at zero.
+        // But the mesh definition contains the offset position
+        // We shift the data to match the mesh node network.
+        Int_t nX = mVol.mesh.GetNodeX((Int_t)(data[n][0] + mVol.mesh.GetNetSizeX() / 2.), true);
+        Int_t nY = mVol.mesh.GetNodeY((Int_t)(data[n][1] + mVol.mesh.GetNetSizeY() / 2.), true);
+        Int_t nZ = mVol.mesh.GetNodeZ((Int_t)(data[n][2] + mVol.mesh.GetNetSizeZ() / 2.), true);
 
         if (n < 5) {
             debug << "X: " << data[n][0] << " Y: " << data[n][1] << " Z: " << data[n][2] << endl;
+            debug << "absX: " << data[n][0] + mVol.position.X() << " absY: " << data[n][1] + mVol.position.Y()
+                  << " absZ: " << data[n][2] + mVol.position.Z() << endl;
             debug << "nX: " << nX << " nY: " << nY << " nZ: " << nZ << endl;
             debug << "Bx: " << data[n][3] << " By: " << data[n][4] << " Bz: " << data[n][5] << endl;
+            if (GetVerboseLevel() >= REST_Extreme) GetChar();
         }
 
         if (mVol.field[nX][nY][nZ] != TVector3(0.0, 0.0, 0.0)) {
@@ -498,7 +504,7 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
                     << endl;
 
             this->SetError("There was a problem assigning the field matrix!");
-            GetChar();
+            if (GetVerboseLevel() >= REST_Extreme) GetChar();
         }
 
         mVol.field[nX][nY][nZ] = TVector3(data[n][3], data[n][4], data[n][5]);
@@ -631,7 +637,7 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         // TODO It would be interesting that TRestMesh could be used in cylindrical coordinates.
         TRestMesh restMesh;
         restMesh.SetSize(2 * xMax, 2 * yMax, 2 * zMax);
-        restMesh.SetOrigin(TVector3(-xMax, -yMax, -zMax));
+        restMesh.SetOrigin(fPositions[n] - TVector3(xMax, yMax, zMax));
         restMesh.SetNodes(nx, ny, nz);
         if (fMeshType[n] == "cylinder")
             restMesh.SetCylindrical(true);
@@ -857,8 +863,7 @@ Int_t TRestAxionMagneticField::GetVolumeIndex(TVector3 pos) {
     if (!FieldLoaded()) LoadMagneticVolumes();
 
     for (int n = 0; n < fMagneticFieldVolumes.size(); n++) {
-        TVector3 relativePosition = pos - fPositions[n];
-        if (fMagneticFieldVolumes[n].mesh.IsInside(relativePosition)) return n;
+        if (fMagneticFieldVolumes[n].mesh.IsInside(pos)) return n;
     }
     return -1;
 }
@@ -956,11 +961,9 @@ Double_t TRestAxionMagneticField::GetTransversalFieldAverage(TVector3 from, TVec
 /// This method will be made private, no reason to use it outside this class.
 ///
 TVector3 TRestAxionMagneticField::GetMagneticVolumeNode(MagneticFieldVolume mVol, TVector3 pos) {
-    TVector3 relPosition = pos - mVol.position;
-
-    Int_t nx = mVol.mesh.GetNodeX(relPosition.X());
-    Int_t ny = mVol.mesh.GetNodeY(relPosition.Y());
-    Int_t nz = mVol.mesh.GetNodeZ(relPosition.Z());
+    Int_t nx = mVol.mesh.GetNodeX(pos.X());
+    Int_t ny = mVol.mesh.GetNodeY(pos.Y());
+    Int_t nz = mVol.mesh.GetNodeZ(pos.Z());
     return TVector3(nx, ny, nz);
 }
 
@@ -974,11 +977,11 @@ Bool_t TRestAxionMagneticField::CheckOverlaps() {
             if (m == n) continue;
             debug << "Volume : " << m << endl;
 
-            TVector3 b = GetMagneticVolume(m)->mesh.GetVertex(0) + fPositions[m] - fPositions[n];
+            TVector3 b = GetMagneticVolume(m)->mesh.GetVertex(0);
             debug << "Relative bottom vertex : (" << b.X() << ", " << b.Y() << ", " << b.Z() << ")" << endl;
             if (GetMagneticVolume(n)->mesh.IsInside(b)) return true;
 
-            TVector3 t = GetMagneticVolume(m)->mesh.GetVertex(1) + fPositions[m] - fPositions[n];
+            TVector3 t = GetMagneticVolume(m)->mesh.GetVertex(1);
             debug << "Relative top vertex : (" << t.X() << ", " << t.Y() << ", " << t.Z() << ")" << endl;
             if (GetMagneticVolume(n)->mesh.IsInside(t)) return true;
         }
