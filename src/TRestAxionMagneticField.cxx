@@ -659,7 +659,6 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         fMagneticFieldVolumes.push_back(mVolume);
     }
 
-    debug << "Checking overlaps" << endl;
     if (CheckOverlaps()) {
         ferr << "TRestAxionMagneticField::LoadMagneticVolumes. Volumes overlap!" << endl;
         exit(1);
@@ -1000,6 +999,13 @@ void TRestAxionMagneticField::InitFromConfigFile() {
             fMeshType.push_back("cylinder");
         else
             fMeshType.push_back(type);
+
+        // TRestMesh will only consider the first bounding component anyway
+        if (fMeshType.back() == "cylinder" && fBoundMax.back().X() != fBoundMax.back().Y()) {
+            warning << "Mesh type is cylinder. But X and Y inside boundMax are not the same!" << endl;
+            warning << "Making second bound component Y equal to the X bound component!" << endl;
+            fBoundMax.back().SetY(fBoundMax.back().X());
+        }
 
         TString gasMixture = GetFieldValue("gasMixture", bVolume);
         if (gasMixture == "Not defined") gasMixture = "vacuum";
