@@ -630,8 +630,6 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         Int_t ny = (Int_t)(2 * yMax / meshSizeY) + 1;
         Int_t nz = (Int_t)(2 * zMax / meshSizeZ) + 1;
 
-        fMeshSize.push_back(TVector3(meshSizeX, meshSizeY, meshSizeZ));
-
         // We create an auxiliar mesh helping to initialize the fieldMap
         // The mesh is centered at zero. Absolute position is defined in the Magnetic volume
         // TODO It would be interesting that TRestMesh could be used in cylindrical coordinates.
@@ -828,7 +826,7 @@ Double_t TRestAxionMagneticField::GetPhotonMass(Int_t id, Double_t en) {
 /// using the gas properties defined at the corresponding magnetic volume.
 ///
 Double_t TRestAxionMagneticField::GetPhotonAbsorptionLength(Double_t x, Double_t y, Double_t z, Double_t en) {
-    return GetPhotonMass(TVector3(x, y, z), en);
+    return GetPhotonAbsorptionLength(TVector3(x, y, z), en);
 }
 
 ///////////////////////////////////////////////
