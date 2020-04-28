@@ -81,7 +81,7 @@ void TRestAxionSolarModel::InitFromConfigFile() {
         if (bSolarModelInitialized) {
           debug << "Solar model file " << sSolarModelFile << " successfully loaded!" << endl;
         } else {
-          ferr << "Solar model initialization not successful!" << endl;
+          ferr << "Solar model initialization was not successful!" << endl;
         };
   };
 }
@@ -91,12 +91,9 @@ TRestAxionSolarModel::TRestAxionSolarModel() : TRestMetadata() { Initialize(); }
 
 // From-file contructor
 TRestAxionSolarModel::TRestAxionSolarModel(const char* cfgFileName, std::string name) : TRestMetadata(cfgFileName) {
-    debug << "Creating instance of TRestAxionSolarModel from file..." << endl;
-
+    debug << "Creating instance of TRestAxionSolarModel from file "+fConfigFileName+"..." << endl;
     Initialize();
-
     LoadConfigFromFile(fConfigFileName, name);
-
     PrintMetadata();
 }
 

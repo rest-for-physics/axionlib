@@ -56,7 +56,7 @@ else()
   ExternalProject_Add(solaxflux
                       SOURCE_DIR ${SOLAXFLUX_DIR}
                       GIT_REPOSITORY https://github.com/sebhoof/SolarAxionFlux
-                      GIT_TAG master
+                      GIT_TAG aeff58971ad63c673ad2e66cf6da713224bc104d
                       GIT_PROGRESS ON
                       GIT_SHALLOW ON
                       GIT_SUBMODULES ""
