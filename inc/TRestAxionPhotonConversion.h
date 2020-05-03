@@ -24,10 +24,19 @@
 #define _TRestAxionPhotonConversion
 
 #include "TRestAxionBufferGas.h"
+#include "mpreal.h"
 
 //! A basic class to define analytical axion-photon conversion calculations for axion helioscopes
 class TRestAxionPhotonConversion : public TObject {
    private:
+    /// A two component vector to store the complex EM field amplitude.
+    mpfr::mpreal A[2];  //!
+
+    /// A two component vector to store the complex axion field amplitude.
+    mpfr::mpreal a[2];  //!
+
+    Bool_t fDebug = false;  //!
+
     void Initialize();
 
     /// A pointer to the buffer gas definition
@@ -37,19 +46,24 @@ class TRestAxionPhotonConversion : public TObject {
     Double_t BLHalfSquared(Double_t Bmag, Double_t Lcoh);
 
    public:
+    /// It enables/disables debug mode
+    void SetDebug(Bool_t v) { fDebug = v; }
+
     /// It assigns a gas buffer medium to the calculation
     void AssignBufferGas(TRestAxionBufferGas* buffGas) { fBufferGas = buffGas; }
 
     /// It assigns a gas buffer medium to the calculation
     void SetBufferGas(TRestAxionBufferGas* buffGas) { fBufferGas = buffGas; }
 
-    Double_t GammaTransmissionProbability(Double_t Ea, Double_t Bmag, Double_t ma, Double_t Lcoh);
+    Double_t GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+                                          Double_t mg = 0, Double_t absLength = 0);
 
-    Double_t GammaTransmissionProbability(Double_t Ea, TVectorD B, Double_t ma, Double_t Lcoh);
+    Double_t AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+                                        Double_t mg = 0, Double_t absLength = 0);
 
     TRestAxionPhotonConversion();
     ~TRestAxionPhotonConversion();
 
-    ClassDef(TRestAxionPhotonConversion, 1);
+    ClassDef(TRestAxionPhotonConversion, 2);
 };
 #endif
