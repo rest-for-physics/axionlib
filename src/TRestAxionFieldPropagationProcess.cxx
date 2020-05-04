@@ -554,7 +554,7 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
             lengthVector = boundaries[i][0] - boundaries[i][1];
             length = sqrt(lengthVector.Mag2());
             // B = GetFieldVector(boundaries[i][0], boundaries[i][1], 0);
-            probabilities[i] = fAxionPhotonConversion->GammaTransmissionProbability(Ea, B, ma, length);
+            // probabilities[i] = fAxionPhotonConversion->GammaTransmissionProbability(Ea, B, ma, length);
         }
 
         for (Int_t i = 0; i < NofVolumes; i++) probability = probability + probabilities[i];
