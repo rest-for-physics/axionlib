@@ -26,14 +26,24 @@
 #include "TRestAxionBufferGas.h"
 #include "mpreal.h"
 
+/// A structure to define the two components of a complex number using real precision.
+/// To be used inside TRestAxionPhotonConversion.
+struct ComplexReal {
+    /// The real part of the number
+    mpfr::mpreal real = 0;
+
+    /// The imaginary part of the number
+    mpfr::mpreal img = 0;
+};
+
 //! A basic class to define analytical axion-photon conversion calculations for axion helioscopes
 class TRestAxionPhotonConversion : public TObject {
    private:
     /// A two component vector to store the complex EM field amplitude.
-    mpfr::mpreal A[2];  //!
+    ComplexReal A;  //!
 
     /// A two component vector to store the complex axion field amplitude.
-    mpfr::mpreal a[2];  //!
+    ComplexReal a;  //!
 
     Bool_t fDebug = false;  //!
 
@@ -42,10 +52,78 @@ class TRestAxionPhotonConversion : public TObject {
     /// A pointer to the buffer gas definition
     TRestAxionBufferGas* fBufferGas = NULL;  //!
 
-    Double_t BL(Double_t Bmag, Double_t Lcoh);
-    Double_t BLHalfSquared(Double_t Bmag, Double_t Lcoh);
+    /////////////////////////////////////////////////////////////////////////
+    // ----- Just a quick implementation of complex number operations ---- //
+    // ------------ including mpfr real precision arithmetics ------------ //
 
-   public:
+    /// A function to calculate complex number addition with real precision
+    ComplexReal ComplexAddition(const ComplexReal& a, const ComplexReal& b) {
+        ComplexReal c;
+
+        c.real = a.real + b.real;
+        c.img = a.img + b.img;
+
+        return c;
+    }
+
+    /// A function to calculate complex number substraction with real precision
+    ComplexReal ComplexSubstraction(const ComplexReal& a, const ComplexReal& b) {
+        ComplexReal c;
+
+        c.real = a.real - b.real;
+        c.img = a.img - b.img;
+
+        return c;
+    }
+
+    /// A function to calculate complex number product with real precision
+    ComplexReal ComplexProduct(const ComplexReal& a, const ComplexReal& b) {
+        ComplexReal c;
+
+        c.real = a.real * b.real - a.img * b.img;
+        c.img = a.real * b.img + a.img * b.real;
+
+        return c;
+    }
+
+    /// A function to calculate complex number product by a value with real precision
+    ComplexReal ComplexProduct(const mpfr::mpreal& value, const ComplexReal& a) {
+        ComplexReal c;
+
+        c.real = value * a.real;
+        c.img = value * a.img;
+
+        return c;
+    }
+
+    /// A function to calculate complex number cocient with real precision
+    ComplexReal ComplexCocient(const ComplexReal& a, const ComplexReal& b) {
+        ComplexReal c = ComplexConjugate(b);
+        c = ComplexProduct(a, c);
+
+        mpfr::mpreal norm = 1. / Norm2(b);
+
+        c = ComplexProduct(norm, c);
+
+        return c;
+    }
+
+    /// A function to calculate complex conjugate with real precision
+    ComplexReal ComplexConjugate(const ComplexReal& a) {
+        ComplexReal c;
+
+        c.real = a.real;
+        c.img = -a.img;
+
+        return c;
+    }
+
+    /// A function to calculate the norm squared from a complex number with real precision
+    mpfr::mpreal Norm2(const ComplexReal& a) {
+        mpfr::mpreal result = a.real * a.real + a.img * a.img;
+        return result;
+    }
+
     /// It enables/disables debug mode
     void SetDebug(Bool_t v) { fDebug = v; }
 
@@ -55,6 +133,10 @@ class TRestAxionPhotonConversion : public TObject {
     /// It assigns a gas buffer medium to the calculation
     void SetBufferGas(TRestAxionBufferGas* buffGas) { fBufferGas = buffGas; }
 
+    Double_t BL(Double_t Bmag, Double_t Lcoh);
+    Double_t BLHalfSquared(Double_t Bmag, Double_t Lcoh);
+
+   public:
     Double_t GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                           Double_t mg = 0, Double_t absLength = 0);
 
