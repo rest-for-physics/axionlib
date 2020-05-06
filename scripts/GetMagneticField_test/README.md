@@ -9,8 +9,8 @@ which is used to return the values of the magnetic field components at the speci
 -350 <= y <= 350 mm
 -5000 <= z <= 5000 mm
 ```
-The distance between the neighbouring grid points (i.e. the mesh size) is 50 mm in x, y and z directions.
-At each grid point described by coordinates (x, y, z) the values of the magnetic field are given by:
+The distance between the neighbouring grid points (i.e. the mesh size) is 50 mm in `x`, `y` and `z` directions.
+At each grid point described by coordinates `(x, y, z)` the values of the magnetic field are given by:
 
 ```
 Bx = 5x -2y +2z
@@ -18,9 +18,9 @@ By = 8x +5y -3z
 Bz = -4x -4y +z
 ```
 
-2) **Magnetic_field.dat**: this file contains the magnetic field map produced by the "create_magnetic_field.cxx" script. 
+2) **Magnetic_field.dat**: this file contains the magnetic field map produced by the `create_magnetic_field.cxx` script. 
 Each row in the file contains data for one grid point. First three columns contain `x`, `y` and `z` coordinate of the grid point, respectively,
-while other three columns are Bx, By and Bz values for the corresponding grid point.
+while other three columns are `Bx`, `By` and `Bz` values for the corresponding grid point.
 
 3) **GetMagneticField_test.cxx**: is a restRoot script which tests the `TRestAxionMagneticField::GetMagneticField` method. 
 The test is performed by comparing the values of the magnetic field components obtained by the `GetMagneticField` method 
