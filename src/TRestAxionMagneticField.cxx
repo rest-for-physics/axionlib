@@ -683,7 +683,6 @@ TVector3 TRestAxionMagneticField::GetMagneticField(Double_t x, Double_t y, Doubl
 ///
 TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
     Int_t id = GetVolumeIndex(pos);
-    TVector3 relativePosition = pos - fMagneticFieldVolumes[id].position;
 
     if (id < 0) {
         warning << "TRestAxionMagneticField::GetMagneticField position is outside any volume" << endl;
@@ -725,7 +724,7 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
         if (x0 == x1)
             xd = 0;
         else
-            xd = (relativePosition.X() - x0) / (x1 - x0);
+            xd = (pos.X() - x0) / (x1 - x0);
         if ((xd < 0) || (xd > 1))
             warning << "TRestAxionMagneticField::GetMagneticField  Error: xd NOT between 0 and 1" << endl;
 
@@ -735,7 +734,7 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
         if (y0 == y1)
             yd = 0;
         else
-            yd = (relativePosition.Y() - y0) / (y1 - y0);
+            yd = (pos.Y() - y0) / (y1 - y0);
         if ((yd < 0) || (yd > 1))
             warning << "TRestAxionMagneticField::GetMagneticField  Error: yd NOT between 0 and 1" << endl;
 
@@ -745,7 +744,7 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
         if (z0 == z1)
             zd = 0;
         else
-            zd = (relativePosition.Z() - z0) / (z1 - z0);
+            zd = (pos.Z() - z0) / (z1 - z0);
         if ((zd < 0) || (zd > 1))
             warning << "TRestAxionMagneticField::GetMagneticField  Error: zd NOT between 0 and 1" << endl;
 
@@ -763,8 +762,6 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
         TVector3 C = C0 * (1.0 - zd) + C1 * zd;
 
         debug << "position = (" << pos.X() << ", " << pos.Y() << ", " << pos.Z() << ")       ";
-        debug << "relativePosition = (" << relativePosition.X() << ", " << relativePosition.Y() << ", "
-              << relativePosition.Z() << ")" << endl;
         debug << "nX = " << nX << " nY = " << nY << " nZ = " << nZ << "     nX_1 = " << nX_1
               << "   nY_1 = " << nY_1 << "   nZ_1 = " << nZ_1 << endl
               << endl;
