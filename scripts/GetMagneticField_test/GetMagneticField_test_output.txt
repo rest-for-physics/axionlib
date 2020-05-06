@@ -1,0 +1,124 @@
+x = 450.2  y = 475.0  z = 3025.0
+Bx = -11049.0  By = 10501.6  Bz = -2275.8   True values: TBx = -11049.0  TBy = 10501.6  TBz = -2275.8
+Difference = (0.0, 0.0, 0.0)
+
+x = 475.0  y = 475.0  z = 3025.0
+Bx = -10925.0  By = 10700.0  Bz = -2375.0   True values: TBx = -10925.0  TBy = 10700.0  TBz = -2375.0
+Difference = (0.0, 0.0, 0.0)
+
+x = 499.8  y = 475.0  z = 3025.0
+Bx = -10801.0  By = 10898.4  Bz = -2474.2   True values: TBx = -10801.0  TBy = 10898.4  TBz = -2474.2
+Difference = (0.0, 0.0, 0.0)
+
+x = 500.0  y = 475.0  z = 3025.0
+Bx = -10800.0  By = 10900.0  Bz = -2475.0   True values: TBx = -10800.0  TBy = 10900.0  TBz = -2475.0
+Difference = (0.0, 0.0, 0.0)
+
+x = 500.2  y = 475.0  z = 3025.0
+Bx = -10799.0  By = 10901.6  Bz = -2475.8   True values: TBx = -10799.0  TBy = 10901.6  TBz = -2475.8
+Difference = (0.0, 0.0, 0.0)
+
+x = 525.0  y = 475.0  z = 3025.0
+Bx = -10675.0  By = 11100.0  Bz = -2575.0   True values: TBx = -10675.0  TBy = 11100.0  TBz = -2575.0
+Difference = (0.0, 0.0, 0.0)
+
+x = 549.8  y = 475.0  z = 3025.0
+Bx = -10551.0  By = 11298.4  Bz = -2674.2   True values: TBx = -10551.0  TBy = 11298.4  TBz = -2674.2
+Difference = (0.0, 0.0, 0.0)
+
+x = 550.0  y = 475.0  z = 3025.0
+Bx = -10550.0  By = 11300.0  Bz = -2675.0   True values: TBx = -10550.0  TBy = 11300.0  TBz = -2675.0
+Difference = (0.0, 0.0, 0.0)
+
+x = 550.2  y = 475.0  z = 3025.0
+Bx = -10549.0  By = 11301.6  Bz = -2675.8   True values: TBx = -10549.0  TBy = 11301.6  TBz = -2675.8
+Difference = (0.0, 0.0, 0.0)
+
+x = 599.8  y = 475.0  z = 3025.0
+Bx = -10301.0  By = 11698.4  Bz = -2874.2   True values: TBx = -10301.0  TBy = 11698.4  TBz = -2874.2
+Difference = (0.0, 0.0, 0.0)
+
+x = 599.8  y = 499.8  z = 3025.0
+Bx = -10350.6  By = 11822.4  Bz = -2973.4   True values: TBx = -10350.6  TBy = 11822.4  TBz = -2973.4
+Difference = (0.0, -0.0, -0.0)
+
+x = 599.8  y = 500.0  z = 3025.0
+Bx = -10351.0  By = 11823.4  Bz = -2974.2   True values: TBx = -10351.0  TBy = 11823.4  TBz = -2974.2
+Difference = (0.0, 0.0, 0.0)
+
+x = 599.8  y = 500.2  z = 3025.0
+Bx = -10351.4  By = 11824.4  Bz = -2975.0   True values: TBx = -10351.4  TBy = 11824.4  TBz = -2975.0
+Difference = (0.0, 0.0, 0.0)
+
+x = 599.8  y = 525.0  z = 3025.0
+Bx = -10401.0  By = 11948.4  Bz = -3074.2   True values: TBx = -10401.0  TBy = 11948.4  TBz = -3074.2
+Difference = (0.0, 0.0, 0.0)
+
+x = 599.8  y = 549.8  z = 3025.0
+Bx = -10450.6  By = 12072.4  Bz = -3173.4   True values: TBx = -10450.6  TBy = 12072.4  TBz = -3173.4
+Difference = (-0.0, 0.0, -0.0)
+
+x = 599.8  y = 550.0  z = 3025.0
+Bx = -10451.0  By = 12073.4  Bz = -3174.2   True values: TBx = -10451.0  TBy = 12073.4  TBz = -3174.2
+Difference = (0.0, 0.0, 0.0)
+
+x = 599.8  y = 550.2  z = 3025.0
+Bx = -10451.4  By = 12074.4  Bz = -3175.0   True values: TBx = -10451.4  TBy = 12074.4  TBz = -3175.0
+Difference = (0.0, 0.0, 0.0)
+
+x = 599.8  y = 599.9  z = 3025.0
+Bx = -10550.8  By = 12322.9  Bz = -3373.8   True values: TBx = -10550.8  TBy = 12322.9  TBz = -3373.8
+Difference = (0.0, 0.0, -0.0)
+
+x = 599.8  y = 599.9  z = 3049.8
+Bx = -10501.2  By = 12248.5  Bz = -3349.0   True values: TBx = -10501.2  TBy = 12248.5  TBz = -3349.0
+Difference = (0.0, 0.0, -0.0)
+
+x = 599.8  y = 599.9  z = 3050.0
+Bx = -10500.8  By = 12247.9  Bz = -3348.8   True values: TBx = -10500.8  TBy = 12247.9  TBz = -3348.8
+Difference = (0.0, 0.0, -0.0)
+
+x = 599.8  y = 599.9  z = 3050.2
+Bx = -10500.4  By = 12247.3  Bz = -3348.6   True values: TBx = -10500.4  TBy = 12247.3  TBz = -3348.6
+Difference = (0.0, 0.0, -0.0)
+
+x = 599.8  y = 599.9  z = 3099.8
+Bx = -10401.2  By = 12098.5  Bz = -3299.0   True values: TBx = -10401.2  TBy = 12098.5  TBz = -3299.0
+Difference = (0.0, -0.0, -0.0)
+
+x = 850.0  y = 850.0  z = 8050.0
+Bx = 250.0  By = 500.0  Bz = -350.0   True values: TBx = 250.0  TBy = 500.0  TBz = -350.0
+Difference = (0.0, 0.0, 0.0)
+
+x = 1150.0  y = 1000.1  z = 10000.0
+Bx = 5349.8  By = -2199.5  Bz = -200.4   True values: TBx = 5349.8  TBy = -2199.5  TBz = -200.4
+Difference = (0.0, 0.0, 0.0)
+
+x = 1025.0  y = 1150.0  z = 12950.2
+Bx = 10325.4  By = -11300.6  Bz = 2650.2   True values: TBx = 10325.4  TBy = -11300.6  TBz = 2650.2
+Difference = (-0.0, 0.0, -0.0)
+
+x = 940.6  y = 871.0  z = 13000.0
+Bx = 10561.0  By = -13520.2  Bz = 4153.6   True values: TBx = 10561.0  TBy = -13520.2  TBz = 4153.6
+Difference = (0.0, 0.0, 0.0)
+
+x = 1150.0  y = 1150.0  z = 13000.0
+Bx = 11050.0  By = -10450.0  Bz = 2200.0   True values: TBx = 11050.0  TBy = -10450.0  TBz = 2200.0
+Difference = (0.0, 0.0, 0.0)
+
+x = 1150.1  y = 1000.0  z = 9001.0
+Bx = 0.0  By = 0.0  Bz = 0.0   True values: TBx = 3352.5  TBy = 797.8  TBz = -1199.4
+Difference = (3352.5, 797.8, -1199.4)
+
+x = 599.8  y = 449.0  z = 6049.8
+Bx = 0.0  By = 0.0  Bz = 0.0   True values: TBx = -4199.4  TBy = 2494.0  TBz = 254.6
+Difference = (-4199.4, 2494.0, 254.6)
+
+x = 955.0  y = 524.9  z = 13001.0
+Bx = 0.0  By = 0.0  Bz = 0.0   True values: TBx = 11327.2  TBy = -15138.5  TBz = 5481.4
+Difference = (11327.2, -15138.5, 5481.4)
+
+x = 449.9  y = 1150.1  z = 13001.0
+Bx = 0.0  By = 0.0  Bz = 0.0   True values: TBx = 7551.3  TBy = -16053.3  TBz = 5001.0
+Difference = (7551.3, -16053.3, 5001.0)
+

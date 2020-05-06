@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<axion>
+
+    <TRestAxionMagneticField name="bField" title="bField" >
+        <addMagneticVolume fileName="Magnetic_field.dat" position="(800,800,8000)mm" meshType="rectangular"/>
+    </TRestAxionMagneticField>
+</axion>
+
