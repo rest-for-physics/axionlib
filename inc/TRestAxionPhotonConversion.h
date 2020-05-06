@@ -40,10 +40,10 @@ struct ComplexReal {
 class TRestAxionPhotonConversion : public TObject {
    private:
     /// A two component vector to store the complex EM field amplitude.
-    ComplexReal A;  //!
+    ComplexReal fAem;  //!
 
     /// A two component vector to store the complex axion field amplitude.
-    ComplexReal a;  //!
+    ComplexReal faxion;  //!
 
     Bool_t fDebug = false;  //!
 
@@ -124,6 +124,20 @@ class TRestAxionPhotonConversion : public TObject {
         return result;
     }
 
+    /// A function to calculate complex number product by a value with real precision
+    ComplexReal SetComplexReal(const mpfr::mpreal& r, const mpfr::mpreal& i) {
+        ComplexReal c;
+
+        c.real = r;
+        c.img = i;
+
+        return c;
+    }
+
+    Double_t BL(Double_t Bmag, Double_t Lcoh);
+    Double_t BLHalfSquared(Double_t Bmag, Double_t Lcoh);
+
+   public:
     /// It enables/disables debug mode
     void SetDebug(Bool_t v) { fDebug = v; }
 
@@ -133,15 +147,14 @@ class TRestAxionPhotonConversion : public TObject {
     /// It assigns a gas buffer medium to the calculation
     void SetBufferGas(TRestAxionBufferGas* buffGas) { fBufferGas = buffGas; }
 
-    Double_t BL(Double_t Bmag, Double_t Lcoh);
-    Double_t BLHalfSquared(Double_t Bmag, Double_t Lcoh);
-
-   public:
     Double_t GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                           Double_t mg = 0, Double_t absLength = 0);
 
     Double_t AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                         Double_t mg = 0, Double_t absLength = 0);
+
+    void PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma, Double_t mg = 0,
+                        Double_t absLength = 0);
 
     TRestAxionPhotonConversion();
     ~TRestAxionPhotonConversion();

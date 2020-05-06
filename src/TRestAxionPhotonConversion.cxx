@@ -74,7 +74,11 @@ TRestAxionPhotonConversion::~TRestAxionPhotonConversion() {}
 ///
 void TRestAxionPhotonConversion::Initialize() {
     mpfr::mpreal::set_default_prec(mpfr::digits2bits(30));
+
     fBufferGas = NULL;
+
+    faxion = SetComplexReal(1, 0);
+    fAem = SetComplexReal(0, 0);
 }
 
 ///////////////////////////////////////////////
@@ -128,9 +132,9 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Bmag,
                                                                   Double_t absLength) {
     mpfr::mpreal axionMass = ma;
     mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
-    mpfr::mpreal bMag = Bmag;
 
     mpfr::mpreal photonMass = mg;
+
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
 
     debug << "+--------------------------------------------------------------------------+" << endl;
@@ -199,7 +203,6 @@ Double_t TRestAxionPhotonConversion::AxionAbsorptionProbability(Double_t Bmag, D
                                                                 Double_t absLength) {
     mpfr::mpreal axionMass = ma;
     mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
-    mpfr::mpreal bMag = Bmag;
 
     mpfr::mpreal photonMass = mg;
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
@@ -252,3 +255,71 @@ Double_t TRestAxionPhotonConversion::AxionAbsorptionProbability(Double_t Bmag, D
 
     return sol;
 }
+
+void TRestAxionPhotonConversion::PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+                                                Double_t mg, Double_t absLength) {
+    mpfr::mpreal axionMass = ma;
+    mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
+
+    mpfr::mpreal photonMass = mg;
+    if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
+
+    if (fDebug) {
+        debug << "+--------------------------------------------------------------------------+" << endl;
+        debug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary" << endl;
+        debug << " Photon mass : " << photonMass << " eV" << endl;
+        debug << " Axion mass : " << ma << " eV" << endl;
+        debug << " Axion energy : " << Ea << " keV" << endl;
+        debug << " Lcoh : " << Lcoh << " mm" << endl;
+        debug << " Bmag : " << Bmag << " T" << endl;
+        debug << "+--------------------------------------------------------------------------+" << endl;
+    }
+
+    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
+    mpfr::mpreal l = cohLength * PhMeterIneV;
+    mpfr::mpreal phi = q * l;
+
+    mpfr::mpreal Gamma = absLength;
+    if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
+    mpfr::mpreal GammaL = Gamma * cohLength * 100;
+
+    if (fDebug) {
+        debug << "+------------------------+" << endl;
+        debug << " Intermediate calculations" << endl;
+        debug << " q : " << q << " eV" << endl;
+        debug << " l : " << l << " eV-1" << endl;
+        debug << " phi : " << phi << endl;
+        debug << "Gamma : " << Gamma << endl;
+        debug << "GammaL : " << GammaL << endl;
+        debug << "+------------------------+" << endl;
+    }
+
+    mpfr::mpreal bl = BL(Bmag, Lcoh);
+
+    /// We have now calculated the main quantities BL, QL, and GammaL
+
+    ComplexReal I = SetComplexReal(0, 1);
+    ComplexReal ExpPhi = SetComplexReal(cos(-phi), sin(-phi));
+
+    ComplexReal Bcomplex = SetComplexReal(BL(Bmag, Lcoh), 0);
+    ComplexReal Qcomplex = SetComplexReal(phi, -GammaL / 2);
+
+    ComplexReal Bterm = ComplexCocient(Bcomplex, Qcomplex);
+    Bterm = ComplexProduct(I, Bterm);
+
+    mpfr::mpreal ExpGamma = exp(-GammaL / 2.);
+    Double_t ExpGammaDouble = TMath::Exp((Double_t)-GammaL / 2.);
+
+    cout.precision(30);
+
+    if (fDebug) {
+        cout << "ExpGamma : " << ExpGamma << endl;
+        cout << "ExpGammaDouble : " << ExpGammaDouble << endl;
+        debug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << endl;
+        debug << "cos(phi) : " << cos(phi) << endl;
+        debug << "Exp(-GammaL) : " << exp(-GammaL) << endl;
+    }
+
+    // if (fDebug) debug << "Axion-photon absorption probability : " << sol << endl;
+}
+
