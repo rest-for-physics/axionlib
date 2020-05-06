@@ -1,5 +1,6 @@
-The scripts in this directory are used to test the implementation of the trilinear interpolation in the `TRestAxionMagneticField::GetMagneticField` method
-which is used to return the values of the magnetic field components at the specific point in the magnetic field volume given as the input parameter.
+The scripts in this directory are used to test the implementation of the trilinear interpolation in the `TRestAxionMagneticField::GetMagneticField` method which is used to return the values of the magnetic field components at the specific point in the magnetic field volume given as the input parameter.
+
+To test and validate the magnetic field routines just execute the command `restRoot -b -q GetMagneticField_test.C`.
 
 ### Description of files in this directory
 
@@ -33,3 +34,4 @@ The output of the script is shown on screen and written in the output file `GetM
 The parameters in this file are described at the beginning of the `TRestAxionMagneticField.cxx` file in `RestAxionLib/src` directory. 
 Note that the `position` parameter represents the offset of the magnetic field volume with the respect to the laboratory frame 
 and it should be equal to the value of the `offset` variable in the `GetMagneticField_test.cxx` script.
+
