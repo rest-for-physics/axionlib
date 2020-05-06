@@ -104,13 +104,11 @@ TRestAxionBufferGas::TRestAxionBufferGas() : TRestMetadata() { Initialize(); }
 /// corresponding TRestG4Metadata section inside the RML.
 ///
 TRestAxionBufferGas::TRestAxionBufferGas(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
-    cout << "Entering TRestAxionBufferGas constructor( cfgFileName, name )" << endl;
+    debug << "Entering TRestAxionBufferGas constructor( cfgFileName, name )" << endl;
 
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
-
-    PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -150,7 +148,7 @@ void TRestAxionBufferGas::InitFromConfigFile() {
         SetGasDensity(gasName, gasDensity);
     }
 
-    PrintMetadata();
+    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -371,6 +369,7 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
     Double_t photonMass = 0;
     for (unsigned int n = 0; n < fBufferGasName.size(); n++) {
         Double_t W_value = 0;
+        if (fBufferGasName[n] == "H") W_value = 1.00794;   // g/mol
         if (fBufferGasName[n] == "He") W_value = 4.002;    // g/mol
         if (fBufferGasName[n] == "Ne") W_value = 20.179;   // g/mol
         if (fBufferGasName[n] == "Ar") W_value = 39.948;   // g/mol
