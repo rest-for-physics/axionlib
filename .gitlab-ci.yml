@@ -1,0 +1,42 @@
+image: nkx1231/root6-geant4-garfield:0.4
+
+stages:
+  - build
+  - loadRESTLibs
+
+before_script:
+  - export USER="test"
+
+build:
+  type: build
+  script:
+    - mkdir /tmp/rest && cd /tmp/rest
+    - echo "**${CI_PROJECT_DIR}**"
+    - rm -rf ${CI_PROJECT_DIR}/install
+    - cat $HOME/.ssh/id_rsa.pub
+    - apt -y install ssh-askpass
+    - apt -y install libmpfr-dev libmpfr-doc libmpfr4 libmpfr4-dbg
+    - ssh-keyscan -t rsa lfna.unizar.es >> ~/.ssh/known_hosts
+    - git clone git@lfna.unizar.es:rest-development/REST_v2.git REST_v2
+    - cd REST_v2/
+    - git checkout v2.2.16_dev
+    - mkdir build
+    - cd build
+    - cmake ../ -DREST_WELCOME=OFF -DREST_GARFIELD=OFF -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
+    - make install -j2
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}
+    - mkdir build
+    - cd build
+    - cmake ../
+    - make install -j2
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/install
+    expire_in: 1 day
+
+loadRESTLibs:
+  type: loadRESTLibs
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - root -b -q ${CI_PROJECT_DIR}/install/macros/pipeline/loadLibraries.C
