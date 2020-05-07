@@ -14,7 +14,7 @@ void GetMagneticField_test() {
     myfile.open("GetMagneticField_test_output.txt");
     myfile << std::setprecision(1) << std::fixed;
     cout << std::setprecision(1) << std::fixed;
-    myField = new TRestAxionMagneticField("my_metadata.rml", "bField");
+    myField = new TRestAxionMagneticField("../fields.rml", "bField");
 
     // changing x, while y and z are constant
     coordinates = TVector3(-349.8, -325.0, -4975.0);
