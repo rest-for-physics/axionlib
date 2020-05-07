@@ -10,7 +10,7 @@ ROOT.gSystem.Load("libRestAxion.so")
 
 myField = ROOT.TRestAxionMagneticField("fields.rml", "bFieldBabyIAXO")
 
-if myField.Error():
+if myField.GetError():
     print myField.GetErrorMessage()
     print "\nMagnetic field initialization failed! Exit code : 101"
     exit(101)
