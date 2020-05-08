@@ -41,6 +41,8 @@ loadRESTLibs:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - root -b -q ${CI_PROJECT_DIR}/install/macros/pipeline/loadLibraries.C
+    - restRoot -b -q
+    - ls ${CI_PROJECT_DIR}/install/lib/
 
 magneticField_trilinear:
   type: basicTests
