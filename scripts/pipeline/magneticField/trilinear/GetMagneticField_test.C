@@ -88,7 +88,7 @@ Int_t GetMagneticField_test() {
 
     if ((internal_points_check == 27) && (external_points_check == 4)) {
         cout << "GetMagneticField test successful." << endl;
-        return 2;
+        return 0;
     } else {
         cout << "Errors in GetMagneticField test." << endl;
         return 5;
