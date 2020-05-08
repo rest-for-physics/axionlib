@@ -1029,16 +1029,19 @@ std::vector<TVector3> TRestAxionMagneticField::GetFieldBoundaries(Int_t id, TVec
     if (precision == 0) precision = min(fMeshSize[id].X(), min(fMeshSize[id].Y(), fMeshSize[id].Z())) / 2.;
 
     TVector3 unit = dir.Unit();
+    std::vector<TVector3> fieldBoundaries;
 
     TVector3 in = volumeBoundaries[0];
-    while (GetTransversalComponent(in, dir) == 0) in = MoveByDistanceFast(in, unit, precision);
+    while ((GetTransversalComponent(in, dir) == 0) && (((volumeBoundaries[1] - in) * dir) > 0)) in = MoveByDistanceFast(in, unit, precision);
+    if (((volumeBoundaries[1] - in) * dir) > 0)
+        fieldBoundaries.push_back(in);
+    else return fieldBoundaries;
 
     TVector3 out = volumeBoundaries[1];
-    while (GetTransversalComponent(out, -dir) == 0) out = MoveByDistanceFast(out, -unit, precision);
-
-    std::vector<TVector3> fieldBoundaries;
-    fieldBoundaries.push_back(in);
-    fieldBoundaries.push_back(out);
+    while ((GetTransversalComponent(out, -dir) == 0) && (((volumeBoundaries[0] - out) * dir) < 0) && (((out - in) * dir) > 0)) out = MoveByDistanceFast(out, -unit, precision);
+    if ((((volumeBoundaries[0] - out) * dir) < 0) && (((out - in) * dir) > 0))
+        fieldBoundaries.push_back(out);
+    else return fieldBoundaries;
 
     return fieldBoundaries;
 }
