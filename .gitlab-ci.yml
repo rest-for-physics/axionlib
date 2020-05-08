@@ -3,7 +3,6 @@ image: nkx1231/root6-geant4-garfield:0.4
 stages:
   - build
   - loadRESTLibs
-  - basicTests
 
 before_script:
   - export USER="test"
@@ -40,13 +39,5 @@ loadRESTLibs:
   type: loadRESTLibs
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - root -b -q ${CI_PROJECT_DIR}/install/macros/pipeline/loadLibraries.C
+      # - root -b -q ${CI_PROJECT_DIR}/install/macros/pipeline/loadLibraries.C
     - restRoot -b -q
-    - ls ${CI_PROJECT_DIR}/install/lib/
-
-magneticField_trilinear:
-  type: basicTests
-  script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/magneticField/trilinear/
-    - restRoot -b -q GetMagneticField_test.C
