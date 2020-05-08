@@ -13,7 +13,7 @@ Int_t CheckPoint(TVector3 point);
 Int_t GetMagneticField_test() {
     TVector3 coordinates;
     myField = new TRestAxionMagneticField("../fields.rml", "bField");
-    
+
     // changing x, while y and z are constant
     coordinates = TVector3(-349.8, -325.0, -4975.0);
     if (CheckPoint(coordinates)) return 5;
@@ -75,7 +75,7 @@ Int_t GetMagneticField_test() {
     if (CheckPoint(coordinates)) return 5;
     coordinates = TVector3(350.0, 350.0, 5000.0);
     if (CheckPoint(coordinates)) return 5;
-    
+
     // points out of boundaries
     coordinates = TVector3(350.1, 200.0, 1001.0);
     if (CheckPoint(coordinates)) return 5;
@@ -88,9 +88,8 @@ Int_t GetMagneticField_test() {
 
     if ((internal_points_check == 27) && (external_points_check == 4)) {
         cout << "GetMagneticField test successful." << endl;
-        return 0;
-    }
-    else {
+        return 2;
+    } else {
         cout << "Errors in GetMagneticField test." << endl;
         return 5;
     }
@@ -108,14 +107,12 @@ Int_t CheckPoint(TVector3 point) {
         (fabs(true_value.Z() - B.Z()) <= 0.0001 * std::max(fabs(true_value.Z()), fabs(B.Z())))) {
         internal_points_check++;
         return 0;
+    } else if (B.X() == 0.0 && B.Y() == 0.0 && B.Z() == 0.0) {
+        external_points_check++;
+        return 0;
+    } else {
+        cout << "Error occured when evaluating point (" << point.X() + offset.X() << ", "
+             << point.Y() + offset.Y() << ", " << point.Z() + offset.Z() << ")" << endl;
+        return 5;
     }
-    else
-        if (B.X() == 0.0 && B.Y() == 0.0 && B.Z() == 0.0) {
-            external_points_check++;
-            return 0;
-        }
-        else {
-            cout << "Error occured when evaluating point (" << point.X() + offset.X() << ", " << point.Y() + offset.Y() << ", " << point.Z() + offset.Z() << ")" << endl;
-            return 5;
-        }
 }
