@@ -241,6 +241,7 @@ void TRestAxionMagneticField::Initialize() {
 ///
 TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcomp, Int_t volIndex,
                                                 Double_t step) {
+    Double_t step_x, step_y, step_z;
     if (!FieldLoaded()) LoadMagneticVolumes();
 
     if (fCanvas != NULL) {
@@ -263,7 +264,12 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
     }
 
     // CAUTION. This needs revision just fixed adding .X() in order compile!
-    if (step < 0) step = fMeshSize[volIndex].X();
+    if (step <= 0) {
+        step_x = fMeshSize[volIndex].X();
+        step_y = fMeshSize[volIndex].Y();
+        step_z = fMeshSize[volIndex].Z();
+    } else
+        step_x = step_y = step_z = step;
 
     MagneticFieldVolume* vol = GetMagneticVolume(volIndex);
     if (!vol) return fCanvas;
@@ -284,9 +290,9 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
     Double_t yMax = centerY + halfSizeY;
     Double_t zMax = centerZ + halfSizeZ;
 
-    Int_t nBinsX = (xMax - xMin) / step;
-    Int_t nBinsY = (yMax - yMin) / step;
-    Int_t nBinsZ = (zMax - zMin) / step;
+    Int_t nBinsX = (xMax - xMin) / step_x;
+    Int_t nBinsY = (yMax - yMin) / step_y;
+    Int_t nBinsZ = (zMax - zMin) / step_z;
 
     Double_t x, y, z;
     Double_t B;
@@ -317,9 +323,9 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                     }
                 }
                 fHisto->Fill(x, y, B);
-                y = y + step;
+                y = y + step_y;
             }
-            x = x + step;
+            x = x + step_x;
         }
 
         fCanvas->cd();
@@ -370,9 +376,9 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                         }
                     }
                     fHisto->Fill(x, z, B);
-                    z = z + step;
+                    z = z + step_z;
                 }
-                x = x + step;
+                x = x + step_x;
             }
 
             fCanvas->cd();
@@ -423,9 +429,9 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                             }
                         }
                         fHisto->Fill(y, z, B);
-                        z = z + step;
+                        z = z + step_z;
                     }
-                    y = y + step;
+                    y = y + step_y;
                 }
 
                 fCanvas->cd();
