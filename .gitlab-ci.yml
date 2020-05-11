@@ -1,11 +1,22 @@
 image: nkx1231/root6-geant4-garfield:0.4
 
 stages:
+  - pre-build
   - build
   - loadRESTLibs
 
 before_script:
   - export USER="test"
+
+clang-format:
+    stage: pre-build
+    script:
+        - cd ${CI_PROJECT_DIR}/scripts/pipeline/clang-format/
+        - ./clangformattest.sh
+          # We execute only at a schedulled pipeline that defines CRONJOB variable
+    only:
+        variables:
+            - $CRONJOB
 
 build:
   type: build
@@ -30,6 +41,9 @@ build:
     - cd build
     - cmake ../
     - make install -j2
+  except:
+    variables:
+      - $CRONJOB
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install
@@ -41,3 +55,6 @@ loadRESTLibs:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
       # - root -b -q ${CI_PROJECT_DIR}/install/macros/pipeline/loadLibraries.C
     - restRoot -b -q
+  except:
+    variables:
+      - $CRONJOB
