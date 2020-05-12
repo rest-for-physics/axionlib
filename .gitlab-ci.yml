@@ -1,4 +1,4 @@
-image: nkx1231/root6-geant4-garfield:0.4
+image: lobis/geant4:ssh
 
 stages:
   - pre-build
@@ -7,6 +7,10 @@ stages:
 
 before_script:
   - export USER="test"
+  - source /opt/ROOT/install/bin/thisroot.sh
+  - apt -y update
+  - apt -y install libmpfr-dev
+  - ssh-keyscan -t rsa lfna.unizar.es >> ~/.ssh/known_hosts
 
 clang-format:
     stage: pre-build
@@ -24,16 +28,12 @@ build:
     - mkdir /tmp/rest && cd /tmp/rest
     - echo "**${CI_PROJECT_DIR}**"
     - rm -rf ${CI_PROJECT_DIR}/install
-    - cat $HOME/.ssh/id_rsa.pub
-    - apt -y install ssh-askpass
-    - apt -y install libmpfr-dev libmpfr-doc libmpfr4 libmpfr4-dbg
-    - ssh-keyscan -t rsa lfna.unizar.es >> ~/.ssh/known_hosts
     - git clone git@lfna.unizar.es:rest-development/REST_v2.git REST_v2
     - cd REST_v2/
     - git checkout development
     - mkdir build
     - cd build
-    - cmake ../ -DREST_WELCOME=OFF -DREST_GARFIELD=OFF -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
+    - cmake ../ -DREST_WELCOME=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}
