@@ -30,7 +30,7 @@ build:
     - ssh-keyscan -t rsa lfna.unizar.es >> ~/.ssh/known_hosts
     - git clone git@lfna.unizar.es:rest-development/REST_v2.git REST_v2
     - cd REST_v2/
-    - git checkout v2.2.16_dev
+    - git checkout development
     - mkdir build
     - cd build
     - cmake ../ -DREST_WELCOME=OFF -DREST_GARFIELD=OFF -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
