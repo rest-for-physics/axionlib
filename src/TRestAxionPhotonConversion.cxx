@@ -322,4 +322,3 @@ void TRestAxionPhotonConversion::PropagateAxion(Double_t Bmag, Double_t Lcoh, Do
 
     // if (fDebug) debug << "Axion-photon absorption probability : " << sol << endl;
 }
-

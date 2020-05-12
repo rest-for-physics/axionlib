@@ -296,4 +296,3 @@ void TRestAxionGeneratorProcess::InitFromConfigFile() {
     fNormalPlan = Get3DVectorParameterWithUnits("normalWall");
     fMode = GetParameter("mode");
 }
-

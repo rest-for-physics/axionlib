@@ -129,4 +129,3 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 /// \brief Function reading input parameters from the RML TRestAxionAnalysisProcess metadata section
 ///
 void TRestAxionAnalysisProcess::InitFromConfigFile() {}
-

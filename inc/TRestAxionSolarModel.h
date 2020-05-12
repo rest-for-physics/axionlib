@@ -27,7 +27,7 @@
 
 //! A metadata class to define theoretical axion models and calculations related
 class TRestAxionSolarModel : public TRestMetadata {
-private:
+   private:
     void Initialize();
 
     void InitFromConfigFile();
@@ -51,7 +51,7 @@ private:
     // described in data/solarModel.
     std::vector<std::vector<Double_t>> fSolarTable;  //->
 
-public:
+   public:
     Bool_t isSolarTableLoaded() { return fSolarTable.size() > 0; }
 
     TString GetSolarAxionSolarModel() { return fSolarAxionModel; }
@@ -69,7 +69,7 @@ public:
 
     // Constructors
     TRestAxionSolarModel();
-    TRestAxionSolarModel(const char *cfgFileName, std::string name = "");
+    TRestAxionSolarModel(const char* cfgFileName, std::string name = "");
     // Destructor
     ~TRestAxionSolarModel();
 

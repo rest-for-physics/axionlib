@@ -596,4 +596,3 @@ void TRestAxionFieldPropagationProcess::InitFromConfigFile() {
 
     PrintMetadata();
 }
-

@@ -26,22 +26,21 @@
 #include <TRestMetadata.h>
 
 //! A metadata class to serve as example on the implementation of future metadata classes
-class TRestAxionTemplate:public TRestMetadata {
-private:
+class TRestAxionTemplate : public TRestMetadata {
+   private:
     void Initialize();
 
     void InitFromConfigFile();
 
-    Double_t fDummyValue; //->
+    Double_t fDummyValue;  //->
 
-public:
+   public:
+    void PrintMetadata();
 
-    void PrintMetadata( );
-
-    //Constructors
+    // Constructors
     TRestAxionTemplate();
-    TRestAxionTemplate( const char *cfgFileName, std::string name = "");
-    //Destructor
+    TRestAxionTemplate(const char* cfgFileName, std::string name = "");
+    // Destructor
     ~TRestAxionTemplate();
 
     ClassDef(TRestAxionTemplate, 1);
