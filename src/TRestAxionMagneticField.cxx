@@ -240,7 +240,7 @@ void TRestAxionMagneticField::Initialize() {
 /// TODO Add detailed documentation here
 ///
 TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcomp, Int_t volIndex,
-                                                Double_t step, TString style) {
+                                                Double_t step, TString style, Double_t depth) {
     Double_t step_x, step_y, step_z;
     if (!FieldLoaded()) LoadMagneticVolumes();
 
@@ -302,7 +302,14 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         fCanvas = new TCanvas("fCanvas", "");
         fHisto = new TH2D("", "", nBinsX, xMin, xMax, nBinsY, yMin, yMax);
 
-        z = (zMin + zMax) / 2.0;
+        if (depth < 0)
+            z = (zMin + zMax) / 2.0;
+        else
+            if ((depth >= zMin) && (depth <= zMax))
+                z = depth;
+            else
+                ferr << "You entered depth = " << depth
+                                     << ", but you have to choose depth between " << zMin << " and " << zMax << endl;
         x = xMin;
 
         for (Int_t i = 0; i < nBinsX; i++) {
@@ -365,7 +372,14 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
             TCanvas* fCanvas = new TCanvas("fCanvas", "");
             fHisto = new TH2D("", "", nBinsX, xMin, xMax, nBinsZ, zMin, zMax);
 
-            y = (yMin + yMax) / 2.0;
+            if (depth < 0)
+                y = (yMin + yMax) / 2.0;
+            else
+                if ((depth >= yMin) && (depth <= yMax))
+                    y = depth;
+                else
+                     ferr << "You entered depth = " << depth
+                                     << ", but you have to choose depth between " << yMin << " and " << yMax << endl;
             x = xMin;
 
             for (Int_t i = 0; i < nBinsX; i++) {
@@ -428,7 +442,14 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                 TCanvas* fCanvas = new TCanvas("fCanvas", "");
                 fHisto = new TH2D("", "", nBinsY, yMin, yMax, nBinsZ, zMin, zMax);
 
-                x = (xMin + xMax) / 2.0;
+                if (depth < 0)
+                    x = (xMin + xMax) / 2.0;
+                else
+                    if ((depth >= xMin) && (depth <= xMax))
+                        x = depth;
+                    else
+                        ferr << "You entered depth = " << depth
+                                     << ", but you have to choose depth between " << xMin << " and " << xMax << endl;
                 y = yMin;
 
                 for (Int_t i = 0; i < nBinsY; i++) {

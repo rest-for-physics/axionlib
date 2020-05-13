@@ -149,7 +149,7 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     Double_t GetTransversalFieldAverage(TVector3 from, TVector3 to, Double_t dl = 1., Int_t Nmax = 0);
 
-    TCanvas* DrawHistogram(TString projection, TString Bcomp, Int_t volIndex = -1, Double_t step = -1, TString style = "COL");
+    TCanvas* DrawHistogram(TString projection, TString Bcomp, Int_t volIndex = -1, Double_t step = -1, TString style = "COL", Double_t depth = -1);
 
     void PrintMetadata();
 
