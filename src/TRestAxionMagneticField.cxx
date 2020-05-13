@@ -240,7 +240,7 @@ void TRestAxionMagneticField::Initialize() {
 /// TODO Add detailed documentation here
 ///
 TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcomp, Int_t volIndex,
-                                                Double_t step) {
+                                                Double_t step, TString style) {
     Double_t step_x, step_y, step_z;
     if (!FieldLoaded()) LoadMagneticVolumes();
 
@@ -346,7 +346,14 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
             fCanvas->SetTitle("B_{z} against x and y");
         }
 
-        fHisto->Draw("COLZ0");
+        if (style == "COL")
+            fHisto->Draw("COLZ0");
+        else
+            if (style == "SURF")
+                fHisto->Draw("SURF3");
+            else
+                ferr << "You entered : " << style
+                                     << " as a plot style but you have to choose COL or SURF" << endl;
         return fCanvas;
     }
 
@@ -399,7 +406,14 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                 fCanvas->SetTitle("B_{z} against x and z");
             }
 
-            fHisto->Draw("COLZ0");
+            if (style == "COL")
+                fHisto->Draw("COLZ0");
+            else
+                if (style == "SURF")
+                    fHisto->Draw("SURF3");
+                else
+                    ferr << "You entered : " << style
+                                     << " as a plot style but you have to choose COL or SURF" << endl;
             return fCanvas;
         }
 
@@ -452,7 +466,14 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                     fCanvas->SetTitle("B_{z} against y and z");
                 }
 
-                fHisto->Draw("COLZ0");
+                if (style == "COL")
+                    fHisto->Draw("COLZ0");
+                else
+                    if (style == "SURF")
+                        fHisto->Draw("SURF3");
+                    else
+                        ferr << "You entered : " << style
+                                     << " as a plot style but you have to choose COL or SURF" << endl;
                 return fCanvas;
             }
 
