@@ -334,16 +334,19 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         fHisto->GetYaxis()->SetTitle("y (mm)");
 
         if (Bcomp == "X") {
-            fHisto->SetTitle("B_{x} against x and y");
-            fCanvas->SetTitle("B_{x} against x and y");
+            TString title = Form("B_{x} against x and y @ z = %.1f", z);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
         }
         if (Bcomp == "Y") {
-            fHisto->SetTitle("B_{y} against x and y");
-            fCanvas->SetTitle("B_{y} against x and y");
+            TString title = Form("B_{y} against x and y @ z = %.1f", z);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
         }
         if (Bcomp == "Z") {
-            fHisto->SetTitle("B_{z} against x and y");
-            fCanvas->SetTitle("B_{z} against x and y");
+            TString title = Form("B_{z} against x and y @ z = %.1f", z);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
         }
 
         if (style == "COL")
@@ -394,16 +397,19 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
             fHisto->GetYaxis()->SetTitle("z (mm)");
 
             if (Bcomp == "X") {
-                fHisto->SetTitle("B_{x} against x and z");
-                fCanvas->SetTitle("B_{x} against x and z");
+                TString title = Form("B_{x} against x and z @ y = %.1f", y);
+                fHisto->SetTitle(title);
+                fCanvas->SetTitle(title);
             }
             if (Bcomp == "Y") {
-                fHisto->SetTitle("B_{y} against x and z");
-                fCanvas->SetTitle("B_{y} against x and z");
+                TString title = Form("B_{y} against x and z @ y = %.1f", y);
+                fHisto->SetTitle(title);
+                fCanvas->SetTitle(title);
             }
             if (Bcomp == "Z") {
-                fHisto->SetTitle("B_{z} against x and z");
-                fCanvas->SetTitle("B_{z} against x and z");
+                TString title = Form("B_{z} against x and z @ y = %.1f", y);
+                fHisto->SetTitle(title);
+                fCanvas->SetTitle(title);
             }
 
             if (style == "COL")
@@ -454,16 +460,19 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                 fHisto->GetYaxis()->SetTitle("z (mm)");
 
                 if (Bcomp == "X") {
-                    fHisto->SetTitle("B_{x} against y and z");
-                    fCanvas->SetTitle("B_{x} against y and z");
+                    TString title = Form("B_{x} against y and z @ x = %.1f", x);
+                    fHisto->SetTitle(title);
+                    fCanvas->SetTitle(title);
                 }
                 if (Bcomp == "Y") {
-                    fHisto->SetTitle("B_{y} against y and z");
-                    fCanvas->SetTitle("B_{y} against y and z");
+                    TString title = Form("B_{y} against y and z @ x = %.1f", x);
+                    fHisto->SetTitle(title);
+                    fCanvas->SetTitle(title);
                 }
                 if (Bcomp == "Z") {
-                    fHisto->SetTitle("B_{z} against y and z");
-                    fCanvas->SetTitle("B_{z} against y and z");
+                    TString title = Form("B_{z} against y and z @ x = %.1f", x);
+                    fHisto->SetTitle(title);
+                    fCanvas->SetTitle(title);
                 }
 
                 if (style == "COL")
