@@ -254,8 +254,8 @@ void TRestAxionMagneticField::Initialize() {
 /// which the plot is shown.
 ///
 /// - *step* : it specifies the step/bin size for the 2D histogram that is shown. 
-/// If this parameter is not specified, the values are taken from the corresponding
-/// mesh size values stored in data member `fMeshSize`.
+/// If this parameter is not specified, or if it has value < = 0, the values are taken
+/// from the corresponding mesh size values stored in data member `fMeshSize`.
 ///
 /// - *style* : it specifies the plotting style for the histogram. It can correspond
 /// to any draw option for 2D histograms in ROOT. The list of options can be found at:
