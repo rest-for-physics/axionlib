@@ -304,12 +304,11 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 
         if (depth < 0)
             z = (zMin + zMax) / 2.0;
+        else if ((depth >= zMin) && (depth <= zMax))
+            z = depth;
         else
-            if ((depth >= zMin) && (depth <= zMax))
-                z = depth;
-            else
-                ferr << "You entered depth = " << depth
-                                     << ", but you have to choose depth between " << zMin << " and " << zMax << endl;
+            ferr << "You entered depth = " << depth << ", but you have to choose depth between " << zMin
+                 << " and " << zMax << endl;
         x = xMin;
 
         for (Int_t i = 0; i < nBinsX; i++) {
@@ -358,12 +357,11 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 
         if (style == "COL")
             fHisto->Draw("COLZ0");
+        else if (style == "SURF")
+            fHisto->Draw("SURF3");
         else
-            if (style == "SURF")
-                fHisto->Draw("SURF3");
-            else
-                ferr << "You entered : " << style
-                                     << " as a plot style but you have to choose COL or SURF" << endl;
+            ferr << "You entered : " << style << " as a plot style but you have to choose COL or SURF"
+                 << endl;
         return fCanvas;
     }
 
@@ -374,12 +372,11 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 
             if (depth < 0)
                 y = (yMin + yMax) / 2.0;
+            else if ((depth >= yMin) && (depth <= yMax))
+                y = depth;
             else
-                if ((depth >= yMin) && (depth <= yMax))
-                    y = depth;
-                else
-                     ferr << "You entered depth = " << depth
-                                     << ", but you have to choose depth between " << yMin << " and " << yMax << endl;
+                ferr << "You entered depth = " << depth << ", but you have to choose depth between " << yMin
+                     << " and " << yMax << endl;
             x = xMin;
 
             for (Int_t i = 0; i < nBinsX; i++) {
@@ -428,12 +425,11 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 
             if (style == "COL")
                 fHisto->Draw("COLZ0");
+            else if (style == "SURF")
+                fHisto->Draw("SURF3");
             else
-                if (style == "SURF")
-                    fHisto->Draw("SURF3");
-                else
-                    ferr << "You entered : " << style
-                                     << " as a plot style but you have to choose COL or SURF" << endl;
+                ferr << "You entered : " << style << " as a plot style but you have to choose COL or SURF"
+                     << endl;
             return fCanvas;
         }
 
@@ -444,12 +440,11 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 
                 if (depth < 0)
                     x = (xMin + xMax) / 2.0;
+                else if ((depth >= xMin) && (depth <= xMax))
+                    x = depth;
                 else
-                    if ((depth >= xMin) && (depth <= xMax))
-                        x = depth;
-                    else
-                        ferr << "You entered depth = " << depth
-                                     << ", but you have to choose depth between " << xMin << " and " << xMax << endl;
+                    ferr << "You entered depth = " << depth << ", but you have to choose depth between "
+                         << xMin << " and " << xMax << endl;
                 y = yMin;
 
                 for (Int_t i = 0; i < nBinsY; i++) {
@@ -498,12 +493,11 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 
                 if (style == "COL")
                     fHisto->Draw("COLZ0");
+                else if (style == "SURF")
+                    fHisto->Draw("SURF3");
                 else
-                    if (style == "SURF")
-                        fHisto->Draw("SURF3");
-                    else
-                        ferr << "You entered : " << style
-                                     << " as a plot style but you have to choose COL or SURF" << endl;
+                    ferr << "You entered : " << style << " as a plot style but you have to choose COL or SURF"
+                         << endl;
                 return fCanvas;
             }
 
