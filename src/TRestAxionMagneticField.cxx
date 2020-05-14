@@ -237,8 +237,46 @@ void TRestAxionMagneticField::Initialize() {
 ///////////////////////////////////////////////
 /// \brief A method that creates a canvas where magnetic field map is drawn
 ///
-/// TODO Add detailed documentation here
+/// This method is used to create various 2D visualisations of the `Bx`, `By` and `Bz`
+/// magnetic field components for a given magnetic field region.
 ///
+/// The following input parameters can be specified :
+///
+/// - *projection* : it specifies the plane in the magnetic field region from which
+/// the plotted values of the magnetic field component were taken. The allowed values
+/// are: "XY", "XZ" and "YZ" for `X-Y`, `X-Z` and `Y-Z` plane, respectively.
+///
+/// - *Bcomp* : it specifies which component of the magnetic field is plotted.
+/// The allowed values are: "X", "Y" and "Z" for `Bx`, `By` and `Bz` components, 
+/// respectively.
+///
+/// - *volIndex* : it specifies the index of the magnetic field region/volume for
+/// which the plot is shown.
+///
+/// - *step* : it specifies the step/bin size for the 2D histogram that is shown. 
+/// If this parameter is not specified, the values are taken from the corresponding
+/// mesh size values stored in data member `fMeshSize`.
+///
+/// - *style* : it specifies the plotting style for the histogram. It can correspond
+/// to any draw option for 2D histograms in ROOT. The list of options can be found at:
+/// https://root.cern.ch/root/htmldoc/guides/users-guide/Histograms.html#drawing-histograms
+/// The default value is "COLZ0" which draws a box for each cell in the histogram with a 
+/// color scale varying with values. The other useful option is "SURF3Z" which draws a
+/// surface plot with a coloured contour view on the top.
+///
+/// - *depth* : it specifies the position of the plane in the magnetic field region from which
+/// the plotted values of the magnetic field component were taken. If this parameter is not
+/// specified, the histogram is plotted for the plane that goes through the middle of the region.
+///
+/// The following example will plot the values of the `Bx` component of the magnetic field
+/// taken in the X-Y plane positioned at z=5000mm in the magnetic field region with index 0.
+/// The step/bin size is 50mm, and the plotting style is "SURF3Z".
+///
+/// \code
+///    field->DrawHistogram("XY","X",0,50.0,"SURF3Z",5000.0)
+/// \endcode
+/// where `field` is a pointer to the TRestAxionMagneticField object that describes the
+/// magnetic field.
 TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcomp, Int_t volIndex,
                                                 Double_t step, TString style, Double_t depth) {
     Double_t step_x, step_y, step_z;
@@ -302,7 +340,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         fCanvas = new TCanvas("fCanvas", "");
         fHisto = new TH2D("", "", nBinsX, xMin, xMax, nBinsY, yMin, yMax);
 
-        if (depth < 0)
+        if (depth < -100000.0)
             z = (zMin + zMax) / 2.0;
         else if ((depth >= zMin) && (depth <= zMax))
             z = depth;
@@ -355,13 +393,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
             fCanvas->SetTitle(title);
         }
 
-        if (style == "COL")
-            fHisto->Draw("COLZ0");
-        else if (style == "SURF")
-            fHisto->Draw("SURF3");
-        else
-            ferr << "You entered : " << style << " as a plot style but you have to choose COL or SURF"
-                 << endl;
+        fHisto->Draw(style);
         return fCanvas;
     }
 
@@ -370,7 +402,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
             TCanvas* fCanvas = new TCanvas("fCanvas", "");
             fHisto = new TH2D("", "", nBinsX, xMin, xMax, nBinsZ, zMin, zMax);
 
-            if (depth < 0)
+            if (depth < -100000.0)
                 y = (yMin + yMax) / 2.0;
             else if ((depth >= yMin) && (depth <= yMax))
                 y = depth;
@@ -423,13 +455,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                 fCanvas->SetTitle(title);
             }
 
-            if (style == "COL")
-                fHisto->Draw("COLZ0");
-            else if (style == "SURF")
-                fHisto->Draw("SURF3");
-            else
-                ferr << "You entered : " << style << " as a plot style but you have to choose COL or SURF"
-                     << endl;
+            fHisto->Draw(style);
             return fCanvas;
         }
 
@@ -438,7 +464,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                 TCanvas* fCanvas = new TCanvas("fCanvas", "");
                 fHisto = new TH2D("", "", nBinsY, yMin, yMax, nBinsZ, zMin, zMax);
 
-                if (depth < 0)
+                if (depth < -100000.0)
                     x = (xMin + xMax) / 2.0;
                 else if ((depth >= xMin) && (depth <= xMax))
                     x = depth;
@@ -491,13 +517,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                     fCanvas->SetTitle(title);
                 }
 
-                if (style == "COL")
-                    fHisto->Draw("COLZ0");
-                else if (style == "SURF")
-                    fHisto->Draw("SURF3");
-                else
-                    ferr << "You entered : " << style << " as a plot style but you have to choose COL or SURF"
-                         << endl;
+                fHisto->Draw(style);
                 return fCanvas;
             }
 
