@@ -166,7 +166,7 @@
 ///            Eve Pachoud
 ///
 /// 2020-April: Reviewing and validating TRestAxionMagneticField class.
-///            Javier Galan and Krešimir Jakovčić
+///             Javier Galan and Krešimir Jakovčić
 ///
 /// \class      TRestAxionMagneticField
 /// \author     Eve Pachoud
@@ -277,6 +277,7 @@ void TRestAxionMagneticField::Initialize() {
 /// \endcode
 /// where `field` is a pointer to the TRestAxionMagneticField object that describes the
 /// magnetic field.
+///
 TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcomp, Int_t volIndex,
                                                 Double_t step, TString style, Double_t depth) {
     Double_t step_x, step_y, step_z;
@@ -592,6 +593,14 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         string fullPathName = SearchFile((string)fFileNames[n]);
         debug << "Reading file : " << fFileNames[n] << endl;
         debug << "Full path : " << fullPathName << endl;
+
+        if (fullPathName == "") {
+            ferr << "TRestAxionMagneticField::LoadMagneticVolumes. File " << fFileNames[n] << " not found!"
+                 << endl;
+            ferr << "REST will look for this file at any path given by <searchPath at globals definitions"
+                 << endl;
+            exit(5);
+        }
 
         std::vector<std::vector<Float_t>> fieldData;
         if (fullPathName.find(".dat") != string::npos) {
