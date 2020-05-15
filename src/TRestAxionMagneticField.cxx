@@ -247,20 +247,20 @@ void TRestAxionMagneticField::Initialize() {
 /// are: "XY", "XZ" and "YZ" for `X-Y`, `X-Z` and `Y-Z` plane, respectively.
 ///
 /// - *Bcomp* : it specifies which component of the magnetic field is plotted.
-/// The allowed values are: "X", "Y" and "Z" for `Bx`, `By` and `Bz` components, 
+/// The allowed values are: "X", "Y" and "Z" for `Bx`, `By` and `Bz` components,
 /// respectively.
 ///
 /// - *volIndex* : it specifies the index of the magnetic field region/volume for
 /// which the plot is shown.
 ///
-/// - *step* : it specifies the step/bin size for the 2D histogram that is shown. 
+/// - *step* : it specifies the step/bin size for the 2D histogram that is shown.
 /// If this parameter is not specified, or if it has value < = 0, the values are taken
 /// from the corresponding mesh size values stored in data member `fMeshSize`.
 ///
 /// - *style* : it specifies the plotting style for the histogram. It can correspond
 /// to any draw option for 2D histograms in ROOT. The list of options can be found at:
 /// https://root.cern.ch/root/htmldoc/guides/users-guide/Histograms.html#drawing-histograms
-/// The default value is "COLZ0" which draws a box for each cell in the histogram with a 
+/// The default value is "COLZ0" which draws a box for each cell in the histogram with a
 /// color scale varying with values. The other useful option is "SURF3Z" which draws a
 /// surface plot with a coloured contour view on the top.
 ///
