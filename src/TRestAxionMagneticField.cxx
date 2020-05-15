@@ -1241,6 +1241,9 @@ void TRestAxionMagneticField::PrintMetadata() {
 
         metadata << "* Volume " << p << " centered at  (" << centerX << "," << centerY << "," << centerZ
                  << ") mm" << endl;
+        metadata << "  - Grid mesh element size.  X: " << fMeshSize[p].X() << "mm "
+                 << " Y: " << fMeshSize[p].Y() << "mm "
+                 << " Z: " << fMeshSize[p].Z() << "mm " << endl;
         metadata << "  - Offset field [T] : (" << fConstantField[p].X() << ", " << fConstantField[p].Y()
                  << ", " << fConstantField[p].Z() << ")" << endl;
         metadata << "  - File loaded : " << fFileNames[p] << endl;
@@ -1250,6 +1253,7 @@ void TRestAxionMagneticField::PrintMetadata() {
         metadata << "    xmin : " << xMin << " mm , xmax : " << xMax << " mm" << endl;
         metadata << "    ymin : " << yMin << " mm, ymax : " << yMax << " mm" << endl;
         metadata << "    zmin : " << zMin << " mm, zmax : " << zMax << " mm" << endl;
+        metadata << " " << endl;
     }
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
