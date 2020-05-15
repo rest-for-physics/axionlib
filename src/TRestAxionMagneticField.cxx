@@ -1054,11 +1054,11 @@ Bool_t TRestAxionMagneticField::CheckOverlaps() {
 
             TVector3 b = GetMagneticVolume(m)->mesh.GetVertex(0);
             debug << "Relative bottom vertex : (" << b.X() << ", " << b.Y() << ", " << b.Z() << ")" << endl;
-            if (GetMagneticVolume(n)->mesh.IsInside(b)) return true;
+            if (GetMagneticVolume(n)->mesh.IsInsideBoundingBox(b)) return true;
 
             TVector3 t = GetMagneticVolume(m)->mesh.GetVertex(1);
             debug << "Relative top vertex : (" << t.X() << ", " << t.Y() << ", " << t.Z() << ")" << endl;
-            if (GetMagneticVolume(n)->mesh.IsInside(t)) return true;
+            if (GetMagneticVolume(n)->mesh.IsInsideBoundingBox(t)) return true;
         }
     }
     return false;
@@ -1249,6 +1249,7 @@ void TRestAxionMagneticField::PrintMetadata() {
         metadata << "  - File loaded : " << fFileNames[p] << endl;
         metadata << "  - Buffer gas mixture : " << fGasMixtures[p] << endl;
         metadata << "  - Buffer gas densities : " << fGasDensities[p] << endl;
+        metadata << " " << endl;
         metadata << "  - Bounds : " << endl;
         metadata << "    xmin : " << xMin << " mm , xmax : " << xMax << " mm" << endl;
         metadata << "    ymin : " << yMin << " mm, ymax : " << yMax << " mm" << endl;
