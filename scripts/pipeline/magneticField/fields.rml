@@ -5,8 +5,14 @@
         <addMagneticVolume fileName="Magnetic_field.dat" position="(800,800,8000)mm" meshType="rectangular"/>
     </TRestAxionMagneticField>
 
-    <TRestAxionMagneticField name="bFieldBabyIAXO" title="bFieldBabyIAXO" >
+    <TRestAxionMagneticField name="babyIAXO" title="Field definition with 5cm precision in X,Y and Z for babyIAXO magnet." >
         <addMagneticVolume fileName="Bykovskiy_201906.dat" position="(0,0,0)mm" />
+    </TRestAxionMagneticField>
+
+    <TRestAxionMagneticField name="babyIAXO_HD" title="Field definition with 1cm precision in XY, 5cm in Z for babyIAXO magnet." verboseLevel="info" >
+        <addMagneticVolume fileName="Bykovskiy_202004.bin" position="(0,0,0)mm" />
+
+        <addMagneticVolume fileName="Bykovskiy_202004.bin" position="(700.1,700.1,4900)mm" />
     </TRestAxionMagneticField>
 </axion>
 
