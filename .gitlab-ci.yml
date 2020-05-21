@@ -11,6 +11,8 @@ before_script:
 clang-format:
     stage: pre-build
     script:
+        - echo "**$CRONJOB**"
+        - echo "**$CI_SERVER_HOST**"
         - cd ${CI_PROJECT_DIR}/scripts/pipeline/clang-format/
         - ./clangformattest.sh
           # We execute only at a schedulled pipeline that defines CRONJOB variable

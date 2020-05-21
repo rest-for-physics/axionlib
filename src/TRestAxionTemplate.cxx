@@ -56,7 +56,7 @@ ClassImp(TRestAxionTemplate);
 //______________________________________________________________________________
 TRestAxionTemplate::TRestAxionTemplate() : TRestMetadata() {
     // TRestAxionTemplate default constructor
-    Initialize();
+  				  Initialize();
 }
 
 //______________________________________________________________________________
