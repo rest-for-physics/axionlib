@@ -23,7 +23,6 @@ clang-format:
 build:
   type: build
   script:
-    - mkdir /tmp/rest && cd /tmp/rest
     - echo "**${CI_PROJECT_DIR}**"
     - rm -rf ${CI_PROJECT_DIR}/install
     - git clone git@lfna.unizar.es:rest-development/REST_v2.git REST_v2
@@ -48,6 +47,8 @@ build:
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install
+      - ${CI_PROJECT_DIR}/REST_v2
+      - ${CI_PROJECT_DIR}/REST_v2/build
     expire_in: 1 day
 
 loadRESTLibs:
