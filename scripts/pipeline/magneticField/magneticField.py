@@ -8,7 +8,7 @@ ROOT.gSystem.Load("libRestEvents.so")
 ROOT.gSystem.Load("libRestMetadata.so")
 ROOT.gSystem.Load("libRestAxion.so")
 
-myField = ROOT.TRestAxionMagneticField("fields.rml", "bFieldBabyIAXO")
+myField = ROOT.TRestAxionMagneticField("fields.rml", "babyIAXO")
 
 if myField.GetError():
     print myField.GetErrorMessage()

@@ -1,12 +1,18 @@
 image: nkx1231/root6-geant4-garfield:0.4
 
+variables:
+      GIT_SUBMODULE_STRATEGY: recursive
+
 stages:
   - pre-build
   - build
   - loadRESTLibs
+  - metadata
 
 before_script:
-  - export USER="axion"
+    - export USER="axion"
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
 
 clang-format:
     stage: pre-build
@@ -55,8 +61,19 @@ loadRESTLibs:
   type: loadRESTLibs
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-      # - root -b -q ${CI_PROJECT_DIR}/install/macros/pipeline/loadLibraries.C
     - restRoot -b -q
   except:
     variables:
       - $CRONJOB
+
+magneticField: 
+  type: metadata
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/magneticField/
+    - ./magneticField.py
+    - cd trilinear
+    - restRoot -b -q GetMagneticField_test.C
+  except:
+      variables:
+        - $CRONJOB

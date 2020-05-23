@@ -76,6 +76,8 @@ Int_t GetMagneticField_test() {
     coordinates = TVector3(350.0, 350.0, 5000.0);
     if (CheckPoint(coordinates)) return 5;
 
+    cout << "Checking points evaluated outside magnetic regions." << endl;
+    cout << " -	4 warning messages should appear from TRestAxionMagneticField" << endl;
     // points out of boundaries
     coordinates = TVector3(350.1, 200.0, 1001.0);
     if (CheckPoint(coordinates)) return 5;
