@@ -805,7 +805,7 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
             xd = 0;
         else
             xd = (pos.X() - x0) / (x1 - x0);
-        if ((xd < 0) || (xd > 1))
+        if ((xd < -0.00001) || (xd > 1.00001))
             warning << "TRestAxionMagneticField::GetMagneticField  Error: xd NOT between 0 and 1" << endl;
 
         Double_t y0 = fMagneticFieldVolumes[id].mesh.GetY(nY);
@@ -815,7 +815,7 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
             yd = 0;
         else
             yd = (pos.Y() - y0) / (y1 - y0);
-        if ((yd < 0) || (yd > 1))
+        if ((yd < -0.00001) || (yd > 1.00001))
             warning << "TRestAxionMagneticField::GetMagneticField  Error: yd NOT between 0 and 1" << endl;
 
         Double_t z0 = fMagneticFieldVolumes[id].mesh.GetZ(nZ);
@@ -825,7 +825,7 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
             zd = 0;
         else
             zd = (pos.Z() - z0) / (z1 - z0);
-        if ((zd < 0) || (zd > 1))
+        if ((zd < -0.00001) || (zd > 1.00001))
             warning << "TRestAxionMagneticField::GetMagneticField  Error: zd NOT between 0 and 1" << endl;
 
         // first we interpolate along x-axis
