@@ -1120,7 +1120,7 @@ std::vector<TVector3> TRestAxionMagneticField::GetFieldBoundaries(Int_t id, TVec
         return fieldBoundaries;
 
     TVector3 out = volumeBoundaries[1];
-    while ((((volumeBoundaries[0] - out) * dir) < 0) && (GetTransversalComponent(out, -dir) == 0) && 
+    while ((((volumeBoundaries[0] - out) * dir) < 0) && (GetTransversalComponent(out, -dir) == 0) &&
            (((out - in) * dir) > 0))
         out = MoveByDistanceFast(out, -unit, precision);
     if ((((volumeBoundaries[0] - out) * dir) < 0) && (((out - in) * dir) > 0))
