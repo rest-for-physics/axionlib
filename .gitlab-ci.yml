@@ -69,7 +69,7 @@ loadRESTLibs:
 magneticField:
   type: metadata
   script:
-    - . ${CI_PROJECT_DIR}/external/solarAxionFlux/bin/
+    - . ${CI_PROJECT_DIR}/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/scripts/pipeline/magneticField/
     - ./magneticField.py
