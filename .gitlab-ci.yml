@@ -45,7 +45,7 @@ build:
     - cd build
     - cmake ../
     - make install -j2
-    - . ${CI_PROJECT_DIR}/install/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
+    - . ${CI_PROJECT_DIR}/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - cd -
     - restRoot -b -q
   except:
@@ -62,7 +62,7 @@ loadRESTLibs:
   type: loadRESTLibs
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - . ${CI_PROJECT_DIR}/install/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
+    - . ${CI_PROJECT_DIR}/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - restRoot -b -q
   except:
     variables:
@@ -72,7 +72,7 @@ magneticField:
   type: metadata
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - . ${CI_PROJECT_DIR}/install/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
+    - . ${CI_PROJECT_DIR}/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - cd ${CI_PROJECT_DIR}/scripts/pipeline/magneticField/
     - ./magneticField.py
     - cd trilinear
