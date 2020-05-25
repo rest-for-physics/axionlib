@@ -38,7 +38,6 @@ build:
     - cd build
     - cmake ../ -DREST_WELCOME=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
-    - . ${CI_PROJECT_DIR}/install/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - restRoot -b -q
     - cd ${CI_PROJECT_DIR}
@@ -46,6 +45,7 @@ build:
     - cd build
     - cmake ../
     - make install -j2
+    - . ${CI_PROJECT_DIR}/install/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - cd -
     - restRoot -b -q
   except:
