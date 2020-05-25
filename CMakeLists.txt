@@ -51,7 +51,6 @@ ExternalProject_Add(solaxflux
                     SOURCE_DIR ${SOLAXFLUX_DIR}
                     GIT_SUBMODULES ""
                     GIT_CONFIG advice.detachedHead=False
-                    INSTALL_COMMAND ""
                     CMAKE_CACHE_ARGS "-DPYTHON_SUPPORT:STRING=OFF;-DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}")
 
 set(incdir ${incdir} ${SOLAXFLUX_DIR}/include)
