@@ -62,7 +62,6 @@ loadRESTLibs:
   type: loadRESTLibs
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - . ${CI_PROJECT_DIR}/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - restRoot -b -q
   except:
     variables:
