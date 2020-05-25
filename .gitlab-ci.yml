@@ -54,6 +54,7 @@ build:
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install
+      - ${CI_PROJECT_DIR}/external
       - ${CI_PROJECT_DIR}/REST_v2
       - ${CI_PROJECT_DIR}/REST_v2/build
     expire_in: 1 day
@@ -62,6 +63,9 @@ loadRESTLibs:
   type: loadRESTLibs
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - echo "Dir test ${CI_PROJECT_DIR}/"
+    - echo "Dir test ${CI_PROJECT_DIR}/external"
+    - . ${CI_PROJECT_DIR}/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - restRoot -b -q
   except:
     variables:
