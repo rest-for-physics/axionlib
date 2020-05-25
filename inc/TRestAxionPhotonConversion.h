@@ -23,73 +23,142 @@
 #ifndef _TRestAxionPhotonConversion
 #define _TRestAxionPhotonConversion
 
-#include <TRestMetadata.h>
-
 #include "TRestAxionBufferGas.h"
+#include "mpreal.h"
 
-//! A metadata class to define analytical axion-photon conversion probabilities for axion helioscopes
-class TRestAxionPhotonConversion : public TRestMetadata {
+/// A structure to define the two components of a complex number using real precision.
+/// To be used inside TRestAxionPhotonConversion.
+struct ComplexReal {
+    /// The real part of the number
+    mpfr::mpreal real = 0;
+
+    /// The imaginary part of the number
+    mpfr::mpreal img = 0;
+};
+
+//! A basic class to define analytical axion-photon conversion calculations for axion helioscopes
+class TRestAxionPhotonConversion : public TObject {
    private:
+    /// A two component vector to store the complex EM field amplitude.
+    ComplexReal fAem;  //!
+
+    /// A two component vector to store the complex axion field amplitude.
+    ComplexReal faxion;  //!
+
+    Bool_t fDebug = false;  //!
+
     void Initialize();
-
-    void InitFromConfigFile();
-
-    /// Axion mass in eV
-    Double_t fAxionMass = 0;  //->
-
-    /// Coherence length in mm [REST default units]
-    Double_t fCohLength = 0;  //->
-
-    /// Magnet field intensity in T
-    Double_t fBMag = 0;  //->
-
-    /// The axion-photon g10 coupling
-    Double_t fg10 = 1.;  //->
 
     /// A pointer to the buffer gas definition
     TRestAxionBufferGas* fBufferGas = NULL;  //!
 
-    void UpdateParameters(Double_t& Bmag, Double_t& ma, Double_t& Lcoh);
+    /////////////////////////////////////////////////////////////////////////
+    // ----- Just a quick implementation of complex number operations ---- //
+    // ------------ including mpfr real precision arithmetics ------------ //
 
-    Double_t BL(Double_t Lcoh = -1, Double_t Bmag = -1);
-    Double_t BLHalfSquared(Double_t Lcoh = -1, Double_t Bmag = -1);
+    /// A function to calculate complex number addition with real precision
+    ComplexReal ComplexAddition(const ComplexReal& a, const ComplexReal& b) {
+        ComplexReal c;
+
+        c.real = a.real + b.real;
+        c.img = a.img + b.img;
+
+        return c;
+    }
+
+    /// A function to calculate complex number substraction with real precision
+    ComplexReal ComplexSubstraction(const ComplexReal& a, const ComplexReal& b) {
+        ComplexReal c;
+
+        c.real = a.real - b.real;
+        c.img = a.img - b.img;
+
+        return c;
+    }
+
+    /// A function to calculate complex number product with real precision
+    ComplexReal ComplexProduct(const ComplexReal& a, const ComplexReal& b) {
+        ComplexReal c;
+
+        c.real = a.real * b.real - a.img * b.img;
+        c.img = a.real * b.img + a.img * b.real;
+
+        return c;
+    }
+
+    /// A function to calculate complex number product by a value with real precision
+    ComplexReal ComplexProduct(const mpfr::mpreal& value, const ComplexReal& a) {
+        ComplexReal c;
+
+        c.real = value * a.real;
+        c.img = value * a.img;
+
+        return c;
+    }
+
+    /// A function to calculate complex number cocient with real precision
+    ComplexReal ComplexCocient(const ComplexReal& a, const ComplexReal& b) {
+        ComplexReal c = ComplexConjugate(b);
+        c = ComplexProduct(a, c);
+
+        mpfr::mpreal norm = 1. / Norm2(b);
+
+        c = ComplexProduct(norm, c);
+
+        return c;
+    }
+
+    /// A function to calculate complex conjugate with real precision
+    ComplexReal ComplexConjugate(const ComplexReal& a) {
+        ComplexReal c;
+
+        c.real = a.real;
+        c.img = -a.img;
+
+        return c;
+    }
+
+    /// A function to calculate the norm squared from a complex number with real precision
+    mpfr::mpreal Norm2(const ComplexReal& a) {
+        mpfr::mpreal result = a.real * a.real + a.img * a.img;
+        return result;
+    }
+
+    /// A function to calculate complex number product by a value with real precision
+    ComplexReal SetComplexReal(const mpfr::mpreal& r, const mpfr::mpreal& i) {
+        ComplexReal c;
+
+        c.real = r;
+        c.img = i;
+
+        return c;
+    }
+
+    Double_t BL(Double_t Bmag, Double_t Lcoh);
+    Double_t BLHalfSquared(Double_t Bmag, Double_t Lcoh);
 
    public:
+    /// It enables/disables debug mode
+    void SetDebug(Bool_t v) { fDebug = v; }
+
     /// It assigns a gas buffer medium to the calculation
     void AssignBufferGas(TRestAxionBufferGas* buffGas) { fBufferGas = buffGas; }
 
     /// It assigns a gas buffer medium to the calculation
     void SetBufferGas(TRestAxionBufferGas* buffGas) { fBufferGas = buffGas; }
 
-    /// Sets the value of `fAxionMass` metadata member to `m` in `eV`.
-    void SetAxionMass(Double_t m) { fAxionMass = m; }
+    Double_t GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+                                          Double_t mg = 0, Double_t absLength = 0);
 
-    /// Sets the value of `fCohLength` metadata member to `l` in `mm`.
-    void SetCoherenceLength(Double_t l) { fCohLength = l; }
+    Double_t AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+                                        Double_t mg = 0, Double_t absLength = 0);
 
-    /// Sets the value of `fBmag` metadata member to `B` in `T`.
-    void SetMagneticField(Double_t B) { fBMag = B; }
-
-    /// Returns the value stored in `fAxionMass` in `eV`.
-    Double_t GetAxionMass() { return fAxionMass; }
-
-    /// Returns the value stored in `fCohLength` in `mm`.
-    Double_t GetCoherenceLength() { return fCohLength; }
-
-    /// Returns the value stored in `fBMag` in `T`.
-    Double_t GetMagneticField() { return fBMag; }
-
-    Double_t GammaTransmissionProbability(Double_t Ea, Double_t Bmag = -1, Double_t ma = -1,
-                                          Double_t Lcoh = -1);
-
-    Double_t GammaTransmissionProbability(Double_t Ea, TVectorD B, Double_t ma = -1, Double_t Lcoh = -1);
-
-    void PrintMetadata();
+    void PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma, Double_t mg = 0,
+                        Double_t absLength = 0);
 
     TRestAxionPhotonConversion();
-    TRestAxionPhotonConversion(const char* cfgFileName, std::string name = "");
     ~TRestAxionPhotonConversion();
 
-    ClassDef(TRestAxionPhotonConversion, 1);
+    ClassDef(TRestAxionPhotonConversion, 2);
 };
 #endif

@@ -26,13 +26,12 @@
 #include "TRestAxionEvent.h"
 #include "TRestEventProcess.h"
 
-//! A process to include photon transmission from different interfaces found till reaching the detector. E.g. differential vaccuum windows
+//! A process to include photon transmission from different interfaces found till reaching the detector. E.g.
+//! differential vaccuum windows
 class TRestAxionTransmissionProcess : public TRestEventProcess {
-private:
-
+   private:
     /// A pointer to the specific TRestAxionEvent
-    TRestAxionEvent *fInputAxionEvent; //!
-    TRestAxionEvent *fOutputAxionEvent; //!
+    TRestAxionEvent* fAxionEvent;  //!
 
     void InitFromConfigFile();
 
@@ -40,33 +39,33 @@ private:
 
     void LoadDefaultConfig();
 
-protected:
+   protected:
+   public:
+    any GetInputEvent() { return fAxionEvent; }
+    any GetOutputEvent() { return fAxionEvent; }
 
-public:
+    TRestEvent* ProcessEvent(TRestEvent* evInput);
 
-    TRestEvent *ProcessEvent( TRestEvent *evInput );
-
-    void LoadConfig( std::string cfgFilename, std::string name = "" );
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata()
-        {
-            BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-            EndPrintProcess();
-        }
+        EndPrintProcess();
+    }
 
     /// Returns a new instance of this class
-    TRestEventProcess *Maker() { return new TRestAxionTransmissionProcess; }
+    TRestEventProcess* Maker() { return new TRestAxionTransmissionProcess; }
 
     /// Returns the name of this process
     TString GetProcessName() { return (TString) "axionTransmission"; }
 
-    //Constructor
+    // Constructor
     TRestAxionTransmissionProcess();
-    TRestAxionTransmissionProcess( char *cfgFileName );
+    TRestAxionTransmissionProcess(char* cfgFileName);
 
-    //Destructor
+    // Destructor
     ~TRestAxionTransmissionProcess();
 
     ClassDef(TRestAxionTransmissionProcess, 1);

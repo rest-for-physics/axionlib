@@ -2,8 +2,17 @@
 
 <axion>
 
-    <TRestAxionMagneticField name="bFieldBabyIAXO" title="bFieldBabyIAXO" >
-        <addMagneticVolume fileName="Bykovskiy_201906.dat" position="(0,0,0)mm" />
+    <TRestAxionMagneticField name="bFieldBabyIAXO" title="First magnetic field definition" verboseLevel="warning" >
+		<addMagneticVolume fileName="Bykovskiy_201906.dat" position="(200,200,200)mm"
+			gasMixture="He+Xe" gasDensity="1mg/dm3+1e-1mg/dm3" meshSize="(50,50,50)"
+			boundMax="(350,350,5000)" />
+					  
+        <addMagneticVolume fileName="Bykovskiy_201906.bin" position="(800,800,800)mm" field="(1,0,0)"
+							boundMax="(350,350,5000)" />
+
+		<addMagneticVolume field="(0,0,3)T" position="(-800,-800,-800)mm" 
+							boundMax="(100,100,300)" meshSize="(10,20,30)" />
+							
     </TRestAxionMagneticField>
 
 	<TRestAxionSolarModel name="sunPrimakoff" >
@@ -13,7 +22,7 @@
 	</TRestAxionSolarModel>
 
 	<TRestAxionBufferGas name="helium" verboseLevel="warning" >
-		<gas name="He" density="0.0025e-6"/>
+		<gas name="H" density="1g/cm3"/>
 	</TRestAxionBufferGas>
 
 	<TRestAxionLikelihood name="babyIAXO" >
@@ -35,5 +44,12 @@
 		<parameter name="energyRange" value="(1,8)"/>
 
 	</TRestAxionLikelihood>
+
+	<TRestAxionFieldPropagationProcess name="babyMagnet" value="ON" verboseLevel="info" >
+                <parameter name="mode" value="plan" /> <!-- plan or distance -->
+                <parameter name="distance" value="30000 mm" />
+                <parameter name="finalNPlan" value="(0,0,1)mm" />
+                <parameter name="finalPositionPlan" value="(0,0,10000)mm" />
+	</TRestAxionFieldPropagationProcess>
 </axion>
 

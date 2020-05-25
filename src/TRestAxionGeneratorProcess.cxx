@@ -103,12 +103,13 @@ void TRestAxionGeneratorProcess::Initialize() {
 
     fIsExternal = true;
 
-    fInputEvent = NULL;
-    fOutputEvent = fOutputAxionEvent;
-
     fRandom = new TRandom3(0);
 }
 
+///////////////////////////////////////////////
+/// \brief Process initialization. Data members that require initialization just before start processing
+/// should be initialized here.
+///
 void TRestAxionGeneratorProcess::InitProcess() {
     debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
 
@@ -256,6 +257,8 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
 /// \brief The main processing event function
 ///
 TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
+    fOutputAxionEvent = (TRestAxionEvent*)evInput;
+
     debug << "TRestAxionGeneratorProcess::ProcessEvent : " << fCounter << endl;
     fOutputAxionEvent->SetID(fCounter);
     fCounter++;

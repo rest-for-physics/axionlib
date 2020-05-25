@@ -29,7 +29,7 @@
 
 //! A metadata class to define theoretical axion models and calculations related
 class TRestAxionSolarModel : public TRestMetadata {
-  private:
+   private:
     void Initialize();
     void InitFromConfigFile();
 

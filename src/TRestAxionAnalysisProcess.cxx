@@ -102,9 +102,6 @@ void TRestAxionAnalysisProcess::Initialize() {
     fAxionEvent = new TRestAxionEvent();
 
     fAxionEvent->Initialize();
-
-    fInputEvent = fAxionEvent;
-    fOutputEvent = fAxionEvent;
 }
 
 ///////////////////////////////////////////////
@@ -112,7 +109,6 @@ void TRestAxionAnalysisProcess::Initialize() {
 ///
 TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     fAxionEvent = (TRestAxionEvent*)evInput;
-    fOutputEvent = evInput;
 
     debug << "TRestAxionAnalysisProcess::ProcessEvent : " << fAxionEvent->GetID() << endl;
 
@@ -122,15 +118,14 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     SetObservableValue("posY", fAxionEvent->GetPosition()->Y());
     SetObservableValue("posZ", fAxionEvent->GetPosition()->Z());
 
-    SetObservableValue("probability",fAxionEvent->GetGammaProbability());
+    SetObservableValue("probability", fAxionEvent->GetGammaProbability());
 
     if (GetVerboseLevel() >= REST_Debug) fAxionEvent->PrintEvent();
 
-    return fOutputEvent;
+    return fAxionEvent;
 }
 
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML TRestAxionAnalysisProcess metadata section
 ///
 void TRestAxionAnalysisProcess::InitFromConfigFile() {}
-

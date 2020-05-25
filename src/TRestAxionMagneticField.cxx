@@ -22,36 +22,139 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// TRestAxionMagneticField is a class that allows to load externally
-/// defined magnetic fields, and create magnetic volume regions using those
-/// pre-generated definitions. Once the field maps have been loaded this
-/// class will evaluate if a coordinate (x,y,z) is in a given magnetic
-/// region, and it will return a non-zero value of the magnetic field in
-/// case (x,y,z) is inside a magnetic region.
+/// defined magnetic fields, and create magnetic volume regions associated to
+/// those pre-generated definitions. Once the field maps have been loaded this
+/// class will be able to evaluate the field vector at any coordinate (x,y,z).
+/// If the coordinate (x,y,z) is ourside any defined region, the returned
+/// field will be (0,0,0).
+///
+/// TODO Description of magnetic field interpolation
+///
+/// ### RML definition
 ///
 /// We can add any number of magnetic volumes inside the RML definition
-/// as shown in the following piece of code.
+/// as shown in the following piece of code,
 ///
-/// ~~~
+/// \code
 /// <TRestAxionMagneticField>
-///         <addMagneticVolume file="magnetic.file" position="(30,0,0)mm" />
-///         <addMagneticVolume file="magnetic.file" position="(-30,0,0)mm" />
+///         <addMagneticVolume file="magnetic.file" position="(30,0,0)cm" />
+///         <addMagneticVolume file="magnetic.file" position="(-30,0,0)cm" />
 /// <TRestAxionMagneticField/>
-/// ~~~
+/// \endcode
 ///
 /// where we produce 2 magnetic regions, using the same magnetic map provided
-/// in file `magnetic.file` and shifted by x=-30mm and x=30mm. The parameters
-/// available in the `addMagneticVolume` definition are described in this list.
+/// in file `magnetic.file` and shifted by x=-30cm and x=30cm. The following
+/// parameters might be defined at each `addMagneticVolume` entry.
 ///
 /// - *file* : This allows to specify the filename that contains the values of the
 /// magnetic field. Few files will be found under `data/magneticField`. They all
 /// contain 3 columns for the position in the volume and 3 columns to define the
 /// magnetic field vector. It is not the full path but only the name of the file.
+/// The default value is "none", that identifies when no input field map is given.
+/// If no magnetic field map is provided the field will be constant in the volume
+/// definition, and fixed by the `field` parameter.
 ///
 /// - *position* : By convention, the volume is build using the coordinates provided
 /// in the magnetic field file given. However, it is possible to translate the
-/// volume using the `position` field.
+/// volume using the `position` field. The default value is (0,0,0).
 ///
-/// \todo Magnetic field volume rotations are not implemented. Are they necessary?
+/// - *field* : A 3D vector given in magnetic field units. If no units are given
+/// the vector is assumed to be expressed in Teslas. This field will be added as an
+/// offset to the magnetic field map given. The default value is (0,0,0).
+///
+/// - *boundMax* : A 3D vector, `(xMax,yMax,zMax)` that defines the bounding box
+/// size. The box size will be bounded by the vertex `(xMin,yMin,zMin)` and
+/// `(xMax,yMax,zMax)". This parameter is required if no field map file is given.
+/// If a field map file is provided, the bounding box will be extracted from the
+/// field map. In that case, this parameter will be only used for validation.
+///
+/// - *meshSize* : A 3D vector that defines the size of the cell in a regular
+/// grid where the field is defined. This parameter is required if no field map
+/// file is given. If a field map file is provided, the 3-dimensional cell element
+/// dimensions will be extracted from the field map. In that case, this parameter
+/// will be only used for validation.
+///
+/// - *meshType* : It defines the type of mesh boundary. The default value will
+/// be cylinder. It defines a cylinder with its axis sitting on z. The radius of
+/// the cylinder will be the first component of the *meshSize* 3D vector. The
+/// second component will be ignored, as it is defined inside TRestMesh. This
+/// will affect to the identification of field boundaries, and to the evaluation
+/// of the field, which will only happen when the evaluated coordinates are
+/// inside the bounding volume.
+///
+/// All parameteres are optional, and if not provided they will take their default
+/// values.
+///
+/// \note If no magnetic field map is provided, i.e. we just want to define a
+/// constant magnetic field vector, we still need to provide a boundary box size
+/// and mesh size through the `boundMax` and `meshSize` parameters. We still have
+/// the possibility to define a constant magnetic field vector for that volume
+/// using the `field` parameter. In that case the method
+/// TRestMagneticField::IsFieldConstant will return true.
+///
+/// ### Adding gas properties to each of the magnetic volumes.
+///
+/// On top of the magnetic field map that we associate to a magnetic region (or
+/// volume) we can - optionally - assign gas properties to the volume. This is done
+/// using an interface to the TRestAxionBufferGas. And we may initialize as follows
+/// at the `addMagneticVolume` entry in the corresponding RML section.
+///
+/// \code
+/// <TRestAxionMagneticField>
+///         <addMagneticVolume file="magnetic.file" position="(30,0,0)cm"
+///							gasMixture="He" gasDensity="0.1mg/dm3"/>
+///         <addMagneticVolume file="magnetic.file" position="(-30,0,0)cm"
+///							gasMixture="He+Xe" gasDensity="3g/m3+0.2mg/dm3"/>
+/// <TRestAxionMagneticField/>
+/// \endcode
+///
+/// \note If no magnetic field map, neither a constant field is provided, this
+/// class might still serve to define different regions distributed in the space
+/// that describe different gas properties, even though the magnetic field will
+/// be equal to zero.
+///
+/// ### The magnetic field file format.
+///
+/// There are two possible formats to provide a magnetic field map.
+///
+/// * **Plain-text format (.dat)** : The data file should describe the points of
+/// a box delimited by the vertexes `(-xMax, -yMax, -zMax)` and `(xMax,yMax,zMax)`.
+/// The field `(Bx,By,Bz)` must be given for all the points in a regular grid.
+/// The default units are `T` for the field and `mm` for distances. The size of
+/// the grid cells will be deduced from the data. Each row in the text file
+/// should provide 6-tabulated values `x`, `y`, `z`, `Bx`, `By`, `Bz`.
+///
+/// * **Binary format (.bin)** : Similar to the plain-text format. It should
+/// contain all the elements of the grid, bounded by (-xMax,-yMax,-zMax) and
+/// (xMax,yMax,zMax). Each element is built using the 3-coordinates `x`, `y`, `z`
+/// and the 3-field `Bx`, `By`, `Bz` values expressed in 4-bytes size, Float_t.
+///
+/// ### A more detailed example
+///
+/// The following example shows different allowed volume definition entries.
+///
+/// \code
+///    <TRestAxionMagneticField name="bFieldBabyIAXO" title="First magnetic field definition"
+///    verboseLevel="info" >
+///
+///		<!-- A volume from a text file centered at (0,0,0) in a Helium+Xenon gas mixture -->
+///		<addMagneticVolume fileName="Bykovskiy_201906.dat" position="(0,0,0)mm"
+///					gasMixture="He+Xe" gasDensity="1mg/dm3+1e-1mg/dm3" />
+///
+///		<!-- A volume from binary file, include Bx=1T offset, and boundMax validation -->
+///		<addMagneticVolume fileName="Bykovskiy_202004.bin" position="(800,800,800)mm"
+///					field="(1,0,0)"	boundMax="(350,350,4000)" />
+///
+///		<!-- A magnetic volume with a constant field definition (no field map) -->
+///		<addMagneticVolume field="(0,0,3)T" position="(-800,-800,-800)mm"
+///							boundMax="(100,200,300)" meshSize="(10,20,30)" />
+///    </TRestAxionMagneticField>
+/// \endcode
+///
+/// ### Visualizing the magnetic field
+///
+/// TODO Review and validate DrawHistogram drawing method and describe its
+/// use here.
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -62,12 +165,13 @@
 /// 2019-June: First concept and implementation of TRestAxionMagneticField class.
 ///            Eve Pachoud
 ///
-/// 2020-February: Reviewing TRestAxionMagneticField class.
-///            Javier Galan
+/// 2020-April: Reviewing and validating TRestAxionMagneticField class.
+///             Javier Galan and Krešimir Jakovčić
 ///
 /// \class      TRestAxionMagneticField
 /// \author     Eve Pachoud
-/// \author     Javier Galan
+/// \author     Javier Galan <javier.galan@unizar.es>
+/// \author     Krešimir Jakovčić <kjakov@irb.hr>
 ///
 /// <hr>
 ///
@@ -75,6 +179,9 @@
 #include "TRestAxionMagneticField.h"
 
 using namespace std;
+
+#include "TRestPhysics.h"
+using namespace REST_Physics;
 
 ClassImp(TRestAxionMagneticField);
 
@@ -95,7 +202,7 @@ TRestAxionMagneticField::TRestAxionMagneticField() : TRestMetadata() { Initializ
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// corresponding TRestG4Metadata section inside the RML.
+/// corresponding TRestAxionMagneticField section inside the RML.
 ///
 TRestAxionMagneticField::TRestAxionMagneticField(const char* cfgFileName, string name)
     : TRestMetadata(cfgFileName) {
@@ -105,7 +212,7 @@ TRestAxionMagneticField::TRestAxionMagneticField(const char* cfgFileName, string
 
     LoadConfigFromFile(fConfigFileName, name);
 
-    PrintMetadata();
+    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -113,6 +220,7 @@ TRestAxionMagneticField::TRestAxionMagneticField(const char* cfgFileName, string
 ///
 TRestAxionMagneticField::~TRestAxionMagneticField() {
     debug << "Entering ... TRestAxionMagneticField() destructor." << endl;
+    for (int n = 0; n < fMagneticFieldVolumes.size(); n++) delete fMagneticFieldVolumes[n].bGas;
 }
 
 ///////////////////////////////////////////////
@@ -129,8 +237,52 @@ void TRestAxionMagneticField::Initialize() {
 ///////////////////////////////////////////////
 /// \brief A method that creates a canvas where magnetic field map is drawn
 ///
+/// This method is used to create various 2D visualisations of the `Bx`, `By` and `Bz`
+/// magnetic field components for a given magnetic field region.
+///
+/// The following input parameters can be specified :
+///
+/// - *projection* : it specifies the plane in the magnetic field region from which
+/// the plotted values of the magnetic field component were taken. The allowed values
+/// are: "XY", "XZ" and "YZ" for `X-Y`, `X-Z` and `Y-Z` plane, respectively.
+///
+/// - *Bcomp* : it specifies which component of the magnetic field is plotted.
+/// The allowed values are: "X", "Y" and "Z" for `Bx`, `By` and `Bz` components,
+/// respectively.
+///
+/// - *volIndex* : it specifies the index of the magnetic field region/volume for
+/// which the plot is shown.
+///
+/// - *step* : it specifies the step/bin size for the 2D histogram that is shown.
+/// If this parameter is not specified, or if it has value < = 0, the values are taken
+/// from the corresponding mesh size values stored in data member `fMeshSize`.
+///
+/// - *style* : it specifies the plotting style for the histogram. It can correspond
+/// to any draw option for 2D histograms in ROOT. The list of options can be found at:
+/// https://root.cern.ch/root/htmldoc/guides/users-guide/Histograms.html#drawing-histograms
+/// The default value is "COLZ0" which draws a box for each cell in the histogram with a
+/// color scale varying with values. The other useful option is "SURF3Z" which draws a
+/// surface plot with a coloured contour view on the top.
+///
+/// - *depth* : it specifies the position of the plane in the magnetic field region from which
+/// the plotted values of the magnetic field component were taken. If this parameter is not
+/// specified, the histogram is plotted for the plane that goes through the middle of the region.
+///
+/// The following example will plot the values of the `Bx` component of the magnetic field
+/// taken in the X-Y plane positioned at z=5000mm in the magnetic field region with index 0.
+/// The step/bin size is 50mm, and the plotting style is "SURF3Z".
+///
+/// \code
+///    field->DrawHistogram("XY","X",0,50.0,"SURF3Z",5000.0)
+/// \endcode
+/// where `field` is a pointer to the TRestAxionMagneticField object that describes the
+/// magnetic field.
+///
 TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcomp, Int_t volIndex,
-                                                Double_t step) {
+                                                Double_t step, TString style, Double_t depth) {
+    Double_t step_x, step_y, step_z;
+    if (!FieldLoaded()) LoadMagneticVolumes();
+
     if (fCanvas != NULL) {
         delete fCanvas;
         fCanvas = NULL;
@@ -150,17 +302,24 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         volIndex = 0;
     }
 
-    if (step < 0) step = fMeshSize[volIndex];
+    // CAUTION. This needs revision just fixed adding .X() in order compile!
+    if (step <= 0) {
+        step_x = fMeshSize[volIndex].X();
+        step_y = fMeshSize[volIndex].Y();
+        step_z = fMeshSize[volIndex].Z();
+    } else
+        step_x = step_y = step_z = step;
 
-    MagneticFieldVolume vol = fMagneticFieldVolumes[volIndex];
+    MagneticFieldVolume* vol = GetMagneticVolume(volIndex);
+    if (!vol) return fCanvas;
 
     Double_t centerX = fPositions[volIndex][0];
     Double_t centerY = fPositions[volIndex][1];
     Double_t centerZ = fPositions[volIndex][2];
 
-    Double_t halfSizeX = vol.mesh.GetNetSizeX() / 2.;
-    Double_t halfSizeY = vol.mesh.GetNetSizeY() / 2.;
-    Double_t halfSizeZ = vol.mesh.GetNetSizeZ() / 2.;
+    Double_t halfSizeX = vol->mesh.GetNetSizeX() / 2.;
+    Double_t halfSizeY = vol->mesh.GetNetSizeY() / 2.;
+    Double_t halfSizeZ = vol->mesh.GetNetSizeZ() / 2.;
 
     Double_t xMin = centerX - halfSizeX;
     Double_t yMin = centerY - halfSizeY;
@@ -170,9 +329,9 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
     Double_t yMax = centerY + halfSizeY;
     Double_t zMax = centerZ + halfSizeZ;
 
-    Int_t nBinsX = (xMax - xMin) / step;
-    Int_t nBinsY = (yMax - yMin) / step;
-    Int_t nBinsZ = (zMax - zMin) / step;
+    Int_t nBinsX = (xMax - xMin) / step_x;
+    Int_t nBinsY = (yMax - yMin) / step_y;
+    Int_t nBinsZ = (zMax - zMin) / step_z;
 
     Double_t x, y, z;
     Double_t B;
@@ -182,7 +341,13 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         fCanvas = new TCanvas("fCanvas", "");
         fHisto = new TH2D("", "", nBinsX, xMin, xMax, nBinsY, yMin, yMax);
 
-        z = (zMin + zMax) / 2.0;
+        if (depth < -100000.0)
+            z = (zMin + zMax) / 2.0;
+        else if ((depth >= zMin) && (depth <= zMax))
+            z = depth;
+        else
+            ferr << "You entered depth = " << depth << ", but you have to choose depth between " << zMin
+                 << " and " << zMax << endl;
         x = xMin;
 
         for (Int_t i = 0; i < nBinsX; i++) {
@@ -203,9 +368,9 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                     }
                 }
                 fHisto->Fill(x, y, B);
-                y = y + step;
+                y = y + step_y;
             }
-            x = x + step;
+            x = x + step_x;
         }
 
         fCanvas->cd();
@@ -214,19 +379,22 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         fHisto->GetYaxis()->SetTitle("y (mm)");
 
         if (Bcomp == "X") {
-            fHisto->SetTitle("B_{x} against x and y");
-            fCanvas->SetTitle("B_{x} against x and y");
+            TString title = Form("B_{x} against x and y @ z = %.1f", z);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
         }
         if (Bcomp == "Y") {
-            fHisto->SetTitle("B_{y} against x and y");
-            fCanvas->SetTitle("B_{y} against x and y");
+            TString title = Form("B_{y} against x and y @ z = %.1f", z);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
         }
         if (Bcomp == "Z") {
-            fHisto->SetTitle("B_{z} against x and y");
-            fCanvas->SetTitle("B_{z} against x and y");
+            TString title = Form("B_{z} against x and y @ z = %.1f", z);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
         }
 
-        fHisto->Draw("COLZ0");
+        fHisto->Draw(style);
         return fCanvas;
     }
 
@@ -235,7 +403,13 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
             TCanvas* fCanvas = new TCanvas("fCanvas", "");
             fHisto = new TH2D("", "", nBinsX, xMin, xMax, nBinsZ, zMin, zMax);
 
-            y = (yMin + yMax) / 2.0;
+            if (depth < -100000.0)
+                y = (yMin + yMax) / 2.0;
+            else if ((depth >= yMin) && (depth <= yMax))
+                y = depth;
+            else
+                ferr << "You entered depth = " << depth << ", but you have to choose depth between " << yMin
+                     << " and " << yMax << endl;
             x = xMin;
 
             for (Int_t i = 0; i < nBinsX; i++) {
@@ -256,9 +430,9 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                         }
                     }
                     fHisto->Fill(x, z, B);
-                    z = z + step;
+                    z = z + step_z;
                 }
-                x = x + step;
+                x = x + step_x;
             }
 
             fCanvas->cd();
@@ -267,19 +441,22 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
             fHisto->GetYaxis()->SetTitle("z (mm)");
 
             if (Bcomp == "X") {
-                fHisto->SetTitle("B_{x} against x and z");
-                fCanvas->SetTitle("B_{x} against x and z");
+                TString title = Form("B_{x} against x and z @ y = %.1f", y);
+                fHisto->SetTitle(title);
+                fCanvas->SetTitle(title);
             }
             if (Bcomp == "Y") {
-                fHisto->SetTitle("B_{y} against x and z");
-                fCanvas->SetTitle("B_{y} against x and z");
+                TString title = Form("B_{y} against x and z @ y = %.1f", y);
+                fHisto->SetTitle(title);
+                fCanvas->SetTitle(title);
             }
             if (Bcomp == "Z") {
-                fHisto->SetTitle("B_{z} against x and z");
-                fCanvas->SetTitle("B_{z} against x and z");
+                TString title = Form("B_{z} against x and z @ y = %.1f", y);
+                fHisto->SetTitle(title);
+                fCanvas->SetTitle(title);
             }
 
-            fHisto->Draw("COLZ0");
+            fHisto->Draw(style);
             return fCanvas;
         }
 
@@ -288,7 +465,13 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                 TCanvas* fCanvas = new TCanvas("fCanvas", "");
                 fHisto = new TH2D("", "", nBinsY, yMin, yMax, nBinsZ, zMin, zMax);
 
-                x = (xMin + xMax) / 2.0;
+                if (depth < -100000.0)
+                    x = (xMin + xMax) / 2.0;
+                else if ((depth >= xMin) && (depth <= xMax))
+                    x = depth;
+                else
+                    ferr << "You entered depth = " << depth << ", but you have to choose depth between "
+                         << xMin << " and " << xMax << endl;
                 y = yMin;
 
                 for (Int_t i = 0; i < nBinsY; i++) {
@@ -309,9 +492,9 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                             }
                         }
                         fHisto->Fill(y, z, B);
-                        z = z + step;
+                        z = z + step_z;
                     }
-                    y = y + step;
+                    y = y + step_y;
                 }
 
                 fCanvas->cd();
@@ -320,19 +503,22 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                 fHisto->GetYaxis()->SetTitle("z (mm)");
 
                 if (Bcomp == "X") {
-                    fHisto->SetTitle("B_{x} against y and z");
-                    fCanvas->SetTitle("B_{x} against y and z");
+                    TString title = Form("B_{x} against y and z @ x = %.1f", x);
+                    fHisto->SetTitle(title);
+                    fCanvas->SetTitle(title);
                 }
                 if (Bcomp == "Y") {
-                    fHisto->SetTitle("B_{y} against y and z");
-                    fCanvas->SetTitle("B_{y} against y and z");
+                    TString title = Form("B_{y} against y and z @ x = %.1f", x);
+                    fHisto->SetTitle(title);
+                    fCanvas->SetTitle(title);
                 }
                 if (Bcomp == "Z") {
-                    fHisto->SetTitle("B_{z} against y and z");
-                    fCanvas->SetTitle("B_{z} against y and z");
+                    TString title = Form("B_{z} against y and z @ x = %.1f", x);
+                    fHisto->SetTitle(title);
+                    fCanvas->SetTitle(title);
                 }
 
-                fHisto->Draw("COLZ0");
+                fHisto->Draw(style);
                 return fCanvas;
             }
 
@@ -352,7 +538,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 /// This method will be made private since it will only be used internally.
 ///
 void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
-                                                    std::vector<std::vector<Double_t>> data) {
+                                                    std::vector<std::vector<Float_t>> data) {
     mVol.field.resize(mVol.mesh.GetNodesX());
     for (int n = 0; n < mVol.field.size(); n++) {
         mVol.field[n].resize(mVol.mesh.GetNodesY());
@@ -361,14 +547,20 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
 
     debug << "TRestAxionMagneticField::LoadMagneticFieldData. Printing first 5 data rows" << endl;
     for (Int_t n = 0; n < data.size(); n++) {
-        Int_t nX = mVol.mesh.GetNodeX((Int_t)data[n][0]);
-        Int_t nY = mVol.mesh.GetNodeY((Int_t)data[n][1]);
-        Int_t nZ = mVol.mesh.GetNodeZ((Int_t)data[n][2]);
+        // The magnetic field map is centered at zero.
+        // But the mesh definition contains the offset position
+        // We shift the data to match the mesh node network.
+        Int_t nX = mVol.mesh.GetNodeX((Int_t)(data[n][0] + mVol.mesh.GetNetSizeX() / 2.), true);
+        Int_t nY = mVol.mesh.GetNodeY((Int_t)(data[n][1] + mVol.mesh.GetNetSizeY() / 2.), true);
+        Int_t nZ = mVol.mesh.GetNodeZ((Int_t)(data[n][2] + mVol.mesh.GetNetSizeZ() / 2.), true);
 
         if (n < 5) {
             debug << "X: " << data[n][0] << " Y: " << data[n][1] << " Z: " << data[n][2] << endl;
+            debug << "absX: " << data[n][0] + mVol.position.X() << " absY: " << data[n][1] + mVol.position.Y()
+                  << " absZ: " << data[n][2] + mVol.position.Z() << endl;
             debug << "nX: " << nX << " nY: " << nY << " nZ: " << nZ << endl;
             debug << "Bx: " << data[n][3] << " By: " << data[n][4] << " Bz: " << data[n][5] << endl;
+            if (GetVerboseLevel() >= REST_Extreme) GetChar();
         }
 
         if (mVol.field[nX][nY][nZ] != TVector3(0.0, 0.0, 0.0)) {
@@ -384,6 +576,7 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
                     << endl;
 
             this->SetError("There was a problem assigning the field matrix!");
+            if (GetVerboseLevel() >= REST_Extreme) GetChar();
         }
 
         mVol.field[nX][nY][nZ] = TVector3(data[n][3], data[n][4], data[n][5]);
@@ -398,54 +591,163 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
 void TRestAxionMagneticField::LoadMagneticVolumes() {
     for (unsigned int n = 0; n < fPositions.size(); n++) {
         string fullPathName = SearchFile((string)fFileNames[n]);
+        debug << "Reading file : " << fFileNames[n] << endl;
+        debug << "Full path : " << fullPathName << endl;
 
-        std::vector<std::vector<Double_t>> fieldData;
-        TRestTools::ReadASCIITable(fullPathName, fieldData);
-
-        // First line are the limits of field and size of mesh
-        Double_t xmax = fieldData[0][0];
-        Double_t ymax = fieldData[0][1];
-        Double_t zmax = fieldData[0][2];
-
-        Double_t sizeMesh = fieldData[0][3];
-        fMeshSize.push_back(sizeMesh);
-
-        // We keep in the vector only the field data. We remove first row
-        fieldData.erase(fieldData.begin());
-
-        if (GetVerboseLevel() >= REST_Debug) {
-            cout << "Reading magnetic field map" << endl;
-            cout << "--------------------------" << endl;
-
-            cout << "Full path : " << fullPathName << endl;
-
-            cout << "xMax: " << xmax << " yMax: " << ymax << " zMax: " << zmax << endl;
-            cout << "Mesh size : " << sizeMesh << endl;
-
-            cout << "Printing beginning of magnetic file table : " << fieldData.size() << endl;
-            TRestTools::PrintTable(fieldData, 0, 5);
+        if (fullPathName == "") {
+            ferr << "TRestAxionMagneticField::LoadMagneticVolumes. File " << fFileNames[n] << " not found!"
+                 << endl;
+            ferr << "REST will look for this file at any path given by <searchPath at globals definitions"
+                 << endl;
+            exit(5);
         }
 
+        std::vector<std::vector<Float_t>> fieldData;
+        if (fullPathName.find(".dat") != string::npos) {
+            debug << "Reading ASCII format" << endl;
+            if (!TRestTools::ReadASCIITable(fullPathName, fieldData)) {
+                ferr << "Problem reading file : " << fullPathName << endl;
+                exit(1);
+            }
+        } else if (fullPathName.find(".bin") != string::npos) {
+            debug << "Reading binary format" << endl;
+            if (!TRestTools::ReadBinaryTable(fullPathName, fieldData, 6)) {
+                ferr << "Problem reading file : " << fullPathName << endl;
+                exit(2);
+            }
+        } else if (fFileNames[n] != "none") {
+            ferr << "Filename : " << fullPathName << endl;
+            ferr << "File format not recognized!" << endl;
+            exit(3);
+        }
+
+        if (fFileNames[n] != "none" && fieldData.size() < 2) {
+            ferr << "Field data size is no more than 2 grid points!" << endl;
+            ferr << "Filename : " << fullPathName << endl;
+            ferr << "Probably something went wrong loading the file" << endl;
+            exit(4);
+        }
+
+        Float_t xMin = -fBoundMax[n].X(), yMin = -fBoundMax[n].Y(), zMin = -fBoundMax[n].Z();
+        Float_t xMax = fBoundMax[n].X(), yMax = fBoundMax[n].Y(), zMax = fBoundMax[n].Z();
+        Float_t meshSizeX = fMeshSize[n].X(), meshSizeY = fMeshSize[n].Y(), meshSizeZ = fMeshSize[n].Z();
+
+        // If a field map is defined we get the boundaries, and mesh size from the volume
+        if (fieldData.size() > 0) {
+            debug << "Reading max boundary values" << endl;
+            xMax = TRestTools::GetMaxValueFromTable(fieldData, 0);
+            yMax = TRestTools::GetMaxValueFromTable(fieldData, 1);
+            zMax = TRestTools::GetMaxValueFromTable(fieldData, 2);
+
+            if (fBoundMax[n] != TVector3(0, 0, 0)) {
+                if (fBoundMax[n] != TVector3(xMax, yMax, zMax)) {
+                    warning << "Volume : " << n << endl;
+                    warning << "boundMax was defined in RML but does not match the field map boundaries!"
+                            << endl;
+                    warning << "Max. Field map boundaries : (" << xMax << ", " << yMax << ", " << zMax << ")"
+                            << endl;
+                }
+            }
+
+            debug << "Reading min boundary values" << endl;
+            xMin = TRestTools::GetMinValueFromTable(fieldData, 0);
+            yMin = TRestTools::GetMinValueFromTable(fieldData, 1);
+            zMin = TRestTools::GetMinValueFromTable(fieldData, 2);
+
+            if (fBoundMax[n] != TVector3(0, 0, 0)) {
+                if (-fBoundMax[n] != TVector3(xMin, yMin, zMin)) {
+                    warning << "Volume : " << n << endl;
+                    warning << "boundMax was defined in RML but does not match the field map boundaries"
+                            << endl;
+                    warning << "Min. Field map boundaries : (" << xMin << ", " << yMin << ", " << zMin << ")"
+                            << endl;
+                }
+            }
+            fBoundMax[n] = TVector3(xMax, yMax, zMax);
+
+            debug << "Reading mesh size" << endl;
+            meshSizeX = TRestTools::GetLowestIncreaseFromTable(fieldData, 0);
+            meshSizeY = TRestTools::GetLowestIncreaseFromTable(fieldData, 1);
+            meshSizeZ = TRestTools::GetLowestIncreaseFromTable(fieldData, 2);
+
+            if (fMeshSize[n] != TVector3(0, 0, 0)) {
+                if (fMeshSize[n] != TVector3(meshSizeX, meshSizeY, meshSizeZ)) {
+                    warning << "Volume : " << n << endl;
+                    warning << "MeshSize was defined in RML but does not match the mesh size deduced from "
+                               "field map"
+                            << endl;
+                    warning << "Mesh size : (" << meshSizeX << ", " << meshSizeY << ", " << meshSizeZ << ")"
+                            << endl;
+                }
+            }
+            fMeshSize[n] = TVector3(meshSizeX, meshSizeY, meshSizeZ);
+        }
+
+        if (GetVerboseLevel() >= REST_Debug) {
+            debug << "Reading magnetic field map" << endl;
+            debug << "--------------------------" << endl;
+
+            debug << "Full path : " << fullPathName << endl;
+
+            debug << "Boundaries" << endl;
+            debug << "xMin: " << xMin << " yMin: " << yMin << " zMin: " << zMin << endl;
+            debug << "xMax: " << xMax << " yMax: " << yMax << " zMax: " << zMax << endl;
+            debug << "Mesh size" << endl;
+
+            debug << "sX: " << meshSizeX << " sY: " << meshSizeY << " sZ: " << meshSizeZ << endl;
+
+            if (fieldData.size() > 4) {
+                debug << "Printing beginning of magnetic file table : " << fieldData.size() << endl;
+                TRestTools::PrintTable(fieldData, 0, 5);
+            } else {
+                debug << "The data file contains no field map" << endl;
+            }
+        }
+        if (GetVerboseLevel() >= REST_Extreme) GetChar();
+
         // Number of nodes
-        Int_t nx = (Int_t)(2 * xmax / sizeMesh) + 1;
-        Int_t ny = (Int_t)(2 * ymax / sizeMesh) + 1;
-        Int_t nz = (Int_t)(2 * zmax / sizeMesh) + 1;
+        Int_t nx = (Int_t)(2 * xMax / meshSizeX) + 1;
+        Int_t ny = (Int_t)(2 * yMax / meshSizeY) + 1;
+        Int_t nz = (Int_t)(2 * zMax / meshSizeZ) + 1;
 
         // We create an auxiliar mesh helping to initialize the fieldMap
         // The mesh is centered at zero. Absolute position is defined in the Magnetic volume
+        // TODO It would be interesting that TRestMesh could be used in cylindrical coordinates.
         TRestMesh restMesh;
-        restMesh.SetSize(2 * xmax, 2 * ymax, 2 * zmax);
-        restMesh.SetOrigin(TVector3(-xmax, -ymax, -zmax));
+        restMesh.SetSize(2 * xMax, 2 * yMax, 2 * zMax);
+        restMesh.SetOrigin(fPositions[n] - TVector3(xMax, yMax, zMax));
         restMesh.SetNodes(nx, ny, nz);
+        if (fMeshType[n] == "cylinder")
+            restMesh.SetCylindrical(true);
+        else
+            restMesh.SetCylindrical(false);
 
         MagneticFieldVolume mVolume;
         mVolume.position = fPositions[n];
         mVolume.mesh = restMesh;
 
-        LoadMagneticFieldData(mVolume, fieldData);
+        if (mVolume.bGas == NULL) mVolume.bGas = new TRestAxionBufferGas();
+        if (fGasMixtures[n] != "vacuum") mVolume.bGas->SetGasMixture(fGasMixtures[n], fGasDensities[n]);
 
+        if (fieldData.size() > 0) LoadMagneticFieldData(mVolume, fieldData);
+
+        if (fBoundMax[n] == TVector3(0, 0, 0)) {
+            ferr << "The bounding box was not defined for volume " << n << "!" << endl;
+            ferr << "Please review RML configuration for TRestAxionMagneticField" << endl;
+            exit(22);
+        } else if (fMeshSize[n] == TVector3(0, 0, 0)) {
+            ferr << "The mesh grid size was not defined for volume " << n << "!" << endl;
+            ferr << "Please review RML configuration for TRestAxionMagneticField" << endl;
+            exit(22);
+        }
         fMagneticFieldVolumes.push_back(mVolume);
     }
+
+    if (CheckOverlaps()) {
+        ferr << "TRestAxionMagneticField::LoadMagneticVolumes. Volumes overlap!" << endl;
+        exit(1);
+    }
+    debug << "Finished loading magnetic volumes" << endl;
 }
 
 ///////////////////////////////////////////////
@@ -456,29 +758,212 @@ TVector3 TRestAxionMagneticField::GetMagneticField(Double_t x, Double_t y, Doubl
 }
 
 ///////////////////////////////////////////////
-/// \brief It returns the magnetic field vector at TVector3(pos)
+/// \brief It returns the magnetic field vector at TVector3(pos) using trilinear interpolation
+/// that is implemented following instructions given at https://en.wikipedia.org/wiki/Trilinear_interpolation
 ///
 TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
-    for (int n = 0; n < fMagneticFieldVolumes.size(); n++) {
-        TVector3 relativePosition = pos - fPositions[n];
-        if (fMagneticFieldVolumes[n].mesh.IsInside(relativePosition)) {
-            TVector3 node = GetMagneticVolumeNode(fMagneticFieldVolumes[n], pos);
-            Int_t nX = node.X();
-            Int_t nY = node.Y();
-            Int_t nZ = node.Z();
+    Int_t id = GetVolumeIndex(pos);
 
-            // We just return the field at nX, nY, nZ.
-            // Which is the bottom,left,down node.
-            // We could interpolate here using the other nodes field nX+1,nY+1,nZ+1
-            return fMagneticFieldVolumes[n].field[nX][nY][nZ];
-        }
+    if (id < 0) {
+        warning << "TRestAxionMagneticField::GetMagneticField position is outside any volume" << endl;
+        return TVector3(0, 0, 0);
+    } else {
+        if (IsFieldConstant(id)) return fConstantField[id];
+        TVector3 node = GetMagneticVolumeNode(fMagneticFieldVolumes[id], pos);
+        Int_t nX = node.X();
+        Int_t nY = node.Y();
+        Int_t nZ = node.Z();
+
+        Int_t nX_1, nY_1, nZ_1;
+
+        if ((nX + 1) < fMagneticFieldVolumes[id].mesh.GetNodesX())
+            nX_1 = nX + 1;
+        else
+            nX_1 = nX;
+        if ((nY + 1) < fMagneticFieldVolumes[id].mesh.GetNodesY())
+            nY_1 = nY + 1;
+        else
+            nY_1 = nY;
+        if ((nZ + 1) < fMagneticFieldVolumes[id].mesh.GetNodesZ())
+            nZ_1 = nZ + 1;
+        else
+            nZ_1 = nZ;
+
+        TVector3 C000 = fMagneticFieldVolumes[id].field[nX][nY][nZ] + fConstantField[id];
+        TVector3 C100 = fMagneticFieldVolumes[id].field[nX_1][nY][nZ] + fConstantField[id];
+        TVector3 C010 = fMagneticFieldVolumes[id].field[nX][nY_1][nZ] + fConstantField[id];
+        TVector3 C110 = fMagneticFieldVolumes[id].field[nX_1][nY_1][nZ] + fConstantField[id];
+        TVector3 C001 = fMagneticFieldVolumes[id].field[nX][nY][nZ_1] + fConstantField[id];
+        TVector3 C101 = fMagneticFieldVolumes[id].field[nX_1][nY][nZ_1] + fConstantField[id];
+        TVector3 C011 = fMagneticFieldVolumes[id].field[nX][nY_1][nZ_1] + fConstantField[id];
+        TVector3 C111 = fMagneticFieldVolumes[id].field[nX_1][nY_1][nZ_1] + fConstantField[id];
+
+        Double_t x0 = fMagneticFieldVolumes[id].mesh.GetX(nX);
+        Double_t x1 = fMagneticFieldVolumes[id].mesh.GetX(nX_1);
+        Double_t xd;
+        if (x0 == x1)
+            xd = 0;
+        else
+            xd = (pos.X() - x0) / (x1 - x0);
+        if ((xd < -0.00001) || (xd > 1.00001))
+            warning << "TRestAxionMagneticField::GetMagneticField  Error: xd NOT between 0 and 1" << endl;
+
+        Double_t y0 = fMagneticFieldVolumes[id].mesh.GetY(nY);
+        Double_t y1 = fMagneticFieldVolumes[id].mesh.GetY(nY_1);
+        Double_t yd;
+        if (y0 == y1)
+            yd = 0;
+        else
+            yd = (pos.Y() - y0) / (y1 - y0);
+        if ((yd < -0.00001) || (yd > 1.00001))
+            warning << "TRestAxionMagneticField::GetMagneticField  Error: yd NOT between 0 and 1" << endl;
+
+        Double_t z0 = fMagneticFieldVolumes[id].mesh.GetZ(nZ);
+        Double_t z1 = fMagneticFieldVolumes[id].mesh.GetZ(nZ_1);
+        Double_t zd;
+        if (z0 == z1)
+            zd = 0;
+        else
+            zd = (pos.Z() - z0) / (z1 - z0);
+        if ((zd < -0.00001) || (zd > 1.00001))
+            warning << "TRestAxionMagneticField::GetMagneticField  Error: zd NOT between 0 and 1" << endl;
+
+        // first we interpolate along x-axis
+        TVector3 C00 = C000 * (1.0 - xd) + C100 * xd;
+        TVector3 C01 = C001 * (1.0 - xd) + C101 * xd;
+        TVector3 C10 = C010 * (1.0 - xd) + C110 * xd;
+        TVector3 C11 = C011 * (1.0 - xd) + C111 * xd;
+
+        // then we interpolate along y-axis
+        TVector3 C0 = C00 * (1.0 - yd) + C10 * yd;
+        TVector3 C1 = C01 * (1.0 - yd) + C11 * yd;
+
+        // finally we interpolate along z-axis
+        TVector3 C = C0 * (1.0 - zd) + C1 * zd;
+
+        debug << "position = (" << pos.X() << ", " << pos.Y() << ", " << pos.Z() << ")       ";
+        debug << "nX = " << nX << " nY = " << nY << " nZ = " << nZ << "     nX_1 = " << nX_1
+              << "   nY_1 = " << nY_1 << "   nZ_1 = " << nZ_1 << endl
+              << endl;
+        debug << "C000 = (" << C000.X() << ", " << C000.Y() << ", " << C000.Z() << ")" << endl << endl;
+        debug << "C100 = (" << C100.X() << ", " << C100.Y() << ", " << C100.Z() << ")" << endl << endl;
+        debug << "C010 = (" << C010.X() << ", " << C010.Y() << ", " << C010.Z() << ")" << endl << endl;
+        debug << "C110 = (" << C110.X() << ", " << C110.Y() << ", " << C110.Z() << ")" << endl << endl;
+        debug << "C001 = (" << C001.X() << ", " << C001.Y() << ", " << C001.Z() << ")" << endl << endl;
+        debug << "C101 = (" << C101.X() << ", " << C101.Y() << ", " << C101.Z() << ")" << endl << endl;
+        debug << "C011 = (" << C011.X() << ", " << C011.Y() << ", " << C011.Z() << ")" << endl << endl;
+        debug << "C111 = (" << C111.X() << ", " << C111.Y() << ", " << C111.Z() << ")" << endl << endl;
+        debug << " -------------------------------------------------------" << endl;
+        debug << "C00 = (" << C00.X() << ", " << C00.Y() << ", " << C00.Z() << ")" << endl << endl;
+        debug << "C01 = (" << C01.X() << ", " << C01.Y() << ", " << C01.Z() << ")" << endl << endl;
+        debug << "C10 = (" << C10.X() << ", " << C10.Y() << ", " << C10.Z() << ")" << endl << endl;
+        debug << "C11 = (" << C11.X() << ", " << C11.Y() << ", " << C11.Z() << ")" << endl << endl;
+        debug << " -------------------------------------------------------" << endl;
+        debug << "C0 = (" << C0.X() << ", " << C0.Y() << ", " << C0.Z() << ")" << endl << endl;
+        debug << "C1 = (" << C1.X() << ", " << C1.Y() << ", " << C1.Z() << ")" << endl << endl;
+        debug << " -------------------------------------------------------" << endl;
+        debug << "C = (" << C.X() << ", " << C.Y() << ", " << C.Z() << ")" << endl << endl;
+
+        return C;
     }
-    return TVector3(0, 0, 0);
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the effective photon mass in eV for the given position `(x,y,z)` and energy `en` using
+/// the gas properties defined at the corresponding magnetic volume.
+///
+Double_t TRestAxionMagneticField::GetPhotonMass(Double_t x, Double_t y, Double_t z, Double_t en) {
+    return GetPhotonMass(TVector3(x, y, z), en);
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the effective photon mass in eV for the given position `pos` and energy `en` using the
+/// gas properties defined at the corresponding magnetic volume.
+///
+Double_t TRestAxionMagneticField::GetPhotonMass(TVector3 pos, Double_t en) {
+    Int_t id = GetVolumeIndex(pos);
+
+    return GetPhotonMass(id, en);
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the effective photon mass in eV at the corresponding magnetic volume id.
+///
+Double_t TRestAxionMagneticField::GetPhotonMass(Int_t id, Double_t en) {
+    if (id >= 0) {
+        return fMagneticFieldVolumes[id].bGas->GetPhotonMass(en);
+    } else {
+        warning << "TRestAxionMagneticField::GetPhotonMass position is outside any volume" << endl;
+    }
+    return -1;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the photon absorption length in cm-1 for the given position `(x,y,z)` and energy `en`
+/// using the gas properties defined at the corresponding magnetic volume.
+///
+Double_t TRestAxionMagneticField::GetPhotonAbsorptionLength(Double_t x, Double_t y, Double_t z, Double_t en) {
+    return GetPhotonAbsorptionLength(TVector3(x, y, z), en);
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the photon absorption length in cm-1 for the given position `pos` and energy `en` using
+/// the gas properties defined at the corresponding magnetic volume.
+///
+Double_t TRestAxionMagneticField::GetPhotonAbsorptionLength(TVector3 pos, Double_t en) {
+    Int_t id = GetVolumeIndex(pos);
+
+    return GetPhotonAbsorptionLength(id, en);
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the photon absorption length in cm-1 for the given position `pos` and energy `en` at the
+/// given volume id.
+///
+Double_t TRestAxionMagneticField::GetPhotonAbsorptionLength(Int_t id, Double_t en) {
+    if (id >= 0) {
+        return fMagneticFieldVolumes[id].bGas->GetPhotonAbsorptionLength(en);
+    } else {
+        warning << "TRestAxionMagneticField::GetPhotonAbsorptionLength position is outside any volume"
+                << endl;
+    }
+    return -1;
+}
+
+///////////////////////////////////////////////
+/// \brief it returns the corresponding volume index at the given position. If not found it will return
+/// -1.
+///
+Int_t TRestAxionMagneticField::GetVolumeIndex(TVector3 pos) {
+    if (!FieldLoaded()) LoadMagneticVolumes();
+
+    for (int n = 0; n < fMagneticFieldVolumes.size(); n++) {
+        if (fMagneticFieldVolumes[n].mesh.IsInside(pos)) return n;
+    }
+    return -1;
+}
+
+///////////////////////////////////////////////
+/// \brief it returns the volume position (or center) for the given volume `id`.
+///
+TVector3 TRestAxionMagneticField::GetVolumeCenter(Int_t id) { return GetVolumePosition(id); }
+
+///////////////////////////////////////////////
+/// \brief it returns the volume position (or center) for the given volume `id`.
+///
+TVector3 TRestAxionMagneticField::GetVolumePosition(Int_t id) {
+    if (GetNumberOfVolumes() > id)
+        return fPositions[id];
+    else {
+        warning << "TRestAxionMagneticField::GetVolumePosition. Id : " << id << " out of range!" << endl;
+        warning << "Number of volumes defined : " << GetNumberOfVolumes() << endl;
+        return TVector3(0, 0, 0);
+    }
 }
 
 ///////////////////////////////////////////////
 /// \brief It returns the intensity of the transversal magnetic field component for the defined propagation
-/// direction at the position given by argument.
+/// `direction` and `position` given by argument.
 ///
 Double_t TRestAxionMagneticField::GetTransversalComponent(TVector3 position, TVector3 direction) {
     return abs(GetMagneticField(position).Perp(direction));
@@ -551,12 +1036,99 @@ Double_t TRestAxionMagneticField::GetTransversalFieldAverage(TVector3 from, TVec
 /// This method will be made private, no reason to use it outside this class.
 ///
 TVector3 TRestAxionMagneticField::GetMagneticVolumeNode(MagneticFieldVolume mVol, TVector3 pos) {
-    TVector3 relPosition = pos - mVol.position;
-
-    Int_t nx = mVol.mesh.GetNodeX(relPosition.X());
-    Int_t ny = mVol.mesh.GetNodeY(relPosition.Y());
-    Int_t nz = mVol.mesh.GetNodeZ(relPosition.Z());
+    Int_t nx = mVol.mesh.GetNodeX(pos.X());
+    Int_t ny = mVol.mesh.GetNodeY(pos.Y());
+    Int_t nz = mVol.mesh.GetNodeZ(pos.Z());
     return TVector3(nx, ny, nz);
+}
+
+///////////////////////////////////////////////
+/// \brief It will return true if the magnetic the regions overlap
+///
+Bool_t TRestAxionMagneticField::CheckOverlaps() {
+    debug << "Checking overlaps" << endl;
+    for (int n = 0; n < GetNumberOfVolumes(); n++) {
+        for (int m = 0; m < GetNumberOfVolumes(); m++) {
+            if (m == n) continue;
+            debug << "Volume : " << m << endl;
+
+            TVector3 b = GetMagneticVolume(m)->mesh.GetVertex(0);
+            debug << "Relative bottom vertex : (" << b.X() << ", " << b.Y() << ", " << b.Z() << ")" << endl;
+            if (GetMagneticVolume(n)->mesh.IsInsideBoundingBox(b)) return true;
+
+            TVector3 t = GetMagneticVolume(m)->mesh.GetVertex(1);
+            debug << "Relative top vertex : (" << t.X() << ", " << t.Y() << ", " << t.Z() << ")" << endl;
+            if (GetMagneticVolume(n)->mesh.IsInsideBoundingBox(t)) return true;
+        }
+    }
+    return false;
+}
+
+///////////////////////////////////////////////
+/// \brief Finds the in/out particle trajectory boundaries for a particular magnetic region bounding box.
+///
+/// This method checks if the trajectory defined by the position `pos` and direction `dir` passes through
+/// the magnetic ﬁeld region/volume `id` given. If two such points (entry point and exit point) are found,
+/// their coordinates are returned. In the example shown in Fig. 1 from TRestAxionFieldPropagationProcess
+/// these points are: IN 1 and OUT 1 for the region #1 and IN2 and OUT 2 for the region #2.
+///
+/// If no intersection is found, or the particle is not moving towards the volume, the returned
+/// std::vector
+/// will be empty.
+///
+std::vector<TVector3> TRestAxionMagneticField::GetVolumeBoundaries(Int_t id, TVector3 pos, TVector3 dir) {
+    MagneticFieldVolume* vol = GetMagneticVolume(id);
+
+    std::vector<TVector3> boundaries;
+
+    if (vol) boundaries = vol->mesh.GetTrackBoundaries(pos, dir);
+
+    return boundaries;
+}
+
+///////////////////////////////////////////////
+/// \brief Finds the in/out particle trajectory boundaries for a particular magnetic region, similar to
+/// the method TRestAxionMagneticField::GetVolumeBoudaries, but requiring that the in/out points are the
+/// first/last points where the **transversal** field intensity is not zero.
+///
+/// If no precision is given, the mesh size of the corresponding volume will be used as reference. The
+/// precision will be meshSize/2.
+///
+/// If no intersection is found the returned std::vector will be empty.
+///
+std::vector<TVector3> TRestAxionMagneticField::GetFieldBoundaries(Int_t id, TVector3 pos, TVector3 dir,
+                                                                  Double_t precision) {
+    std::vector<TVector3> volumeBoundaries = GetVolumeBoundaries(id, pos, dir);
+    if (volumeBoundaries.size() != 2) return volumeBoundaries;
+
+    if (IsFieldConstant(id)) return volumeBoundaries;
+
+    MagneticFieldVolume* vol = GetMagneticVolume(id);
+    if (!vol) return volumeBoundaries;
+
+    if (precision == 0) precision = min(fMeshSize[id].X(), min(fMeshSize[id].Y(), fMeshSize[id].Z())) / 2.;
+
+    TVector3 unit = dir.Unit();
+    std::vector<TVector3> fieldBoundaries;
+
+    TVector3 in = volumeBoundaries[0];
+    while ((((volumeBoundaries[1] - in) * dir) > 0) && (GetTransversalComponent(in, dir) == 0))
+        in = MoveByDistanceFast(in, unit, precision);
+    if (((volumeBoundaries[1] - in) * dir) > 0)
+        fieldBoundaries.push_back(in);
+    else
+        return fieldBoundaries;
+
+    TVector3 out = volumeBoundaries[1];
+    while ((((volumeBoundaries[0] - out) * dir) < 0) && (GetTransversalComponent(out, -dir) == 0) &&
+           (((out - in) * dir) > 0))
+        out = MoveByDistanceFast(out, -unit, precision);
+    if ((((volumeBoundaries[0] - out) * dir) < 0) && (((out - in) * dir) > 0))
+        fieldBoundaries.push_back(out);
+    else
+        return fieldBoundaries;
+
+    return fieldBoundaries;
 }
 
 ///////////////////////////////////////////////
@@ -569,10 +1141,69 @@ void TRestAxionMagneticField::InitFromConfigFile() {
     size_t pos = 0;
     while ((bVolume = GetKEYDefinition("addMagneticVolume", pos)) != "") {
         string filename = GetFieldValue("fileName", bVolume);
-        fFileNames.push_back(filename);
+        if (filename == "Not defined")
+            fFileNames.push_back("none");
+        else
+            fFileNames.push_back(filename);
 
         TVector3 position = Get3DVectorFieldValueWithUnits("position", bVolume);
-        fPositions.push_back(position);
+        if (position == TVector3(-1, -1, -1))
+            fPositions.push_back(TVector3(0, 0, 0));
+        else
+            fPositions.push_back(position);
+
+        TVector3 field = Get3DVectorFieldValueWithUnits("field", bVolume);
+        if (field == TVector3(-1, -1, -1))
+            fConstantField.push_back(TVector3(0, 0, 0));
+        else
+            fConstantField.push_back(field);
+
+        TVector3 boundMax = Get3DVectorFieldValueWithUnits("boundMax", bVolume);
+        if (boundMax == TVector3(-1, -1, -1))
+            fBoundMax.push_back(TVector3(0, 0, 0));
+        else
+            fBoundMax.push_back(boundMax);
+
+        TVector3 meshSize = Get3DVectorFieldValueWithUnits("meshSize", bVolume);
+        if (meshSize == TVector3(-1, -1, -1))
+            fMeshSize.push_back(TVector3(0, 0, 0));
+        else
+            fMeshSize.push_back(meshSize);
+
+        string type = GetFieldValue("meshType", bVolume);
+        if (type == "Not defined")
+            fMeshType.push_back("cylinder");
+        else
+            fMeshType.push_back(type);
+
+        // TRestMesh will only consider the first bounding component anyway
+        if (fMeshType.back() == "cylinder" && fBoundMax.back().X() != fBoundMax.back().Y()) {
+            warning << "Mesh type is cylinder. But X and Y inside boundMax are not the same!" << endl;
+            warning << "Making second bound component Y equal to the X bound component!" << endl;
+            fBoundMax.back().SetY(fBoundMax.back().X());
+        }
+
+        TString gasMixture = GetFieldValue("gasMixture", bVolume);
+        if (gasMixture == "Not defined") gasMixture = "vacuum";
+        fGasMixtures.push_back(gasMixture);
+
+        TString gasDensity = GetFieldValue("gasDensity", bVolume);
+        if (gasDensity == "Not defined") gasDensity = "0";
+        fGasDensities.push_back(gasDensity);
+
+        debug << "Reading new magnetic volume" << endl;
+        debug << "-----" << endl;
+        debug << "Filename : " << filename << endl;
+        debug << "Position: ( " << position.X() << ", " << position.Y() << ", " << position.Z() << ") mm"
+              << endl;
+        debug << "Field: ( " << field.X() << ", " << field.Y() << ", " << field.Z() << ") T" << endl;
+        debug << "Max bounding box ( " << boundMax.X() << ", " << boundMax.Y() << ", " << boundMax.Z() << ")"
+              << endl;
+        debug << "Mesh size ( " << meshSize.X() << ", " << meshSize.Y() << ", " << meshSize.Z() << ")"
+              << endl;
+        debug << "Gas mixture : " << gasMixture << endl;
+        debug << "Gas density : " << gasDensity << endl;
+        debug << "----" << endl;
     }
 
     LoadMagneticVolumes();
@@ -581,8 +1212,7 @@ void TRestAxionMagneticField::InitFromConfigFile() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Prints on screen the details about the Geant4 simulation
-/// conditions, stored in TRestG4Metadata.
+/// \brief Prints on screen the information about the metadata members of TRestAxionMagneticField
 ///
 void TRestAxionMagneticField::PrintMetadata() {
     TRestMetadata::PrintMetadata();
@@ -590,15 +1220,16 @@ void TRestAxionMagneticField::PrintMetadata() {
     metadata << " - Number of magnetic volumes : " << GetNumberOfVolumes() << endl;
     metadata << " ------------------------------------------------ " << endl;
     for (int p = 0; p < GetNumberOfVolumes(); p++) {
-        MagneticFieldVolume vol = fMagneticFieldVolumes[p];
+        if (p > 0) metadata << " ------------------------------------------------ " << endl;
+        MagneticFieldVolume* vol = GetMagneticVolume(p);
 
         Double_t centerX = fPositions[p][0];
         Double_t centerY = fPositions[p][1];
         Double_t centerZ = fPositions[p][2];
 
-        Double_t halfSizeX = vol.mesh.GetNetSizeX() / 2.;
-        Double_t halfSizeY = vol.mesh.GetNetSizeY() / 2.;
-        Double_t halfSizeZ = vol.mesh.GetNetSizeZ() / 2.;
+        Double_t halfSizeX = vol->mesh.GetNetSizeX() / 2.;
+        Double_t halfSizeY = vol->mesh.GetNetSizeY() / 2.;
+        Double_t halfSizeZ = vol->mesh.GetNetSizeZ() / 2.;
 
         Double_t xMin = centerX - halfSizeX;
         Double_t yMin = centerY - halfSizeY;
@@ -608,15 +1239,22 @@ void TRestAxionMagneticField::PrintMetadata() {
         Double_t yMax = centerY + halfSizeY;
         Double_t zMax = centerZ + halfSizeZ;
 
-        metadata << "* Volume " << p << " : "
-                 << "  - Set in (" << centerX << "," << centerY << "," << centerZ << ")"
-                 << " mm" << endl;
+        metadata << "* Volume " << p << " centered at  (" << centerX << "," << centerY << "," << centerZ
+                 << ") mm" << endl;
+        metadata << "  - Grid mesh element size.  X: " << fMeshSize[p].X() << "mm "
+                 << " Y: " << fMeshSize[p].Y() << "mm "
+                 << " Z: " << fMeshSize[p].Z() << "mm " << endl;
+        metadata << "  - Offset field [T] : (" << fConstantField[p].X() << ", " << fConstantField[p].Y()
+                 << ", " << fConstantField[p].Z() << ")" << endl;
+        metadata << "  - File loaded : " << fFileNames[p] << endl;
+        metadata << "  - Buffer gas mixture : " << fGasMixtures[p] << endl;
+        metadata << "  - Buffer gas densities : " << fGasDensities[p] << endl;
+        metadata << " " << endl;
         metadata << "  - Bounds : " << endl;
         metadata << "    xmin : " << xMin << " mm , xmax : " << xMax << " mm" << endl;
         metadata << "    ymin : " << yMin << " mm, ymax : " << yMax << " mm" << endl;
         metadata << "    zmin : " << zMin << " mm, zmax : " << zMax << " mm" << endl;
-        metadata << "  - File loaded : " << fFileNames[p] << endl;
+        metadata << " " << endl;
     }
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
-

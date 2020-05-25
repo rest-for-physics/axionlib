@@ -21,11 +21,13 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionPhotonConversion is a class used to ...
+/// TRestAxionPhotonConversion is a class used to calculate the axion-photon mixing
+/// and determine the probability of the particle being in an axion or photon
+/// state.
 ///
-/// ... for the moment we implement here the equations from van Bibber paper
-///
-/// TODO. Create an appropriate documentation here.
+/// A peculiarity from this class is that it encapsulates internally the high
+/// precision calculations using the real precisions types from library mpreal.
+/// It is known that double precision is not good enough in some scenarios.
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -45,44 +47,19 @@
 #include <TVectorD.h>
 #include "TComplex.h"
 #include "TH1F.h"
-using namespace std;
 
+using namespace std;
 using namespace REST_Physics;
 
-#include "mpreal.h"
-using mpfr::mpreal;
+// Better we keep specifying  mpfr:: explicitily
+// using mpfr::mpreal;
 
 ClassImp(TRestAxionPhotonConversion);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestAxionPhotonConversion::TRestAxionPhotonConversion() : TRestMetadata() { Initialize(); }
-
-///////////////////////////////////////////////
-/// \brief Constructor loading data from a config file
-///
-/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
-/// the path to the config file must be specified using full path, absolute or
-/// relative.
-///
-/// The default behaviour is that the config file must be specified with
-/// full path, absolute or relative.
-///
-/// \param cfgFileName A const char* giving the path to an RML file.
-/// \param name The name of the specific metadata. It will be used to find the
-/// corresponding TRestG4Metadata section inside the RML.
-///
-TRestAxionPhotonConversion::TRestAxionPhotonConversion(const char* cfgFileName, string name)
-    : TRestMetadata(cfgFileName) {
-    cout << "Entering TRestAxionPhotonConversion constructor( cfgFileName, name )" << endl;
-
-    Initialize();
-
-    LoadConfigFromFile(fConfigFileName, name);
-
-    PrintMetadata();
-}
+TRestAxionPhotonConversion::TRestAxionPhotonConversion() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
@@ -92,51 +69,26 @@ TRestAxionPhotonConversion::~TRestAxionPhotonConversion() {}
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestAxionPhotonConversion class
 ///
-/// It will set the default real precision to be used with mpfr types. Now it is 100, not sure now if 100 is
-/// the number of digits, perhaps we can optimize this in future.
+/// It sets the default real precision to be used with mpfr types. Now it is 30 digits.
+/// So that we can still calculate numbers such as : 1.0 - 1.e-30
 ///
 void TRestAxionPhotonConversion::Initialize() {
-    SetSectionName(this->ClassName());
-    SetLibraryVersion(LIBRARY_VERSION);
+    mpfr::mpreal::set_default_prec(mpfr::digits2bits(30));
 
-    mpreal::set_default_prec(mpfr::digits2bits(100));
-}
+    fBufferGas = NULL;
 
-///////////////////////////////////////////////
-/// \brief It updates the internal class members, used as calculation parameters, using the values given as
-/// argument.
-///
-/// If the value given by argument is -1, the argument variable will be updated with the internal data member
-/// values.
-///
-void TRestAxionPhotonConversion::UpdateParameters(Double_t& Bmag, Double_t& ma, Double_t& Lcoh) {
-    if (ma == -1)
-        ma = fAxionMass;
-    else
-        fAxionMass = ma;
-
-    if (Lcoh == -1)
-        Lcoh = fCohLength;
-    else
-        fCohLength = Lcoh;
-
-    if (Bmag == -1)
-        Bmag = fBMag;
-    else
-        fBMag = Bmag;
-
-    if (Lcoh == 0) warning << "TRestAxionPhotonConversion::GammaTransmissionProbability. Lcoh = 0" << endl;
+    faxion = SetComplexReal(1, 0);
+    fAem = SetComplexReal(0, 0);
 }
 
 ///////////////////////////////////////////////
 /// \brief Performs the calculation of (BL) factor in natural units.
 ///
-double TRestAxionPhotonConversion::BL(Double_t Lcoh, Double_t Bmag)  // (BL/2)**2
-{
-    Double_t ma = -1;
-    UpdateParameters(Bmag, ma, Lcoh);
-
-    Double_t lengthInMeters = fCohLength / 1000.;
+/// `Lcoh` should be expressed in `mm`, and `Bmag` in `T`.
+/// The result will be given for an axion-photon coupling of 10^{-10} GeV^{-1}
+///
+double TRestAxionPhotonConversion::BL(Double_t Bmag, Double_t Lcoh) {
+    Double_t lengthInMeters = Lcoh / 1000.;
 
     Double_t tm = lightSpeed / naturalElectron * 1.0e-9;  // GeV
     Double_t sol = lengthInMeters * Bmag * tm;
@@ -148,12 +100,12 @@ double TRestAxionPhotonConversion::BL(Double_t Lcoh, Double_t Bmag)  // (BL/2)**
 ///////////////////////////////////////////////
 /// \brief Performs the calculation of (BL/2)^2 factor in natural units.
 ///
-double TRestAxionPhotonConversion::BLHalfSquared(Double_t Lcoh, Double_t Bmag)  // (BL/2)**2
+/// `Lcoh` should be expressed in `mm`, and `Bmag` in `T`.
+/// The result will be given for an axion-photon coupling of 10^{-10} GeV^{-1}
+///
+double TRestAxionPhotonConversion::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**2
 {
-    Double_t ma = -1;
-    UpdateParameters(Bmag, ma, Lcoh);
-
-    Double_t lengthInMeters = fCohLength / 1000.;
+    Double_t lengthInMeters = Lcoh / 1000.;
 
     Double_t tm = lightSpeed / naturalElectron * 1.0e-9;  // gev
     Double_t sol = lengthInMeters * Bmag * tm / 2;
@@ -163,32 +115,27 @@ double TRestAxionPhotonConversion::BLHalfSquared(Double_t Lcoh, Double_t Bmag)  
 }
 
 ///////////////////////////////////////////////
-/// \brief Performs the calculation of axion-photon conversion probability using directly the van Bibber
-/// relation.
+/// \brief Performs the calculation of axion-photon conversion probability using directly
+/// equation (11) from van Bibber, Phys Rev D Part Fields. 1989.
 ///
-/// mgamma will be obtainned from buffer gas definition.
+/// m_gamma will be obtainned from buffer gas definition. If no buffer gas has been assigned the medium
+/// will be assumed to be vacuum.
 ///
-/// If ma, Lcoh, or Bmag = -1, the value will be taken from the class members definition.
-/// Otherwise, members of the class will be updated
-//
 /// Ea in keV, ma in eV, mgamma in eV, Lcoh in mm, Bmag in T
 ///
-Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, Double_t Bmag, Double_t ma,
-                                                                  Double_t Lcoh) {
-    UpdateParameters(Bmag, ma, Lcoh);
+/// mg in eV, absLength in cm-1
+///
+/// The returned value is given for g_ag = 10^-10 GeV-1
+///
+Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea,
+                                                                  Double_t ma, Double_t mg,
+                                                                  Double_t absLength) {
+    mpfr::mpreal axionMass = ma;
+    mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
 
-    mpreal axionMass = fAxionMass;
-    mpreal cohLength = fCohLength / 1000.;  // Default REST units are mm;
-    mpreal bMag = fBMag;
+    mpfr::mpreal photonMass = mg;
 
-    mpreal photonMass = 0.;
-    if (!fBufferGas) {
-        warning << "TRestAxionPhotonConversion::GammaTransmissionProbability. No buffer gas definition found!"
-                << endl;
-        warning << "Assuming vacuum medium. mgamma = 0" << endl;
-    } else {
-        photonMass = fBufferGas->GetPhotonMass(Ea);
-    }
+    if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
 
     debug << "+--------------------------------------------------------------------------+" << endl;
     debug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary" << endl;
@@ -199,35 +146,39 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, D
     debug << " Bmag : " << Bmag << " T" << endl;
     debug << "+--------------------------------------------------------------------------+" << endl;
 
-    if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared();
+    if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(Bmag, Lcoh);
 
-    mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
-    mpreal l = cohLength * PhMeterIneV;
-    mpreal phi = q * l;
+    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
+    mpfr::mpreal l = cohLength * PhMeterIneV;
+    mpfr::mpreal phi = q * l;
 
-    mpreal Gamma = 0.;
-    if (fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
+    mpfr::mpreal Gamma = absLength;
+    if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
+    mpfr::mpreal GammaL = Gamma * cohLength * 100;
 
-    mpreal GammaL = Gamma * cohLength * 100;
+    if (fDebug) {
+        debug << "+------------------------+" << endl;
+        debug << " Intermediate calculations" << endl;
+        debug << " q : " << q << " eV" << endl;
+        debug << " l : " << l << " eV-1" << endl;
+        debug << " phi : " << phi << endl;
+        debug << "Gamma : " << Gamma << endl;
+        debug << "GammaL : " << GammaL << endl;
+        debug << "+------------------------+" << endl;
+    }
 
-    debug << "+------------------------+" << endl;
-    debug << " Intermediate calculations" << endl;
-    debug << " q : " << q << " eV" << endl;
-    debug << " l : " << l << " eV-1" << endl;
-    debug << " phi : " << phi << endl;
-    debug << "Gamma : " << Gamma << endl;
-    debug << "GammaL : " << GammaL << endl;
-    debug << "+------------------------+" << endl;
-
-    mpreal MFactor = phi * phi + GammaL * GammaL / 4.0;
+    mpfr::mpreal MFactor = phi * phi + GammaL * GammaL / 4.0;
     MFactor = 1.0 / MFactor;
 
-    debug << "Mfactor : " << MFactor << endl;
-    debug << "(BL/2)^2 : " << BLHalfSquared() << endl;
-    debug << "cos(phi) : " << cos(phi) << endl;
-    debug << "Exp(-GammaL) : " << exp(-GammaL) << endl;
+    if (fDebug) {
+        debug << "Mfactor : " << MFactor << endl;
+        debug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << endl;
+        debug << "cos(phi) : " << cos(phi) << endl;
+        debug << "Exp(-GammaL) : " << exp(-GammaL) << endl;
+    }
 
-    double sol = (double)(MFactor * BLHalfSquared() * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
+    double sol =
+        (double)(MFactor * BLHalfSquared(Bmag, Lcoh) * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
 
     debug << "Axion-photon transmission probability : " << sol << endl;
 
@@ -235,132 +186,139 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, D
 }
 
 ///////////////////////////////////////////////
-/// \brief Performs the calculation of axion-photon conversion probability using directly the van Bibber
-/// relation.
+/// \brief Performs the calculation of axion-photon absorption probability using directly
+/// equation (18) from van Bibber, Phys Rev D Part Fields. 1989.
 ///
-/// It does it for an arbitrary magnetic field vector.
+/// If not provided as argument, m_gamma it will be attempted to obtain the value from the buffer gas
+/// definition. If no buffer gas has been assigned the medium will be assumed to be vacuum.
 ///
-/// This method might  become obsolete if we accept that the magnetic field average is enough.
+/// Ea in keV, ma in eV, mgamma in eV, Lcoh in mm, Bmag in T
 ///
-Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Ea, TVectorD B, Double_t ma,
-                                                                  Double_t Lcoh) {
-    Double_t Bmag = -1;
-    UpdateParameters(Bmag, ma, Lcoh);
+/// mg in eV, absLength in cm-1
+///
+/// The returned value is given for g_ag = 10^-10 GeV-1
+///
+Double_t TRestAxionPhotonConversion::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea,
+                                                                Double_t ma, Double_t mg,
+                                                                Double_t absLength) {
+    mpfr::mpreal axionMass = ma;
+    mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
 
-    Double_t axionMass = fAxionMass;
-    Double_t cohLength = fCohLength / 1000.;  // Default REST units are mm;
-    Double_t photonMass = 0.;
-    if (!fBufferGas) {
-        warning << "TRestAxionPhotonConversion::GammaTransmissionProbability. No buffer gas definition found!"
-                << endl;
-        warning << "Assuming vacuum medium. mgamma = 0" << endl;
-    } else {
-        photonMass = fBufferGas->GetPhotonMass(Ea);
+    mpfr::mpreal photonMass = mg;
+    if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
+
+    if (fDebug) {
+        debug << "+--------------------------------------------------------------------------+" << endl;
+        debug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary" << endl;
+        debug << " Photon mass : " << photonMass << " eV" << endl;
+        debug << " Axion mass : " << ma << " eV" << endl;
+        debug << " Axion energy : " << Ea << " keV" << endl;
+        debug << " Lcoh : " << Lcoh << " mm" << endl;
+        debug << " Bmag : " << Bmag << " T" << endl;
+        debug << "+--------------------------------------------------------------------------+" << endl;
     }
 
-    debug << "+--------------------------------------------------------------------------+" << endl;
-    debug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary" << endl;
-    debug << " Photon mass : " << photonMass << " eV" << endl;
-    debug << " Axion mass : " << ma << " eV" << endl;
-    debug << " Axion energy : " << Ea << " keV" << endl;
-    debug << " Lcoh : " << Lcoh << " mm" << endl;
-    debug << "+--------------------------------------------------------------------------+" << endl;
+    if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(Bmag, Lcoh);
 
-    Double_t q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
-    Double_t l = cohLength * PhMeterIneV;
-    Double_t phi = q * l;
+    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
+    mpfr::mpreal l = cohLength * PhMeterIneV;
+    mpfr::mpreal phi = q * l;
 
-    Double_t Gamma = 0.;
-    if (fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
+    mpfr::mpreal Gamma = absLength;
+    if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
+    mpfr::mpreal GammaL = Gamma * cohLength * 100;
 
-    Double_t GammaL = Gamma * cohLength * 100;
-
-    debug << "+------------------------+" << endl;
-    debug << " Intermediate calculations" << endl;
-    debug << " q : " << q << " eV" << endl;
-    debug << " l : " << l << " eV-1" << endl;
-    debug << " phi : " << phi << endl;
-    debug << "Gamma : " << Gamma << endl;
-    debug << "GammaL : " << GammaL << endl;
-    debug << "+------------------------+" << endl;
-
-    // ***** Computation of the prefactor (1/2M)^2***** //
-    Double_t tm = lightSpeed / naturalElectron * 1.0e-9;
-    Double_t Factor = tm / 2.0;
-    Factor = Factor * Factor * 1.0e-20;
-
-    debug << "+------------------------+" << endl;
-    debug << "Factor (1/2M)^2 :" << Factor << endl;
-    debug << "+------------------------+" << endl;
-
-    // ***** Computation of the integral ***** //
-    Double_t xmin = 0.0;
-    Double_t xmax = cohLength;
-
-    Int_t size = B.GetNoElements();
-    Int_t N = size - 1;
-    TVectorD ind(N + 1);
-    TVectorD Bx(N + 1);
-    TVectorD By(N + 1);
-    Double_t b;
-    for (Int_t i = 0; i <= N; i++) {
-        b = B[i];
-        Bx[i] = b * TMath::Exp((GammaL / 2.0) * (Double_t(i) / Double_t(N) - 1.0)) *
-                TMath::Cos(-cohLength * PhMeterIneV * (Double_t(i) / Double_t(N)) * q);
-        By[i] = b * TMath::Exp((GammaL / 2.0) * (Double_t(i) / Double_t(N) - 1.0)) *
-                TMath::Sin(-cohLength * PhMeterIneV * (Double_t(i) / Double_t(N)) * q);
-        ind[i] = cohLength * (Double_t(i) / Double_t(N));
+    if (fDebug) {
+        debug << "+------------------------+" << endl;
+        debug << " Intermediate calculations" << endl;
+        debug << " q : " << q << " eV" << endl;
+        debug << " l : " << l << " eV-1" << endl;
+        debug << " phi : " << phi << endl;
+        debug << "Gamma : " << Gamma << endl;
+        debug << "GammaL : " << GammaL << endl;
+        debug << "+------------------------+" << endl;
     }
 
-    TH1F* hx = new TH1F("hx", "hx", N + 1, xmin, xmax);
-    TH1F* hy = new TH1F("hy", "hy", N + 1, xmin, xmax);
-    for (Int_t i = 0; i <= N; i++) {
-        hx->Fill(ind[i], Bx[i]);
-        hy->Fill(ind[i], By[i]);
+    mpfr::mpreal MFactor = phi * phi + GammaL * GammaL / 4.0;
+    MFactor = 1.0 / MFactor;
+
+    if (fDebug) {
+        debug << "Mfactor : " << MFactor << endl;
+        debug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << endl;
+        debug << "cos(phi) : " << cos(phi) << endl;
+        debug << "Exp(-GammaL) : " << exp(-GammaL) << endl;
     }
-    TAxis* axis = hx->GetXaxis();
 
-    int bmin = axis->FindBin(xmin);
-    int bmax = axis->FindBin(xmax);
+    double sol = (double)(MFactor * BLHalfSquared(Bmag, Lcoh) * GammaL);
 
-    Double_t integralx = hx->Integral(bmin, bmax);
-    integralx = integralx * (xmax - xmin) / (bmax - bmin);
-    Double_t integraly = hy->Integral(bmin, bmax);
-    integraly = integraly * (xmax - xmin) / (bmax - bmin);
+    if (fDebug) debug << "Axion-photon absorption probability : " << sol << endl;
 
-    TComplex inte = operator+(integralx, operator*(integraly, TComplex::I()));
-    Double_t sol;
-    sol = inte.operator*(TComplex::Conjugate(inte));
-    sol = Factor * sol;
-
-    debug << "+------------------------+" << endl;
-    debug << "Axion-photon transmission probability : " << sol << endl;
-    debug << "+------------------------+" << endl;
-
-    delete hx;
-    delete hy;
     return sol;
 }
 
-///////////////////////////////////////////////
-/// \brief Initialization of TRestAxionPhotonConversion field members through a RML file
-///
-/// This class does not take any member value from RML. Parameters such as B,L,ma are updated through function
-/// arguments.
-///
-void TRestAxionPhotonConversion::InitFromConfigFile() { this->Initialize(); }
+void TRestAxionPhotonConversion::PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+                                                Double_t mg, Double_t absLength) {
+    mpfr::mpreal axionMass = ma;
+    mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
 
-///////////////////////////////////////////////
-/// \brief It prints out the last parameters used in the conversion probability calculations which will be
-/// also printed out.
-///
-void TRestAxionPhotonConversion::PrintMetadata() {
-    TRestMetadata::PrintMetadata();
+    mpfr::mpreal photonMass = mg;
+    if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
 
-    metadata << " - Magnetic field : " << fBMag << " T" << endl;
-    metadata << " - Coherence length : " << fCohLength * REST_Units::cm << " cm" << endl;
-    metadata << " - Axion mass : " << fAxionMass << " eV" << endl;
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    if (fDebug) {
+        debug << "+--------------------------------------------------------------------------+" << endl;
+        debug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary" << endl;
+        debug << " Photon mass : " << photonMass << " eV" << endl;
+        debug << " Axion mass : " << ma << " eV" << endl;
+        debug << " Axion energy : " << Ea << " keV" << endl;
+        debug << " Lcoh : " << Lcoh << " mm" << endl;
+        debug << " Bmag : " << Bmag << " T" << endl;
+        debug << "+--------------------------------------------------------------------------+" << endl;
+    }
 
-    if (fBufferGas) fBufferGas->PrintMetadata();
+    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
+    mpfr::mpreal l = cohLength * PhMeterIneV;
+    mpfr::mpreal phi = q * l;
+
+    mpfr::mpreal Gamma = absLength;
+    if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
+    mpfr::mpreal GammaL = Gamma * cohLength * 100;
+
+    if (fDebug) {
+        debug << "+------------------------+" << endl;
+        debug << " Intermediate calculations" << endl;
+        debug << " q : " << q << " eV" << endl;
+        debug << " l : " << l << " eV-1" << endl;
+        debug << " phi : " << phi << endl;
+        debug << "Gamma : " << Gamma << endl;
+        debug << "GammaL : " << GammaL << endl;
+        debug << "+------------------------+" << endl;
+    }
+
+    mpfr::mpreal bl = BL(Bmag, Lcoh);
+
+    /// We have now calculated the main quantities BL, QL, and GammaL
+
+    ComplexReal I = SetComplexReal(0, 1);
+    ComplexReal ExpPhi = SetComplexReal(cos(-phi), sin(-phi));
+
+    ComplexReal Bcomplex = SetComplexReal(BL(Bmag, Lcoh), 0);
+    ComplexReal Qcomplex = SetComplexReal(phi, -GammaL / 2);
+
+    ComplexReal Bterm = ComplexCocient(Bcomplex, Qcomplex);
+    Bterm = ComplexProduct(I, Bterm);
+
+    mpfr::mpreal ExpGamma = exp(-GammaL / 2.);
+    Double_t ExpGammaDouble = TMath::Exp((Double_t)-GammaL / 2.);
+
+    cout.precision(30);
+
+    if (fDebug) {
+        cout << "ExpGamma : " << ExpGamma << endl;
+        cout << "ExpGammaDouble : " << ExpGammaDouble << endl;
+        debug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << endl;
+        debug << "cos(phi) : " << cos(phi) << endl;
+        debug << "Exp(-GammaL) : " << exp(-GammaL) << endl;
+    }
+
+    // if (fDebug) debug << "Axion-photon absorption probability : " << sol << endl;
 }

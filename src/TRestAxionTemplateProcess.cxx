@@ -68,10 +68,7 @@ TRestAxionTemplateProcess::TRestAxionTemplateProcess(char* cfgFileName) {
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionTemplateProcess::~TRestAxionTemplateProcess() {
-    delete fInputAxionEvent;
-    delete fOutputAxionEvent;
-}
+TRestAxionTemplateProcess::~TRestAxionTemplateProcess() { delete fAxionEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
@@ -102,31 +99,29 @@ void TRestAxionTemplateProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fInputAxionEvent = new TRestAxionEvent();
-    fOutputAxionEvent = new TRestAxionEvent();
-
-    fInputEvent = fInputAxionEvent;
-    fOutputEvent = fOutputAxionEvent;
+    fAxionEvent = new TRestAxionEvent();
 }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
 TRestEvent* TRestAxionTemplateProcess::ProcessEvent(TRestEvent* evInput) {
-    fInputAxionEvent = (TRestAxionEvent*)evInput;
-
-    *fOutputAxionEvent = *fInputAxionEvent;
+    fAxionEvent = (TRestAxionEvent*)evInput;
 
     if (GetVerboseLevel() >= REST_Debug) {
-        fOutputAxionEvent->PrintEvent();
+        fAxionEvent->PrintEvent();
 
         if (GetVerboseLevel() >= REST_Extreme) GetChar();
     }
 
-    return fOutputEvent;
+    // Modify here the fAxionEvent as necessary
+
+    return fAxionEvent;
 }
 
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML TRestAxionTemplateProcess metadata section
 ///
-void TRestAxionTemplateProcess::InitFromConfigFile() {}
+void TRestAxionTemplateProcess::InitFromConfigFile() {
+    // Initialize any metadata class members from RML as necessary
+}

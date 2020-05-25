@@ -28,10 +28,9 @@
 
 //! An analyis process to add TRestAxionEvent observables to the analysis tree
 class TRestAxionAnalysisProcess : public TRestEventProcess {
-private:
-
+   private:
     /// A pointer to the specific TRestAxionEvent
-    TRestAxionEvent *fAxionEvent; //!
+    TRestAxionEvent* fAxionEvent;  //!
 
     void InitFromConfigFile();
 
@@ -39,33 +38,33 @@ private:
 
     void LoadDefaultConfig();
 
-protected:
+   protected:
+   public:
+    any GetInputEvent() { return fAxionEvent; }
+    any GetOutputEvent() { return fAxionEvent; }
 
-public:
+    TRestEvent* ProcessEvent(TRestEvent* evInput);
 
-    TRestEvent *ProcessEvent( TRestEvent *evInput );
-
-    void LoadConfig( std::string cfgFilename, std::string name = "" );
+    void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata()
-        {
-            BeginPrintProcess();
+    void PrintMetadata() {
+        BeginPrintProcess();
 
-            EndPrintProcess();
-        }
+        EndPrintProcess();
+    }
 
     /// Returns a new instance of this class
-    TRestEventProcess *Maker() { return new TRestAxionAnalysisProcess; }
+    TRestEventProcess* Maker() { return new TRestAxionAnalysisProcess; }
 
     /// Returns the name of this process
     TString GetProcessName() { return (TString) "axionAnalysis"; }
 
-    //Constructor
+    // Constructor
     TRestAxionAnalysisProcess();
-    TRestAxionAnalysisProcess( char *cfgFileName );
+    TRestAxionAnalysisProcess(char* cfgFileName);
 
-    //Destructor
+    // Destructor
     ~TRestAxionAnalysisProcess();
 
     ClassDef(TRestAxionAnalysisProcess, 1);

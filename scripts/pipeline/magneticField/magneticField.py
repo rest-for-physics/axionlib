@@ -8,11 +8,11 @@ ROOT.gSystem.Load("libRestEvents.so")
 ROOT.gSystem.Load("libRestMetadata.so")
 ROOT.gSystem.Load("libRestAxion.so")
 
-myField = ROOT.TRestAxionMagneticField("metadata.rml", "bFieldBabyIAXO")
+myField = ROOT.TRestAxionMagneticField("fields.rml", "babyIAXO")
 
-if myField.Error():
+if myField.GetError():
     print myField.GetErrorMessage()
-    print "\nMagnetic field initialzation failed! Exit code : 101"
+    print "\nMagnetic field initialization failed! Exit code : 101"
     exit(101)
 
 p1 = ROOT.TVector3(0,0,0)

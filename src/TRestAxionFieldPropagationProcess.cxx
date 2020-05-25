@@ -74,6 +74,7 @@
 ///
 #include "TRestAxionFieldPropagationProcess.h"
 using namespace std;
+using namespace REST_Physics;
 
 ClassImp(TRestAxionFieldPropagationProcess);
 
@@ -102,10 +103,7 @@ TRestAxionFieldPropagationProcess::TRestAxionFieldPropagationProcess(char* cfgFi
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionFieldPropagationProcess::~TRestAxionFieldPropagationProcess() {
-    delete fInputAxionEvent;
-    delete fOutputAxionEvent;
-}
+TRestAxionFieldPropagationProcess::~TRestAxionFieldPropagationProcess() { delete fAxionEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
@@ -123,7 +121,7 @@ void TRestAxionFieldPropagationProcess::LoadDefaultConfig() {
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// correspondig TRestGeant4AnalysisProcess section inside the RML.
+/// corresponding TRestAxionFieldPropagationProcess section inside the RML.
 ///
 void TRestAxionFieldPropagationProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
@@ -136,11 +134,7 @@ void TRestAxionFieldPropagationProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fInputAxionEvent = new TRestAxionEvent();
-    fOutputAxionEvent = new TRestAxionEvent();
-
-    fInputEvent = fInputAxionEvent;
-    fOutputEvent = fOutputAxionEvent;
+    fAxionEvent = new TRestAxionEvent();
 
     fFinalNormalPlan = TVector3();
     fFinalPositionPlan = TVector3();
@@ -148,7 +142,8 @@ void TRestAxionFieldPropagationProcess::Initialize() {
 }
 
 ///////////////////////////////////////////////
-/// \brief The main processing event function
+/// \brief Process initialization. Data members that require initialization just before start processing
+/// should be initialized here.
 ///
 void TRestAxionFieldPropagationProcess::InitProcess() {
     debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
@@ -175,6 +170,8 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
 /// \brief This method will translate the vector with direction `dir` starting at position `pos` to the plane
 /// defined by the normal vector plane, `n` that contains the point `a` in the plane.
 ///
+/// This method has been migrated to TRestPhysics, and it will be accesible through REST_Physics
+/*
 TVector3 TRestAxionFieldPropagationProcess::MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a) {
     if (n * dir == 0) {
         ferr << "The vector is parallel to the plane!!" << endl;
@@ -185,14 +182,15 @@ TVector3 TRestAxionFieldPropagationProcess::MoveToPlane(TVector3 pos, TVector3 d
         return pos + t * dir;
     }
     return pos;
-}
+}*/
 
 ///////////////////////////////////////////////
-/// \brief This method is obsolete.
+/// \brief This method is OBSOLETE.
 ///
 /// It is more intuitive to define the vector position and direction, and
 /// plane vector and point. Then use this information to find the intersection. Instead of defining a
 /// component and an impact factor.
+/*
 TVector3 TRestAxionFieldPropagationProcess::MoveToPlan(TVector3 pos, TVector3 dir, Double_t f, Int_t i) {
     if (dir[i] == 0) ferr << "The component of the direction you chose is equal to 0 " << endl;
 
@@ -203,11 +201,13 @@ TVector3 TRestAxionFieldPropagationProcess::MoveToPlan(TVector3 pos, TVector3 di
 
     return pos;
 }
+*/
 
 ///////////////////////////////////////////////
-/// \brief This method is obsolete.
+/// \brief This method is OBSOLETE.
 ///
 /// Re-implementation of MoveToPlane
+/*
 TVector3 TRestAxionFieldPropagationProcess::FinalPositionInPlan(TVector3 pos, TVector3 dir,
                                                                 TVector3 normalPlan, TVector3 pointPlan) {
     if (normalPlan.Dot(dir) == 0) return pos;
@@ -220,11 +220,13 @@ TVector3 TRestAxionFieldPropagationProcess::FinalPositionInPlan(TVector3 pos, TV
 
     return pos;
 }
+*/
 
 ///////////////////////////////////////////////
-/// \brief This method is obsolete.
+/// \brief This method is OBSOLETE
 ///
-/// Re-implementation in MoveByDistance
+/// Re-implementation in MoveByDistance. Just because the method name is more intuitive using BYDISTANCE
+/*
 TVector3 TRestAxionFieldPropagationProcess::MoveToFinalDistance(TVector3 pos, TVector3 dir,
                                                                 Double_t distance) {
     Double_t t = distance / dir.Mag();
@@ -232,13 +234,16 @@ TVector3 TRestAxionFieldPropagationProcess::MoveToFinalDistance(TVector3 pos, TV
 
     return pos;
 }
+*/
 
 ///////////////////////////////////////////////
 /// \brief This method transports a position `pos` by a distance `d` in the direction defined by `dir`.
 ///
+/// This method has been migrated to TRestPhysics, and it will be accesible through REST_Physics
+/*
 TVector3 TRestAxionFieldPropagationProcess::MoveByDistance(TVector3 pos, TVector3 dir, Double_t d) {
     return pos + d * dir.Unit();
-}
+} */
 
 bool TRestAxionFieldPropagationProcess::IsInBoundedPlan(TVector3 pos, Int_t i, Int_t p) {
     Double_t minCond1, maxCond1, minCond2, maxCond2;
@@ -302,10 +307,10 @@ std::vector<TVector3> TRestAxionFieldPropagationProcess::InOut(std::vector<TVect
 /// the particle trajectory intersects the boundary planes of that region. If two such points (entry point and
 /// exit point) are found, their coordinates are stored in the vector boundaries. In the example shown in Fig.
 /// 1 these points are: IN 1 and OUT 1 for the region #1 and IN2  and OUT 2 for the region #2.
+/* This method has been moved to TRestAxionMagneticField::GetVolumeBoundaries
 std::vector<TVector3> TRestAxionFieldPropagationProcess::FindBoundariesOneVolume(TVector3 pos, TVector3 dir,
                                                                                  Int_t p) {
     std::vector<TVector3> boundaries;
-    /*
 TVector3 in;
 TVector3 out;
 
@@ -352,10 +357,11 @@ if (i + j == 2 && in != out) {
 
 else
     return boundaries;
-            */
     return boundaries;
 }
+*/
 
+/*  This  method has been moved  to TRestAxionMagneticField::GetFieldBoundaries
 std::vector<TVector3> TRestAxionFieldPropagationProcess::FieldBoundary(std::vector<TVector3> boundaries,
                                                                        Double_t minStep) {
     std::vector<TVector3> boundariesField;
@@ -404,6 +410,7 @@ std::vector<TVector3> TRestAxionFieldPropagationProcess::FieldBoundary(std::vect
 
     return boundariesField;
 }
+*/
 
 std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldBoundaries(Double_t minStep) {
     std::vector<std::vector<TVector3>> boundaryCollection;
@@ -479,7 +486,7 @@ debug << "+------------------------+" << endl;
     return boundaryFinalCollection;
 }
 
-/* This method is now obsolete. It seems to me there is a problem here, there are two directional vectors
+/* This method is now OBSOLETE. It seems to me there is a problem here, there are two directional vectors
 defined.
 The one defined by in/out coordinates, and the one defined by axion direction.
 
@@ -509,11 +516,10 @@ TVectorD TRestAxionFieldPropagationProcess::GetFieldVector(TVector3 in, TVector3
 } */
 
 TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput) {
-    fInputAxionEvent = (TRestAxionEvent*)evInput;
-    fOutputAxionEvent = fInputAxionEvent;
+    fAxionEvent = (TRestAxionEvent*)evInput;
 
-    TVector3 position = *(fInputAxionEvent->GetPosition());
-    TVector3 direction = *(fInputAxionEvent->GetDirection());
+    TVector3 position = *(fAxionEvent->GetPosition());
+    TVector3 direction = *(fAxionEvent->GetDirection());
 
     debug << "+------------------------+" << endl;
     debug << "Initial position of the axion input : " << endl;
@@ -522,8 +528,8 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     debug << "(" << direction.X() << "," << direction.Y() << "," << direction.Z() << ")" << endl;
     debug << "+------------------------+" << endl;
 
-    Double_t Ea = fInputAxionEvent->GetEnergy();
-    Double_t ma = fInputAxionEvent->GetMass();
+    Double_t Ea = fAxionEvent->GetEnergy();
+    Double_t ma = fAxionEvent->GetMass();
 
     std::vector<std::vector<TVector3>> boundaries;
     boundaries = FindFieldBoundaries();
@@ -548,7 +554,7 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
             lengthVector = boundaries[i][0] - boundaries[i][1];
             length = sqrt(lengthVector.Mag2());
             // B = GetFieldVector(boundaries[i][0], boundaries[i][1], 0);
-            probabilities[i] = fAxionPhotonConversion->GammaTransmissionProbability(Ea, B, ma, length);
+            // probabilities[i] = fAxionPhotonConversion->GammaTransmissionProbability(Ea, B, ma, length);
         }
 
         for (Int_t i = 0; i < NofVolumes; i++) probability = probability + probabilities[i];
@@ -558,25 +564,23 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     debug << "Conversion probability : " << endl;
     debug << "+------------------------+" << endl;
 
-    fOutputAxionEvent->SetGammaProbability(probability);
+    fAxionEvent->SetGammaProbability(probability);
 
     if (fMode == "plan")
-        fOutputAxionEvent->SetPosition(
-            FinalPositionInPlan(position, direction, fFinalNormalPlan, fFinalPositionPlan));
-    if (fMode == "distance")
-        fOutputAxionEvent->SetPosition(MoveToFinalDistance(position, direction, fDistance));
+        fAxionEvent->SetPosition(MoveToPlane(position, direction, fFinalNormalPlan, fFinalPositionPlan));
+    if (fMode == "distance") fAxionEvent->SetPosition(MoveByDistance(position, direction, fDistance));
 
     debug << "+------------------------+" << endl;
     debug << "Final position of the axion input : " << endl;
-    debug << "(" << fOutputAxionEvent->GetPositionX() << "," << fOutputAxionEvent->GetPositionY() << ","
-          << fOutputAxionEvent->GetPositionZ() << ")" << endl;
+    debug << "(" << fAxionEvent->GetPositionX() << "," << fAxionEvent->GetPositionY() << ","
+          << fAxionEvent->GetPositionZ() << ")" << endl;
     debug << "+------------------------+" << endl;
 
-    if (GetVerboseLevel() >= REST_Debug) fOutputAxionEvent->PrintEvent();
+    if (GetVerboseLevel() >= REST_Debug) fAxionEvent->PrintEvent();
 
     boundaries.clear();
 
-    return fOutputAxionEvent;
+    return fAxionEvent;
 }
 
 ///////////////////////////////////////////////
@@ -592,4 +596,3 @@ void TRestAxionFieldPropagationProcess::InitFromConfigFile() {
 
     PrintMetadata();
 }
-
