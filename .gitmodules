@@ -4,4 +4,3 @@
 [submodule "external/solarAxionFlux"]
 	path = external/solarAxionFlux
 	url = https://github.com/sebhoof/SolarAxionFlux.git
-	branch = master

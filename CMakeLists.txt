@@ -55,7 +55,9 @@ ExternalProject_Add(solaxflux
                     SOURCE_DIR ${SOLAXFLUX_DIR}
                     GIT_SUBMODULES ""
                     GIT_CONFIG advice.detachedHead=False
-                    CMAKE_CACHE_ARGS "-DPYTHON_SUPPORT:STRING=OFF;-DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}")
+                    INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
+                    CMAKE_CACHE_ARGS "-DPYTHON_SUPPORT:STRING=OFF;-DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER};-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
+message("The CMAKE_INSTALL_PREFIX IS ${CMAKE_INSTALL_PREFIX}")
 set(incdir ${incdir} ${SOLAXFLUX_DIR}/include)
 set(lnklib ${lnklib} -L/${SOLAXFLUX_DIR}/lib/ -laxionflux)
 
