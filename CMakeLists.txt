@@ -43,21 +43,17 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 #endif ()
 
 #-------------------------------------------------------------------------------------------------------
-# Clone/download the SolarAxionFlux library
+# Add the SolarAxionFlux library submodule as an external project.
+
 set(SOLAXFLUX_DIR "${PROJECT_SOURCE_DIR}/external/solarAxionFlux")
-#if(EXISTS $ENV{SOLAXFLUX_ROOT}/lib/libaxionflux.so)
-#  message("-- External solar axion flux library found: $ENV{SOLAXFLUX_ROOT}/lib/libaxionflux.so")
-#  set(SOLAXFLUX_DIR $ENV{SOLAXFLUX_ROOT})
-#else if(DEFINED ENV{SOLAXFLUX_ROOT})
-#    message("-- SOLAXFLUX_ROOT defined but solar axion flux library does NOT exist in $ENV{SOLAXFLUX_ROOT}/lib...")
-#endif()
+
 ExternalProject_Add(solaxflux
                     SOURCE_DIR ${SOLAXFLUX_DIR}
                     GIT_SUBMODULES ""
                     GIT_CONFIG advice.detachedHead=False
-                    INSTALL_DIR ${CMAKE_INSTALL_PREFIX}
-                    CMAKE_CACHE_ARGS "-DPYTHON_SUPPORT:STRING=OFF;-DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER};-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}")
-message("The CMAKE_INSTALL_PREFIX IS ${CMAKE_INSTALL_PREFIX}")
+                    INSTALL_COMMAND ""
+                    CMAKE_CACHE_ARGS "-DPYTHON_SUPPORT:STRING=OFF;-DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}")
+
 set(incdir ${incdir} ${SOLAXFLUX_DIR}/include)
 set(lnklib ${lnklib} -L/${SOLAXFLUX_DIR}/lib/ -laxionflux)
 

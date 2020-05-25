@@ -1054,11 +1054,11 @@ Bool_t TRestAxionMagneticField::CheckOverlaps() {
 
             TVector3 b = GetMagneticVolume(m)->mesh.GetVertex(0);
             debug << "Relative bottom vertex : (" << b.X() << ", " << b.Y() << ", " << b.Z() << ")" << endl;
-            //if (GetMagneticVolume(n)->mesh.IsInsideBoundingBox(b)) return true;
+            if (GetMagneticVolume(n)->mesh.IsInsideBoundingBox(b)) return true;
 
             TVector3 t = GetMagneticVolume(m)->mesh.GetVertex(1);
             debug << "Relative top vertex : (" << t.X() << ", " << t.Y() << ", " << t.Z() << ")" << endl;
-            //if (GetMagneticVolume(n)->mesh.IsInsideBoundingBox(t)) return true;
+            if (GetMagneticVolume(n)->mesh.IsInsideBoundingBox(t)) return true;
         }
     }
     return false;
