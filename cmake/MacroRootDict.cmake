@@ -8,10 +8,6 @@ SET( LD_LIBRARY_PATH_CONTENTS $ENV{${LD_LIBRARY_PATH_VAR}} )
 
 SET( ROOT_CINT_WRAPPER ${LD_LIBRARY_PATH_VAR}=${ROOT_LIBRARY_DIR}:${LD_LIBRARY_PATH_CONTENTS} ${ROOTCINT_EXECUTABLE} )
 
-if(CMAKE_SYSTEM_NAME MATCHES "Windows")
-    SET( ROOT_CINT_WRAPPER ${ROOTCINT_EXECUTABLE} )
-endif()
-
 IF( NOT DEFINED ROOT_DICT_OUTPUT_DIR )
     SET( ROOT_DICT_OUTPUT_DIR "${PROJECT_BINARY_DIR}/rootdict" )
 ENDIF()
@@ -42,6 +38,12 @@ MACRO( PREPARE_ROOT_DICT_HEADERS _input_dir )
     FILE( GLOB ROOT_DICT_INPUT_HEADERS "${_input_dir}/*.h" )
     FILE( GLOB _linkdef_hdr "${_input_dir}/LinkDef.h" )
 
+    #LIST( FIND ROOT_DICT_INPUT_HEADERS ${_linkdef_hdr} _aux )
+    #IF( ${_aux} EQUAL 0 OR ${_aux} GREATER 0 )
+    #    LIST( REMOVE_ITEM ROOT_DICT_INPUT_HEADERS "${_linkdef_hdr}" )
+    #    LIST( APPEND ROOT_DICT_INPUT_HEADERS "${_linkdef_hdr}" )
+    #ENDIF()
+
     IF( _linkdef_hdr )
         LIST( REMOVE_ITEM ROOT_DICT_INPUT_HEADERS "${_linkdef_hdr}" )
         LIST( APPEND ROOT_DICT_INPUT_HEADERS "${_linkdef_hdr}")
@@ -71,18 +73,23 @@ MACRO( GEN_ROOT_DICT_LINKDEF_HEADER _namespace )
     SET( _linkdef_header "${ROOT_DICT_OUTPUT_DIR}/${_namespace}_Linkdef.h" )
 
     FOREACH( _header ${_input_headers} )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#ifdef __CINT__" \n )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link off all globals\;" \n )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link off all classes\;" \n )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link off all functions\;" \n )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link C++ nestedclasses\;" \n )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link C++ nestedclasses\;" \n )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#pragma link C++ class ${_namespace}+\;" \n )
-        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}#endif" \n )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#ifdef __CINT__\\\\n" )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#pragma link off all globals\\;\\\\n" )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#pragma link off all classes\\;\\\\n" )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#pragma link off all functions\\;\\\\n" )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#pragma link C++ nestedclasses\\;\\\\n" )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#pragma link C++ nestedclasses\\;\\\\n" )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#pragma link C++ class ${_namespace}\\+\\;\\\\n" )
+        SET( ${_namespace}_file_contents "${${_namespace}_file_contents}\\#endif\\\\n" )
     ENDFOREACH()
 
-	file(MAKE_DIRECTORY ${ROOT_DICT_OUTPUT_DIR})
-	file(WRITE ${_linkdef_header} ${${_namespace}_file_contents})
+    ADD_CUSTOM_COMMAND(
+        OUTPUT ${_linkdef_header}
+        COMMAND mkdir -p ${ROOT_DICT_OUTPUT_DIR}
+        COMMAND printf "${${_namespace}_file_contents}" > ${_linkdef_header}
+        DEPENDS ${_input_headers}
+        COMMENT "generating: ${_linkdef_header}"
+    )
 
     SET( ROOT_DICT_INPUT_HEADERS ${_input_headers} ${_linkdef_header} )
 
@@ -111,26 +118,21 @@ MACRO( GEN_ROOT_DICT_SOURCE _dict_src_filename )
 
     SET( _input_depend ${ARGN} )
     # TODO check for ROOT_CINT_EXECUTABLE
-	file(MAKE_DIRECTORY ${ROOT_DICT_OUTPUT_DIR})
+
     # need to prefix all include dirs with -I
     set( _dict_includes )
     FOREACH( _inc ${ROOT_DICT_INCLUDE_DIRS} )
         SET( _dict_includes "${_dict_includes}\t-I${_inc}")  #fg: the \t fixes a wired string expansion 
+        #SET( _dict_includes ${_dict_includes} -I${_inc} )
     ENDFOREACH()
-
-    # We modify the list of headers to be given to ROOTCINT command.
-    # We must remove/clean the full path from the main header
-    list ( GET ROOT_DICT_INPUT_HEADERS 0 MAIN_HEADER)
-	get_filename_component( MAIN_HEADER_CLEAN ${MAIN_HEADER} NAME)
-    list ( GET ROOT_DICT_INPUT_HEADERS 1 LINKDEF_HEADER )
-    set( ROOT_DICT_INPUT_HEADERS_CLEAN ${MAIN_HEADER_CLEAN} ${LINKDEF_HEADER} )
 
     STRING( REPLACE "/" "_" _dict_src_filename_nosc ${_dict_src_filename} )
     SET( _dict_src_file ${ROOT_DICT_OUTPUT_DIR}/${_dict_src_filename_nosc} )
     STRING( REGEX REPLACE "^(.*)\\.(.*)$" "\\1.h" _dict_hdr_file "${_dict_src_file}" )
     ADD_CUSTOM_COMMAND(
         OUTPUT  ${_dict_src_file}
-        COMMAND ${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS_CLEAN}
+        COMMAND mkdir -p ${ROOT_DICT_OUTPUT_DIR}
+        COMMAND ${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS}
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         DEPENDS ${ROOT_DICT_INPUT_HEADERS} ${_input_depend}
         COMMENT "generating: ${_dict_src_file} with ${ROOT_DICT_INPUT_HEADERS}"
@@ -146,164 +148,3 @@ MACRO( GEN_ROOT_DICT_SOURCES _dict_src_filename )
     GEN_ROOT_DICT_SOURCE( ${_dict_src_filename} )
 ENDMACRO()
 # ============================================================================
-
-
-
-# ============================================================================
-# Macro to compile the whole directories into a single library
-#
-# The working directory of this macro should have regular form like:
-#   DIR
-#    ©À©¤©¤ CMakeLists.txt
-#    ©À©¤©¤ SUB-DIR-1
-#    ©¦    ©À©¤©¤ inc
-#    ©¦    ©¦    ©¸©¤©¤ CLASS_A.h
-#    ©¦    ©¸©¤©¤ src
-#    ©¦          ©¸©¤©¤ CLASS_A.cxx
-#    ©¸©¤©¤ SUB-DIR-2
-#          ©À©¤©¤ inc
-#          ©¦    ©À©¤©¤ CLASS_B.h
-#          ©¦    ©¸©¤©¤ CLASS_C.h
-#          ©¸©¤©¤ src
-#                ©À©¤©¤ CLASS_B.cxx
-#                ©¸©¤©¤ CLASS_C.cxx
-# Or:
-#   DIR                     
-#    ©À©¤©¤ CMakeLists.txt              
-#    ©À©¤©¤ inc                         
-#    ©¦    ©À©¤©¤ CLASS_A.h     
-#    ©¦    ©¸©¤©¤ CLASS_B.h             
-#    ©¸©¤©¤ src                         
-#          ©À©¤©¤ CLASS_A.cxx      
-#          ©¸©¤©¤ CLASS_B.cxx  
-#
-# This macro will first set include directories of cmake to ${CMAKE_CURRENT_SOURCE_DIR},
-# ${CMAKE_CURRENT_SOURCE_DIR}/inc, sub-directories, and sub-directories/inc.
-#
-# Then it will find out all the cxx files and call CINT.
-#
-# Finally it will call cmake to add a library, using the found cxx files, CINT-wrappered 
-# cxx files, and other defined c++ scripts.
-#
-## Arguments:
-#		libname               - the generated library name
-#
-## OUTPUT variables (global):
-#		local_include_dirs    - After this macro, additional inc dirs from the current 
-#		                        directory will be attatched at the end of this variable.
-#
-#		external_include_dirs - the external inc dirs, for example from ROOT.
-#
-## Optional local variables:
-#		contents              - this variable defines needed sub-directories of current directory
-#
-#		addon_src             - if some of the scripts do not follow regular directory form,
-#		                        set them in this argument to compile them. CINT will not be 
-#		                        called for them.
-#
-#		addon_CINT            - if some of the scripts do not follow regular directory form,
-#		                        set them in this argument to compile them with CINT
-#
-#		addon_inc             - if some of the header directories do not follow regular directory 
-#		                        form, set them in this argument to include them. 
-#
-# ----------------------------------------------------------------------------
-MACRO( COMPILEDIR libname )
-
-	message(STATUS "making build files for ${CMAKE_CURRENT_SOURCE_DIR}, schema evolution: ${local_SE}")
-
-    # We need to define the include paths relative to the compilation directory
-    set ( REAL_SOURCE_DIR "${CMAKE_SOURCE_DIR}/source" )
-    string( REPLACE ${REAL_SOURCE_DIR} "" RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} )
-    set(RELATIVE_PATH "..${RELATIVE}")
-
-	set(contentfiles)
-
-	if(DEFINED contents)
-		message("specified sub-dirs: ${contents}")
-		foreach(content ${contents})
-			set(local_include_dirs ${local_include_dirs} ${addon_inc} ${RELATIVE_PATH}/${content} ${RELATIVE_PATH}/${content}/inc)
-		endforeach(content)
-		set(local_include_dirs ${local_include_dirs} PARENT_SCOPE)
-
-		foreach(content ${contents})
-		file(GLOB_RECURSE files ${content}/*.cxx)
-		foreach (file ${files})
-
-			string(REGEX MATCH "[^/\\]*cxx" temp ${file})
-			string(REPLACE ".cxx" "" class ${temp})
-
-			set(ROOT_DICT_INCLUDE_DIRS ${local_include_dirs} ${external_include_dirs})
-			file(GLOB_RECURSE header ${class}.h)
-			set(ROOT_DICT_INPUT_HEADERS ${header} ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
-			if(${SCHEMA_EVOLUTION} MATCHES "ON")
-				GEN_ROOT_DICT_LINKDEF_HEADER( ${class} ${header})
-				GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
-			else()
-				GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx)
-			endif()
-
-			set(contentfiles ${contentfiles} ${file} ${ROOT_DICT_OUTPUT_SOURCES})
-
-		endforeach (file)
-		
-		endforeach(content)
-	else()
-		message("using inc/src folders in root directory")
-		set(local_include_dirs ${local_include_dirs} ${addon_inc} ${RELATIVE_PATH} ${RELATIVE_PATH}/inc)
-		set(local_include_dirs ${local_include_dirs} PARENT_SCOPE)
-
-		file(GLOB_RECURSE files src/*.cxx)
-		foreach (file ${files})
-
-			string(REGEX MATCH "[^/\\]*cxx" temp ${file})
-			string(REPLACE ".cxx" "" class ${temp})
-
-			set(ROOT_DICT_INCLUDE_DIRS ${local_include_dirs} ${external_include_dirs})
-			file(GLOB_RECURSE header ${class}.h)
-			set(ROOT_DICT_INPUT_HEADERS ${header} ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
-			if(${SCHEMA_EVOLUTION} MATCHES "ON")
-				GEN_ROOT_DICT_LINKDEF_HEADER( ${class} ${header})
-				GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx ${ROOT_DICT_OUTPUT_DIR}/${class}_LinkDef.h)
-			else()
-				GEN_ROOT_DICT_SOURCES(CINT_${class}.cxx)
-			endif()
-
-			set(contentfiles ${contentfiles} ${file} ${ROOT_DICT_OUTPUT_SOURCES})
-
-		endforeach (file)
-
-
-
-	endif()
-
-
-	foreach(src ${addon_CINT})
-		string(REGEX MATCH "[^/\\]+$" filename ${src})
-		set(ROOT_DICT_INCLUDE_DIRS ${local_include_dirs} ${external_include_dirs})
-		set(ROOT_DICT_INPUT_HEADERS ${src})
-		GEN_ROOT_DICT_SOURCES(CINT_${filename}.cxx)
-		set(contentfiles ${contentfiles} ${src} ${ROOT_DICT_OUTPUT_SOURCES})
-	endforeach(src)
-
-	include_directories(${local_include_dirs})
-	add_library(${libname} SHARED ${contentfiles} ${addon_src})
-
-
-	if(CMAKE_SYSTEM_NAME MATCHES "Windows")
-		set_target_properties(${libname} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-		target_link_libraries(${libname} ${local_libraries} ${external_libs})
-		install(TARGETS ${libname}
-			RUNTIME DESTINATION bin
-			LIBRARY DESTINATION bin
-			ARCHIVE DESTINATION lib)
-	else()
-		target_link_libraries(${libname} ${local_libraries} ${external_libs})
-		install(TARGETS ${libname}
-			RUNTIME DESTINATION bin
-			LIBRARY DESTINATION lib
-			ARCHIVE DESTINATION lib/static)
-	endif()
-	set(local_libraries ${local_libraries} ${libname})
-	set(local_libraries ${local_libraries} PARENT_SCOPE)
-ENDMACRO()
