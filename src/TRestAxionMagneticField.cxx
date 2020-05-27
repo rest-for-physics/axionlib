@@ -64,7 +64,7 @@
 ///
 /// - *boundMax* : A 3D vector, `(xMax,yMax,zMax)` that defines the bounding box
 /// size. The box size will be bounded by the vertex `(xMin,yMin,zMin)` and
-/// `(xMax,yMax,zMax)". This parameter is required if no field map file is given.
+/// `(xMax,yMax,zMax)`. This parameter is required if no field map file is given.
 /// If a field map file is provided, the bounding box will be extracted from the
 /// field map. In that case, this parameter will be only used for validation.
 ///
@@ -594,7 +594,7 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         debug << "Reading file : " << fFileNames[n] << endl;
         debug << "Full path : " << fullPathName << endl;
 
-        if (fullPathName == "") {
+        if (fFileNames[n] != "none" && fullPathName == "") {
             ferr << "TRestAxionMagneticField::LoadMagneticVolumes. File " << fFileNames[n] << " not found!"
                  << endl;
             ferr << "REST will look for this file at any path given by <searchPath at globals definitions"
@@ -603,19 +603,23 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         }
 
         std::vector<std::vector<Float_t>> fieldData;
-        if (fullPathName.find(".dat") != string::npos) {
-            debug << "Reading ASCII format" << endl;
-            if (!TRestTools::ReadASCIITable(fullPathName, fieldData)) {
-                ferr << "Problem reading file : " << fullPathName << endl;
-                exit(1);
+        if (fFileNames[n] != "none")
+            if (fullPathName.find(".dat") != string::npos) {
+                debug << "Reading ASCII format" << endl;
+                if (!TRestTools::ReadASCIITable(fullPathName, fieldData)) {
+                    ferr << "Problem reading file : " << fullPathName << endl;
+                    exit(1);
+                }
+            } else {
+                if (fullPathName.find(".bin") != string::npos) {
+                    debug << "Reading binary format" << endl;
+                    if (!TRestTools::ReadBinaryTable(fullPathName, fieldData, 6)) {
+                        ferr << "Problem reading file : " << fullPathName << endl;
+                        exit(2);
+                    }
+                }
             }
-        } else if (fullPathName.find(".bin") != string::npos) {
-            debug << "Reading binary format" << endl;
-            if (!TRestTools::ReadBinaryTable(fullPathName, fieldData, 6)) {
-                ferr << "Problem reading file : " << fullPathName << endl;
-                exit(2);
-            }
-        } else if (fFileNames[n] != "none") {
+        else if (fFileNames[n] != "none") {
             ferr << "Filename : " << fullPathName << endl;
             ferr << "File format not recognized!" << endl;
             exit(3);
@@ -1221,15 +1225,14 @@ void TRestAxionMagneticField::PrintMetadata() {
     metadata << " ------------------------------------------------ " << endl;
     for (int p = 0; p < GetNumberOfVolumes(); p++) {
         if (p > 0) metadata << " ------------------------------------------------ " << endl;
-        MagneticFieldVolume* vol = GetMagneticVolume(p);
 
         Double_t centerX = fPositions[p][0];
         Double_t centerY = fPositions[p][1];
         Double_t centerZ = fPositions[p][2];
 
-        Double_t halfSizeX = vol->mesh.GetNetSizeX() / 2.;
-        Double_t halfSizeY = vol->mesh.GetNetSizeY() / 2.;
-        Double_t halfSizeZ = vol->mesh.GetNetSizeZ() / 2.;
+        Double_t halfSizeX = fBoundMax[p].X();
+        Double_t halfSizeY = fBoundMax[p].Y();
+        Double_t halfSizeZ = fBoundMax[p].Z();
 
         Double_t xMin = centerX - halfSizeX;
         Double_t yMin = centerY - halfSizeY;
