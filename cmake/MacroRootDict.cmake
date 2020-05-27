@@ -126,13 +126,21 @@ MACRO( GEN_ROOT_DICT_SOURCE _dict_src_filename )
         #SET( _dict_includes ${_dict_includes} -I${_inc} )
     ENDFOREACH()
 
+    # We modify the list of headers to be given to ROOTCINT command.
+    # We must remove/clean the full path from the main header
+    list ( GET ROOT_DICT_INPUT_HEADERS 0 MAIN_HEADER)
+    get_filename_component( MAIN_HEADER_CLEAN ${MAIN_HEADER} NAME)
+    list ( GET ROOT_DICT_INPUT_HEADERS 1 LINKDEF_HEADER )
+    set( ROOT_DICT_INPUT_HEADERS_CLEAN ${MAIN_HEADER_CLEAN} ${LINKDEF_HEADER} )
+
+
     STRING( REPLACE "/" "_" _dict_src_filename_nosc ${_dict_src_filename} )
     SET( _dict_src_file ${ROOT_DICT_OUTPUT_DIR}/${_dict_src_filename_nosc} )
     STRING( REGEX REPLACE "^(.*)\\.(.*)$" "\\1.h" _dict_hdr_file "${_dict_src_file}" )
     ADD_CUSTOM_COMMAND(
         OUTPUT  ${_dict_src_file}
         COMMAND mkdir -p ${ROOT_DICT_OUTPUT_DIR}
-        COMMAND ${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS}
+        COMMAND ${ROOT_CINT_WRAPPER} -f "${_dict_src_file}" ${_dict_includes} ${ROOT_DICT_INPUT_HEADERS_CLEAN}
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         DEPENDS ${ROOT_DICT_INPUT_HEADERS} ${_input_depend}
         COMMENT "generating: ${_dict_src_file} with ${ROOT_DICT_INPUT_HEADERS}"
