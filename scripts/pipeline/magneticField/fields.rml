@@ -11,8 +11,12 @@
 
     <TRestAxionMagneticField name="babyIAXO_HD" title="Field definition with 1cm precision in XY, 5cm in Z for babyIAXO magnet." verboseLevel="info" >
         <addMagneticVolume fileName="Bykovskiy_202004.bin" position="(0,0,0)mm" />
-
-        <addMagneticVolume fileName="Bykovskiy_202004.bin" position="(700.1,700.1,4900)mm" />
     </TRestAxionMagneticField>
+
+    <TRestAxionMagneticField name="CAST" title="CAST magnet definition" verboseLevel="warning" >
+        <addMagneticVolume field="(0,8.9,0)T" position="(0,0,0)mm" boundMax="(21.5,21.5,9260/2)mm"
+            meshType="cylinder" meshSize="(10,10,10)mm"/>
+    </TRestAxionMagneticField>
+
 </axion>
 
