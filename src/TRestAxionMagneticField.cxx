@@ -302,7 +302,6 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         volIndex = 0;
     }
 
-    // CAUTION. This needs revision just fixed adding .X() in order compile!
     if (step <= 0) {
         step_x = fMeshSize[volIndex].X();
         step_y = fMeshSize[volIndex].Y();
@@ -312,6 +311,12 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 
     MagneticFieldVolume* vol = GetMagneticVolume(volIndex);
     if (!vol) return fCanvas;
+
+    if (!(projection == "XY" || projection == "XZ" || projection == "YZ")) {
+        ferr << "You entered : " << projection << " as a projection but you have to choose XY, XZ or YZ"
+             << endl;
+        return fCanvas;
+    }
 
     Double_t centerX = fPositions[volIndex][0];
     Double_t centerY = fPositions[volIndex][1];
@@ -398,134 +403,126 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         return fCanvas;
     }
 
-    else {
-        if (projection == "XZ") {
-            TCanvas* fCanvas = new TCanvas("fCanvas", "");
-            fHisto = new TH2D("", "", nBinsX, xMin, xMax, nBinsZ, zMin, zMax);
+    if (projection == "XZ") {
+        TCanvas* fCanvas = new TCanvas("fCanvas", "");
+        fHisto = new TH2D("", "", nBinsX, xMin, xMax, nBinsZ, zMin, zMax);
 
-            if (depth < -100000.0)
-                y = (yMin + yMax) / 2.0;
-            else if ((depth >= yMin) && (depth <= yMax))
-                y = depth;
-            else
-                ferr << "You entered depth = " << depth << ", but you have to choose depth between " << yMin
-                     << " and " << yMax << endl;
-            x = xMin;
+        if (depth < -100000.0)
+            y = (yMin + yMax) / 2.0;
+        else if ((depth >= yMin) && (depth <= yMax))
+            y = depth;
+        else
+            ferr << "You entered depth = " << depth << ", but you have to choose depth between " << yMin
+                 << " and " << yMax << endl;
+        x = xMin;
 
-            for (Int_t i = 0; i < nBinsX; i++) {
-                z = zMin;
-                for (Int_t j = 0; j < nBinsZ; j++) {
-                    Bvec = GetMagneticField(x, y, z);
-                    if (Bcomp == "X")
-                        B = Bvec[0];
+        for (Int_t i = 0; i < nBinsX; i++) {
+            z = zMin;
+            for (Int_t j = 0; j < nBinsZ; j++) {
+                Bvec = GetMagneticField(x, y, z);
+                if (Bcomp == "X")
+                    B = Bvec[0];
+                else {
+                    if (Bcomp == "Y")
+                        B = Bvec[1];
                     else {
-                        if (Bcomp == "Y")
-                            B = Bvec[1];
-                        else {
-                            if (Bcomp == "Z")
-                                B = Bvec[2];
-                            else
-                                ferr << "You entered : " << Bcomp
-                                     << " as a B component but you have to choose X, Y or Z" << endl;
-                        }
+                        if (Bcomp == "Z")
+                            B = Bvec[2];
+                        else
+                            ferr << "You entered : " << Bcomp
+                                 << " as a B component but you have to choose X, Y or Z" << endl;
                     }
-                    fHisto->Fill(x, z, B);
-                    z = z + step_z;
                 }
-                x = x + step_x;
+                fHisto->Fill(x, z, B);
+                z = z + step_z;
             }
-
-            fCanvas->cd();
-            fHisto->SetBit(TH1::kNoStats);
-            fHisto->GetXaxis()->SetTitle("x (mm)");
-            fHisto->GetYaxis()->SetTitle("z (mm)");
-
-            if (Bcomp == "X") {
-                TString title = Form("B_{x} against x and z @ y = %.1f", y);
-                fHisto->SetTitle(title);
-                fCanvas->SetTitle(title);
-            }
-            if (Bcomp == "Y") {
-                TString title = Form("B_{y} against x and z @ y = %.1f", y);
-                fHisto->SetTitle(title);
-                fCanvas->SetTitle(title);
-            }
-            if (Bcomp == "Z") {
-                TString title = Form("B_{z} against x and z @ y = %.1f", y);
-                fHisto->SetTitle(title);
-                fCanvas->SetTitle(title);
-            }
-
-            fHisto->Draw(style);
-            return fCanvas;
+            x = x + step_x;
         }
 
-        else {
-            if (projection == "YZ") {
-                TCanvas* fCanvas = new TCanvas("fCanvas", "");
-                fHisto = new TH2D("", "", nBinsY, yMin, yMax, nBinsZ, zMin, zMax);
+        fCanvas->cd();
+        fHisto->SetBit(TH1::kNoStats);
+        fHisto->GetXaxis()->SetTitle("x (mm)");
+        fHisto->GetYaxis()->SetTitle("z (mm)");
 
-                if (depth < -100000.0)
-                    x = (xMin + xMax) / 2.0;
-                else if ((depth >= xMin) && (depth <= xMax))
-                    x = depth;
-                else
-                    ferr << "You entered depth = " << depth << ", but you have to choose depth between "
-                         << xMin << " and " << xMax << endl;
-                y = yMin;
-
-                for (Int_t i = 0; i < nBinsY; i++) {
-                    z = zMin;
-                    for (Int_t j = 0; j < nBinsZ; j++) {
-                        Bvec = GetMagneticField(x, y, z);
-                        if (Bcomp == "X")
-                            B = Bvec[0];
-                        else {
-                            if (Bcomp == "Y")
-                                B = Bvec[1];
-                            else {
-                                if (Bcomp == "Z")
-                                    B = Bvec[2];
-                                else
-                                    ferr << "You entered : " << Bcomp
-                                         << " as a B component but you have to choose X, Y or Z" << endl;
-                            }
-                        }
-                        fHisto->Fill(y, z, B);
-                        z = z + step_z;
-                    }
-                    y = y + step_y;
-                }
-
-                fCanvas->cd();
-                fHisto->SetBit(TH1::kNoStats);
-                fHisto->GetXaxis()->SetTitle("y (mm)");
-                fHisto->GetYaxis()->SetTitle("z (mm)");
-
-                if (Bcomp == "X") {
-                    TString title = Form("B_{x} against y and z @ x = %.1f", x);
-                    fHisto->SetTitle(title);
-                    fCanvas->SetTitle(title);
-                }
-                if (Bcomp == "Y") {
-                    TString title = Form("B_{y} against y and z @ x = %.1f", x);
-                    fHisto->SetTitle(title);
-                    fCanvas->SetTitle(title);
-                }
-                if (Bcomp == "Z") {
-                    TString title = Form("B_{z} against y and z @ x = %.1f", x);
-                    fHisto->SetTitle(title);
-                    fCanvas->SetTitle(title);
-                }
-
-                fHisto->Draw(style);
-                return fCanvas;
-            }
-
-            else
-                ferr << "You entered : " << projection
-                     << " as a projection but you have to choose XY, XY or XZ" << endl;
+        if (Bcomp == "X") {
+            TString title = Form("B_{x} against x and z @ y = %.1f", y);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
         }
+        if (Bcomp == "Y") {
+            TString title = Form("B_{y} against x and z @ y = %.1f", y);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
+        }
+        if (Bcomp == "Z") {
+            TString title = Form("B_{z} against x and z @ y = %.1f", y);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
+        }
+
+        fHisto->Draw(style);
+        return fCanvas;
+    }
+
+    if (projection == "YZ") {
+        TCanvas* fCanvas = new TCanvas("fCanvas", "");
+        fHisto = new TH2D("", "", nBinsY, yMin, yMax, nBinsZ, zMin, zMax);
+
+        if (depth < -100000.0)
+            x = (xMin + xMax) / 2.0;
+        else if ((depth >= xMin) && (depth <= xMax))
+            x = depth;
+        else
+            ferr << "You entered depth = " << depth << ", but you have to choose depth between " << xMin
+                 << " and " << xMax << endl;
+        y = yMin;
+
+        for (Int_t i = 0; i < nBinsY; i++) {
+            z = zMin;
+            for (Int_t j = 0; j < nBinsZ; j++) {
+                Bvec = GetMagneticField(x, y, z);
+                if (Bcomp == "X")
+                    B = Bvec[0];
+                else {
+                    if (Bcomp == "Y")
+                        B = Bvec[1];
+                    else {
+                        if (Bcomp == "Z")
+                            B = Bvec[2];
+                        else
+                            ferr << "You entered : " << Bcomp
+                                 << " as a B component but you have to choose X, Y or Z" << endl;
+                    }
+                }
+                fHisto->Fill(y, z, B);
+                z = z + step_z;
+            }
+            y = y + step_y;
+        }
+
+        fCanvas->cd();
+        fHisto->SetBit(TH1::kNoStats);
+        fHisto->GetXaxis()->SetTitle("y (mm)");
+        fHisto->GetYaxis()->SetTitle("z (mm)");
+
+        if (Bcomp == "X") {
+            TString title = Form("B_{x} against y and z @ x = %.1f", x);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
+        }
+        if (Bcomp == "Y") {
+            TString title = Form("B_{y} against y and z @ x = %.1f", x);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
+        }
+        if (Bcomp == "Z") {
+            TString title = Form("B_{z} against y and z @ x = %.1f", x);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
+        }
+
+        fHisto->Draw(style);
+        return fCanvas;
     }
 
     return fCanvas;
