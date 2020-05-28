@@ -138,6 +138,7 @@ class TRestAxionMagneticField : public TRestMetadata {
     Double_t GetPhotonAbsorptionLength(Int_t id, Double_t en);
 
     Int_t GetVolumeIndex(TVector3 pos);
+    Bool_t IsInside(TVector3 pos);
 
     TVector3 GetVolumePosition(Int_t id);
     TVector3 GetVolumeCenter(Int_t id);

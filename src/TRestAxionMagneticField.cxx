@@ -932,7 +932,7 @@ Double_t TRestAxionMagneticField::GetPhotonAbsorptionLength(Int_t id, Double_t e
 }
 
 ///////////////////////////////////////////////
-/// \brief it returns the corresponding volume index at the given position. If not found it will return
+/// \brief It returns the corresponding volume index at the given position. If not found it will return
 /// -1.
 ///
 Int_t TRestAxionMagneticField::GetVolumeIndex(TVector3 pos) {
@@ -942,6 +942,14 @@ Int_t TRestAxionMagneticField::GetVolumeIndex(TVector3 pos) {
         if (fMagneticFieldVolumes[n].mesh.IsInside(pos)) return n;
     }
     return -1;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns true if the given position is found inside a magnetic volume. False otherwise.
+///
+Bool_t TRestAxionMagneticField::IsInside(TVector3 pos) {
+    if (GetVolumeIndex(pos) >= 0) return true;
+    return false;
 }
 
 ///////////////////////////////////////////////
