@@ -127,7 +127,7 @@ class TRestAxionMagneticField : public TRestMetadata {
     std::vector<TVector3> GetFieldBoundaries(Int_t id, TVector3 pos, TVector3 dir, Double_t precision = 0);
 
     TVector3 GetMagneticField(Double_t x, Double_t y, Double_t z);
-    TVector3 GetMagneticField(TVector3 pos);
+    TVector3 GetMagneticField(TVector3 pos, Bool_t showWarning = true);
 
     Double_t GetPhotonMass(Double_t x, Double_t y, Double_t z, Double_t en);
     Double_t GetPhotonMass(TVector3 pos, Double_t en);

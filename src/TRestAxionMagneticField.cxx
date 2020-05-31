@@ -358,7 +358,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         for (Int_t i = 0; i < nBinsX; i++) {
             y = yMin;
             for (Int_t j = 0; j < nBinsY; j++) {
-                Bvec = GetMagneticField(x, y, z);
+                Bvec = GetMagneticField(TVector3(x, y, z), false);
                 if (Bcomp == "X")
                     B = Bvec[0];
                 else {
@@ -419,7 +419,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         for (Int_t i = 0; i < nBinsX; i++) {
             z = zMin;
             for (Int_t j = 0; j < nBinsZ; j++) {
-                Bvec = GetMagneticField(x, y, z);
+                Bvec = GetMagneticField(TVector3(x, y, z), false);
                 if (Bcomp == "X")
                     B = Bvec[0];
                 else {
@@ -480,7 +480,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         for (Int_t i = 0; i < nBinsY; i++) {
             z = zMin;
             for (Int_t j = 0; j < nBinsZ; j++) {
-                Bvec = GetMagneticField(x, y, z);
+                Bvec = GetMagneticField(TVector3(x, y, z), false);
                 if (Bcomp == "X")
                     B = Bvec[0];
                 else {
@@ -762,11 +762,15 @@ TVector3 TRestAxionMagneticField::GetMagneticField(Double_t x, Double_t y, Doubl
 /// \brief It returns the magnetic field vector at TVector3(pos) using trilinear interpolation
 /// that is implemented following instructions given at https://en.wikipedia.org/wiki/Trilinear_interpolation
 ///
-TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
+/// The warning in case the evaluated point is found outside any volume might be disabled using
+/// the `showWarning` argument.
+///
+TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos, Bool_t showWarning) {
     Int_t id = GetVolumeIndex(pos);
 
     if (id < 0) {
-        warning << "TRestAxionMagneticField::GetMagneticField position is outside any volume" << endl;
+        if (showWarning)
+            warning << "TRestAxionMagneticField::GetMagneticField position is outside any volume" << endl;
         return TVector3(0, 0, 0);
     } else {
         if (IsFieldConstant(id)) return fConstantField[id];
