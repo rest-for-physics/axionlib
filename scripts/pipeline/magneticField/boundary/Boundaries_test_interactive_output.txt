@@ -1,0 +1,23 @@
+Initial position : (10, 10, -1010)
+Direction : (0, 0, 1)
+
+Volume #0
+Number of volume boundary points found : 2
+boundaries[0] = (10, 10, -1000)
+boundaries[1] = (10, 10, 1000)
+
+
+Number of field boundary points found : 2
+fieldboundaries[0] = (10, 10, -505)
+fieldboundaries[1] = (10, 10, 605)
+---------------------------------
+Volume #1
+Number of volume boundary points found : 2
+boundaries[0] = (10, 10, 1000.01)
+boundaries[1] = (10, 10, 3000.01)
+
+
+Number of field boundary points found : 2
+fieldboundaries[0] = (10, 10, 1495.01)
+fieldboundaries[1] = (10, 10, 2605.01)
+---------------------------------
