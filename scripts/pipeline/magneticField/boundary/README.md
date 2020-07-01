@@ -5,6 +5,8 @@ The scripts in this directory are used to test the implementation of the `TRestA
 
 To perform the test just execute the command `restRoot -b -q Boundaries_test_interactive.C`.
 
+There is also a non-interactive version of this test `Boundaries_test.C` with four predefined inputs suitable to launch the test as a part of the gitlab pipeline chain.
+
 ### Description of the magnetic field volume used in this test
 
 The magntic field volume consists of two identical regions placed one behind the other along the z-direction which is aligned with the axis of the magnet bore. Each region has dimensions:
@@ -53,10 +55,12 @@ while other three columns are `Bx`, `By` and `Bz` values for the corresponding g
 
 3) **Boundaries_test_interactive.C** - a restRoot script which tests the `TRestAxionMagneticField::GetVolumeBoundaries` and `TRestAxionMagneticField::GetFieldBoundaries` methods. The test is interactive in a way that the user should, after starting the script, enter the coordinates of the particle's initial position and the components of the particle's direction vector. Then the script calls `GetVolumeBoundaries` and `GetFieldBoundaries` methods to determine the boudary points for each of the two magnetic field regions (`Volume #0` and `Volume #1`) and prints them on screen as well as in the file `Boundaries_test_interactive_output.txt`. The example of one such test is shown in `example.jpeg`.
 
-4) **Bx_vs_x_y.jpeg**: this file shows the profile of the `Bx` component in the x-y plane in the middle of the region, i.e., at `z=0`.
+4) **Boundaries_test.C** - a non-interactive version of the script that uses four predefined inputs to perform the test and is suitable to launch in the gitlab pipeline chain.
 
-5) **By_vs_x_y_SURF3.jpeg**: this file shows the profile of the `Bx` component in the x-y plane in the middle of the region, i.e., at `z=0`.
+5) **Bx_vs_x_y.jpeg**: this file shows the profile of the `Bx` component in the x-y plane in the middle of the region, i.e., at `z=0`.
 
-6) **example.jpeg**: this file shows the example of the screen-output produced by the script `Boundaries_test_interactive.C`.
+6) **By_vs_x_y_SURF3.jpeg**: this file shows the profile of the `Bx` component in the x-y plane in the middle of the region, i.e., at `z=0`.
 
-7) **Boundaries_test_interactive_output.txt** : this text file contains the output produced by the script `Boundaries_test_interactive.C` that can be useful for detailed studies.
+7) **example.jpeg**: this file shows the example of the screen-output produced by the script `Boundaries_test_interactive.C`.
+
+8) **Boundaries_test_interactive_output.txt** : this text file contains the output produced by the script `Boundaries_test_interactive.C` that can be useful for detailed studies.
