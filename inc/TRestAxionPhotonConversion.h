@@ -134,10 +134,10 @@ class TRestAxionPhotonConversion : public TObject {
         return c;
     }
 
+   public:
     Double_t BL(Double_t Bmag, Double_t Lcoh);
     Double_t BLHalfSquared(Double_t Bmag, Double_t Lcoh);
 
-   public:
     /// It enables/disables debug mode
     void SetDebug(Bool_t v) { fDebug = v; }
 

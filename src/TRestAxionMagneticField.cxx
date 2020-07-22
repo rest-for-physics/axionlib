@@ -64,7 +64,7 @@
 ///
 /// - *boundMax* : A 3D vector, `(xMax,yMax,zMax)` that defines the bounding box
 /// size. The box size will be bounded by the vertex `(xMin,yMin,zMin)` and
-/// `(xMax,yMax,zMax)". This parameter is required if no field map file is given.
+/// `(xMax,yMax,zMax)`. This parameter is required if no field map file is given.
 /// If a field map file is provided, the bounding box will be extracted from the
 /// field map. In that case, this parameter will be only used for validation.
 ///
@@ -302,7 +302,6 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         volIndex = 0;
     }
 
-    // CAUTION. This needs revision just fixed adding .X() in order compile!
     if (step <= 0) {
         step_x = fMeshSize[volIndex].X();
         step_y = fMeshSize[volIndex].Y();
@@ -312,6 +311,12 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 
     MagneticFieldVolume* vol = GetMagneticVolume(volIndex);
     if (!vol) return fCanvas;
+
+    if (!(projection == "XY" || projection == "XZ" || projection == "YZ")) {
+        ferr << "You entered : " << projection << " as a projection but you have to choose XY, XZ or YZ"
+             << endl;
+        return fCanvas;
+    }
 
     Double_t centerX = fPositions[volIndex][0];
     Double_t centerY = fPositions[volIndex][1];
@@ -353,7 +358,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         for (Int_t i = 0; i < nBinsX; i++) {
             y = yMin;
             for (Int_t j = 0; j < nBinsY; j++) {
-                Bvec = GetMagneticField(x, y, z);
+                Bvec = GetMagneticField(TVector3(x, y, z), false);
                 if (Bcomp == "X")
                     B = Bvec[0];
                 else {
@@ -398,134 +403,126 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         return fCanvas;
     }
 
-    else {
-        if (projection == "XZ") {
-            TCanvas* fCanvas = new TCanvas("fCanvas", "");
-            fHisto = new TH2D("", "", nBinsX, xMin, xMax, nBinsZ, zMin, zMax);
+    if (projection == "XZ") {
+        TCanvas* fCanvas = new TCanvas("fCanvas", "");
+        fHisto = new TH2D("", "", nBinsX, xMin, xMax, nBinsZ, zMin, zMax);
 
-            if (depth < -100000.0)
-                y = (yMin + yMax) / 2.0;
-            else if ((depth >= yMin) && (depth <= yMax))
-                y = depth;
-            else
-                ferr << "You entered depth = " << depth << ", but you have to choose depth between " << yMin
-                     << " and " << yMax << endl;
-            x = xMin;
+        if (depth < -100000.0)
+            y = (yMin + yMax) / 2.0;
+        else if ((depth >= yMin) && (depth <= yMax))
+            y = depth;
+        else
+            ferr << "You entered depth = " << depth << ", but you have to choose depth between " << yMin
+                 << " and " << yMax << endl;
+        x = xMin;
 
-            for (Int_t i = 0; i < nBinsX; i++) {
-                z = zMin;
-                for (Int_t j = 0; j < nBinsZ; j++) {
-                    Bvec = GetMagneticField(x, y, z);
-                    if (Bcomp == "X")
-                        B = Bvec[0];
+        for (Int_t i = 0; i < nBinsX; i++) {
+            z = zMin;
+            for (Int_t j = 0; j < nBinsZ; j++) {
+                Bvec = GetMagneticField(TVector3(x, y, z), false);
+                if (Bcomp == "X")
+                    B = Bvec[0];
+                else {
+                    if (Bcomp == "Y")
+                        B = Bvec[1];
                     else {
-                        if (Bcomp == "Y")
-                            B = Bvec[1];
-                        else {
-                            if (Bcomp == "Z")
-                                B = Bvec[2];
-                            else
-                                ferr << "You entered : " << Bcomp
-                                     << " as a B component but you have to choose X, Y or Z" << endl;
-                        }
+                        if (Bcomp == "Z")
+                            B = Bvec[2];
+                        else
+                            ferr << "You entered : " << Bcomp
+                                 << " as a B component but you have to choose X, Y or Z" << endl;
                     }
-                    fHisto->Fill(x, z, B);
-                    z = z + step_z;
                 }
-                x = x + step_x;
+                fHisto->Fill(x, z, B);
+                z = z + step_z;
             }
-
-            fCanvas->cd();
-            fHisto->SetBit(TH1::kNoStats);
-            fHisto->GetXaxis()->SetTitle("x (mm)");
-            fHisto->GetYaxis()->SetTitle("z (mm)");
-
-            if (Bcomp == "X") {
-                TString title = Form("B_{x} against x and z @ y = %.1f", y);
-                fHisto->SetTitle(title);
-                fCanvas->SetTitle(title);
-            }
-            if (Bcomp == "Y") {
-                TString title = Form("B_{y} against x and z @ y = %.1f", y);
-                fHisto->SetTitle(title);
-                fCanvas->SetTitle(title);
-            }
-            if (Bcomp == "Z") {
-                TString title = Form("B_{z} against x and z @ y = %.1f", y);
-                fHisto->SetTitle(title);
-                fCanvas->SetTitle(title);
-            }
-
-            fHisto->Draw(style);
-            return fCanvas;
+            x = x + step_x;
         }
 
-        else {
-            if (projection == "YZ") {
-                TCanvas* fCanvas = new TCanvas("fCanvas", "");
-                fHisto = new TH2D("", "", nBinsY, yMin, yMax, nBinsZ, zMin, zMax);
+        fCanvas->cd();
+        fHisto->SetBit(TH1::kNoStats);
+        fHisto->GetXaxis()->SetTitle("x (mm)");
+        fHisto->GetYaxis()->SetTitle("z (mm)");
 
-                if (depth < -100000.0)
-                    x = (xMin + xMax) / 2.0;
-                else if ((depth >= xMin) && (depth <= xMax))
-                    x = depth;
-                else
-                    ferr << "You entered depth = " << depth << ", but you have to choose depth between "
-                         << xMin << " and " << xMax << endl;
-                y = yMin;
-
-                for (Int_t i = 0; i < nBinsY; i++) {
-                    z = zMin;
-                    for (Int_t j = 0; j < nBinsZ; j++) {
-                        Bvec = GetMagneticField(x, y, z);
-                        if (Bcomp == "X")
-                            B = Bvec[0];
-                        else {
-                            if (Bcomp == "Y")
-                                B = Bvec[1];
-                            else {
-                                if (Bcomp == "Z")
-                                    B = Bvec[2];
-                                else
-                                    ferr << "You entered : " << Bcomp
-                                         << " as a B component but you have to choose X, Y or Z" << endl;
-                            }
-                        }
-                        fHisto->Fill(y, z, B);
-                        z = z + step_z;
-                    }
-                    y = y + step_y;
-                }
-
-                fCanvas->cd();
-                fHisto->SetBit(TH1::kNoStats);
-                fHisto->GetXaxis()->SetTitle("y (mm)");
-                fHisto->GetYaxis()->SetTitle("z (mm)");
-
-                if (Bcomp == "X") {
-                    TString title = Form("B_{x} against y and z @ x = %.1f", x);
-                    fHisto->SetTitle(title);
-                    fCanvas->SetTitle(title);
-                }
-                if (Bcomp == "Y") {
-                    TString title = Form("B_{y} against y and z @ x = %.1f", x);
-                    fHisto->SetTitle(title);
-                    fCanvas->SetTitle(title);
-                }
-                if (Bcomp == "Z") {
-                    TString title = Form("B_{z} against y and z @ x = %.1f", x);
-                    fHisto->SetTitle(title);
-                    fCanvas->SetTitle(title);
-                }
-
-                fHisto->Draw(style);
-                return fCanvas;
-            }
-
-            else
-                ferr << "You entered : " << projection
-                     << " as a projection but you have to choose XY, XY or XZ" << endl;
+        if (Bcomp == "X") {
+            TString title = Form("B_{x} against x and z @ y = %.1f", y);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
         }
+        if (Bcomp == "Y") {
+            TString title = Form("B_{y} against x and z @ y = %.1f", y);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
+        }
+        if (Bcomp == "Z") {
+            TString title = Form("B_{z} against x and z @ y = %.1f", y);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
+        }
+
+        fHisto->Draw(style);
+        return fCanvas;
+    }
+
+    if (projection == "YZ") {
+        TCanvas* fCanvas = new TCanvas("fCanvas", "");
+        fHisto = new TH2D("", "", nBinsY, yMin, yMax, nBinsZ, zMin, zMax);
+
+        if (depth < -100000.0)
+            x = (xMin + xMax) / 2.0;
+        else if ((depth >= xMin) && (depth <= xMax))
+            x = depth;
+        else
+            ferr << "You entered depth = " << depth << ", but you have to choose depth between " << xMin
+                 << " and " << xMax << endl;
+        y = yMin;
+
+        for (Int_t i = 0; i < nBinsY; i++) {
+            z = zMin;
+            for (Int_t j = 0; j < nBinsZ; j++) {
+                Bvec = GetMagneticField(TVector3(x, y, z), false);
+                if (Bcomp == "X")
+                    B = Bvec[0];
+                else {
+                    if (Bcomp == "Y")
+                        B = Bvec[1];
+                    else {
+                        if (Bcomp == "Z")
+                            B = Bvec[2];
+                        else
+                            ferr << "You entered : " << Bcomp
+                                 << " as a B component but you have to choose X, Y or Z" << endl;
+                    }
+                }
+                fHisto->Fill(y, z, B);
+                z = z + step_z;
+            }
+            y = y + step_y;
+        }
+
+        fCanvas->cd();
+        fHisto->SetBit(TH1::kNoStats);
+        fHisto->GetXaxis()->SetTitle("y (mm)");
+        fHisto->GetYaxis()->SetTitle("z (mm)");
+
+        if (Bcomp == "X") {
+            TString title = Form("B_{x} against y and z @ x = %.1f", x);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
+        }
+        if (Bcomp == "Y") {
+            TString title = Form("B_{y} against y and z @ x = %.1f", x);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
+        }
+        if (Bcomp == "Z") {
+            TString title = Form("B_{z} against y and z @ x = %.1f", x);
+            fHisto->SetTitle(title);
+            fCanvas->SetTitle(title);
+        }
+
+        fHisto->Draw(style);
+        return fCanvas;
     }
 
     return fCanvas;
@@ -594,7 +591,7 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         debug << "Reading file : " << fFileNames[n] << endl;
         debug << "Full path : " << fullPathName << endl;
 
-        if (fullPathName == "") {
+        if (fFileNames[n] != "none" && fullPathName == "") {
             ferr << "TRestAxionMagneticField::LoadMagneticVolumes. File " << fFileNames[n] << " not found!"
                  << endl;
             ferr << "REST will look for this file at any path given by <searchPath at globals definitions"
@@ -603,19 +600,23 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         }
 
         std::vector<std::vector<Float_t>> fieldData;
-        if (fullPathName.find(".dat") != string::npos) {
-            debug << "Reading ASCII format" << endl;
-            if (!TRestTools::ReadASCIITable(fullPathName, fieldData)) {
-                ferr << "Problem reading file : " << fullPathName << endl;
-                exit(1);
+        if (fFileNames[n] != "none")
+            if (fullPathName.find(".dat") != string::npos) {
+                debug << "Reading ASCII format" << endl;
+                if (!TRestTools::ReadASCIITable(fullPathName, fieldData)) {
+                    ferr << "Problem reading file : " << fullPathName << endl;
+                    exit(1);
+                }
+            } else {
+                if (fullPathName.find(".bin") != string::npos) {
+                    debug << "Reading binary format" << endl;
+                    if (!TRestTools::ReadBinaryTable(fullPathName, fieldData, 6)) {
+                        ferr << "Problem reading file : " << fullPathName << endl;
+                        exit(2);
+                    }
+                }
             }
-        } else if (fullPathName.find(".bin") != string::npos) {
-            debug << "Reading binary format" << endl;
-            if (!TRestTools::ReadBinaryTable(fullPathName, fieldData, 6)) {
-                ferr << "Problem reading file : " << fullPathName << endl;
-                exit(2);
-            }
-        } else if (fFileNames[n] != "none") {
+        else if (fFileNames[n] != "none") {
             ferr << "Filename : " << fullPathName << endl;
             ferr << "File format not recognized!" << endl;
             exit(3);
@@ -761,11 +762,15 @@ TVector3 TRestAxionMagneticField::GetMagneticField(Double_t x, Double_t y, Doubl
 /// \brief It returns the magnetic field vector at TVector3(pos) using trilinear interpolation
 /// that is implemented following instructions given at https://en.wikipedia.org/wiki/Trilinear_interpolation
 ///
-TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos) {
+/// The warning in case the evaluated point is found outside any volume might be disabled using
+/// the `showWarning` argument.
+///
+TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos, Bool_t showWarning) {
     Int_t id = GetVolumeIndex(pos);
 
     if (id < 0) {
-        warning << "TRestAxionMagneticField::GetMagneticField position is outside any volume" << endl;
+        if (showWarning)
+            warning << "TRestAxionMagneticField::GetMagneticField position is outside any volume" << endl;
         return TVector3(0, 0, 0);
     } else {
         if (IsFieldConstant(id)) return fConstantField[id];
@@ -931,7 +936,7 @@ Double_t TRestAxionMagneticField::GetPhotonAbsorptionLength(Int_t id, Double_t e
 }
 
 ///////////////////////////////////////////////
-/// \brief it returns the corresponding volume index at the given position. If not found it will return
+/// \brief It returns the corresponding volume index at the given position. If not found it will return
 /// -1.
 ///
 Int_t TRestAxionMagneticField::GetVolumeIndex(TVector3 pos) {
@@ -941,6 +946,14 @@ Int_t TRestAxionMagneticField::GetVolumeIndex(TVector3 pos) {
         if (fMagneticFieldVolumes[n].mesh.IsInside(pos)) return n;
     }
     return -1;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns true if the given position is found inside a magnetic volume. False otherwise.
+///
+Bool_t TRestAxionMagneticField::IsInside(TVector3 pos) {
+    if (GetVolumeIndex(pos) >= 0) return true;
+    return false;
 }
 
 ///////////////////////////////////////////////
@@ -1221,15 +1234,14 @@ void TRestAxionMagneticField::PrintMetadata() {
     metadata << " ------------------------------------------------ " << endl;
     for (int p = 0; p < GetNumberOfVolumes(); p++) {
         if (p > 0) metadata << " ------------------------------------------------ " << endl;
-        MagneticFieldVolume* vol = GetMagneticVolume(p);
 
         Double_t centerX = fPositions[p][0];
         Double_t centerY = fPositions[p][1];
         Double_t centerZ = fPositions[p][2];
 
-        Double_t halfSizeX = vol->mesh.GetNetSizeX() / 2.;
-        Double_t halfSizeY = vol->mesh.GetNetSizeY() / 2.;
-        Double_t halfSizeZ = vol->mesh.GetNetSizeZ() / 2.;
+        Double_t halfSizeX = fBoundMax[p].X();
+        Double_t halfSizeY = fBoundMax[p].Y();
+        Double_t halfSizeZ = fBoundMax[p].Z();
 
         Double_t xMin = centerX - halfSizeX;
         Double_t yMin = centerY - halfSizeY;

@@ -78,6 +78,8 @@ magneticField:
     - ./magneticField.py
     - cd trilinear
     - restRoot -b -q GetMagneticField_test.C
+    - cd ${CI_PROJECT_DIR}/scripts/pipeline/magneticField/boundary/
+    - restRoot -b -q Boundaries_test.C
   except:
       variables:
         - $CRONJOB
