@@ -65,18 +65,20 @@ void TRestAxionSpectrum::InitFromConfigFile() {
       } else {
         fDefaultG1 = g1ref;
         if (not(std::isnan(g2ref))) {
+          cout << "Check!" << endl;
           // N.B. If g2 > 0 has no effect, a warning will be issued by SolarAxionFluxLib.
           spectrum = AxionSpectrum(sTableFileName, g1ref, g2ref);
           fDefaultG2 = g2ref;
         } else {
           // N.B. If g2 is not supplied, we initialise with the default value from SolarAxionFluxLib and issue a warning if the table submode is wrong.
+          //      This behaviour is probably not desired; force the user to always specify both couplings?
+          spectrum = AxionSpectrum(sTableFileName, g1ref);
           auto table_params = spectrum.get_table_parameters();
           int table_submode = get<0>(table_params);
           if (table_submode > 1) {
             fDefaultG2 = get<2>(table_params);
             cout << "WARNING! Your table for TRestAxionSpectrum supports two separate spectra, but you did not specify a value for coupling 'g2'.\n\
                               TRestAxionSpectrum will assume a default value of " << fDefaultG2 << " (in appropriate units)." << endl; };
-          spectrum = AxionSpectrum(sTableFileName, g1ref);
         };
       };
     } else if (sMode == "analytical") {
@@ -147,7 +149,7 @@ void TRestAxionSpectrum::PrintMetadata() {
     if (fDefaultG2 > 0) {
       metadata << " - Numerical value of coupling g2 (in appropriate units): " << fDefaultG2 << endl;
     } else {
-      metadata << " - A secong coupling, g2, is not available in this class instance." << endl;
+      metadata << " - A second coupling, g2, is not available in this class instance." << endl;
     };
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }

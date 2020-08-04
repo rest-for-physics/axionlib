@@ -1,8 +1,7 @@
-<!-- Created by Sebastian Hoof (4/2020) -->
+<!-- Created by Sebastian Hoof (8/2020) -->
 <!-- Example file with multiple 'TRestAxionSolarModel' tags -->
-<!-- xml Dcouments can only have one root tag; use any tag to have multiple 'TRestAxionSolarModel's -->
 </TRestAxionSolarModels>
   <TRestAxionSolarModel name="SolarAxionLibTest" verboseLevel="debug">
-    <parameter name="solarAxionModel" value="SolarModel_B16-AGSS09.dat" />
+    <parameter name="solarAxionModel" value="external/solarAxionFlux/data/solar_models/SolarModel_B16-AGSS09.dat" />
   </TRestAxionSolarModel>
 </TRestAxionSolarModels>
