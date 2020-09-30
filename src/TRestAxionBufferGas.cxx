@@ -139,13 +139,12 @@ void TRestAxionBufferGas::Initialize() {
 void TRestAxionBufferGas::InitFromConfigFile() {
     this->Initialize();
 
-    size_t position = 0;
-    string gasDefinition;
-
-    while ((gasDefinition = GetKEYDefinition("gas", position)) != "") {
+    auto gasDefinition = GetElement("gas");
+    while (gasDefinition) {
         TString gasName = GetFieldValue("name", gasDefinition);
-        Double_t gasDensity = GetDblFieldValueWithUnits("density", gasDefinition) * units("g/cm3");
+        Double_t gasDensity = GetDblParameterWithUnits("density", gasDefinition) * units("g/cm3");
         SetGasDensity(gasName, gasDensity);
+        gasDefinition = GetNextElement(gasDefinition);
     }
 
     if (GetVerboseLevel() >= REST_Info) PrintMetadata();

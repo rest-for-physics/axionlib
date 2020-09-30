@@ -281,13 +281,13 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
 void TRestAxionGeneratorProcess::InitFromConfigFile() {
     // These 2-params should be moved to TRestAxionSolarModel
     fEnergyRange = Get2DVectorParameterWithUnits("energyRange");
-    fEnergyStep = GetDoubleParameterWithUnits("energyStep");
+    fEnergyStep = GetDblParameterWithUnits("energyStep");
 
     fAngularDistribution = GetParameter("angularDistribution", "flux");
     fAngularDirection = Get3DVectorParameterWithUnits("angularDirection");
 
     fSpatialDistribution = GetParameter("spatialDistribution", "circleWall");
-    fSpatialRadius = GetDoubleParameterWithUnits("spatialRadius");
+    fSpatialRadius = GetDblParameterWithUnits("spatialRadius");
     fSpatialOrigin = Get3DVectorParameterWithUnits("spatialOrigin");
 
     fRotation = StringTo3DVector(GetParameter("rotation"));

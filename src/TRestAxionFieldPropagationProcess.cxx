@@ -592,7 +592,7 @@ void TRestAxionFieldPropagationProcess::InitFromConfigFile() {
     fMode = GetParameter("mode");
     fFinalNormalPlan = Get3DVectorParameterWithUnits("finalNPlan");
     fFinalPositionPlan = Get3DVectorParameterWithUnits("finalPositionPlan");
-    fDistance = GetDoubleParameterWithUnits("distance");
+    fDistance = GetDblParameterWithUnits("distance");
 
     PrintMetadata();
 }

@@ -1150,40 +1150,39 @@ std::vector<TVector3> TRestAxionMagneticField::GetFieldBoundaries(Int_t id, TVec
 void TRestAxionMagneticField::InitFromConfigFile() {
     this->Initialize();
 
-    string bVolume;
-    size_t pos = 0;
-    while ((bVolume = GetKEYDefinition("addMagneticVolume", pos)) != "") {
-        string filename = GetFieldValue("fileName", bVolume);
+    auto magVolumeDef = GetElement("addMagneticVolume");
+    while (magVolumeDef) {
+        string filename = GetFieldValue("fileName", magVolumeDef);
         if (filename == "Not defined")
             fFileNames.push_back("none");
         else
             fFileNames.push_back(filename);
 
-        TVector3 position = Get3DVectorFieldValueWithUnits("position", bVolume);
+        TVector3 position = Get3DVectorParameterWithUnits("position", magVolumeDef);
         if (position == TVector3(-1, -1, -1))
             fPositions.push_back(TVector3(0, 0, 0));
         else
             fPositions.push_back(position);
 
-        TVector3 field = Get3DVectorFieldValueWithUnits("field", bVolume);
+        TVector3 field = Get3DVectorParameterWithUnits("field", magVolumeDef);
         if (field == TVector3(-1, -1, -1))
             fConstantField.push_back(TVector3(0, 0, 0));
         else
             fConstantField.push_back(field);
 
-        TVector3 boundMax = Get3DVectorFieldValueWithUnits("boundMax", bVolume);
+        TVector3 boundMax = Get3DVectorParameterWithUnits("boundMax", magVolumeDef);
         if (boundMax == TVector3(-1, -1, -1))
             fBoundMax.push_back(TVector3(0, 0, 0));
         else
             fBoundMax.push_back(boundMax);
 
-        TVector3 meshSize = Get3DVectorFieldValueWithUnits("meshSize", bVolume);
+        TVector3 meshSize = Get3DVectorParameterWithUnits("meshSize", magVolumeDef);
         if (meshSize == TVector3(-1, -1, -1))
             fMeshSize.push_back(TVector3(0, 0, 0));
         else
             fMeshSize.push_back(meshSize);
 
-        string type = GetFieldValue("meshType", bVolume);
+        string type = GetParameter("meshType", magVolumeDef);
         if (type == "Not defined")
             fMeshType.push_back("cylinder");
         else
@@ -1196,11 +1195,11 @@ void TRestAxionMagneticField::InitFromConfigFile() {
             fBoundMax.back().SetY(fBoundMax.back().X());
         }
 
-        TString gasMixture = GetFieldValue("gasMixture", bVolume);
+        TString gasMixture = GetParameter("gasMixture", magVolumeDef);
         if (gasMixture == "Not defined") gasMixture = "vacuum";
         fGasMixtures.push_back(gasMixture);
 
-        TString gasDensity = GetFieldValue("gasDensity", bVolume);
+        TString gasDensity = GetParameter("gasDensity", magVolumeDef);
         if (gasDensity == "Not defined") gasDensity = "0";
         fGasDensities.push_back(gasDensity);
 
@@ -1217,6 +1216,8 @@ void TRestAxionMagneticField::InitFromConfigFile() {
         debug << "Gas mixture : " << gasMixture << endl;
         debug << "Gas density : " << gasDensity << endl;
         debug << "----" << endl;
+
+        magVolumeDef = GetNextElement(magVolumeDef);
     }
 
     LoadMagneticVolumes();
