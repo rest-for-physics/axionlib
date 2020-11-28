@@ -728,7 +728,11 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         mVolume.mesh = restMesh;
 
         if (mVolume.bGas == NULL) mVolume.bGas = new TRestAxionBufferGas();
-        if (fGasMixtures[n] != "vacuum") mVolume.bGas->SetGasMixture(fGasMixtures[n], fGasDensities[n]);
+        if (fGasMixtures[n] != "vacuum") {
+            debug << "Setting gas mixture: " << fGasMixtures[n] << endl;
+            debug << "Densities: " << fGasDensities[n] << endl;
+            mVolume.bGas->SetGasMixture(fGasMixtures[n], fGasDensities[n]);
+        }
 
         if (fieldData.size() > 0) LoadMagneticFieldData(mVolume, fieldData);
 
@@ -1153,7 +1157,7 @@ void TRestAxionMagneticField::InitFromConfigFile() {
     auto magVolumeDef = GetElement("addMagneticVolume");
     while (magVolumeDef) {
         string filename = GetFieldValue("fileName", magVolumeDef);
-        if (filename == "Not defined")
+        if (filename == "NO_SUCH_PARA")
             fFileNames.push_back("none");
         else
             fFileNames.push_back(filename);
@@ -1183,7 +1187,7 @@ void TRestAxionMagneticField::InitFromConfigFile() {
             fMeshSize.push_back(meshSize);
 
         string type = GetParameter("meshType", magVolumeDef);
-        if (type == "Not defined")
+        if (type == "NO_SUCH_PARA")
             fMeshType.push_back("cylinder");
         else
             fMeshType.push_back(type);
@@ -1196,11 +1200,11 @@ void TRestAxionMagneticField::InitFromConfigFile() {
         }
 
         TString gasMixture = GetParameter("gasMixture", magVolumeDef);
-        if (gasMixture == "Not defined") gasMixture = "vacuum";
+        if (gasMixture == "NO_SUCH_PARA") gasMixture = "vacuum";
         fGasMixtures.push_back(gasMixture);
 
         TString gasDensity = GetParameter("gasDensity", magVolumeDef);
-        if (gasDensity == "Not defined") gasDensity = "0";
+        if (gasDensity == "NO_SUCH_PARA") gasDensity = "0";
         fGasDensities.push_back(gasDensity);
 
         debug << "Reading new magnetic volume" << endl;
