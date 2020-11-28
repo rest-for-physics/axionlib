@@ -1157,7 +1157,7 @@ void TRestAxionMagneticField::InitFromConfigFile() {
     auto magVolumeDef = GetElement("addMagneticVolume");
     while (magVolumeDef) {
         string filename = GetFieldValue("fileName", magVolumeDef);
-        if (filename == "NO_SUCH_PARA")
+        if (filename == "Not defined")
             fFileNames.push_back("none");
         else
             fFileNames.push_back(filename);
