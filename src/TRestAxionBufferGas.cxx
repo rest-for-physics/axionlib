@@ -208,7 +208,7 @@ Double_t TRestAxionBufferGas::GetGasDensity(TString gasName) {
 /// globals <searchPath definition.
 ///
 void TRestAxionBufferGas::ReadGasData(TString gasName) {
-    TString factorFileName = (TString)getenv("REST_PATH") + "/data/bufferGas/" + gasName + ".nff";
+    TString factorFileName = SearchFile((string)gasName + ".nff");
 
     debug << "TRestAxionBufferGas::ReadGasData. Reading factor file : " << factorFileName << endl;
 
