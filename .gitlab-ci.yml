@@ -33,7 +33,7 @@ build:
     - rm -rf ${CI_PROJECT_DIR}/install
     - git clone git@lfna.unizar.es:rest-development/REST_v2.git REST_v2
     - cd REST_v2/
-    - git checkout development
+    - git checkout development_v2.3
     - mkdir build
     - cd build
     - cmake ../ -DREST_WELCOME=ON -DREST_AXION_LIB=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
