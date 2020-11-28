@@ -11,8 +11,8 @@ stages:
 
 before_script:
     - export USER="axion"
-    - git submodule sync --recursive
-    - git submodule update --init --recursive
+      #    - git submodule sync --recursive
+      #    - git submodule update --init --recursive
 
 clang-format:
     stage: pre-build
@@ -31,9 +31,8 @@ build:
   script:
     - echo "**${CI_PROJECT_DIR}**"
     - rm -rf ${CI_PROJECT_DIR}/install
-    - git clone git@lfna.unizar.es:rest-development/REST_v2.git REST_v2
-    - cd REST_v2/
-    - git checkout development_v2.3
+    - git clone --single-branch --branch development_v2.3 git@lfna.unizar.es:rest-development/REST_v2.git --recurse-submodules REST_v2
+    - cd REST_v2
     - mkdir build
     - cd build
     - cmake ../ -DREST_WELCOME=ON -DREST_AXION_LIB=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
