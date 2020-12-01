@@ -1054,14 +1054,14 @@ Double_t TRestAxionMagneticField::GetTransversalFieldAverage(TVector3 from, TVec
 /// The maximum number of divisions (unlimited by default)  can be fixed by the forth
 /// argument. In that case, the differential element `dl` length might be increased to fullfil such condition.
 ///
-TVector3 GetFieldAverageTransverseVector(TVector3 from, TVector3 to, Double_t dl, Int_t Nmax) {
+TVector3 TRestAxionMagneticField::GetFieldAverageTransverseVector(TVector3 from, TVector3 to, Double_t dl, Int_t Nmax) {
     Double_t length = (to - from).Mag();
 
     Double_t diff = dl;
     if (Nmax > 0) {
         if (length / dl > Nmax) {
             diff = length / Nmax;
-            warning << "TRestAxionMagneticField::GetTransversalComponentAlongPath. Nmax reached!" << endl;
+            warning << "TRestAxionMagneticField::GetFieldAverageTransverseVector Nmax reached!" << endl;
             warning << "Nmax = " << Nmax << endl;
             warning << "Adjusting differential step to : " << diff << " mm" << endl;
         }
