@@ -1045,6 +1045,50 @@ Double_t TRestAxionMagneticField::GetTransversalFieldAverage(TVector3 from, TVec
 }
 
 ///////////////////////////////////////////////
+/// \brief It returns the transverse component of the average magnetic field vector calculated
+/// along the line that connects the 3-d coordinates `from` and `to` with respect to that line 
+///
+/// The differential element `dl` defines the step, and it is by default 10mm, but it can be
+/// modified through the third argument of this function.
+///
+/// The maximum number of divisions (unlimited by default)  can be fixed by the forth
+/// argument. In that case, the differential element `dl` length might be increased to fullfil such condition.
+///
+TVector3 GetFieldAverageTransverseVector(TVector3 from, TVector3 to, Double_t dl, Int_t Nmax) {
+    Double_t length = (to - from).Mag();
+
+    Double_t diff = dl;
+    if (Nmax > 0) {
+        if (length / dl > Nmax) {
+            diff = length / Nmax;
+            warning << "TRestAxionMagneticField::GetTransversalComponentAlongPath. Nmax reached!" << endl;
+            warning << "Nmax = " << Nmax << endl;
+            warning << "Adjusting differential step to : " << diff << " mm" << endl;
+        }
+    }
+
+    TVector3 direction = (to - from).Unit();
+    TVector3 Bavg = TVector3(0.0, 0.0, 0.0);
+    TVector3 BTavg = TVector3(0.0, 0.0, 0.0);
+    Int_t numberofpoints = 0;
+
+    for (Double_t d = 0; d <= length; d += diff) {
+        Bavg = Bavg + GetMagneticField(from + d * direction);
+        numberofpoints = numberofpoints + 1;
+    }
+    
+    if ((length > 0) && (numberofpoints > 0)) {
+        Bavg = Bavg * (1.0 / numberofpoints);  // calculates the average magnetic field vector
+        BTavg = Bavg - (Bavg * direction) * direction; // calculates the transverse component of the average magnetic field vector
+        debug << "B average vector = (" << Bavg.x() << ", " << Bavg.y() << ", " << Bavg.z() << ")" << endl;
+        debug << "Transverse B average vector = (" << BTavg.x() << ", " << BTavg.y() << ", " << BTavg.z() << ")" << endl;
+        return BTavg;
+    }
+    ferr << "TRestAxionMagneticField::GetTransversalFieldAverage. Lenght is zero!" << endl;
+    return TVector3(0.0, 0.0, 0.0);
+}
+
+///////////////////////////////////////////////
 /// \brief It returns the corresponding mesh node in the magnetic volume
 ///
 /// The corresponging node to x,y,z is the bottom, down, left node in the cell volume
