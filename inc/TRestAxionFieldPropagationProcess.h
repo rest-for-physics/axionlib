@@ -73,6 +73,20 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
     void PrintMetadata() {
         BeginPrintProcess();
 
+        metadata << "mode: " << fMode << endl;
+
+        Double_t x = fFinalPositionPlan.X();
+        Double_t y = fFinalPositionPlan.Y();
+        Double_t z = fFinalPositionPlan.Z();
+        metadata << "finalPositionPlan =  ( " << x << " ," << y << ", " << z << ") mm" << endl;
+
+        x = fFinalNormalPlan.X();
+        y = fFinalNormalPlan.Y();
+        z = fFinalNormalPlan.Z();
+        metadata << "finalNormalPlan = ( " << x << ", " << y << ", " << z << ")" << endl;
+
+        metadata << "Distance: " << fDistance << " mm" << endl;
+
         EndPrintProcess();
     }
 
