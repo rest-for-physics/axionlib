@@ -37,5 +37,12 @@
 		<parameter name="energyRange" value="(1,8)"/>
 
 	</TRestAxionLikelihood>
+
+	<TRestAxionFieldPropagationProcess name="babyProp" value="ON" verboseLevel="info" >
+                <parameter name="mode" value="plan" /> <!-- plan or distance -->
+                <parameter name="distance" value="30000mm" />
+                <parameter name="finalNPlan" value="(0,0,1)mm" />
+                <parameter name="finalPositionPlan" value="(0,0,10000)mm" />
+	</TRestAxionFieldPropagationProcess>
 </axion>
 
