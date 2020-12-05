@@ -239,7 +239,7 @@ void TRestAxionBufferGas::ReadGasData(TString gasName) {
     fclose(fin);
     /* }}} */
 
-    TString absFileName = (TString)getenv("REST_PATH") + "/data/bufferGas/" + gasName + ".abs";
+    TString absFileName = SearchFile((string)gasName + ".abs");
 
     debug << "TRestAxionBufferGas::ReadGasData. Reading factor file : " << absFileName << endl;
 
