@@ -1046,7 +1046,7 @@ Double_t TRestAxionMagneticField::GetTransversalFieldAverage(TVector3 from, TVec
 
 ///////////////////////////////////////////////
 /// \brief It returns the transverse component of the average magnetic field vector calculated
-/// along the line that connects the 3-d coordinates `from` and `to` with respect to that line 
+/// along the line that connects the 3-d coordinates `from` and `to` with respect to that line
 ///
 /// The differential element `dl` defines the step, and it is by default 10mm, but it can be
 /// modified through the third argument of this function.
@@ -1054,7 +1054,8 @@ Double_t TRestAxionMagneticField::GetTransversalFieldAverage(TVector3 from, TVec
 /// The maximum number of divisions (unlimited by default)  can be fixed by the forth
 /// argument. In that case, the differential element `dl` length might be increased to fullfil such condition.
 ///
-TVector3 TRestAxionMagneticField::GetFieldAverageTransverseVector(TVector3 from, TVector3 to, Double_t dl, Int_t Nmax) {
+TVector3 TRestAxionMagneticField::GetFieldAverageTransverseVector(TVector3 from, TVector3 to, Double_t dl,
+                                                                  Int_t Nmax) {
     Double_t length = (to - from).Mag();
 
     Double_t diff = dl;
@@ -1076,12 +1077,15 @@ TVector3 TRestAxionMagneticField::GetFieldAverageTransverseVector(TVector3 from,
         Bavg = Bavg + GetMagneticField(from + d * direction);
         numberofpoints = numberofpoints + 1;
     }
-    
+
     if ((length > 0) && (numberofpoints > 0)) {
         Bavg = Bavg * (1.0 / numberofpoints);  // calculates the average magnetic field vector
-        BTavg = Bavg - (Bavg * direction) * direction; // calculates the transverse component of the average magnetic field vector
+        BTavg = Bavg -
+                (Bavg * direction) *
+                    direction;  // calculates the transverse component of the average magnetic field vector
         debug << "B average vector = (" << Bavg.x() << ", " << Bavg.y() << ", " << Bavg.z() << ")" << endl;
-        debug << "Transverse B average vector = (" << BTavg.x() << ", " << BTavg.y() << ", " << BTavg.z() << ")" << endl;
+        debug << "Transverse B average vector = (" << BTavg.x() << ", " << BTavg.y() << ", " << BTavg.z()
+              << ")" << endl;
         return BTavg;
     }
     ferr << "TRestAxionMagneticField::GetTransversalFieldAverage. Lenght is zero!" << endl;
