@@ -73,6 +73,10 @@
 /// <hr>
 ///
 #include "TRestAxionFieldPropagationProcess.h"
+#include <TVectorD.h>
+#include "TComplex.h"
+#include "TH1F.h"
+
 using namespace std;
 using namespace REST_Physics;
 
@@ -130,9 +134,14 @@ void TRestAxionFieldPropagationProcess::LoadConfig(std::string cfgFilename, std:
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define the section name
 ///
+/// It sets the default real precision to be used with mpfr types. Now it is 30 digits.
+/// So that we can still calculate numbers such as : 1.0 - 1.e-30
+///
 void TRestAxionFieldPropagationProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
+    
+    mpfr::mpreal::set_default_prec(mpfr::digits2bits(30));
 
     fAxionEvent = new TRestAxionEvent();
 
@@ -530,6 +539,13 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
 
     Double_t Ea = fAxionEvent->GetEnergy();
     Double_t ma = fAxionEvent->GetMass();
+    
+    faxionAmplitude = SetComplexReal(1.0, 0.0);
+    fparallelPhotonAmplitude = SetComplexReal(0.0, 0.0);
+    forthogonalPhotonAmplitude = SetComplexReal(0.0, 0.0);
+    debug << "axion amplitude = " << faxionAmplitude.real << " + " << faxionAmplitude.img << "i" << endl;
+    debug << "parallel photon amplitude = " << fparallelPhotonAmplitude.real << " + " << fparallelPhotonAmplitude.img << "i" << endl;
+    debug << "orthogonal photon amplitude = " << forthogonalPhotonAmplitude.real << " + " << forthogonalPhotonAmplitude.img << "i" << endl;
 
     std::vector<std::vector<TVector3>> boundaries;
     boundaries = FindFieldBoundaries();

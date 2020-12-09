@@ -30,10 +30,112 @@
 #include "TRestAxionMagneticField.h"
 #include "TRestAxionPhotonConversion.h"
 #include "TRestEventProcess.h"
+#include "mpreal.h"
+
+/// A structure to define the two components of a complex number using real precision.
+/// To be used inside TRestAxionFieldPropagationProcess. Copied from TRestAxionPhotonConversion.h
+struct ComplexReal {
+    /// The real part of the number
+    mpfr::mpreal real = 0;
+
+    /// The imaginary part of the number
+    mpfr::mpreal img = 0;
+};
 
 //! A process to introduce the axion-photon conversion probability in the signal generation chain
 class TRestAxionFieldPropagationProcess : public TRestEventProcess {
    private:
+    /// complex axion field amplitude.
+    ComplexReal faxionAmplitude;  //!
+    
+    /// complex amplitude of the photon field component parallel to the transverse magnetic field.
+    ComplexReal fparallelPhotonAmplitude;  //!
+    
+    /// complex amplitude of the photon field component orthogonal to the transverse magnetic field.
+    ComplexReal forthogonalPhotonAmplitude;  //!
+    
+    /////////////////////////////////////////////////////////////////////////
+    // ----- Just a quick implementation of complex number operations ---- //
+    // ------------ including mpfr real precision arithmetics ------------ //
+
+    /// A function to calculate complex number addition with real precision
+    ComplexReal ComplexAddition(const ComplexReal& a, const ComplexReal& b) {
+        ComplexReal c;
+
+        c.real = a.real + b.real;
+        c.img = a.img + b.img;
+
+        return c;
+    }
+
+    /// A function to calculate complex number substraction with real precision
+    ComplexReal ComplexSubstraction(const ComplexReal& a, const ComplexReal& b) {
+        ComplexReal c;
+
+        c.real = a.real - b.real;
+        c.img = a.img - b.img;
+
+        return c;
+    }
+
+    /// A function to calculate complex number product with real precision
+    ComplexReal ComplexProduct(const ComplexReal& a, const ComplexReal& b) {
+        ComplexReal c;
+
+        c.real = a.real * b.real - a.img * b.img;
+        c.img = a.real * b.img + a.img * b.real;
+
+        return c;
+    }
+
+    /// A function to calculate complex number product by a value with real precision
+    ComplexReal ComplexProduct(const mpfr::mpreal& value, const ComplexReal& a) {
+        ComplexReal c;
+
+        c.real = value * a.real;
+        c.img = value * a.img;
+
+        return c;
+    }
+
+    /// A function to calculate complex number cocient with real precision
+    ComplexReal ComplexCocient(const ComplexReal& a, const ComplexReal& b) {
+        ComplexReal c = ComplexConjugate(b);
+        c = ComplexProduct(a, c);
+
+        mpfr::mpreal norm = 1. / Norm2(b);
+
+        c = ComplexProduct(norm, c);
+
+        return c;
+    }
+
+    /// A function to calculate complex conjugate with real precision
+    ComplexReal ComplexConjugate(const ComplexReal& a) {
+        ComplexReal c;
+
+        c.real = a.real;
+        c.img = -a.img;
+
+        return c;
+    }
+
+    /// A function to calculate the norm squared from a complex number with real precision
+    mpfr::mpreal Norm2(const ComplexReal& a) {
+        mpfr::mpreal result = a.real * a.real + a.img * a.img;
+        return result;
+    }
+
+    /// A function to calculate complex number product by a value with real precision
+    ComplexReal SetComplexReal(const mpfr::mpreal& r, const mpfr::mpreal& i) {
+        ComplexReal c;
+
+        c.real = r;
+        c.img = i;
+
+        return c;
+    }    
+    
     void InitFromConfigFile();
 
     void Initialize();

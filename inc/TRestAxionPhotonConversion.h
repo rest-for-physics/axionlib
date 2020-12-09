@@ -26,6 +26,8 @@
 #include "TRestAxionBufferGas.h"
 #include "mpreal.h"
 
+/*
+/// MOVED TO TRestAxionFieldPropagationProcess class
 /// A structure to define the two components of a complex number using real precision.
 /// To be used inside TRestAxionPhotonConversion.
 struct ComplexReal {
@@ -35,15 +37,17 @@ struct ComplexReal {
     /// The imaginary part of the number
     mpfr::mpreal img = 0;
 };
-
+*/
 //! A basic class to define analytical axion-photon conversion calculations for axion helioscopes
 class TRestAxionPhotonConversion : public TObject {
    private:
-    /// A two component vector to store the complex EM field amplitude.
-    ComplexReal fAem;  //!
+    /// A two component vector to store the complex EM field amplitude. 
+    /// MOVED to TRestAxionFieldPropagationProcess
+    ///ComplexReal fAem;  //!
 
     /// A two component vector to store the complex axion field amplitude.
-    ComplexReal faxion;  //!
+    /// MOVED to TRestAxionFieldPropagationProcess
+    ///ComplexReal faxion;  //!
 
     Bool_t fDebug = false;  //!
 
@@ -52,6 +56,8 @@ class TRestAxionPhotonConversion : public TObject {
     /// A pointer to the buffer gas definition
     TRestAxionBufferGas* fBufferGas = NULL;  //!
 
+/*
+    /// MOVED TO TRestAxionFieldPropagationProcess class    
     /////////////////////////////////////////////////////////////////////////
     // ----- Just a quick implementation of complex number operations ---- //
     // ------------ including mpfr real precision arithmetics ------------ //
@@ -133,7 +139,7 @@ class TRestAxionPhotonConversion : public TObject {
 
         return c;
     }
-
+*/
    public:
     Double_t BL(Double_t Bmag, Double_t Lcoh);
     Double_t BLHalfSquared(Double_t Bmag, Double_t Lcoh);
@@ -153,8 +159,9 @@ class TRestAxionPhotonConversion : public TObject {
     Double_t AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                         Double_t mg = 0, Double_t absLength = 0);
 
-    void PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma, Double_t mg = 0,
-                        Double_t absLength = 0);
+/// Commented because it uses ComplexReal structure that is moved to TRestAxionFieldPropagationProcess class
+    ///void PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma, Double_t mg = 0,
+    ///                    Double_t absLength = 0);
 
     TRestAxionPhotonConversion();
     ~TRestAxionPhotonConversion();

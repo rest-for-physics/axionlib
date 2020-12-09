@@ -77,8 +77,9 @@ void TRestAxionPhotonConversion::Initialize() {
 
     fBufferGas = NULL;
 
-    faxion = SetComplexReal(1, 0);
-    fAem = SetComplexReal(0, 0);
+ /// MOVED TO TRestAxionFieldPropagationProcess class
+    ///faxion = SetComplexReal(1, 0);
+    ///fAem = SetComplexReal(0, 0);
 }
 
 ///////////////////////////////////////////////
@@ -256,6 +257,9 @@ Double_t TRestAxionPhotonConversion::AxionAbsorptionProbability(Double_t Bmag, D
     return sol;
 }
 
+
+/// Commented because it uses ComplexReal structure that is moved to TRestAxionFieldPropagationProcess class
+/*
 void TRestAxionPhotonConversion::PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                                 Double_t mg, Double_t absLength) {
     mpfr::mpreal axionMass = ma;
@@ -322,3 +326,4 @@ void TRestAxionPhotonConversion::PropagateAxion(Double_t Bmag, Double_t Lcoh, Do
 
     // if (fDebug) debug << "Axion-photon absorption probability : " << sol << endl;
 }
+*/
