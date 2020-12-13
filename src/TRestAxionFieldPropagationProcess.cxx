@@ -140,7 +140,7 @@ void TRestAxionFieldPropagationProcess::LoadConfig(std::string cfgFilename, std:
 void TRestAxionFieldPropagationProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
-    
+
     mpfr::mpreal::set_default_prec(mpfr::digits2bits(30));
 
     fAxionEvent = new TRestAxionEvent();
@@ -539,13 +539,15 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
 
     Double_t Ea = fAxionEvent->GetEnergy();
     Double_t ma = fAxionEvent->GetMass();
-    
+
     faxionAmplitude = SetComplexReal(1.0, 0.0);
     fparallelPhotonAmplitude = SetComplexReal(0.0, 0.0);
     forthogonalPhotonAmplitude = SetComplexReal(0.0, 0.0);
     debug << "axion amplitude = " << faxionAmplitude.real << " + " << faxionAmplitude.img << "i" << endl;
-    debug << "parallel photon amplitude = " << fparallelPhotonAmplitude.real << " + " << fparallelPhotonAmplitude.img << "i" << endl;
-    debug << "orthogonal photon amplitude = " << forthogonalPhotonAmplitude.real << " + " << forthogonalPhotonAmplitude.img << "i" << endl;
+    debug << "parallel photon amplitude = " << fparallelPhotonAmplitude.real << " + "
+          << fparallelPhotonAmplitude.img << "i" << endl;
+    debug << "orthogonal photon amplitude = " << forthogonalPhotonAmplitude.real << " + "
+          << forthogonalPhotonAmplitude.img << "i" << endl;
 
     std::vector<std::vector<TVector3>> boundaries;
     boundaries = FindFieldBoundaries();

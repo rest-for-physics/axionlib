@@ -47,13 +47,13 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
    private:
     /// complex axion field amplitude.
     ComplexReal faxionAmplitude;  //!
-    
+
     /// complex amplitude of the photon field component parallel to the transverse magnetic field.
     ComplexReal fparallelPhotonAmplitude;  //!
-    
+
     /// complex amplitude of the photon field component orthogonal to the transverse magnetic field.
     ComplexReal forthogonalPhotonAmplitude;  //!
-    
+
     /////////////////////////////////////////////////////////////////////////
     // ----- Just a quick implementation of complex number operations ---- //
     // ------------ including mpfr real precision arithmetics ------------ //
@@ -134,8 +134,8 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
         c.img = i;
 
         return c;
-    }    
-    
+    }
+
     void InitFromConfigFile();
 
     void Initialize();
