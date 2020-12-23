@@ -421,10 +421,14 @@ std::vector<TVector3> TRestAxionFieldPropagationProcess::FieldBoundary(std::vect
 }
 */
 
+// This method is obsolete because it uses methods FindBoundariesOneVolume and FieldBoundary that are obsolete
+// and replaced by the methods TRestAxionMagneticField::GetVolumeBoundaries and TRestAxionMagneticField::GetFieldBoundaries.
+// The NEW version of this method is given below and uses TRestAxionMagneticField::GetFieldBoundaries
+/*
 std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldBoundaries(Double_t minStep) {
     std::vector<std::vector<TVector3>> boundaryCollection;
     std::vector<std::vector<TVector3>> boundaryFinalCollection;
-    /*
+
 if (minStep == -1) minStep = 0.01;
 std::vector<TVector3> buffVect;
 TVector3 boundaryIn;
@@ -491,7 +495,64 @@ for (Int_t p = 0; p < boundaryFinalCollection.size(); p++) {
 }
 debug << "+------------------------+" << endl;
 
-    */
+    return boundaryFinalCollection;
+}
+*/
+
+// This is a NEW version of FindFieldBoundaries method and replaces the obsolete version of this method given above
+///////////////////////////////////////////////
+/// \brief Finds the boundary points for each segment along the particle trajectory where the **transversal** component
+/// of the magnetic field in not zero.
+///
+/// This method goes over all magnetic field regions and checks for each region if the particle (with the initial
+/// position `posInitial` and direction `direction`) passes through this region. If yes, it determines the boundary
+/// points of the trajectory segment through this region between which the **transversal** component of the magnetic
+/// field is not zero. The method returns the vector where each element contains a pair of boundary points,
+/// i.e., the starting and ending points of one segment of the particle trajectory along which the **transversal**
+/// component of the magnetic field is not zero.
+
+std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldBoundaries(Double_t minStep) {
+
+std::vector<std::vector<TVector3>> boundaryFinalCollection;
+
+if (minStep == -1) minStep = 0.01;
+std::vector<TVector3> buffVect;
+
+TVector3 posInitial = *(fAxionEvent->GetPosition());
+TVector3 direction = *(fAxionEvent->GetDirection());
+direction = direction.Unit();
+
+if (direction == TVector3(0, 0, 0))  // No moves
+    return boundaryFinalCollection;
+
+if (fAxionMagneticField->GetNumberOfVolumes() == 0)
+    ferr << " The magnetic field has not been loaded " << endl;
+
+// Find field boundaries volume
+
+Int_t N = fAxionMagneticField->GetNumberOfVolumes();
+
+for (Int_t p = 0; p < N; p++) {
+    buffVect.clear();
+    buffVect = fAxionMagneticField->GetFieldBoundaries(p, posInitial, direction);
+    if (buffVect.size() == 2) {
+        boundaryFinalCollection.push_back(buffVect);
+    }
+}
+
+debug << "+------------------------+" << endl;
+debug << " Number of field boundaries : " << 2 * boundaryFinalCollection.size() << endl;
+debug << "+------------------------+" << endl;
+
+debug << "+------------------------+" << endl;
+for (Int_t p = 0; p < boundaryFinalCollection.size(); p++) {
+    debug << "for volume " << p << " in : (" << boundaryFinalCollection[p][0].X() << ","
+          << boundaryFinalCollection[p][0].Y() << "," << boundaryFinalCollection[p][0].Z() << ")" << endl;
+    debug << "for volume " << p << " out : (" << boundaryFinalCollection[p][1].X() << ","
+          << boundaryFinalCollection[p][1].Y() << "," << boundaryFinalCollection[p][1].Z() << ")" << endl;
+}
+debug << "+------------------------+" << endl;
+
     return boundaryFinalCollection;
 }
 
