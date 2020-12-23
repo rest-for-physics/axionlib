@@ -101,7 +101,7 @@ TRestAxionBufferGas::TRestAxionBufferGas() : TRestMetadata() { Initialize(); }
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// corresponding TRestG4Metadata section inside the RML.
+/// corresponding TRestGeant4Metadata section inside the RML.
 ///
 TRestAxionBufferGas::TRestAxionBufferGas(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
     debug << "Entering TRestAxionBufferGas constructor( cfgFileName, name )" << endl;
