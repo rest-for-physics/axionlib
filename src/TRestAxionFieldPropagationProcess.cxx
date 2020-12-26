@@ -585,6 +585,125 @@ TVectorD TRestAxionFieldPropagationProcess::GetFieldVector(TVector3 in, TVector3
     return Bt;
 } */
 
+/// \brief Prints variables of the ComplexReal type, i.e, complex numbers
+///
+void TRestAxionFieldPropagationProcess::PrintComplex(ComplexReal p) {
+    debug << p.real << " + " << p.img << "i" << endl;
+}
+
+
+/// \brief Calculates amplitudes of the axion field, parallel component of the photon field and orthogonal component
+/// of the photon field after passing one subsegment of the particle trajectory along which it is assumed
+/// that the transverse component of the magnetic field is constant. It uses equations (3.15) and (3.38) given
+/// in the internal report "Axion-photon conversion in the external magnetic fields" written by B. Lakic and K. Jakovcic.
+/// Also, amplitudes are of ComplexReal type, which stores complex numbers based on mpreal wrapper to allow precise
+/// calculation of small values.  At present, the  precision is set to 30 digits, so that we can still calculate
+/// numbers such as : 1.0 - 1.e-30
+void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSubsegment(ComplexReal& faxionAmplitude, ComplexReal& fparallelPhotonAmplitude, ComplexReal& forthogonalPhotonAmplitude, mpfr::mpreal theta, mpfr::mpreal lambda, Double_t length, mpfr::mpreal CommonPhase, mpfr::mpreal OrthogonalPhase) {
+    // lambda is given in eV, theta has no dimension, length is in m, Common phase and Orthogonal phase are in eV
+
+    mpfr::mpreal::set_default_prec(mpfr::digits2bits(30));
+    cout.precision(30);
+    // setting initial parameters
+    ComplexReal a0 = faxionAmplitude;   // axion field amplitude initial value at the beginning of the subsegment
+    ComplexReal A0_par = fparallelPhotonAmplitude;  // photon field parallel component amplitude initial value at the beginning of the subsegment
+    ComplexReal A0_ort = forthogonalPhotonAmplitude;   // photon field orthogonal component amplitude initial value at the beginning of the subsegment
+    debug << "+--------------------------------------------------------------------------+" << endl;
+    debug << " CalculateAmplitudesInSubsegment method: Parameter summary" << endl;
+    debug << " Theta : " << theta << endl;
+    debug << " lambda : " << lambda << " eV" << endl;
+    debug << " subsegment length : " << length << " m" << endl;
+    debug << " Common phase : " << CommonPhase << " eV" << endl;
+    debug << " orthogonal photon component phase : " << OrthogonalPhase << " eV" << endl;
+    debug << " a0 : "; PrintComplex(a0);
+    debug << " A0_par : "; PrintComplex(A0_par);
+    debug << " A0_ort : "; PrintComplex(A0_ort);
+    debug << "+--------------------------------------------------------------------------+" << endl;
+
+    // setting auxillary parameters used in calculations
+    mpfr::mpreal cos2_theta = cos(theta) * cos(theta);
+    mpfr::mpreal sin2_theta = sin(theta) * sin(theta);
+    mpfr::mpreal sin_2theta = sin(2.0 * theta);
+
+    mpfr::mpreal l = length * PhMeterIneV;   // length in eV-1
+
+    mpfr::mpreal phi = lambda * l;
+    ComplexReal exp_lambdaPlusZ = SetComplexReal(cos(-phi), sin(-phi));
+    ComplexReal exp_lambdaMinusZ = SetComplexReal(cos(phi), sin(phi));
+
+    mpfr::mpreal phi1 = CommonPhase * l;
+    ComplexReal exp_CommonPhase = SetComplexReal(cos(phi1), sin(phi1));
+
+    debug << "+--------------------------------------------------------------------------+" << endl;
+    debug << " Intermediate calculations" << endl;
+    debug << " cos^(2)_theta : " << cos2_theta << endl;
+    debug << " sin^(2)_theta : " << sin2_theta << endl;
+    debug << " sin(2*theta) : " << sin_2theta << endl;
+    debug << " subsegment length : " << length << " m" << endl;
+    debug << " l : " << l << " eV-1" << endl;
+    debug << " phi : " << phi << endl;
+    debug << " exp_lambdaPlusZ : "; PrintComplex(exp_lambdaPlusZ);
+    debug << " exp_lambdaMinusZ : "; PrintComplex(exp_lambdaMinusZ);
+    debug << " phi1 : " << phi1 << endl;
+    debug << " exp_CommonPhase : "; PrintComplex(exp_CommonPhase);
+    debug << "+--------------------------------------------------------------------------+" << endl;
+
+    // calculation of the photon parallel component amplitude
+    ComplexReal A_term_1_1 = ComplexProduct(cos2_theta, exp_lambdaPlusZ);
+    ComplexReal A_term_1_2 = ComplexProduct(sin2_theta, exp_lambdaMinusZ);
+    ComplexReal A_sum_1 = ComplexAddition(A_term_1_1, A_term_1_2);
+    ComplexReal A_term_1 = ComplexProduct(A0_par, A_sum_1);
+    ComplexReal A_sum_2 = ComplexSubstraction(exp_lambdaPlusZ, exp_lambdaMinusZ);
+    ComplexReal temp = ComplexProduct(sin_2theta * 0.5, a0);
+    ComplexReal A_term_2 = ComplexProduct(temp, A_sum_2);
+    ComplexReal A_sum = ComplexAddition(A_term_1, A_term_2);
+    fparallelPhotonAmplitude = ComplexProduct(exp_CommonPhase, A_sum);
+    debug << "+--------------------------------------------------------------------------+" << endl;
+    debug << " Intermediate calculations for the photon parallel component amplitude" << endl;
+    debug << " A_term_1_1 : "; PrintComplex(A_term_1_1);
+    debug << " A_term_1_2 : "; PrintComplex(A_term_1_2);
+    debug << " A_sum_1 : "; PrintComplex(A_sum_1);
+    debug << " A_term_1 : "; PrintComplex(A_term_1);
+    debug << " A_sum_2 : "; PrintComplex(A_sum_2);
+    debug << " A_term_2 : "; PrintComplex(A_term_2);
+    debug << " A_sum : "; PrintComplex(A_sum);
+    debug << " parallelPhotonAmplitude : "; PrintComplex(fparallelPhotonAmplitude);
+    debug << "+--------------------------------------------------------------------------+" << endl;
+
+    // calculation of the axion amplitude
+    ComplexReal a_sum_1 = A_sum_2;
+    temp = ComplexProduct(sin_2theta * 0.5, A0_par);
+    ComplexReal a_term_1 = ComplexProduct(temp, a_sum_1);
+    ComplexReal a_term_2_1 = ComplexProduct(sin2_theta, exp_lambdaPlusZ);
+    ComplexReal a_term_2_2 = ComplexProduct(cos2_theta, exp_lambdaMinusZ);
+    ComplexReal a_sum_2 = ComplexAddition(a_term_2_1, a_term_2_2);
+    ComplexReal a_term_2 = ComplexProduct(a0, a_sum_2);
+    ComplexReal a_sum = ComplexAddition(a_term_1, a_term_2);
+    faxionAmplitude = ComplexProduct(exp_CommonPhase, a_sum);
+    debug << "+--------------------------------------------------------------------------+" << endl;
+    debug << " Intermediate calculations for the axion amplitude" << endl;
+    debug << " a_sum_1 : "; PrintComplex(a_sum_1);
+    debug << " a_term_1 : "; PrintComplex(a_term_1);
+    debug << " a_term_2_1 : "; PrintComplex(a_term_2_1);
+    debug << " a_term_2_2 : "; PrintComplex(a_term_2_2);
+    debug << " a_sum_2 : "; PrintComplex(a_sum_2);
+    debug << " a_term_2 : "; PrintComplex(a_term_2);
+    debug << " a_sum : "; PrintComplex(a_sum);
+    debug << " axionAmplitude : "; PrintComplex(faxionAmplitude);
+    debug << "+--------------------------------------------------------------------------+" << endl;
+
+    // calculation of the photon orthogonal component amplitude
+    mpfr::mpreal phi2 = OrthogonalPhase * l;
+    ComplexReal exp_OrthogonalPhase = SetComplexReal(cos(phi2), sin(phi2));
+    forthogonalPhotonAmplitude = ComplexProduct(A0_ort, exp_OrthogonalPhase);
+    debug << "+--------------------------------------------------------------------------+" << endl;
+    debug << " Intermediate calculations for the photon orthogonal component amplitude" << endl;
+    debug << " phi2 : " << phi2 << endl;
+    debug << " exp_OrthogonalPhase : "; PrintComplex(exp_OrthogonalPhase);
+    debug << " orthogonalPhotonAmplitude : "; PrintComplex(forthogonalPhotonAmplitude);
+    debug << "+--------------------------------------------------------------------------+" << endl;
+}
+
 TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput) {
     fAxionEvent = (TRestAxionEvent*)evInput;
 
