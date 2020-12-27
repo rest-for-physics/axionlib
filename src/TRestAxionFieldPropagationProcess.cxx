@@ -744,6 +744,59 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSubsegment(
     debug << "+--------------------------------------------------------------------------+" << endl;
 }
 
+/// \brief Calculates amplitudes of the axion field, parallel component of the photon field and orthogonal component
+/// of the photon field after passing one segment of the particle trajectory along which the transverse component
+/// of the magnetic field is ZERO. It uses equation (3.15) given in the internal report "Axion-photon conversion
+/// in the external magnetic fields" written by B. Lakic and K. Jakovcic.
+/// Also, amplitudes are of ComplexReal type, which stores complex numbers based on mpreal wrapper to allow precise
+/// calculation of small values.  At present, the  precision is set to 30 digits, so that we can still calculate
+/// numbers such as : 1.0 - 1.e-30
+void TRestAxionFieldPropagationProcess::PropagateWithoutBField(ComplexReal& faxionAmplitude, ComplexReal& fparallelPhotonAmplitude, ComplexReal& forthogonalPhotonAmplitude, mpfr::mpreal axionMass, mpfr::mpreal photonMass, mpfr::mpreal Ea, TVector3 from, TVector3 to) {
+    mpfr::mpreal::set_default_prec(mpfr::digits2bits(30));
+    cout.precision(30);
+    mpfr::mpreal axionPhase = Ea * 1000.0 - (axionMass * axionMass) / (2. * Ea * 1000.0);   // in eV
+    mpfr::mpreal photonPhase = Ea * 1000.0 - (photonMass * photonMass) / (2. * Ea * 1000.0);   // in eV
+    Double_t length = (to - from).Mag();
+    length = length / 1000.0; // default REST units are mm
+    mpfr::mpreal l = length * PhMeterIneV;   // length in eV-1
+
+    debug << "+--------------------------------------------------------------------------+" << endl;
+    debug << " Propagation without B field: " << endl;
+    debug << " INITIAL VALUES " << endl;
+    debug << " axionAmplitude : "; PrintComplex(faxionAmplitude);
+    debug << " parallelPhotonAmplitude : "; PrintComplex(fparallelPhotonAmplitude);
+    debug << " orthogonalPhotonAmplitude : "; PrintComplex(forthogonalPhotonAmplitude);
+    debug << "+--------------------------------------------------------------------------+" << endl;
+
+    mpfr::mpreal axionphi = axionPhase * l;
+    ComplexReal exp_axionPhase = SetComplexReal(cos(axionphi), sin(axionphi));
+    faxionAmplitude = ComplexProduct(faxionAmplitude, exp_axionPhase);
+
+    mpfr::mpreal photonphi = photonPhase * l;
+    ComplexReal exp_photonPhase = SetComplexReal(cos(photonphi), sin(photonphi));
+    fparallelPhotonAmplitude = ComplexProduct(fparallelPhotonAmplitude, exp_photonPhase);
+    forthogonalPhotonAmplitude = ComplexProduct(forthogonalPhotonAmplitude, exp_photonPhase);
+    debug << "+--------------------------------------------------------------------------+" << endl;
+    debug << " Intermediate calculations" << endl;
+    debug << " axionPhase : " << axionPhase << endl;
+    debug << " axionphi : " << axionphi << endl;
+    debug << " exp_axionPhase : "; PrintComplex(exp_axionPhase);
+    debug << "Norm2(exp_axionPhase) = " << Norm2(exp_axionPhase) << endl;
+    debug << " photonPhase : " << photonPhase << endl;
+    debug << " photonphi : " << photonphi << endl;
+    debug << " exp_photonPhase : "; PrintComplex(exp_photonPhase);
+    debug << "Norm2(exp_photonPhase) = " << Norm2(exp_photonPhase) << endl;
+    debug << "+--------------------------------------------------------------------------+" << endl;
+    debug << "+--------------------------------------------------------------------------+" << endl;
+    debug << " Propagation without B field: " << endl;
+    debug << " FINAL VALUES " << endl;
+    debug << " axionAmplitude : "; PrintComplex(faxionAmplitude);
+    debug << " parallelPhotonAmplitude : "; PrintComplex(fparallelPhotonAmplitude);
+    debug << " orthogonalPhotonAmplitude : "; PrintComplex(forthogonalPhotonAmplitude);
+    debug << "+--------------------------------------------------------------------------+" << endl;
+}
+
+
 TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput) {
     fAxionEvent = (TRestAxionEvent*)evInput;
 

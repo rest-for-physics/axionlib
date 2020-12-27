@@ -219,6 +219,11 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
                                          mpfr::mpreal lambda, Double_t length, mpfr::mpreal CommonPhase,
                                          mpfr::mpreal OrthogonalPhase);
 
+    // Calculates amplitudes of the axion field, parallel component of the photon field and orthogonal component
+    // of the photon field after passing one segment of the particle trajectory along which the transverse
+    // component of the magnetic field is zero
+    void PropagateWithoutBField(ComplexReal& axionAmplitude, ComplexReal& parallelPhotonAmplitude, ComplexReal& orthogonalPhotonAmplitude, mpfr::mpreal axionMass, mpfr::mpreal photonMass, mpfr::mpreal Ea, TVector3 from, TVector3 to);
+
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestAxionFieldPropagationProcess; }
 
