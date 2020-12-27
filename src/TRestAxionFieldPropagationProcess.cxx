@@ -422,7 +422,8 @@ std::vector<TVector3> TRestAxionFieldPropagationProcess::FieldBoundary(std::vect
 */
 
 // This method is obsolete because it uses methods FindBoundariesOneVolume and FieldBoundary that are obsolete
-// and replaced by the methods TRestAxionMagneticField::GetVolumeBoundaries and TRestAxionMagneticField::GetFieldBoundaries.
+// and replaced by the methods TRestAxionMagneticField::GetVolumeBoundaries and
+// TRestAxionMagneticField::GetFieldBoundaries.
 // The NEW version of this method is given below and uses TRestAxionMagneticField::GetFieldBoundaries
 /*
 std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldBoundaries(Double_t minStep) {
@@ -499,59 +500,64 @@ debug << "+------------------------+" << endl;
 }
 */
 
-// This is a NEW version of FindFieldBoundaries method and replaces the obsolete version of this method given above
+// This is a NEW version of FindFieldBoundaries method and replaces the obsolete version of this method given
+// above
 ///////////////////////////////////////////////
-/// \brief Finds the boundary points for each segment along the particle trajectory where the **transversal** component
+/// \brief Finds the boundary points for each segment along the particle trajectory where the **transversal**
+/// component
 /// of the magnetic field in not zero.
 ///
-/// This method goes over all magnetic field regions and checks for each region if the particle (with the initial
-/// position `posInitial` and direction `direction`) passes through this region. If yes, it determines the boundary
-/// points of the trajectory segment through this region between which the **transversal** component of the magnetic
+/// This method goes over all magnetic field regions and checks for each region if the particle (with the
+/// initial
+/// position `posInitial` and direction `direction`) passes through this region. If yes, it determines the
+/// boundary
+/// points of the trajectory segment through this region between which the **transversal** component of the
+/// magnetic
 /// field is not zero. The method returns the vector where each element contains a pair of boundary points,
-/// i.e., the starting and ending points of one segment of the particle trajectory along which the **transversal**
+/// i.e., the starting and ending points of one segment of the particle trajectory along which the
+/// **transversal**
 /// component of the magnetic field is not zero.
 
 std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldBoundaries(Double_t minStep) {
+    std::vector<std::vector<TVector3>> boundaryFinalCollection;
 
-std::vector<std::vector<TVector3>> boundaryFinalCollection;
+    if (minStep == -1) minStep = 0.01;
+    std::vector<TVector3> buffVect;
 
-if (minStep == -1) minStep = 0.01;
-std::vector<TVector3> buffVect;
+    TVector3 posInitial = *(fAxionEvent->GetPosition());
+    TVector3 direction = *(fAxionEvent->GetDirection());
+    direction = direction.Unit();
 
-TVector3 posInitial = *(fAxionEvent->GetPosition());
-TVector3 direction = *(fAxionEvent->GetDirection());
-direction = direction.Unit();
+    if (direction == TVector3(0, 0, 0))  // No moves
+        return boundaryFinalCollection;
 
-if (direction == TVector3(0, 0, 0))  // No moves
-    return boundaryFinalCollection;
+    if (fAxionMagneticField->GetNumberOfVolumes() == 0)
+        ferr << " The magnetic field has not been loaded " << endl;
 
-if (fAxionMagneticField->GetNumberOfVolumes() == 0)
-    ferr << " The magnetic field has not been loaded " << endl;
+    // Find field boundaries volume
 
-// Find field boundaries volume
+    Int_t N = fAxionMagneticField->GetNumberOfVolumes();
 
-Int_t N = fAxionMagneticField->GetNumberOfVolumes();
-
-for (Int_t p = 0; p < N; p++) {
-    buffVect.clear();
-    buffVect = fAxionMagneticField->GetFieldBoundaries(p, posInitial, direction);
-    if (buffVect.size() == 2) {
-        boundaryFinalCollection.push_back(buffVect);
+    for (Int_t p = 0; p < N; p++) {
+        buffVect.clear();
+        buffVect = fAxionMagneticField->GetFieldBoundaries(p, posInitial, direction);
+        if (buffVect.size() == 2) {
+            boundaryFinalCollection.push_back(buffVect);
+        }
     }
-}
 
-debug << "+------------------------+" << endl;
-debug << " Number of field boundaries : " << 2 * boundaryFinalCollection.size() << endl;
-debug << "+------------------------+" << endl;
+    debug << "+------------------------+" << endl;
+    debug << " Number of field boundaries : " << 2 * boundaryFinalCollection.size() << endl;
+    debug << "+------------------------+" << endl;
 
-debug << "+------------------------+" << endl;
-for (Int_t p = 0; p < boundaryFinalCollection.size(); p++) {
-    debug << "for volume " << p << " in : (" << boundaryFinalCollection[p][0].X() << ","
-          << boundaryFinalCollection[p][0].Y() << "," << boundaryFinalCollection[p][0].Z() << ")" << endl;
-    debug << "for volume " << p << " out : (" << boundaryFinalCollection[p][1].X() << ","
-          << boundaryFinalCollection[p][1].Y() << "," << boundaryFinalCollection[p][1].Z() << ")" << endl;
-}
-debug << "+------------------------+" << endl;
+    debug << "+------------------------+" << endl;
+    for (Int_t p = 0; p < boundaryFinalCollection.size(); p++) {
+        debug << "for volume " << p << " in : (" << boundaryFinalCollection[p][0].X() << ","
+              << boundaryFinalCollection[p][0].Y() << "," << boundaryFinalCollection[p][0].Z() << ")" << endl;
+        debug << "for volume " << p << " out : (" << boundaryFinalCollection[p][1].X() << ","
+              << boundaryFinalCollection[p][1].Y() << "," << boundaryFinalCollection[p][1].Z() << ")" << endl;
+    }
+    debug << "+------------------------+" << endl;
 
     return boundaryFinalCollection;
 }
@@ -591,23 +597,33 @@ void TRestAxionFieldPropagationProcess::PrintComplex(ComplexReal p) {
     debug << p.real << " + " << p.img << "i" << endl;
 }
 
-
-/// \brief Calculates amplitudes of the axion field, parallel component of the photon field and orthogonal component
+/// \brief Calculates amplitudes of the axion field, parallel component of the photon field and orthogonal
+/// component
 /// of the photon field after passing one subsegment of the particle trajectory along which it is assumed
 /// that the transverse component of the magnetic field is constant. It uses equations (3.15) and (3.38) given
-/// in the internal report "Axion-photon conversion in the external magnetic fields" written by B. Lakic and K. Jakovcic.
-/// Also, amplitudes are of ComplexReal type, which stores complex numbers based on mpreal wrapper to allow precise
-/// calculation of small values.  At present, the  precision is set to 30 digits, so that we can still calculate
+/// in the internal report "Axion-photon conversion in the external magnetic fields" written by B. Lakic and
+/// K. Jakovcic.
+/// Also, amplitudes are of ComplexReal type, which stores complex numbers based on mpreal wrapper to allow
+/// precise
+/// calculation of small values.  At present, the  precision is set to 30 digits, so that we can still
+/// calculate
 /// numbers such as : 1.0 - 1.e-30
-void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSubsegment(ComplexReal& faxionAmplitude, ComplexReal& fparallelPhotonAmplitude, ComplexReal& forthogonalPhotonAmplitude, mpfr::mpreal theta, mpfr::mpreal lambda, Double_t length, mpfr::mpreal CommonPhase, mpfr::mpreal OrthogonalPhase) {
-    // lambda is given in eV, theta has no dimension, length is in m, Common phase and Orthogonal phase are in eV
+void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSubsegment(
+    ComplexReal& faxionAmplitude, ComplexReal& fparallelPhotonAmplitude,
+    ComplexReal& forthogonalPhotonAmplitude, mpfr::mpreal theta, mpfr::mpreal lambda, Double_t length,
+    mpfr::mpreal CommonPhase, mpfr::mpreal OrthogonalPhase) {
+    // lambda is given in eV, theta has no dimension, length is in m, Common phase and Orthogonal phase are in
+    // eV
 
     mpfr::mpreal::set_default_prec(mpfr::digits2bits(30));
     cout.precision(30);
     // setting initial parameters
-    ComplexReal a0 = faxionAmplitude;   // axion field amplitude initial value at the beginning of the subsegment
-    ComplexReal A0_par = fparallelPhotonAmplitude;  // photon field parallel component amplitude initial value at the beginning of the subsegment
-    ComplexReal A0_ort = forthogonalPhotonAmplitude;   // photon field orthogonal component amplitude initial value at the beginning of the subsegment
+    ComplexReal a0 =
+        faxionAmplitude;  // axion field amplitude initial value at the beginning of the subsegment
+    ComplexReal A0_par = fparallelPhotonAmplitude;  // photon field parallel component amplitude initial value
+                                                    // at the beginning of the subsegment
+    ComplexReal A0_ort = forthogonalPhotonAmplitude;  // photon field orthogonal component amplitude initial
+                                                      // value at the beginning of the subsegment
     debug << "+--------------------------------------------------------------------------+" << endl;
     debug << " CalculateAmplitudesInSubsegment method: Parameter summary" << endl;
     debug << " Theta : " << theta << endl;
@@ -615,9 +631,12 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSubsegment(ComplexR
     debug << " subsegment length : " << length << " m" << endl;
     debug << " Common phase : " << CommonPhase << " eV" << endl;
     debug << " orthogonal photon component phase : " << OrthogonalPhase << " eV" << endl;
-    debug << " a0 : "; PrintComplex(a0);
-    debug << " A0_par : "; PrintComplex(A0_par);
-    debug << " A0_ort : "; PrintComplex(A0_ort);
+    debug << " a0 : ";
+    PrintComplex(a0);
+    debug << " A0_par : ";
+    PrintComplex(A0_par);
+    debug << " A0_ort : ";
+    PrintComplex(A0_ort);
     debug << "+--------------------------------------------------------------------------+" << endl;
 
     // setting auxillary parameters used in calculations
@@ -625,7 +644,7 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSubsegment(ComplexR
     mpfr::mpreal sin2_theta = sin(theta) * sin(theta);
     mpfr::mpreal sin_2theta = sin(2.0 * theta);
 
-    mpfr::mpreal l = length * PhMeterIneV;   // length in eV-1
+    mpfr::mpreal l = length * PhMeterIneV;  // length in eV-1
 
     mpfr::mpreal phi = lambda * l;
     ComplexReal exp_lambdaPlusZ = SetComplexReal(cos(-phi), sin(-phi));
@@ -642,10 +661,13 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSubsegment(ComplexR
     debug << " subsegment length : " << length << " m" << endl;
     debug << " l : " << l << " eV-1" << endl;
     debug << " phi : " << phi << endl;
-    debug << " exp_lambdaPlusZ : "; PrintComplex(exp_lambdaPlusZ);
-    debug << " exp_lambdaMinusZ : "; PrintComplex(exp_lambdaMinusZ);
+    debug << " exp_lambdaPlusZ : ";
+    PrintComplex(exp_lambdaPlusZ);
+    debug << " exp_lambdaMinusZ : ";
+    PrintComplex(exp_lambdaMinusZ);
     debug << " phi1 : " << phi1 << endl;
-    debug << " exp_CommonPhase : "; PrintComplex(exp_CommonPhase);
+    debug << " exp_CommonPhase : ";
+    PrintComplex(exp_CommonPhase);
     debug << "+--------------------------------------------------------------------------+" << endl;
 
     // calculation of the photon parallel component amplitude
@@ -660,14 +682,22 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSubsegment(ComplexR
     fparallelPhotonAmplitude = ComplexProduct(exp_CommonPhase, A_sum);
     debug << "+--------------------------------------------------------------------------+" << endl;
     debug << " Intermediate calculations for the photon parallel component amplitude" << endl;
-    debug << " A_term_1_1 : "; PrintComplex(A_term_1_1);
-    debug << " A_term_1_2 : "; PrintComplex(A_term_1_2);
-    debug << " A_sum_1 : "; PrintComplex(A_sum_1);
-    debug << " A_term_1 : "; PrintComplex(A_term_1);
-    debug << " A_sum_2 : "; PrintComplex(A_sum_2);
-    debug << " A_term_2 : "; PrintComplex(A_term_2);
-    debug << " A_sum : "; PrintComplex(A_sum);
-    debug << " parallelPhotonAmplitude : "; PrintComplex(fparallelPhotonAmplitude);
+    debug << " A_term_1_1 : ";
+    PrintComplex(A_term_1_1);
+    debug << " A_term_1_2 : ";
+    PrintComplex(A_term_1_2);
+    debug << " A_sum_1 : ";
+    PrintComplex(A_sum_1);
+    debug << " A_term_1 : ";
+    PrintComplex(A_term_1);
+    debug << " A_sum_2 : ";
+    PrintComplex(A_sum_2);
+    debug << " A_term_2 : ";
+    PrintComplex(A_term_2);
+    debug << " A_sum : ";
+    PrintComplex(A_sum);
+    debug << " parallelPhotonAmplitude : ";
+    PrintComplex(fparallelPhotonAmplitude);
     debug << "+--------------------------------------------------------------------------+" << endl;
 
     // calculation of the axion amplitude
@@ -682,14 +712,22 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSubsegment(ComplexR
     faxionAmplitude = ComplexProduct(exp_CommonPhase, a_sum);
     debug << "+--------------------------------------------------------------------------+" << endl;
     debug << " Intermediate calculations for the axion amplitude" << endl;
-    debug << " a_sum_1 : "; PrintComplex(a_sum_1);
-    debug << " a_term_1 : "; PrintComplex(a_term_1);
-    debug << " a_term_2_1 : "; PrintComplex(a_term_2_1);
-    debug << " a_term_2_2 : "; PrintComplex(a_term_2_2);
-    debug << " a_sum_2 : "; PrintComplex(a_sum_2);
-    debug << " a_term_2 : "; PrintComplex(a_term_2);
-    debug << " a_sum : "; PrintComplex(a_sum);
-    debug << " axionAmplitude : "; PrintComplex(faxionAmplitude);
+    debug << " a_sum_1 : ";
+    PrintComplex(a_sum_1);
+    debug << " a_term_1 : ";
+    PrintComplex(a_term_1);
+    debug << " a_term_2_1 : ";
+    PrintComplex(a_term_2_1);
+    debug << " a_term_2_2 : ";
+    PrintComplex(a_term_2_2);
+    debug << " a_sum_2 : ";
+    PrintComplex(a_sum_2);
+    debug << " a_term_2 : ";
+    PrintComplex(a_term_2);
+    debug << " a_sum : ";
+    PrintComplex(a_sum);
+    debug << " axionAmplitude : ";
+    PrintComplex(faxionAmplitude);
     debug << "+--------------------------------------------------------------------------+" << endl;
 
     // calculation of the photon orthogonal component amplitude
@@ -699,8 +737,10 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSubsegment(ComplexR
     debug << "+--------------------------------------------------------------------------+" << endl;
     debug << " Intermediate calculations for the photon orthogonal component amplitude" << endl;
     debug << " phi2 : " << phi2 << endl;
-    debug << " exp_OrthogonalPhase : "; PrintComplex(exp_OrthogonalPhase);
-    debug << " orthogonalPhotonAmplitude : "; PrintComplex(forthogonalPhotonAmplitude);
+    debug << " exp_OrthogonalPhase : ";
+    PrintComplex(exp_OrthogonalPhase);
+    debug << " orthogonalPhotonAmplitude : ";
+    PrintComplex(forthogonalPhotonAmplitude);
     debug << "+--------------------------------------------------------------------------+" << endl;
 }
 

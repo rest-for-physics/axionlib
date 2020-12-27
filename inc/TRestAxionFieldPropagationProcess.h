@@ -30,8 +30,8 @@
 #include "TRestAxionMagneticField.h"
 #include "TRestAxionPhotonConversion.h"
 #include "TRestEventProcess.h"
-#include "mpreal.h"
 #include "TRestPhysics.h"
+#include "mpreal.h"
 
 /// A structure to define the two components of a complex number using real precision.
 /// To be used inside TRestAxionFieldPropagationProcess. Copied from TRestAxionPhotonConversion.h
@@ -137,7 +137,7 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
         return c;
     }
 
-    void PrintComplex (ComplexReal);
+    void PrintComplex(ComplexReal);
 
     void InitFromConfigFile();
 
@@ -210,10 +210,14 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
     // TVector3 MoveToPlan(TVector3 pos, TVector3 dir, Double_t f, Int_t i);
     // TVector3 FinalPositionInPlan(TVector3 pos, TVector3 dir, TVector3 normalPlan, TVector3 pointPlan);
 
-    // Calculates amplitudes of the axion field, parallel component of the photon field and orthogonal component
+    // Calculates amplitudes of the axion field, parallel component of the photon field and orthogonal
+    // component
     // of the photon field after passing one subsegment of the particle trajectory along which it is assumed
     // that the magnetic field is constant
-    void CalculateAmplitudesInSubsegment(ComplexReal& axionAmplitude, ComplexReal& parallelPhotonAmplitude, ComplexReal& orhogonalPhotonAmplitude, mpfr::mpreal theta, mpfr::mpreal lambda, Double_t length, mpfr::mpreal CommonPhase, mpfr::mpreal OrthogonalPhase);
+    void CalculateAmplitudesInSubsegment(ComplexReal& axionAmplitude, ComplexReal& parallelPhotonAmplitude,
+                                         ComplexReal& orhogonalPhotonAmplitude, mpfr::mpreal theta,
+                                         mpfr::mpreal lambda, Double_t length, mpfr::mpreal CommonPhase,
+                                         mpfr::mpreal OrthogonalPhase);
 
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestAxionFieldPropagationProcess; }
