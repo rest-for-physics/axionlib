@@ -37,7 +37,8 @@ build:
     - git submodule update source/libraries/axion
     - cd source/libraries/axion/
     - git checkout master
-    - git pull --recurse-submodules
+    - git submodule init data
+    - git submodule update data
     - cd ../../../
     - mkdir build
     - cd build
