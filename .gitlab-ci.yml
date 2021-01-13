@@ -31,8 +31,10 @@ build:
   script:
     - echo "**${CI_PROJECT_DIR}**"
     - rm -rf ${CI_PROJECT_DIR}/install
-    - git clone --single-branch --recurse-submodules="source/libaries/axion" --branch development https://github.com/rest-for-physics/framework.git rest-framework
-    - cd rest-framework
+    - git clone --single-branch --branch development https://github.com/rest-for-physics/framework.git framework
+    - cd framework
+    - git submodule init source/libraries/axion
+    - git submodule update source/libraries/axion
     - cd source/libraries/axion/
     - git checkout master
     - git pull --recurse-submodules
@@ -42,14 +44,6 @@ build:
     - cmake ../ -DREST_WELCOME=ON -DRESTLIB_AXION=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - restRoot -b -q
-      #    - cd ${CI_PROJECT_DIR}
-      #    - mkdir build
-      #    - cd build
-      #    - cmake ../
-      #    - make install -j2
-      #    - cd -
-      #    - restRoot -b -q
   except:
     variables:
       - $CRONJOB
