@@ -19,7 +19,7 @@ clang-format:
     script:
         - echo "**$CRONJOB**"
         - echo "**$CI_SERVER_HOST**"
-        - cd ${CI_PROJECT_DIR}/scripts/pipeline/clang-format/
+        - cd ${CI_PROJECT_DIR}/pipeline/clang-format/
         - ./clangformattest.sh
           # We execute only at a schedulled pipeline that defines CRONJOB variable
     only:
@@ -31,8 +31,8 @@ build:
   script:
     - echo "**${CI_PROJECT_DIR}**"
     - rm -rf ${CI_PROJECT_DIR}/install
-    - git clone --single-branch --branch development_v2.3 git@lfna.unizar.es:rest-development/REST_v2.git --recurse-submodules REST_v2
-    - cd REST_v2
+    - git clone --single-branch --recurse-submodules="source/libaries/axion" --branch development https://github.com/rest-for-physics/framework.git rest-framework
+    - cd rest-framework
     - cd source/libraries/axion/
     - git checkout master
     - git pull --recurse-submodules
@@ -73,11 +73,11 @@ magneticField:
   type: metadata
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/magneticField/
+    - cd ${CI_PROJECT_DIR}/pipeline/magneticField/
     - ./magneticField.py
     - cd trilinear
     - restRoot -b -q GetMagneticField_test.C
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/magneticField/boundary/
+    - cd ${CI_PROJECT_DIR}/pipeline/magneticField/boundary/
     - restRoot -b -q Boundaries_test.C
   except:
       variables:
