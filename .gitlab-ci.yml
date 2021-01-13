@@ -44,14 +44,15 @@ build:
     - cmake ../ -DREST_WELCOME=ON -DRESTLIB_AXION=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - restRoot -b -q
   except:
     variables:
       - $CRONJOB
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/install
-      - ${CI_PROJECT_DIR}/REST_v2
-      - ${CI_PROJECT_DIR}/REST_v2/build
+      - ${CI_PROJECT_DIR}/framework
+      - ${CI_PROJECT_DIR}/framework/build
     expire_in: 1 day
 
 loadRESTLibs:
