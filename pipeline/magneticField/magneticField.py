@@ -9,10 +9,7 @@ b = TVector3(4, 5, 6)
 c = b - a
 
 
-ROOT.gSystem.Load("libGdml.so")
-ROOT.gSystem.Load("libRestCore.so")
-ROOT.gSystem.Load("libRestEvents.so")
-ROOT.gSystem.Load("libRestMetadata.so")
+ROOT.gSystem.Load("libRestFramework.so")
 ROOT.gSystem.Load("libRestAxion.so")
 
 babyField = ROOT.TRestAxionMagneticField("fields.rml", "babyIAXO")
