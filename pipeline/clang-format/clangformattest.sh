@@ -18,7 +18,7 @@ if ! [[ -z $cleanstate ]]; then
 fi
 
 
-cd ../../../
+cd ../../
 find . \( -name '*.h' -or -name '*.cxx' -or -name '*.cc' -or -name '*.C' \) -print0 | xargs -0 clang-format -i
 
 # check if something was modified
