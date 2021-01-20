@@ -598,98 +598,142 @@ void TRestAxionFieldPropagationProcess::PrintComplex(ComplexReal p) {
 }
 
 /// \brief Calculates amplitudes of the axion field, parallel component of the photon field and orthogonal
-/// component of the photon field (parallel and orthogonal are with respect to the transverse component of the magnetic field)
+/// component of the photon field (parallel and orthogonal are with respect to the transverse component of the
+/// magnetic field)
 /// after passing one segment of the particle trajectory along which it is assumed
 /// that the transverse component of the magnetic field with respect to the particle propagation direction
-/// is not equal zero. The segment is divided into a series of subsegments. It is assumed that the magnitude and direction of the
-/// transverse component of the magnetic field are constant along each subsegment, but they can change from one subsegment
+/// is not equal zero. The segment is divided into a series of subsegments. It is assumed that the magnitude
+/// and direction of the
+/// transverse component of the magnetic field are constant along each subsegment, but they can change from
+/// one subsegment
 /// to another. The calculations are based on the procedure described in the Section 4 of the internal report
 /// "Axion-photon conversion in the external magnetic fields" written by B. Lakic and K. Jakovcic.
-/// For each subsegment, the values of certain parameters (e.g. theta, lambda) are calculated first and then the method
-/// `CalculateAmplitudesInSubsegment` is called to calculate the amplitudes after passing that subsegment, i.e., to calculate the amplitudes
+/// For each subsegment, the values of certain parameters (e.g. theta, lambda) are calculated first and then
+/// the method
+/// `CalculateAmplitudesInSubsegment` is called to calculate the amplitudes after passing that subsegment,
+/// i.e., to calculate the amplitudes
 /// at the end of that subsegment. This procedure is repeated for each subsegment until
-/// the end of segment is reached. The values of the amplitudes at the end of one subsegment are used to calculate the initial
+/// the end of segment is reached. The values of the amplitudes at the end of one subsegment are used to
+/// calculate the initial
 /// values of these amplitudes for the next subsegment by using equations (4.4)-(4.6).
 ///
 /// NOTE: The amplitudes are calculated for the axion-photon coupling constant g_agg = 10^-10 GeV-1
 /// The length of the subsegment is defined by variable `step`. It is currently set to 200 mm.
 
-void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSegment(ComplexReal& faxionAmplitude, ComplexReal& fparallelPhotonAmplitude, ComplexReal& forthogonalPhotonAmplitude, TVector3& averageBT, mpfr::mpreal axionMass, mpfr::mpreal photonMass, mpfr::mpreal Ea, TVector3 from, TVector3 to, mpfr::mpreal CommonPhase, mpfr::mpreal OrthogonalPhase) {
-
-    mpfr::mpreal g_agg = 1.0e-10;  // axion-photon coupling constant in GeV-1
-    mpfr::mpreal TeslaineV = 195.3;  // conversion factor from Tesla to eV^2
+void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSegment(
+    ComplexReal& faxionAmplitude, ComplexReal& fparallelPhotonAmplitude,
+    ComplexReal& forthogonalPhotonAmplitude, TVector3& averageBT, mpfr::mpreal axionMass,
+    mpfr::mpreal photonMass, mpfr::mpreal Ea, TVector3 from, TVector3 to, mpfr::mpreal CommonPhase,
+    mpfr::mpreal OrthogonalPhase) {
+    mpfr::mpreal g_agg = 1.0e-10;                 // axion-photon coupling constant in GeV-1
+    mpfr::mpreal TeslaineV = 195.3;               // conversion factor from Tesla to eV^2
     Double_t segment_length = (to - from).Mag();  // the length of the entire segment
-    TVector3 subsegment_start, subsegment_end;  // coordinates of the starting and ending points of one subsegment
+    TVector3 subsegment_start,
+        subsegment_end;          // coordinates of the starting and ending points of one subsegment
     Double_t subsegment_length;  // the length of one subsegment
-    ComplexReal subsegment_A0_par, subsegment_A0_ort;  // values of the parallel and orthogonal photon amplitudes at the end of one subsegment (that is also the beginning of the next subsegment
-    TVector3 averageBT_0;  // transverse component of the average magnetic field vector in the previous subsegment
+    ComplexReal subsegment_A0_par, subsegment_A0_ort;  // values of the parallel and orthogonal photon
+                                                       // amplitudes at the end of one subsegment (that is
+                                                       // also the beginning of the next subsegment
+    TVector3
+        averageBT_0;  // transverse component of the average magnetic field vector in the previous subsegment
 
     Double_t step = 200.0;  // the length of the subsegment
-    Double_t BTmag;  // average magnitude of the transverse component of the magnetic field in one subsegment (given in Tesla)
-    Double_t BTangle;  // angle between the transverse component of the average magnetic field in one subsegment and the one in the previous subsegment
+    Double_t BTmag;  // average magnitude of the transverse component of the magnetic field in one subsegment
+                     // (given in Tesla)
+    Double_t BTangle;  // angle between the transverse component of the average magnetic field in one
+                       // subsegment and the one in the previous subsegment
 
     subsegment_start = from;
-    subsegment_A0_par = fparallelPhotonAmplitude;  // parallel photon amplitude at the beginning of the segment, i.e., at the point `from`
-    subsegment_A0_ort = forthogonalPhotonAmplitude;  // orthogonal photon amplitude at the beginning of the segment, i.e., at the point `from`
+    subsegment_A0_par = fparallelPhotonAmplitude;    // parallel photon amplitude at the beginning of the
+                                                     // segment, i.e., at the point `from`
+    subsegment_A0_ort = forthogonalPhotonAmplitude;  // orthogonal photon amplitude at the beginning of the
+                                                     // segment, i.e., at the point `from`
     averageBT_0 = averageBT;
     TVector3 dir = (to - from).Unit();  // direction of the particle propagation
 
-    while ((subsegment_start - from).Mag() < segment_length) {     // loop over subsegments in one segment
+    while ((subsegment_start - from).Mag() < segment_length) {  // loop over subsegments in one segment
         subsegment_end = subsegment_start + step * dir;
         if ((subsegment_end - from).Mag() >= segment_length) subsegment_end = to;
         subsegment_length = (subsegment_end - subsegment_start).Mag();
-        subsegment_length = subsegment_length / 1000.0; // default REST units are mm
+        subsegment_length = subsegment_length / 1000.0;  // default REST units are mm
 
-        // calculation of the average magnitude of the transverse magnetic field along the subsegment, i.e., between coordinates `subsegment_start` and `subsegment_end`
-        BTmag = fAxionMagneticField->GetTransversalFieldAverage(subsegment_start, subsegment_end);  // in Tesla
+        // calculation of the average magnitude of the transverse magnetic field along the subsegment, i.e.,
+        // between coordinates `subsegment_start` and `subsegment_end`
+        BTmag =
+            fAxionMagneticField->GetTransversalFieldAverage(subsegment_start, subsegment_end);  // in Tesla
 
-        // calculation of the transverse component of the average magnetic field vector along the subsegment, i.e., between coordinates `subsegment_start` and `subsegment_end`
+        // calculation of the transverse component of the average magnetic field vector along the subsegment,
+        // i.e., between coordinates `subsegment_start` and `subsegment_end`
         averageBT = fAxionMagneticField->GetFieldAverageTransverseVector(subsegment_start, subsegment_end);
 
-        // calculation of the angle between the transverse component of the average magnetic field in one subsegment and the one in the previous subsegment
-        if ((averageBT_0.Mag()==0.0) || (averageBT.Mag()==0.0)) BTangle = 0.0;
-           else BTangle = averageBT.Angle(averageBT_0);
+        // calculation of the angle between the transverse component of the average magnetic field in one
+        // subsegment and the one in the previous subsegment
+        if ((averageBT_0.Mag() == 0.0) || (averageBT.Mag() == 0.0))
+            BTangle = 0.0;
+        else
+            BTangle = averageBT.Angle(averageBT_0);
         if (averageBT.Mag() != 0.0) averageBT_0 = averageBT;
 
-        // calculation of the initial values of the parallel and orthogonal photon amplitudes at the beginning of the subsegment (at the point `subsegment_start`)
+        // calculation of the initial values of the parallel and orthogonal photon amplitudes at the beginning
+        // of the subsegment (at the point `subsegment_start`)
         // from the values at the end of the previous subsegment (also at the point `subsegment_start`)
-        fparallelPhotonAmplitude = ComplexAddition(ComplexProduct(cos(BTangle), subsegment_A0_par), ComplexProduct(sin(BTangle), subsegment_A0_ort));
-        forthogonalPhotonAmplitude = ComplexAddition(ComplexProduct(-sin(BTangle), subsegment_A0_par), ComplexProduct(cos(BTangle), subsegment_A0_ort));
+        fparallelPhotonAmplitude = ComplexAddition(ComplexProduct(cos(BTangle), subsegment_A0_par),
+                                                   ComplexProduct(sin(BTangle), subsegment_A0_ort));
+        forthogonalPhotonAmplitude = ComplexAddition(ComplexProduct(-sin(BTangle), subsegment_A0_par),
+                                                     ComplexProduct(cos(BTangle), subsegment_A0_ort));
 
         // calculation of the parameters theta and lambda for the subsegment
-        mpfr::mpreal term_1 = 2 * (Ea * 1000.0) * (g_agg * 1.0e-9) * (BTmag * TeslaineV);   // in eV^2
-        mpfr::mpreal term_2 = axionMass * axionMass - photonMass * photonMass;  // in ev^2
+        mpfr::mpreal term_1 = 2 * (Ea * 1000.0) * (g_agg * 1.0e-9) * (BTmag * TeslaineV);  // in eV^2
+        mpfr::mpreal term_2 = axionMass * axionMass - photonMass * photonMass;             // in ev^2
         mpfr::mpreal theta = 0.5 * atan(term_1 / term_2);
-        mpfr::mpreal lambda = sqrt(term_1 * term_1 + term_2 * term_2) / (4. * Ea * 1000.0);   // in eV
+        mpfr::mpreal lambda = sqrt(term_1 * term_1 + term_2 * term_2) / (4. * Ea * 1000.0);  // in eV
 
         debug << "+--------------------------------------------------------------------------+" << endl;
         debug << " CalculateAmplitudesInSegment method: Parameter summary" << endl;
         debug << endl << "segment length = " << segment_length << " mm" << endl;
-        debug << endl << "subsegment_start: (" << subsegment_start.x() << ", " << subsegment_start.y() << ", " << subsegment_start.z() << ") " << " mm" << endl;
-        debug << "subsegment_end: ( " << subsegment_end.x() << ", " << subsegment_end.y() << ", " << subsegment_end.z() << ") " << " mm" << endl;
+        debug << endl
+              << "subsegment_start: (" << subsegment_start.x() << ", " << subsegment_start.y() << ", "
+              << subsegment_start.z() << ") "
+              << " mm" << endl;
+        debug << "subsegment_end: ( " << subsegment_end.x() << ", " << subsegment_end.y() << ", "
+              << subsegment_end.z() << ") "
+              << " mm" << endl;
         debug << "subsegment length = " << subsegment_length << " m" << endl << endl;
 
-        debug << " average magnitude of the transverse component of the magnetic field in the subsegment : " << BTmag << " T" << endl;
-        debug << " angle of the transverse component of the average magnetic field in the subsegment with respect to the previous subsegment : " << BTangle << " rad" << endl;
+        debug << " average magnitude of the transverse component of the magnetic field in the subsegment : "
+              << BTmag << " T" << endl;
+        debug << " angle of the transverse component of the average magnetic field in the subsegment with "
+                 "respect to the previous subsegment : "
+              << BTangle << " rad" << endl;
         debug << " g_agg : " << g_agg << " GeV-1" << endl;
         debug << " Theta : " << theta << endl;
         debug << " lambda : " << lambda << " eV" << endl;
-        debug << " subsegment_A0_par : "; PrintComplex(subsegment_A0_par);
-        debug << " subsegment_A0_ort : "; PrintComplex(subsegment_A0_ort);
-        debug << " BEFORE calculating in subsegment: paralell photon component amplitude : "; PrintComplex(fparallelPhotonAmplitude);
-        debug << " BEFORE calculating in subsegment: orthogonal photon component amplitude : "; PrintComplex(forthogonalPhotonAmplitude);
+        debug << " subsegment_A0_par : ";
+        PrintComplex(subsegment_A0_par);
+        debug << " subsegment_A0_ort : ";
+        PrintComplex(subsegment_A0_ort);
+        debug << " BEFORE calculating in subsegment: paralell photon component amplitude : ";
+        PrintComplex(fparallelPhotonAmplitude);
+        debug << " BEFORE calculating in subsegment: orthogonal photon component amplitude : ";
+        PrintComplex(forthogonalPhotonAmplitude);
         debug << "+--------------------------------------------------------------------------+" << endl;
 
-        CalculateAmplitudesInSubsegment(faxionAmplitude, fparallelPhotonAmplitude, forthogonalPhotonAmplitude, theta, lambda, subsegment_length, CommonPhase, OrthogonalPhase);
-        subsegment_A0_par = fparallelPhotonAmplitude; // parallel photon amplitude at the end of the subsegment, i.e. at the point `subsegment_end`
-        subsegment_A0_ort = forthogonalPhotonAmplitude; // orthogonal photon amplitude at the end of the subsegment, i.e. at the point `subsegment_end`
-        debug << endl << " AFTER calculating in subsegment: subsegment_A0_par : "; PrintComplex(subsegment_A0_par);
-        debug << " AFTER calculating in subsegment: subsegment_A0_ort : "; PrintComplex(subsegment_A0_ort);
-        debug << " AFTER calculating in subsegment: paralell photon component amplitude : "; PrintComplex(fparallelPhotonAmplitude);
-        debug << " AFTER calculating in subsegment: orthogonal photon component amplitude : "; PrintComplex(forthogonalPhotonAmplitude);
+        CalculateAmplitudesInSubsegment(faxionAmplitude, fparallelPhotonAmplitude, forthogonalPhotonAmplitude,
+                                        theta, lambda, subsegment_length, CommonPhase, OrthogonalPhase);
+        subsegment_A0_par = fparallelPhotonAmplitude;    // parallel photon amplitude at the end of the
+                                                         // subsegment, i.e. at the point `subsegment_end`
+        subsegment_A0_ort = forthogonalPhotonAmplitude;  // orthogonal photon amplitude at the end of the
+                                                         // subsegment, i.e. at the point `subsegment_end`
+        debug << endl << " AFTER calculating in subsegment: subsegment_A0_par : ";
+        PrintComplex(subsegment_A0_par);
+        debug << " AFTER calculating in subsegment: subsegment_A0_ort : ";
+        PrintComplex(subsegment_A0_ort);
+        debug << " AFTER calculating in subsegment: paralell photon component amplitude : ";
+        PrintComplex(fparallelPhotonAmplitude);
+        debug << " AFTER calculating in subsegment: orthogonal photon component amplitude : ";
+        PrintComplex(forthogonalPhotonAmplitude);
         subsegment_start = subsegment_end;
     }
-
 }
 
 /// \brief Calculates amplitudes of the axion field, parallel component of the photon field and orthogonal

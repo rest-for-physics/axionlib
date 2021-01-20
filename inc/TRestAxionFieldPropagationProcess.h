@@ -215,7 +215,11 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
     // after passing one segment of the particle trajectory along which it is assumed
     // that the transverse component of the magnetic field with respect to the particle propagation direction
     // is not equal zero.
-    void CalculateAmplitudesInSegment(ComplexReal& faxionAmplitude, ComplexReal& fparallelPhotonAmplitude, ComplexReal& forthogonalPhotonAmplitude, TVector3& averageBT, mpfr::mpreal axionMass, mpfr::mpreal photonMass, mpfr::mpreal Ea, TVector3 from, TVector3 to, mpfr::mpreal CommonPhase, mpfr::mpreal OrthogonalPhase);
+    void CalculateAmplitudesInSegment(ComplexReal& faxionAmplitude, ComplexReal& fparallelPhotonAmplitude,
+                                      ComplexReal& forthogonalPhotonAmplitude, TVector3& averageBT,
+                                      mpfr::mpreal axionMass, mpfr::mpreal photonMass, mpfr::mpreal Ea,
+                                      TVector3 from, TVector3 to, mpfr::mpreal CommonPhase,
+                                      mpfr::mpreal OrthogonalPhase);
 
     // Calculates amplitudes of the axion field, parallel component of the photon field and orthogonal
     // component
