@@ -967,7 +967,8 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     faxionAmplitude = SetComplexReal(1.0, 0.0);
     fparallelPhotonAmplitude = SetComplexReal(0.0, 0.0);
     forthogonalPhotonAmplitude = SetComplexReal(0.0, 0.0);
-    TVector3 averageBT = TVector3(0.0, 0.0, 0.0);  // initial value of the transverse component of the average magnetic field before entering the magnetic field region
+    TVector3 averageBT = TVector3(0.0, 0.0, 0.0);  // initial value of the transverse component of the average
+                                                   // magnetic field before entering the magnetic field region
 
     debug << "+------------------------+" << endl;
     debug << "Initial position of the axion input : " << endl;
@@ -991,55 +992,77 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     debug << "Number of magnetic field regions through which the axion passes : " << NofVolumes << endl;
     debug << "+------------------------+" << endl;
 
-    Double_t probability = 0.;  // initial value of the axion to photon conversion probability
+    Double_t probability = 0.;    // initial value of the axion to photon conversion probability
     mpfr::mpreal axionMass = ma;  // in eV
     mpfr::mpreal photonMass = 0.0;
 
-    for (Int_t i = 0; i < NofVolumes; i++) {    // loop over segments of trajectory where B is not equal to zero
+    for (Int_t i = 0; i < NofVolumes; i++) {  // loop over segments of trajectory where B is not equal to zero
         Int_t id = fAxionMagneticField->GetVolumeIndex(boundaries[i][0]);
         if (id < 0) {
-            warning << "TRestAxionFieldPropagationProcess::ProcessEvent position is outside any volume. Setting photon mass to 0." << endl;
+            warning << "TRestAxionFieldPropagationProcess::ProcessEvent position is outside any volume. "
+                       "Setting photon mass to 0."
+                    << endl;
             photonMass = 0.0;  // in eV
         } else {
-            Double_t mphoton = fAxionMagneticField->GetPhotonMass(id, Ea);  // It returns the effective photon mass in eV at the corresponding magnetic volume id.
+            Double_t mphoton = fAxionMagneticField->GetPhotonMass(
+                id,
+                Ea);  // It returns the effective photon mass in eV at the corresponding magnetic volume id.
             photonMass = mphoton;
         }
         debug << "Volume ID = " << id << "   photon mass = " << photonMass << endl;
         debug << "Volume ID = " << id << "   axion mass = " << axionMass << endl;
         debug << "Volume ID = " << id << "   axion energy = " << Ea << endl;
 
-        // calculating common phase for the axion field and parallel component of the photon field (eqs. (4.1) and (4.2))
-        // and phase for the orthogonal component of the photon field (eq. (4.3)) from the report "Axion-photon
+        // calculating common phase for the axion field and parallel component of the photon field (eqs. (4.1)
+        // and (4.2))
+        // and phase for the orthogonal component of the photon field (eq. (4.3)) from the report
+        // "Axion-photon
         // conversion in the external magnetic fields"
-        mpfr::mpreal CommonPhase = Ea * 1000.0 - (axionMass * axionMass + photonMass * photonMass) / (4. * Ea * 1000.0);   // in eV
-        mpfr::mpreal OrthogonalPhase = Ea * 1000.0 - (photonMass * photonMass) / (2. * Ea * 1000.0);   // in eV
+        mpfr::mpreal CommonPhase =
+            Ea * 1000.0 - (axionMass * axionMass + photonMass * photonMass) / (4. * Ea * 1000.0);     // in eV
+        mpfr::mpreal OrthogonalPhase = Ea * 1000.0 - (photonMass * photonMass) / (2. * Ea * 1000.0);  // in eV
 
-        debug << "Calculating amplitudes for one segment of trajectory where B is not zero. Segment boundaries are : (" << boundaries[i][0].X() << ","
-              << boundaries[i][0].Y() << "," << boundaries[i][0].Z() << ") to (" << boundaries[i][1].X() << ","
-              << boundaries[i][1].Y() << "," << boundaries[i][1].Z() << ")" << endl;
-        CalculateAmplitudesInSegment(faxionAmplitude, fparallelPhotonAmplitude, forthogonalPhotonAmplitude, averageBT, axionMass, photonMass, Ea, boundaries[i][0], boundaries[i][1], CommonPhase, OrthogonalPhase);
+        debug << "Calculating amplitudes for one segment of trajectory where B is not zero. Segment "
+                 "boundaries are : ("
+              << boundaries[i][0].X() << "," << boundaries[i][0].Y() << "," << boundaries[i][0].Z()
+              << ") to (" << boundaries[i][1].X() << "," << boundaries[i][1].Y() << ","
+              << boundaries[i][1].Z() << ")" << endl;
+        CalculateAmplitudesInSegment(faxionAmplitude, fparallelPhotonAmplitude, forthogonalPhotonAmplitude,
+                                     averageBT, axionMass, photonMass, Ea, boundaries[i][0], boundaries[i][1],
+                                     CommonPhase, OrthogonalPhase);
 
-    debug << endl << endl << endl << endl;
-    debug << "----------------------------------------------------------------" << endl;
-    debug << " Amplitude values after calculations in one segment: " << endl;
-    debug << " axion amplitude : "; PrintComplex(faxionAmplitude);
-    debug << " parallel photon component amplitude : "; PrintComplex(fparallelPhotonAmplitude);
-    debug << " orthogonal photon component amplitude : "; PrintComplex(forthogonalPhotonAmplitude);
-    debug << "+--------------------------------------------------------------------------+" << endl << endl;
-        if ((i+1) < NofVolumes) {
-            cout << "Calculating amplitudes along the part of trajectory where B = 0 between the two segments. Boundaries are : (" << boundaries[i][1].X() << ","
-              << boundaries[i][1].Y() << "," << boundaries[i][1].Z() << ") to (" << boundaries[i+1][0].X() << ","
-              << boundaries[i+1][0].Y() << "," << boundaries[i+1][0].Z() << ")" << endl;
-            PropagateWithoutBField(faxionAmplitude, fparallelPhotonAmplitude, forthogonalPhotonAmplitude, axionMass, photonMass, Ea, boundaries[i][1], boundaries[i+1][0]);
+        debug << endl << endl << endl << endl;
+        debug << "----------------------------------------------------------------" << endl;
+        debug << " Amplitude values after calculations in one segment: " << endl;
+        debug << " axion amplitude : ";
+        PrintComplex(faxionAmplitude);
+        debug << " parallel photon component amplitude : ";
+        PrintComplex(fparallelPhotonAmplitude);
+        debug << " orthogonal photon component amplitude : ";
+        PrintComplex(forthogonalPhotonAmplitude);
+        debug << "+--------------------------------------------------------------------------+" << endl
+              << endl;
+        if ((i + 1) < NofVolumes) {
+            cout << "Calculating amplitudes along the part of trajectory where B = 0 between the two "
+                    "segments. Boundaries are : ("
+                 << boundaries[i][1].X() << "," << boundaries[i][1].Y() << "," << boundaries[i][1].Z()
+                 << ") to (" << boundaries[i + 1][0].X() << "," << boundaries[i + 1][0].Y() << ","
+                 << boundaries[i + 1][0].Z() << ")" << endl;
+            PropagateWithoutBField(faxionAmplitude, fparallelPhotonAmplitude, forthogonalPhotonAmplitude,
+                                   axionMass, photonMass, Ea, boundaries[i][1], boundaries[i + 1][0]);
         }
     }
     debug << endl << endl << endl << endl;
     debug << "----------------------------------------------------------------" << endl;
     debug << " FINAL AMPLITUDES: " << endl;
-    debug << " axion amplitude : "; PrintComplex(faxionAmplitude);
-    debug << " paralell photon component amplitude : "; PrintComplex(fparallelPhotonAmplitude);
-    debug << " orthogonal photon component amplitude : "; PrintComplex(forthogonalPhotonAmplitude);
-    debug << " PROBABILITY for axion to photon conversion (1-|a|^2): " << 1.0 - Norm2(faxionAmplitude) << endl;
+    debug << " axion amplitude : ";
+    PrintComplex(faxionAmplitude);
+    debug << " paralell photon component amplitude : ";
+    PrintComplex(fparallelPhotonAmplitude);
+    debug << " orthogonal photon component amplitude : ";
+    PrintComplex(forthogonalPhotonAmplitude);
+    debug << " PROBABILITY for axion to photon conversion (1-|a|^2): " << 1.0 - Norm2(faxionAmplitude)
+          << endl;
     debug << "+--------------------------------------------------------------------------+" << endl;
 
     mpfr::mpreal probabilityHighPrecision = 1.0 - Norm2(faxionAmplitude);
@@ -1066,12 +1089,6 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
 
     return fAxionEvent;
 }
-
-
-
-
-
-
 
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML TRestAxionFieldPropagationProcess metadata section
