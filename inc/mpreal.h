@@ -125,9 +125,10 @@
 #endif
 
 // Less important options
-#define MPREAL_DOUBLE_BITS_OVERFLOW -1  // Triggers overflow exception during conversion to double if mpreal
-                                        // cannot fit in MPREAL_DOUBLE_BITS_OVERFLOW bits
-                                        // = -1 disables overflow checks (default)
+#define MPREAL_DOUBLE_BITS_OVERFLOW \
+    -1  // Triggers overflow exception during conversion to double if mpreal
+        // cannot fit in MPREAL_DOUBLE_BITS_OVERFLOW bits
+        // = -1 disables overflow checks (default)
 
 // Fast replacement for mpfr_set_zero(x, +1):
 // (a) uses low-level data members, might not be compatible with new versions of MPFR
@@ -789,7 +790,7 @@ template <>
 struct result_type<unsigned long long> {
     typedef mpreal type;
 };
-}
+}  // namespace internal
 
 // + Addition
 template <typename Rhs>
@@ -2146,7 +2147,7 @@ inline const mpreal sqrt(const int v, mp_rnd_t rnd_mode) {
 
 inline const mpreal root(const mpreal& x, unsigned long int k, mp_rnd_t r = mpreal::get_default_rnd()) {
     mpreal y(0, mpfr_get_prec(x.mpfr_srcptr()));
-    mpfr_root(y.mpfr_ptr(), x.mpfr_srcptr(), k, r);
+    mpfr_rootn_ui(y.mpfr_ptr(), x.mpfr_srcptr(), k, r);
     return y;
 }
 
@@ -2649,7 +2650,7 @@ inline const mpreal random(unsigned int seed = 0) {
 
 inline const mpreal grandom(gmp_randstate_t& state, mp_rnd_t rnd_mode = mpreal::get_default_rnd()) {
     mpreal x;
-    mpfr_grandom(x.mpfr_ptr(), NULL, state, rnd_mode);
+    mpfr_nrandom(x.mpfr_ptr(), state, rnd_mode);
     return x;
 }
 
@@ -2970,7 +2971,7 @@ inline const mpreal pow(const double a, const long int b, mp_rnd_t rnd_mode) {
 inline const mpreal pow(const double a, const int b, mp_rnd_t rnd_mode) {
     return pow(mpreal(a), static_cast<long int>(b), rnd_mode);  // mpfr_pow_si
 }
-}  // End of mpfr namespace
+}  // namespace mpfr
 
 // Explicit specialization of std::swap for mpreal numbers
 // Thus standard algorithms will use efficient version of swap (due to Koenig lookup)
@@ -3100,6 +3101,6 @@ class numeric_limits<mpfr::mpreal> {
     static const int max_digits10 = 16;
 #endif
 };
-}
+}  // namespace std
 
 #endif /* __MPREAL_H__ */
