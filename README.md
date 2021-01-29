@@ -38,13 +38,12 @@ In order to install mpir, download the file `mpir-3.0.0.tar.bz2` from the follow
 2) Executing the following commands should do the job:
 
 ```
-cd mpir-3.0.0
-http://mpir.org/mpir-3.0.0.tar.bz2
+wget http://mpir.org/mpir-3.0.0.tar.bz2
 tar xvjf mpir-3.0.0.tar.bz2
-cd mpir-3.0.0/
+cd mpir-3.0.0
 ./configure
 make
-sudo make install
+sudo make install (to do a system installation)
 ```
 
 ### RestAxionLib installation
