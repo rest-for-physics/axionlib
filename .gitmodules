@@ -1,3 +1,6 @@
 [submodule "data"]
 	path = data
 	url = git@lfna.unizar.es:iaxo/restaxionlib-data.git
+[submodule "external/solarAxionFlux"]
+	path = external/solarAxionFlux
+	url = https://github.com/sebhoof/SolarAxionFlux.git
