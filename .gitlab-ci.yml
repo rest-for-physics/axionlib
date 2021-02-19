@@ -77,7 +77,7 @@ magneticField:
   script:
     - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/scripts/pipeline/magneticField/
+    - cd ${CI_PROJECT_DIR}/pipeline/magneticField/
     - ./magneticField.py
     - cd trilinear
     - restRoot -b -q GetMagneticField_test.C
