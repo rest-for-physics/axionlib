@@ -42,6 +42,7 @@ build:
     - git clone --single-branch --branch development https://github.com/rest-for-physics/framework.git framework
     - cd framework
     - python3.5 pull-submodules.py --force --lfna --dontask
+    - ls ${CI_PROJECT_DIR}/external/solarAxionFlux/
     - cd source/libraries/axion/
     - git checkout ${CI_COMMIT_BRANCH}
     - git submodule update --init --recursive
@@ -50,6 +51,8 @@ build:
     - cd build
     - cmake ../ -DREST_WELCOME=ON -DRESTLIB_AXION=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
+    - ls ${CI_PROJECT_DIR}/external/solarAxionFlux/
+    - ls ${CI_PROJECT_DIR}/external/solarAxionFlux/bin/
     - . ${CI_PROJECT_DIR}/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - restRoot -b -q
