@@ -25,6 +25,7 @@
 
 #include <TRestMetadata.h>
 
+#include "TRestAxionSpectrum.h"
 #include "TRestAxionBufferGas.h"
 #include "TRestAxionPhotonConversion.h"
 #include "TRestAxionSolarModel.h"
@@ -62,9 +63,9 @@ class TRestAxionLikelihood : public TRestMetadata {
 
     Double_t fLastStepDensity = 0.;  //->
 
-    TRestAxionPhotonConversion* fPhotonConversion;  //!
-    TRestAxionBufferGas* fBufferGas;                //!
-    TRestAxionSolarModel* fAxionSolarModel;         //!
+    TRestAxionPhotonConversion *fPhotonConversion; //!
+    TRestAxionBufferGas *fBufferGas; //!
+    TRestAxionSpectrum *fAxionSpectrum; //!
 
     /// Random number generator
     TRandom3* fRandom;  //!
