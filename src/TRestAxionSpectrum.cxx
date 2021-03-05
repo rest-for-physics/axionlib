@@ -56,8 +56,8 @@ void TRestAxionSpectrum::InitFromConfigFile() {
         sTableFileName = GetParameter("spectrumTableFileName");
         double g1ref = GetDblParameterWithUnits("g1ref", NAN);
         double g2ref = GetDblParameterWithUnits("g2ref", NAN);
-        std::string fullPathName = SearchFile((std::string)sTableFileName);
-        if (fullPathName == "") {
+        sTableFileName = SearchFile((std::string)sTableFileName);
+        if (sTableFileName == "") {
             ferr << "File not found : " << sTableFileName << endl;
         } else if (std::isnan(g1ref)) {
             ferr << "You need to supply at least one reference value 'g1ref' in 'table' mode of "
