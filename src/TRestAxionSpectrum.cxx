@@ -155,7 +155,8 @@ void TRestAxionSpectrum::PrintMetadata() {
         metadata << " - Solar model file : " << sol.get_solar_model_name() << endl;
         metadata << " - Opacity code used : " << sol.get_opacitycode_name() << endl;
     } else if (sMode == "table") {
-        metadata << " - Tabulted spectrum file used : " << sTableFileName << endl;
+        metadata << " - Tabulated spectrum file used : "
+                 << TRestTools::SeparatePathAndName(sTableFileName).second << endl;
     };
     metadata << "-------------------------------------------------" << endl;
     metadata << " - Units of the solar axion flux from this class : axions / cm^2 s keV" << endl;
