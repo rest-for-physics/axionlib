@@ -36,10 +36,13 @@ class TRestAxionDetectorResponseProcess : public TRestEventProcess {
 
     /// The filename of the response data file. It is actually registered into disk to identify the response
     /// file used.
-    TString fResponseFileName;  //<
+    string fResponseFileName;  //<
+
+    /// The name of TH2D histogram stored in fResponseFileName
+    string fResponseKeyName;  //<
 
     /// A 2-dimensional histogram were we store temporally the response loaded from a data response file.
-    TH2D fDetectorResponse;  //!
+    TH2D* fDetectorResponse;  //!
 
     void InitFromConfigFile();
 
