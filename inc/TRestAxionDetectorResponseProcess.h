@@ -23,6 +23,8 @@
 #ifndef RestCore_TRestAxionDetectorResponseProcess
 #define RestCore_TRestAxionDetectorResponseProcess
 
+#include "TH2D.h"
+
 #include "TRestAxionEvent.h"
 #include "TRestEventProcess.h"
 
@@ -32,7 +34,12 @@ class TRestAxionDetectorResponseProcess : public TRestEventProcess {
     /// A pointer to the specific TRestAxionEvent
     TRestAxionEvent* fAxionEvent;  //!
 
-    TH2D fDetectorResponse;  //<
+    /// The filename of the response data file. It is actually registered into disk to identify the response
+    /// file used.
+    TString fResponseFileName;  //<
+
+    /// A 2-dimensional histogram were we store temporally the response loaded from a data response file.
+    TH2D fDetectorResponse;  //!
 
     void InitFromConfigFile();
 
@@ -52,6 +59,8 @@ class TRestAxionDetectorResponseProcess : public TRestEventProcess {
     /// It prints out the process parameters stored in the metadata structure
     void PrintMetadata() {
         BeginPrintProcess();
+
+        metadata << "Response filename : " << fResponseFileName << endl;
 
         EndPrintProcess();
     }
