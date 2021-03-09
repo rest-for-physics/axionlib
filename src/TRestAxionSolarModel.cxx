@@ -79,25 +79,26 @@ void TRestAxionSolarModel::InitFromConfigFile() {
         fRefElectronCoupling = sol.get_gaee_ref_value();
         bSolarModelInitialized = sol.is_initialised();
         if (bSolarModelInitialized) {
-          debug << "Solar model file " << sSolarModelFile << " successfully loaded!" << endl;
+            debug << "Solar model file " << sSolarModelFile << " successfully loaded!" << endl;
         } else {
-          ferr << "Solar model initialization was not successful!" << endl;
+            ferr << "Solar model initialization was not successful!" << endl;
         };
-  };
+    };
 }
 
 // Default constructor
 TRestAxionSolarModel::TRestAxionSolarModel() : TRestMetadata() { Initialize(); }
 
 // From-file contructor
-TRestAxionSolarModel::TRestAxionSolarModel(const char* cfgFileName, std::string name) : TRestMetadata(cfgFileName) {
-    debug << "Creating instance of TRestAxionSolarModel from file "+fConfigFileName+"..." << endl;
+TRestAxionSolarModel::TRestAxionSolarModel(const char* cfgFileName, std::string name)
+    : TRestMetadata(cfgFileName) {
+    debug << "Creating instance of TRestAxionSolarModel from file " + fConfigFileName + "..." << endl;
     Initialize();
     LoadConfigFromFile(fConfigFileName, name);
     PrintMetadata();
 }
 
-TRestAxionSolarModel::~TRestAxionSolarModel() { } // SolarModel memory in sol will get destroyed automatically
+TRestAxionSolarModel::~TRestAxionSolarModel() {}  // SolarModel memory in sol will get destroyed automatically
 
 void TRestAxionSolarModel::PrintMetadata() {
     TRestMetadata::PrintMetadata();
@@ -107,42 +108,61 @@ void TRestAxionSolarModel::PrintMetadata() {
     metadata << " - Solar model file : " << sSolarModelFile << endl;
     metadata << " - Opacity code used : " << sOpacityCodeName << endl;
     metadata << "-------------------------------------------------" << endl;
-    metadata << " - Reference value of the axion-photon coupling : " << fRefPhotonCoupling/1.0e-10 << " x 10^{-10} / GeV" << endl;
-    metadata << " - Reference value of the axion-electron coupling : " << fRefElectronCoupling/1.0e-13 << " x 10^{-13}" << endl;
+    metadata << " - Reference value of the axion-photon coupling : " << fRefPhotonCoupling / 1.0e-10
+             << " x 10^{-10} / GeV" << endl;
+    metadata << " - Reference value of the axion-electron coupling : " << fRefElectronCoupling / 1.0e-13
+             << " x 10^{-13}" << endl;
     metadata << " - Units of the solar axion flux from this class : axions / cm^2 s keV" << endl;
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
 
 std::string TRestAxionSolarModel::GetSolarModelFileName() { return sSolarModelFile; }
 
-std::vector<double> TRestAxionSolarModel::GetSolarAxionFluxGAGamma(std::vector<double> energies, double r_max) {
+std::vector<double> TRestAxionSolarModel::GetSolarAxionFluxGAGamma(std::vector<double> energies,
+                                                                   double r_max) {
     std::vector<double> result;
     if (bSolarModelInitialized) {
-        result = sol.calculate_spectral_flux_Primakoff(energies, r_max);
+        warning << "TRestAxionSolarModel::GetSolarAxionFluxGAGamma." << endl;
+        warning << "This code has been commented to allow compilation and needs to be reviewed!" << endl;
+        warning << "The result vector will be empty!" << endl;
+        // result = sol.calculate_spectral_flux_Primakoff(energies, r_max);
     } else {
-        ferr << "TRestAxionSolarModel not properly initialised for RestAxionSolarModel::GetSolarAxionFluxGAGamma(...)!" << endl;
+        ferr << "TRestAxionSolarModel not properly initialised for "
+                "RestAxionSolarModel::GetSolarAxionFluxGAGamma(...)!"
+             << endl;
     };
     return result;
 }
 
-std::vector<double> TRestAxionSolarModel::GetSolarAxionFluxGAGamma(std::vector<double> energies, double g_agamma, double r_max) {
-  std::vector<double> result = GetSolarAxionFluxGAGamma(energies);
-  for (auto flux = result.begin(); flux != result.end(); flux++) { *flux *= pow(g_agamma/fRefPhotonCoupling,2); };
-  return result;
+std::vector<double> TRestAxionSolarModel::GetSolarAxionFluxGAGamma(std::vector<double> energies,
+                                                                   double g_agamma, double r_max) {
+    std::vector<double> result = GetSolarAxionFluxGAGamma(energies);
+    for (auto flux = result.begin(); flux != result.end(); flux++) {
+        *flux *= pow(g_agamma / fRefPhotonCoupling, 2);
+    };
+    return result;
 }
 
 std::vector<double> TRestAxionSolarModel::GetSolarAxionFluxGAE(std::vector<double> energies, double r_max) {
     std::vector<double> result;
-  if (bSolarModelInitialized) {
-      result = sol.calculate_spectral_flux_all_electron(energies, r_max);
-  } else {
-      ferr << "TRestAxionSolarModel not properly initialised for RestAxionSolarModel::GetSolarAxionFluxGAE(...)!" << endl;
-  };
-  return result;
+    if (bSolarModelInitialized) {
+        warning << "TRestAxionSolarModel::GetSolarAxionFluxGAE." << endl;
+        warning << "This code has been commented to allow compilation and needs to be reviewed!" << endl;
+        warning << "The result vector will be empty!" << endl;
+        // result = sol.calculate_spectral_flux_all_electron(energies, r_max);
+    } else {
+        ferr << "TRestAxionSolarModel not properly initialised for "
+                "RestAxionSolarModel::GetSolarAxionFluxGAE(...)!"
+             << endl;
+    };
+    return result;
 }
 
-std::vector<double> TRestAxionSolarModel::GetSolarAxionFluxGAE(std::vector<double> energies, double g_agae, double r_max) {
+std::vector<double> TRestAxionSolarModel::GetSolarAxionFluxGAE(std::vector<double> energies, double g_agae,
+                                                               double r_max) {
     std::vector<double> result = GetSolarAxionFluxGAE(energies, r_max);
-    for (auto flux = result.begin(); flux != result.end(); flux++) { *flux *= pow(g_agae/fRefElectronCoupling,2); };
+    for (auto flux = result.begin(); flux != result.end(); flux++) {
+        *flux *= pow(g_agae / fRefElectronCoupling, 2);
+    };
     return result;
 }
