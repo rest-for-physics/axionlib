@@ -23,7 +23,12 @@
 #ifndef _TRestAxionSolarModel
 #define _TRestAxionSolarModel
 
+#include <sstream>
+#include <iomanip>
+
+#include "solaxflux/utils.hpp"
 #include "solaxflux/solar_model.hpp"
+#include "solaxflux/spectral_flux.hpp"
 
 #include <TRestMetadata.h>
 
@@ -33,41 +38,57 @@ class TRestAxionSolarModel : public TRestMetadata {
     void Initialize();
     void InitFromConfigFile();
 
-    // The solar model object
-    SolarModel sol;
-
-    // The range integration step size for solar energy spectrum (in keV)
-    //double fStep = 0.01;
-    //std::vector<double> fEnergyRange = {0.1,10.0};
-    //double r_max;
+    // The SolarModel class object from the external SolarAxionFlux library
+    SolarModel fSol;
 
     // Variables for diagnostics and metadata
-    bool bSolarModelInitialized = false;
+    bool fSolarModelInitialized = false;
     double fRefPhotonCoupling;
     double fRefElectronCoupling;
-    std::string sExternalLibraryName;
-    std::string sSolarModelFile;
-    std::string sOpacityCodeName;
+    std::string fExternalLibraryNameAndVersion;
+    std::string fSolarModelFile;
+    std::string fOpacityCodeName;
 
   public:
     // Constructors and destructors
     TRestAxionSolarModel();
-    TRestAxionSolarModel(const char *cfgFileName, std::string name = "");
+    TRestAxionSolarModel(const char *cfgFileName, std::string name="");
     ~TRestAxionSolarModel();
 
-    // Solar axion flux calculators
-    std::vector<double> GetSolarAxionFluxGAGamma(std::vector<double> energies, double g_agamma, double r_max);
-    std::vector<double> GetSolarAxionFluxGAGamma(std::vector<double> energies, double r_max=1.0);
-    //std::vector<double> GetSolarAxionFluxGAGamma();
-    std::vector<double> GetSolarAxionFluxGAE(std::vector<double> energies, double g_agae, double r_max);
-    std::vector<double> GetSolarAxionFluxGAE(std::vector<double> energies, double r_max=1.0);
-    //std::vector<double> GetSolarAxionFluxGAE();
+    //// Member functions to calculate the solar axion flux
 
-    // Diagnostics and metadata
+    // The following member functions calculate the spectral solar axion flux i.e. dPhi/dE after
+    // after integrating up to(!) the radius 'r_max' on the solar disc for all values of 'energies'.
+    // Returns a vector of flux values in units of axions/(cm^2 s keV). Optionally saves the result
+    // as 'outputfile' if a path is provided.
+    std::vector<double> CalcSpectralSolarAxionFluxPrimakoff(std::vector<double> energies,
+                            double r_max=1.0, std::string outputfile="", double g_agamma=1.0e-10);
+    // std::vector<double> GetSolarAxionFluxLP(std::vector<double> energies, double r_max=1.0, double g_agamma=1.0e-10);
+    // std::vector<double> GetSolarAxionFluxTP(std::vector<double> energies, double r_max=1.0, double g_agamma=1.0e-10);
+    std::vector<double> CalcSpectralSolarAxionFluxABC(std::vector<double> energies,
+                            double r_max=1.0, std::string outputfile="", double g_ae=1.0e-13);
+    // Different to the functions above, the next function returns three columns containing the energies, ALP-photon, and ALP-electron flux, respectively
+    std::vector<std::vector<double> > CalcSpectralSolarAxionFluxAll(std::vector<double> energies,
+                            double r_max=1.0, std::string outputfile="",
+                            double g_agamma=1.0e-10, double g_ae=1.0e-13);
+
+    // The following member functions calculate the spectral and spatial solar axion flux
+    // i.e. d^2Phi/dEdr where r is the dimensionless(!) radius on the solar disc for all values of
+    // 'energies' and 'radii'.
+    // Returns a vector of vectors, containing the selected radii, energies, and (potentially
+    // multiple) flux values in units of axions/(cm^2 s keV).
+    std::vector<std::vector<double> > CalcSpectralAndSpatialSolarAxionFluxPrimakoff(std::vector<double> energies, std::vector<double> radii, double g_agamma=1.0e-10);
+    // std::vector<std::vector<double> > CalcSpectralAndSpatialSolarAxionFluxLP(std::vector<double> energies, std::vector<double> radii, double g_agamma=1.0e-10);
+    // std::vector<std::vector<double>> CalcSpectralAndSpatialSolarAxionFluxTP(std::vector<double> energies, std::vector<double> radii, double g_agamma=1.0e-10);
+    std::vector<std::vector<double> > CalcSpectralAndSpatialSolarAxionFluxABC(std::vector<double> energies, std::vector<double> radii, double g_agamma=1.0e-10);
+    std::vector<std::vector<double> > CalcSpectralAndSpatialSolarAxionFluxAll(std::vector<double> energies, std::vector<double> radii, double g_agamma=1.0e-10);
+
+    //// Diagnostics and metadata
     void PrintMetadata();
-    bool isSolarModelClassReady() { return bSolarModelInitialized; }
-    std::string GetSolarModelFileName();
-    //std::string GetOpacityCodeName() { return fOpacityCodeName; }
+    bool isSolarModelClassReady() { return fSolarModelInitialized; };
+    std::string GetSolarModelFileName() { return fSolarModelFile; };
+    std::string GetOpacityCodeName() { return fOpacityCodeName; };
+    std::string GetExternalLibraryVersion() { return fExternalLibraryNameAndVersion; };
 
     ClassDef(TRestAxionSolarModel, 1);
 };

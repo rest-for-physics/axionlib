@@ -23,8 +23,6 @@
 #ifndef _TRestAxionSpectrum
 #define _TRestAxionSpectrum
 
-#include "solaxflux/spectral_flux.hpp"
-
 #include <TRestMetadata.h>
 
 //! A metadata class to define a solar axion spectrum and functions to evaluate it.
@@ -32,7 +30,7 @@ class TRestAxionSpectrum : public TRestMetadata {
 private:
     // Generic initialization routines.
     void Initialize();
-    // The mode of this class. There are 3 different modes available: table, analytic, and solar_model.
+    // The mode of this class. There are 2 different modes available: table and analytic.
     // Energy in keV, flux in axions / cm^2 s keV
     // table      : provide a text file with up to 4 columns (and reference values of the associated couplings g1 and g2).
     //              - 2 columns: energy | flux for coupling g1
@@ -40,18 +38,13 @@ private:
     //              - 4 columns: energy | radius on solar disc | flux for coupling g1 | flux for coupling g2
     // analytical : provide parameters a, b, norm, g1ref for the following ansatz OR a named set of parameters available in the data/ folder
     //              flux = norm * (g1/g1ref)^2 * energy^a * exp(-b * energy)
-    // solar_model: provide a text file with a solar model
-    std::string sMode = "none";
+    std::string fMode = "none";
     // InitFromConfigFile() generates an (interpolated) axion spectrum from a config file.
     void InitFromConfigFile();
-    // An instance of the axion spectrum class from the AxionSolarFlux lib.
-    AxionSpectrum spectrum;
-    // Solar model if this needs to be defined locally.
-    SolarModel sol;
 
     double fDefaultG1 = NAN;
     double fDefaultG2 = 0;
-    std::string sTableFileName;
+    std::string fTableFileName;
 
     //TString fProcessName;
     //TString fMetaDataFromFileHeader;
