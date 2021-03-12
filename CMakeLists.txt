@@ -33,6 +33,17 @@ else()
 endif()
 
 #-------------------------------------------------------------------------------------------------------
+# Find and add the GSL library (version 2.3 or higher)
+find_package(GSL 2.3 REQUIRED)
+if (NOT GSL_FOUND)
+  message( FATAL_ERROR "GSL library was not found. Try adding the location to CMAKE to solve the problem:\nUse -D GSL_ROOT_DIR=/path/to/gsl/root/" )
+else()
+  set( external_include_dirs ${external_include_dirs} ${GSL_INCLUDE_DIRS} )
+  link_directories( ${GSL_LIBRARY}/.. )
+  set( external_libs ${external_libs} -lgsl)
+endif()
+
+#-------------------------------------------------------------------------------------------------------
 # Add the SolarAxionFlux library submodule as an external project.
 
 set(SOLAXFLUX_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/solarAxionFlux")
