@@ -79,7 +79,7 @@ void TRestAxionSolarModel::Initialize() {
 
 void TRestAxionSolarModel::InitFromConfigFile() {
     Initialize();
-    fSolarModelFile = GetParameter("solarAxionModel", "SolarModel_B16-AGSS09.dat");
+    fSolarModelFile = GetParameter("solarAxionModel");
     std::string fullPathName = SearchFile((std::string)fSolarModelFile);
     if (fullPathName == "") {
         ferr << "File not found : " << fSolarModelFile << endl;
@@ -130,7 +130,7 @@ void TRestAxionSolarModel::PrintMetadata() {
 }
 
 
-std::vector<double> TRestAxionSolarModel::CalcSpectralSolarAxionFluxPrimakoff(std::vector<double>energies, double r_max, std::string outputfile, double g_agamma) {
+std::vector<double> TRestAxionSolarModel::CalcSpectralSolarAxionFluxPrimakoff(std::vector<double> energies, double r_max, std::string outputfile, double g_agamma) {
     // Rescale the flux by the value of the coupling chosen by the user
     double rescaling = g_agamma/fRefPhotonCoupling;
     rescaling *= rescaling;
@@ -139,16 +139,16 @@ std::vector<double> TRestAxionSolarModel::CalcSpectralSolarAxionFluxPrimakoff(st
     for (auto flux = result.begin(); flux != result.end(); flux++) { *flux *= rescaling; }
 
     std::vector<std::vector<double> > buffer = { energies, result };
-    std::string header = "Spectral solar axion Primakoff flux dPhi/dE for g_ag = "+format_number(g_agamma)
-                         +" GeV^-1, calculated by "+fExternalLibraryNameAndVersion+".\nColumns:\
-                         Axion energy [keV] | Primakoff flux [axions / cm^2 s keV]";
+    std::string header = "Spectral solar axion Primakoff flux dPhi/dE for g_agamma = "+format_number(g_agamma)
+                         +" GeV^-1, calculated by "+fExternalLibraryNameAndVersion+".\nColumns:"
+                         "Axion energy [keV] | Primakoff flux [axions / cm^2 s keV]";
     // Function from SolarAxionFlux lib that saves to file (with header) only if outputfile != ""
     save_to_file(outputfile, buffer, header);
 
     return result;
 }
 
-std::vector<double> TRestAxionSolarModel::CalcSpectralSolarAxionFluxABC(std::vector<double>energies, double r_max, std::string outputfile, double g_ae) {
+std::vector<double> TRestAxionSolarModel::CalcSpectralSolarAxionFluxABC(std::vector<double> energies, double r_max, std::string outputfile, double g_ae) {
     // Rescale the flux by the value of the coupling chosen by the user
     double rescaling = g_ae/fRefElectronCoupling;
     rescaling *= rescaling;
@@ -158,23 +158,75 @@ std::vector<double> TRestAxionSolarModel::CalcSpectralSolarAxionFluxABC(std::vec
 
     std::vector<std::vector<double> > buffer = { energies, result };
     std::string header = "Spectral solar axion ABC flux dPhi/dE for g_ae = "+format_number(g_ae)
-                         +", calculated by "+fExternalLibraryNameAndVersion+".\nColumns:\
-                         Axion energy [keV] | ABC flux [axions / cm^2 s keV]";
+                         +", calculated by "+fExternalLibraryNameAndVersion+".\nColumns: "
+                         "Axion energy [keV] | ABC flux [axions / cm^2 s keV]";
     // Function from SolarAxionFlux lib that saves to file (with header) only if outputfile != ""
     save_to_file(outputfile, buffer, header);
 
     return result;
 }
 
-std::vector<std::vector<double> > TRestAxionSolarModel::CalcSpectralSolarAxionFluxAll(std::vector<double>energies, double r_max, std::string outputfile, double g_agamma, double g_ae) {
+std::vector<std::vector<double> > TRestAxionSolarModel::CalcSpectralSolarAxionFluxAll(std::vector<double> energies, double r_max, std::string outputfile, double g_agamma, double g_ae) {
     // Calculate fluxes for all individual components
     std::vector<double> flux_gag = CalcSpectralSolarAxionFluxPrimakoff(energies, r_max, "", g_agamma);
     std::vector<double> flux_gae = CalcSpectralSolarAxionFluxABC(energies, r_max, "", g_ae);
 
     std::vector<std::vector<double> > result = { energies, flux_gag, flux_gae };
-    std::string header = "Spectral solar axion fluxes dPhi/dE for for g_ag = "+format_number(g_agamma)
+    std::string header = "Spectral solar axion fluxes dPhi/dE for for g_agamma = "+format_number(g_agamma)
                          +" GeV^-1 and g_ae = "+format_number(g_ae)+", calculated by "
                          +fExternalLibraryNameAndVersion+".\nColumns: Axion energy [keV] | "
+                         "Primakoff flux [axions / cm^2 s keV] | ABC flux [axions / cm^2 s keV]";
+    // Function from SolarAxionFlux lib that saves to file (with header) only if outputfile != ""
+    save_to_file(outputfile, result, header);
+
+    return result;
+}
+
+std::vector<std::vector<double> > TRestAxionSolarModel::CalcSpectralAndSpatialSolarAxionFluxPrimakoff(std::vector<double> energies, std::vector<double> radii, std::string outputfile, double g_agamma) {
+    // Rescale the flux by the value of the coupling chosen by the user
+    double rescaling = g_agamma/fRefPhotonCoupling;
+    rescaling *= rescaling;
+
+    std::vector<std::vector<double> > result = calculate_spectral_flux_Primakoff(energies, radii, fSol);
+    for (auto flux = result.begin(); flux != result.end(); flux++) { (*flux)[2] *= rescaling; }
+
+    std::string header = "Spectral and spatial solar axion Primakoff flux d^2Phi/dEdr on the solar "
+                         "disc for g_agamma = "+format_number(g_agamma)
+                         +" GeV^-1, calculated by "+fExternalLibraryNameAndVersion+".\nColumns: "
+                         "Radius on the solar disc [R_sol] | Axion energy [keV] | Primakoff flux [axions / cm^2 s keV]";
+    // Function from SolarAxionFlux lib that saves to file (with header) only if outputfile != ""
+    save_to_file(outputfile, result, header);
+
+    return result;
+}
+
+std::vector<std::vector<double> > TRestAxionSolarModel::CalcSpectralAndSpatialSolarAxionFluxABC(std::vector<double> energies, std::vector<double> radii, std::string outputfile, double g_ae) {
+    // Rescale the flux by the value of the coupling chosen by the user
+    double rescaling = g_ae/fRefElectronCoupling;
+    rescaling *= rescaling;
+
+    std::vector<std::vector<double> > result = calculate_spectral_flux_axionelectron(energies, radii, fSol);
+    for (auto flux = result.begin(); flux != result.end(); flux++) { (*flux)[2] *= rescaling; }
+
+    std::string header = "Spectral and spatial solar axion ABC flux d^2Phi/dEdr on the solar "
+                         "disc for g_ae = "+format_number(g_ae)
+                         +", calculated by "+fExternalLibraryNameAndVersion+".\nColumns: "
+                         "Radius on the solar disc [R_sol] | Axion energy [keV] | ABC flux [axions / cm^2 s keV]";
+    // Function from SolarAxionFlux lib that saves to file (with header) only if outputfile != ""
+    save_to_file(outputfile, result, header);
+
+    return result;
+}
+
+std::vector<std::vector<double> > TRestAxionSolarModel::CalcSpectralAndSpatialSolarAxionFluxAll(std::vector<double> energies, std::vector<double> radii, std::string outputfile, double g_agamma, double g_ae) {
+    std::vector<std::vector<double> > flux_gag = CalcSpectralAndSpatialSolarAxionFluxPrimakoff(energies, radii, "", g_agamma);
+    std::vector<std::vector<double> > flux_gae = CalcSpectralAndSpatialSolarAxionFluxABC(energies, radii, "", g_ae);
+
+    std::vector<std::vector<double> > result = { flux_gag[0], flux_gag[1], flux_gag[2], flux_gae[2] };
+    std::string header = "Spectral and spatial solar axion fluxes d^2Phi/dEdr on the solar "
+                         "disc for g_agamma = "+format_number(g_agamma)+" GeV^-1, g_ae = "
+                         +format_number(g_ae)+", calculated by "+fExternalLibraryNameAndVersion+"."
+                         "\nColumns: Radius on the solar disc [R_sol] | Axion energy [keV] | "
                          "Primakoff flux [axions / cm^2 s keV] | ABC flux [axions / cm^2 s keV]";
     // Function from SolarAxionFlux lib that saves to file (with header) only if outputfile != ""
     save_to_file(outputfile, result, header);

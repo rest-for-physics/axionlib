@@ -1,0 +1,14 @@
+<!-- Created by Sebastian Hoof (3/2021) -->
+<!-- Example file to initialise a standard solar model with 'TRestAxionSolarModel' -->
+<TRestAxionSolarModels>
+  <!-- Search the external SolaAxionFlux library's data/ folder for solar models -->
+  <globals>
+    <searchPath value="${REST_SOURCE}/source/libraries/axion/external/solarAxionFlux/data/solar_models/" />
+  </globals>
+  <!-- The B16-AGSS09 solar model from the SolarAxionFlux library folder;
+       original file from https://www.ice.csic.es/personal/aldos/Solar_Data.html;
+       see also https://arxiv.org/abs/1611.09867 -->
+  <TRestAxionSolarModel name="solarModel" verboseLevel="debug">
+    <parameter name="solarAxionModel" value="SolarModel_B16-AGSS09.dat" />
+  </TRestAxionSolarModel>
+</TRestAxionSolarModels>
