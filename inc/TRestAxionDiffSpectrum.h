@@ -20,8 +20,8 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef _TRestAxionSpectrum
-#define _TRestAxionSpectrum
+#ifndef _TRestAxionDiffSpectrum
+#define _TRestAxionDiffSpectrum
 
 // #include <TRestTools.h>
 #include <TRestMetadata.h>
@@ -30,68 +30,6 @@
 #include <gsl/gsl_interp2d.h>
 #include <gsl/gsl_spline2d.h>
 
-std::vector<double> sort_unique_values(std::vector<double> x);
-int read_natural_ascii_table(std::string filename, std::vector<std::vector<double> >& data);
-
-//! A metadata class to define a solar axion spectrum (dPhi/dE) and functions to evaluate it.
-class TRestAxionSpectrum : public TRestMetadata {
-private:
-    // Generic initialization routines.
-    void Initialize();
-    // The mode of this class. There are 2 different modes available: table and analytic.
-    // Energy in keV, flux in axions / cm^2 s keV
-    // table      : Provide a text file with up to 4 columns (and reference values of the associated couplings).
-    //              The numerical value of the sub-mode is computed via binary logic (true = 1, false = 0):
-    //              fTableSubMode = 2^3 * (differential spectrum provided?) + 2^2 * (r values provided?) + 2 * (g_ae provided?) + (g_agamma provided?)
-    // analytical : Provide EITHER the parameters norm, gref, a and b for the following ansatz
-    //                      OR a named set of parameters available in the data/ folder
-    //              Ansatz: flux = norm * (g/gref)^2 * (energy / keV)^a * exp(-b * energy / keV)
-    void InitFromConfigFile();
-
-    void Init1DSpline(const int index);
-    void Init2DSplines(const int n_grids);
-
-    std::vector<std::vector<double> > fData;
-    std::vector<gsl_interp_accel*> fGSLAccel1D;
-    std::vector<gsl_spline*> fGSLSpline1D;
-    std::vector<std::pair<gsl_interp_accel*,gsl_interp_accel*>> fGSLAccel2D;
-    std::vector<gsl_spline2d*> fGSLSpline2D;
-    std::vector<double*> fGSLMem2D;
-
-    double fRefPhotonCoupling = NAN;
-    double fRefElectronCoupling = NAN;
-    std::string fTableFileName;
-
-    double fAnalyticalRefG = NAN;
-    double fAnalyticalNorm = NAN;
-    double fAnalyticalA = NAN;
-    double fAnalyticalB = NAN;
-
-    std::string fMode = "none";
-    int fTableSubMode = 0;
-    bool fSpectrumReady = false;
-
-public:
-    TRestAxionSpectrum();
-    TRestAxionSpectrum(const char *cfgFileName, std::string name = "");
-    ~TRestAxionSpectrum();
-
-    double GetDifferentialSolarAxionFlux(double erg, double g_agamma = 1.0e-10, double g_ae = 0);
-    double GetDifferentialSolarAxionFlux(double r, double erg, double g_agamma, double g_ae);
-    double GetSolarAxionFlux(double erg_lo, double erg_hi, double erg_delta, double g_agamma  = 1.0e-10, double g_ae = 0);
-    double GetSolarAxionFlux(double r, double erg_lo, double erg_hi, double erg_delta, double g_agamma, double g_ae);
-    //double GetMCSamples(std::vector<double> rand_vars);
-    //double GetMCSamplesGivenR(std::vector<double> rand_vars, double r);
-
-    void PrintMetadata();
-    bool IsSpectrumReady() { return fSpectrumReady; }
-    std::string GetSpectrumMode() { return fMode; }
-
-    ClassDef(TRestAxionSpectrum, 1);
-};
-
-
-/*
 //! A metadata class to define a differential solar axion spectrum (d^2Phi/dEdr) and functions to evaluate it.
 class TRestAxionDiffSpectrum : public TRestMetadata {
 private:
@@ -130,6 +68,5 @@ public:
 
     ClassDef(TRestAxionDiffSpectrum, 1);
 };
-*/
 
 #endif

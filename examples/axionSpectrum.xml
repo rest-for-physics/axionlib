@@ -6,13 +6,4 @@
     <parameter name="mode" value="analytical" />
     <parameter name="named_approx" value="arXiv_0702006_Primakoff" />
   </TRestAxionSpectrum>
-
-  <!-- Initialise the numerical spectrum calculated by Maurizio for gagamma = 10^-10 GeV^-1 -->
-  <TRestAxionSpectrum name="tabulatedSpectrum" verboseLevel="debug">
-    <parameter name="mode" value="table" />
-    <parameter name="spectrumTableFileName" value="Primakoff_Gianotti_202008.dat" />
-    <parameter name="g1ref" value=1.0e-10 />
-    <!-- Important to set this to zero to end up selecting the correct table mode -->
-    <parameter name="g2ref" value=0 />
-  </TRestAxionSpectrum>
 </TRestAxionSpectra>
