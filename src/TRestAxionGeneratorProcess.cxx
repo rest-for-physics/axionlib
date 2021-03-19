@@ -113,7 +113,7 @@ void TRestAxionGeneratorProcess::Initialize() {
 void TRestAxionGeneratorProcess::InitProcess() {
     debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
 
-    fAxionSpectrum = (TRestAxionSpectrum*)this->GetMetadata("TRestAxionSpectrum");
+    fAxionSpectrum = (TRestAxionSolarSpectrum*)this->GetMetadata("TRestAxionSolarSpectrum");
 
     if (!fAxionSpectrum) {
         ferr << "TRestAxionGeneratorProcess. Axion model was not defined!" << endl;

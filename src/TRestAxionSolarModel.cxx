@@ -27,7 +27,7 @@
 /// external SolarAxionFlux library available at the following Github
 /// repository: https://github.com/sebhoof/SolarAxionFlux. The resulting
 /// spectra, fundametally arising from either ALP-electron or ALP-photon
-/// interactions can then be used by e.g. the TRestAxionSpectrum class in
+/// interactions can then be used by e.g. the TRestAxionSolarSpectrum class in
 /// other parts of the analysis.
 ///
 /// The following piece of code shows how to set up an instance of

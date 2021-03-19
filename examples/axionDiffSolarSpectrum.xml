@@ -1,11 +1,11 @@
 <!-- Created by Sebastian Hoof (3/2021) -->
-<!-- Example file with multiple 'TRestAxionDiffSpectrum' tags -->
+<!-- Example file with multiple 'TRestAxionDiffSolarSpectrum' tags -->
 <TRestAxionSpectra>
   <!-- Initialise the numerical, differential spectrum calculated by Maurizio for gagamma = 10^-10 GeV^-1 -->
-  <TRestAxionDiffSpectrum name="tabulatedDiffSpectrum" verboseLevel="debug">
+  <TRestAxionDiffSolarSpectrum name="tabulatedDiffSpectrum" verboseLevel="debug">
     <parameter name="spectrumTableFileName" value="Primakoff_Gianotti_202008.dat" />
     <parameter name="g_agamma" value="6.1e-10" />
     <!-- Couplings <= 0 or missing couplings will be ignored by the code -->
     <parameter name="g_ae" value="0" />
-  </TRestAxionDiffSpectrum>
+  </TRestAxionDiffSolarSpectrum>
 </TRestAxionSpectra>

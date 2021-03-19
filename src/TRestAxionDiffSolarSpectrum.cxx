@@ -22,7 +22,7 @@
 
 /***************** DOXYGEN DOCUMENTATION ********************************
 /// TODO: Not all features fully implemented, yet!
-/// The TRestAxionSpectrum serves as a way to read in an perform calculations
+/// The TRestAxionDiffSolarSpectrum serves as a way to read in an perform calculations
 /// with solar axion fluxes calculated and/or tabulated elsewhere e.g. from the
 /// external SolarAxionFlux library (https://github.com/sebhoof/SolarAxionFlux)
 /// via the TRestAxionSolarModel class. The class can handle (i) analytical
@@ -40,7 +40,7 @@
 ///             spectra.
 ///             Sebastian Hoof
 ///
-/// \class      TRestAxionDiffSpectrum
+/// \class      TRestAxionDiffSolarSpectrum
 /// \author     Sebastian Hoof
 ///
 /// <hr>
@@ -48,18 +48,18 @@
  *************************************************************************/
 
 // See this header file for more info on the functions.
-#include "TRestAxionSpectrum.h"
-#include "TRestAxionDiffSpectrum.h"
+#include "TRestAxionSolarSpectrum.h"
+#include "TRestAxionDiffSolarSpectrum.h"
 
-ClassImp(TRestAxionDiffSpectrum);
+ClassImp(TRestAxionDiffSolarSpectrum);
 
 // Add basic TRest info
-void TRestAxionDiffSpectrum::Initialize() {
+void TRestAxionDiffSolarSpectrum::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 }
 
-void TRestAxionDiffSpectrum::Init2DSplines(const int n_grids) {
+void TRestAxionDiffSolarSpectrum::Init2DSplines(const int n_grids) {
     fGSLAccel2D.resize(n_grids);
     fGSLSpline2D.resize(n_grids);
     fGSLMem2D.resize(n_grids);
@@ -104,7 +104,7 @@ void TRestAxionDiffSpectrum::Init2DSplines(const int n_grids) {
     for (int i=0; i<n_grids; ++i) { gsl_spline2d_init(fGSLSpline2D[i], x, y, fGSLMem2D[i], nx, ny); }
 }
 
-void TRestAxionDiffSpectrum::InitFromConfigFile() {
+void TRestAxionDiffSolarSpectrum::InitFromConfigFile() {
     Initialize();
 
     fTableFileName = GetParameter("spectrumTableFileName");
@@ -122,7 +122,7 @@ void TRestAxionDiffSpectrum::InitFromConfigFile() {
     } else if (fTableSubMode == 0) {
         ferr << "You need to supply a reference value for either the axion-photon coupling "
                 "'g_agamma' (in units of GeV^{-1}) or the axion-electron coupling 'g_ae' when "
-                "initializing TRestAxionDiffSpectrum."
+                "initializing TRestAxionDiffSolarSpectrum."
              << endl;
     } else {
         // TRestTools::ReadASCIITable(fTableFileName, fData); -> unnatural rows vs columns
@@ -130,7 +130,7 @@ void TRestAxionDiffSpectrum::InitFromConfigFile() {
         int n_cols = fData.size();
         if (n_cols < 3) {
             ferr << "Tabulated solar axion spectrum " << fTableFileName << " contains less than "
-                    "three columns; this is incompatible with TRestAxionDiffSpectrum." << endl;
+                    "three columns; this is incompatible with TRestAxionDiffSolarSpectrum." << endl;
         } else if (n_cols==3) {
             if (fTableSubMode < 3) {
                 // Intialise one 2D array
@@ -138,7 +138,7 @@ void TRestAxionDiffSpectrum::InitFromConfigFile() {
             } else {
                 ferr << "Tabulated solar axion spectrum " << fTableFileName << " contains three columns "
                         "but you supplied two non-NAN, non-zero values for the couplings 'g_agamma' "
-                        "and 'g_ae'; this is incompatible with TRestAxionDiffSpectrum."
+                        "and 'g_ae'; this is incompatible with TRestAxionDiffSolarSpectrum."
                      << endl;
             }
         } else if (n_cols==4) {
@@ -154,7 +154,7 @@ void TRestAxionDiffSpectrum::InitFromConfigFile() {
             } else {
                 ferr << "Tabulated solar axion spectrum " << fTableFileName << " contains four columns "
                         "but you supplied less than two non-NAN values for the couplings 'g_agamma' "
-                        "and 'g_ae'; this is incompatible with TRestAxionDiffSpectrum."
+                        "and 'g_ae'; this is incompatible with TRestAxionDiffSolarSpectrum."
                      << endl;
             }
         } else {
@@ -164,28 +164,28 @@ void TRestAxionDiffSpectrum::InitFromConfigFile() {
     }
 }
 
-TRestAxionDiffSpectrum::TRestAxionDiffSpectrum() : TRestMetadata() { Initialize(); }
+TRestAxionDiffSolarSpectrum::TRestAxionDiffSolarSpectrum() : TRestMetadata() { Initialize(); }
 
-TRestAxionDiffSpectrum::TRestAxionDiffSpectrum(const char* cfgFileName, std::string name)
+TRestAxionDiffSolarSpectrum::TRestAxionDiffSolarSpectrum(const char* cfgFileName, std::string name)
     : TRestMetadata(cfgFileName) {
-    debug << "Creating instance of TRestAxionDiffSpectrum from file " + fConfigFileName + "..." << endl;
+    debug << "Creating instance of TRestAxionDiffSolarSpectrum from file " + fConfigFileName + "..." << endl;
     Initialize();
     LoadConfigFromFile(fConfigFileName, name);
     PrintMetadata();
 }
 
 // Need to free allocated memory by GSL routines!
-TRestAxionDiffSpectrum::~TRestAxionDiffSpectrum() {
+TRestAxionDiffSolarSpectrum::~TRestAxionDiffSolarSpectrum() {
     for (auto s : fGSLSpline2D) { gsl_spline2d_free(s); }
     for (auto a : fGSLAccel2D) { gsl_interp_accel_free(a.first); gsl_interp_accel_free(a.second); }
     for (auto z : fGSLMem2D) { free(z); }
 }
 
-void TRestAxionDiffSpectrum::PrintMetadata() {
+void TRestAxionDiffSolarSpectrum::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-    metadata << " Instance of TRestAxionDiffSpectrum." << endl;
+    metadata << " Instance of TRestAxionDiffSolarSpectrum." << endl;
     metadata << " - Tabulated spectrum file used : "
              << TRestTools::SeparatePathAndName(fTableFileName).second << endl;
     std::string sp_init = IsSpectrumReady() ? "yes" : "no";
@@ -207,7 +207,7 @@ void TRestAxionDiffSpectrum::PrintMetadata() {
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
 
-double TRestAxionDiffSpectrum::GetDoubleDifferentialSolarAxionFlux(double r, double erg, double g_agamma, double g_ae) {
+double TRestAxionDiffSolarSpectrum::GetDoubleDifferentialSolarAxionFlux(double r, double erg, double g_agamma, double g_ae) {
     double x_agamma2, x_ae2, result = 0;
     if (fTableSubMode % 2 == 1) { x_agamma2 = g_agamma/fRefPhotonCoupling; x_agamma2 *= x_agamma2; }
     if (fTableSubMode % 2 == 0) { x_ae2 = g_ae/fRefElectronCoupling; x_ae2 *= x_ae2; }
@@ -220,16 +220,16 @@ double TRestAxionDiffSpectrum::GetDoubleDifferentialSolarAxionFlux(double r, dou
         result = x_agamma2*gsl_spline2d_eval(fGSLSpline2D[0], r, erg, fGSLAccel2D[0].first, fGSLAccel2D[0].second) +
                  x_ae2*gsl_spline2d_eval(fGSLSpline2D[1], r, erg, fGSLAccel2D[1].first, fGSLAccel2D[1].second);
     } else if (fTableSubMode == 0) {
-        ferr << "TRestAxionDiffSpectrum has not been properly initialized." << endl;
+        ferr << "TRestAxionDiffSolarSpectrum has not been properly initialized." << endl;
     } else {
-        ferr << "Internal error in TRestAxionDiffSpectrum. This is a serious bug; please report it." << endl;
+        ferr << "Internal error in TRestAxionDiffSolarSpectrum. This is a serious bug; please report it." << endl;
     }
     std::cout << fData.size() << " " << fData[0].size() << " " << fData[0][300] << " | " << fTableSubMode << " | " << x_agamma2 << endl;
     return result;
 }
-//double TRestAxionDiffSpectrum::GetSolarAxionFlux(double erg_lo, double erg_hi, double g_agamma, double g_ae);
-//double TRestAxionDiffSpectrum::GetSolarAxionFlux(double r, double erg_lo, double erg_hi, double g_agamma, double g_ae);
-//double TRestAxionDiffSpectrum::GetIntegratedSolarAxionFlux(double erg_lo, double erg_hi, double g_agamma, double g_ae);
-//double TRestAxionDiffSpectrum::GetIntegratedSolarAxionFlux(double r, double erg_lo, double erg_hi, double g_agamma, double g_ae);
-//double TRestAxionDiffSpectrum::GetMCSamples(std::vector<double> rand_vars);
-//double TRestAxionDiffSpectrum::GetMCSamplesGivenR(std::vector<double> rand_vars, double r);
+//double TRestAxionDiffSolarSpectrum::GetSolarAxionFlux(double erg_lo, double erg_hi, double g_agamma, double g_ae);
+//double TRestAxionDiffSolarSpectrum::GetSolarAxionFlux(double r, double erg_lo, double erg_hi, double g_agamma, double g_ae);
+//double TRestAxionDiffSolarSpectrum::GetIntegratedSolarAxionFlux(double erg_lo, double erg_hi, double g_agamma, double g_ae);
+//double TRestAxionDiffSolarSpectrum::GetIntegratedSolarAxionFlux(double r, double erg_lo, double erg_hi, double g_agamma, double g_ae);
+//double TRestAxionDiffSolarSpectrum::GetMCSamples(std::vector<double> rand_vars);
+//double TRestAxionDiffSolarSpectrum::GetMCSamplesGivenR(std::vector<double> rand_vars, double r);

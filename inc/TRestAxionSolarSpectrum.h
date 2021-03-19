@@ -1,0 +1,96 @@
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+#ifndef _TRestAxionSolarSpectrum
+#define _TRestAxionSolarSpectrum
+
+// #include <TRestTools.h>
+#include <TRestMetadata.h>
+
+#include <gsl/gsl_spline.h>
+#include <gsl/gsl_interp2d.h>
+#include <gsl/gsl_spline2d.h>
+#include <gsl/gsl_cdf.h>
+
+std::vector<double> sort_unique_values(std::vector<double> x);
+int read_natural_ascii_table(std::string filename, std::vector<std::vector<double> >& data);
+
+//! A metadata class to define a solar axion spectrum (dPhi/dE) and functions to evaluate it.
+class TRestAxionSolarSpectrum : public TRestMetadata {
+private:
+    // Generic initialization routines.
+    void Initialize();
+    // The mode of this class. There are 2 different modes available: table and analytic.
+    // Energy in keV, flux in axions / cm^2 s keV
+    // table      : Provide a text file with up to 4 columns (and reference values of the associated couplings).
+    //              The numerical value of the sub-mode is computed via binary logic (true = 1, false = 0):
+    //              fTableSubMode = 2^3 * (differential spectrum provided?) + 2^2 * (r values provided?) + 2 * (g_ae provided?) + (g_agamma provided?)
+    // analytical : Provide EITHER the parameters norm, gref, a and b for the following ansatz
+    //                      OR a named set of parameters available in the data/ folder
+    //              Ansatz: flux = (norm / cm^2 s keV) * (g/gref)^2 * (energy / keV)^a * exp(-b * energy / keV)
+    void InitFromConfigFile();
+
+    void Init1DSpline(const int index);
+    void Init2DSplines(const int n_grids);
+
+    std::vector<std::vector<double> > fData;
+    std::vector<gsl_interp_accel*> fGSLAccel1D;
+    std::vector<gsl_spline*> fGSLSpline1D;
+    std::vector<std::pair<gsl_interp_accel*,gsl_interp_accel*>> fGSLAccel2D;
+    std::vector<gsl_spline2d*> fGSLSpline2D;
+    std::vector<double*> fGSLMem2D;
+
+    double fRefPhotonCoupling = NAN;
+    double fRefElectronCoupling = NAN;
+    std::string fTableFileName;
+
+    double fAnalyticalRefG = NAN;
+    double fAnalyticalNorm = NAN;
+    double fAnalyticalA = NAN;
+    double fAnalyticalB = NAN;
+
+    std::string fMode = "none";
+    int fTableSubMode = 0;
+    bool fSpectrumReady = false;
+
+public:
+    TRestAxionSolarSpectrum();
+    TRestAxionSolarSpectrum(const char *cfgFileName, std::string name = "");
+    ~TRestAxionSolarSpectrum();
+
+    double GetDifferentialSolarAxionFlux(double erg, double g_agamma = 1.0e-10, double g_ae = 0);
+    double GetDifferentialSolarAxionFlux(double r, double erg, double g_agamma, double g_ae);
+    double GetSolarAxionFlux(double erg_lo, double erg_hi, double erg_delta, double g_agamma  = 1.0e-10, double g_ae = 0);
+    double GetSolarAxionFlux(double r, double erg_lo, double erg_hi, double erg_delta, double g_agamma, double g_ae);
+
+    // Take a random number rv in (0,1) and draw an axion energy (in keV) from the fully integrated
+    // solar axion spectrum.
+    double GetMCSampleFullSun(double rv);
+
+    void PrintMetadata();
+    bool IsSpectrumReady() { return fSpectrumReady; }
+    std::string GetSpectrumMode() { return fMode; }
+
+    ClassDef(TRestAxionSolarSpectrum, 1);
+};
+
+#endif

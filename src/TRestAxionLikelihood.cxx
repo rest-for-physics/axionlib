@@ -89,7 +89,7 @@ void TRestAxionLikelihood::Initialize() {
     fPhotonConversion->AssignBufferGas(fBufferGas);
 
     // Solar axion flux on earth
-    fAxionSpectrum = new TRestAxionSpectrum(fConfigFileName.c_str());
+    fAxionSpectrum = new TRestAxionSolarSpectrum(fConfigFileName.c_str());
 
     fRandom = new TRandom3(0);
 }

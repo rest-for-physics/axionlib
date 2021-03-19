@@ -1,9 +1,9 @@
 <!-- Created by Sebastian Hoof (8/2020) -->
-<!-- Example file with multiple 'TRestAxionSpectrum' tags -->
+<!-- Example file with multiple 'TRestAxionSolarSpectrum' tags -->
 <TRestAxionSpectra>
   <!-- Initialise the analystical spectrum for the Primakoff process used in arXiv:hep-ex/0702006 -->
-  <TRestAxionSpectrum name="analyticalSpectrum" verboseLevel="warning">
+  <TRestAxionSolarSpectrum name="analyticalSpectrum" verboseLevel="warning">
     <parameter name="mode" value="analytical" />
     <parameter name="named_approx" value="arXiv_0702006_Primakoff" />
-  </TRestAxionSpectrum>
+  </TRestAxionSolarSpectrum>
 </TRestAxionSpectra>
