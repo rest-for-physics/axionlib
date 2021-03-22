@@ -156,8 +156,8 @@ void TRestAxionSolarSpectrum::InitFromConfigFile() {
     fMode = GetParameter("mode");
     if (fMode == "table") {
         fTableFileName = GetParameter("spectrumTableFileName");
-        fRefPhotonCoupling = GetDblParameter("g_agamma", NAN);
-        fRefElectronCoupling = GetDblParameter("g_ae", NAN);
+        fRefPhotonCoupling = GetDblParameterWithUnits("g_agamma", NAN);
+        fRefElectronCoupling = GetDblParameterWithUnits("g_ae", NAN);
         bool g_agamma_nan = std::isnan(fRefPhotonCoupling) || not(fRefPhotonCoupling > 0);
         bool g_ae_nan = std::isnan(fRefElectronCoupling) || not(fRefElectronCoupling > 0);
         int temp_submode = not(g_agamma_nan) + 2*g_ae_nan;
@@ -218,10 +218,10 @@ void TRestAxionSolarSpectrum::InitFromConfigFile() {
         }
     } else if (fMode == "analytical") {
         std::string named_approx = GetParameter("named_approx", "NN");
-        fAnalyticalNorm = GetDblParameter("norm", NAN);
-        fAnalyticalRefG = GetDblParameter("gref", NAN);
-        fAnalyticalA = GetDblParameter("a", NAN);
-        fAnalyticalB = GetDblParameter("b", NAN);
+        fAnalyticalNorm = GetDblParameterWithUnits("norm", NAN);
+        fAnalyticalRefG = GetDblParameterWithUnits("gref", NAN);
+        fAnalyticalA = GetDblParameterWithUnits("a", NAN);
+        fAnalyticalB = GetDblParameterWithUnits("b", NAN);
         bool check_named_approx = not(avail_approximations.find(named_approx) == avail_approximations.end());
         bool check_numbers = not( std::isnan(fAnalyticalNorm) || std::isnan(fAnalyticalRefG) ||
                                   std::isnan(fAnalyticalA) || std::isnan(fAnalyticalB) );

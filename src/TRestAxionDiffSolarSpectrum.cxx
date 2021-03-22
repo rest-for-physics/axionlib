@@ -108,10 +108,8 @@ void TRestAxionDiffSolarSpectrum::InitFromConfigFile() {
     Initialize();
 
     fTableFileName = GetParameter("spectrumTableFileName");
-    fRefPhotonCoupling = GetDblParameter("g_agamma", NAN);
-    fRefElectronCoupling = GetDblParameter("g_ae", NAN);
-    std::cout << GetDblParameter("g_agamma", NAN) << endl;
-    std::cout << fRefPhotonCoupling << " " << fRefElectronCoupling << std::endl;
+    fRefPhotonCoupling = GetDblParameterWithUnits("g_agamma", NAN);
+    fRefElectronCoupling = GetDblParameterWithUnits("g_ae", NAN);
     bool g_agamma_nan = std::isnan(fRefPhotonCoupling) || not(fRefPhotonCoupling > 0);
     bool g_ae_nan = std::isnan(fRefElectronCoupling) || not(fRefElectronCoupling > 0);
     fTableSubMode = not(g_agamma_nan) + 2*not(g_ae_nan);
@@ -212,7 +210,6 @@ double TRestAxionDiffSolarSpectrum::GetDoubleDifferentialSolarAxionFlux(double r
     if (fTableSubMode % 2 == 1) { x_agamma2 = g_agamma/fRefPhotonCoupling; x_agamma2 *= x_agamma2; }
     if (fTableSubMode % 2 == 0) { x_ae2 = g_ae/fRefElectronCoupling; x_ae2 *= x_ae2; }
     if (fTableSubMode == 1) {
-      std::cout << "Test" << std::endl;
         result = x_agamma2*gsl_spline2d_eval(fGSLSpline2D[0], r, erg, fGSLAccel2D[0].first, fGSLAccel2D[0].second);
     } else if (fTableSubMode == 2) {
         result = x_ae2*gsl_spline2d_eval(fGSLSpline2D[0], r, erg, fGSLAccel2D[0].first, fGSLAccel2D[0].second);
