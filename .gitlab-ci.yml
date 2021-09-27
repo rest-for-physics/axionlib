@@ -40,9 +40,9 @@ build:
     - git clone https://github.com/rest-for-physics/framework.git framework
     - cd framework
     - ./scripts/checkoutRemoteBranch.sh ${CI_COMMIT_BRANCH}
-    - git submodule init source/libraries/raw
-    - git submodule update source/libraries/raw
-    - cd source/libraries/raw/
+    - git submodule init source/libraries/axion
+    - git submodule update source/libraries/axion
+    - cd source/libraries/axion/
     - git checkout ${CI_COMMIT_BRANCH}
     - cd ../../../
     - mkdir build
