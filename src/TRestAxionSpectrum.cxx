@@ -68,13 +68,16 @@ void TRestAxionSpectrum::InitFromConfigFile() {
             if (not(std::isnan(g2ref))) {
                 cout << "Check!" << endl;
                 // N.B. If g2 > 0 has no effect, a warning will be issued by SolarAxionFluxLib.
+#ifdef USE_SolaxFlux
                 spectrum = AxionSpectrum(sTableFileName, g1ref, g2ref);
+#endif
                 fDefaultG2 = g2ref;
             } else {
                 // N.B. If g2 is not supplied, we initialise with the default value from SolarAxionFluxLib and
                 // issue a warning if the table submode is wrong.
                 //      This behaviour is probably not desired; force the user to always specify both
                 //      couplings?
+#ifdef USE_SolaxFlux
                 spectrum = AxionSpectrum(sTableFileName, g1ref);
                 auto table_params = spectrum.get_table_parameters();
                 int table_submode = get<0>(table_params);
@@ -85,6 +88,7 @@ void TRestAxionSpectrum::InitFromConfigFile() {
                               TRestAxionSpectrum will assume a default value of "
                         << fDefaultG2 << " (in appropriate units)." << endl;
                 };
+#endif
             };
         };
     } else if (sMode == "analytical") {
@@ -97,10 +101,14 @@ void TRestAxionSpectrum::InitFromConfigFile() {
         bool check_numbers = not(std::isnan(norm) || std::isnan(a) || std::isnan(b) || std::isnan(g1ref));
         if (check_named_approx) {
             std::vector<double> p = avail_approximations.at(named_approx);
+#ifdef USE_SolaxFlux
             spectrum = AxionSpectrum(p[0], p[1], p[2], p[3]);
+#endif
             fDefaultG1 = p[1];
         } else if (check_numbers) {
+#ifdef USE_SolaxFlux
             spectrum = AxionSpectrum(norm, g1ref, a, b);
+#endif
             fDefaultG1 = g1ref;
         } else {
             std::string avail_approximation_names = "";
@@ -117,10 +125,12 @@ void TRestAxionSpectrum::InitFromConfigFile() {
         // TODO: Ideally use TRestAxionSolarModel here...
         std::string sSolarModelFile = GetParameter("solarAxionModel");
         std::string fullPathName = SearchFile((std::string)sSolarModelFile);
+#ifdef USE_SolaxFlux
         sol = SolarModel(fullPathName, OP, false);
         fDefaultG1 = sol.get_gagg_ref_value_in_inverse_GeV();
         fDefaultG2 = sol.get_gaee_ref_value();
         spectrum = AxionSpectrum(&sol);
+#endif
     } else {
         ferr << "Mode for TRestAxionSpectrum not known! Choose one of 'table', 'analytical', and "
                 "'solar_model'."
@@ -151,9 +161,11 @@ void TRestAxionSpectrum::PrintMetadata() {
         metadata << " Solar spectrum has not yet been initialised, yet!" << endl;
     };
     if (sMode == "solar_model") {
+#ifdef USE_SolaxFlux
         metadata << " - Opacity code used : " << sol.get_solaxlib_name_and_version() << endl;
         metadata << " - Solar model file : " << sol.get_solar_model_name() << endl;
         metadata << " - Opacity code used : " << sol.get_opacitycode_name() << endl;
+#endif
     } else if (sMode == "table") {
         metadata << " - Tabulated spectrum file used : "
                  << TRestTools::SeparatePathAndName(sTableFileName).second << endl;
@@ -173,5 +185,8 @@ void TRestAxionSpectrum::PrintMetadata() {
 
 double TRestAxionSpectrum::GetSolarAxionFlux(double erg_lo, double erg_hi, double erg_step_size) { return 0; }
 double TRestAxionSpectrum::GetDifferentialSolarAxionFlux(double erg) {
+#ifdef USE_SolaxFlux
     return spectrum.axion_flux(erg, fDefaultG1, fDefaultG2);
+#endif
+    return 0.0;
 }

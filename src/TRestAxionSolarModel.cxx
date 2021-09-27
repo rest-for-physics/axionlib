@@ -72,6 +72,7 @@ void TRestAxionSolarModel::InitFromConfigFile() {
     if (fullPathName == "") {
         ferr << "File not found : " << sSolarModelFile << endl;
     } else {
+#ifdef USE_SolaxFlux
         sol = SolarModel(fullPathName, OP, false);
         sExternalLibraryName = sol.get_solaxlib_name_and_version();
         sOpacityCodeName = sol.get_opacitycode_name();
@@ -83,6 +84,7 @@ void TRestAxionSolarModel::InitFromConfigFile() {
         } else {
             ferr << "Solar model initialization was not successful!" << endl;
         };
+#endif
     };
 }
 
