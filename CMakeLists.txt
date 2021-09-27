@@ -35,26 +35,29 @@ endif()
 #-------------------------------------------------------------------------------------------------------
 # Add the SolarAxionFlux library submodule as an external project.
 
-set(SOLAXFLUX_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/solarAxionFlux")
-message( STATUS "SOLAXFLUX_DIR: ${SOLAXFLUX_DIR}" )
+if (${REST_SOLAXFLUX} MATCHES "ON")
+    ## Integration of REST_SolaxFlux comes now as an option.
+    ## It causes problems when active development happens at that library
+    ## It should be fixed a versioning system. Probably through choosing the
+    ## right submodule commit that works with RestAxionLib.
+    ##
+    ## For the moment I will just encapsulate SolaxFlux library to be
+    ## able to compile and use a dummy/standard solar axion flux generation.
+    add_definitions(-DUSE_SolaxFlux)
 
-ExternalProject_Add(solaxflux
-                    SOURCE_DIR ${SOLAXFLUX_DIR}
-                    GIT_SUBMODULES ""
-                    GIT_CONFIG advice.detachedHead=False
-                    CMAKE_CACHE_ARGS "-DPYTHON_SUPPORT:STRING=OFF;-DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}")
+    set(SOLAXFLUX_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/solarAxionFlux")
+    message( STATUS "SOLAXFLUX_DIR: ${SOLAXFLUX_DIR}" )
 
-link_directories( ${SOLAXFLUX_DIR}/lib )
-set( external_include_dirs ${external_include_dirs} ${SOLAXFLUX_DIR}/include )
-set( external_libs ${external_libs} -laxionflux)
-#-------------------------------------------------------------------------------------------------------
-# Adding support to read MCPL files.
-# Source files were downloaded from https://mctools.github.io/mcpl/usage_c/
-file(GLOB_RECURSE addon_src
-    "mcpl.c" )
+    ExternalProject_Add(solaxflux
+                        SOURCE_DIR ${SOLAXFLUX_DIR}
+                        GIT_SUBMODULES ""
+                        GIT_CONFIG advice.detachedHead=False
+                        CMAKE_CACHE_ARGS "-DPYTHON_SUPPORT:STRING=OFF;-DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}")
 
-set(addon_inc ${CMAKE_CURRENT_SOURCE_DIR}/external/mcpl)
-#-------------------------------------------------------------------------------------------------------
+    link_directories( ${SOLAXFLUX_DIR}/lib )
+    set( external_include_dirs ${external_include_dirs} ${SOLAXFLUX_DIR}/include )
+    set( external_libs ${external_libs} -laxionflux)
+endif (${REST_SOLAXFLUX} MATCHES "ON")
 
 set( external_libs ${external_libs} -lmpfr )
 
