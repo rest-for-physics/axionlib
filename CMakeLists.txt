@@ -48,6 +48,13 @@ link_directories( ${SOLAXFLUX_DIR}/lib )
 set( external_include_dirs ${external_include_dirs} ${SOLAXFLUX_DIR}/include )
 set( external_libs ${external_libs} -laxionflux)
 #-------------------------------------------------------------------------------------------------------
+# Adding support to read MCPL files.
+# Source files were downloaded from https://mctools.github.io/mcpl/usage_c/
+file(GLOB_RECURSE addon_src
+    "mcpl.c" )
+
+set(addon_inc ${CMAKE_CURRENT_SOURCE_DIR}/mcpl)
+#-------------------------------------------------------------------------------------------------------
 
 set( external_libs ${external_libs} -lmpfr )
 
