@@ -11,8 +11,6 @@ stages:
 
 before_script:
     - export USER="axion"
-      #    - git submodule sync --recursive
-      #    - git submodule update --init --recursive
 
 clang-format:
     stage: pre-build
@@ -39,12 +37,13 @@ build:
   script:
     - echo "**${CI_PROJECT_DIR}**"
     - rm -rf ${CI_PROJECT_DIR}/install
-    - git clone --single-branch --branch development https://github.com/rest-for-physics/framework.git framework
+    - git clone https://github.com/rest-for-physics/framework.git framework
     - cd framework
-    - python3.5 pull-submodules.py --force --lfna --dontask
-    - cd source/libraries/axion/
+    - ./scripts/checkoutRemoteBranch.sh ${CI_COMMIT_BRANCH}
+    - git submodule init source/libraries/raw
+    - git submodule update source/libraries/raw
+    - cd source/libraries/raw/
     - git checkout ${CI_COMMIT_BRANCH}
-    - git submodule update --init --recursive
     - cd ../../../
     - mkdir build
     - cd build
