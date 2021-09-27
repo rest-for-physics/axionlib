@@ -53,7 +53,7 @@ set( external_libs ${external_libs} -laxionflux)
 file(GLOB_RECURSE addon_src
     "mcpl.c" )
 
-set(addon_inc ${CMAKE_CURRENT_SOURCE_DIR}/mcpl)
+set(addon_inc ${CMAKE_CURRENT_SOURCE_DIR}/external/mcpl)
 #-------------------------------------------------------------------------------------------------------
 
 set( external_libs ${external_libs} -lmpfr )
