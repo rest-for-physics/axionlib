@@ -23,7 +23,9 @@
 #ifndef _TRestAxionSolarModel
 #define _TRestAxionSolarModel
 
+#ifdef USE_SolaxFlux
 #include "solaxflux/solar_model.hpp"
+#endif
 
 #include <TRestMetadata.h>
 
@@ -33,13 +35,15 @@ class TRestAxionSolarModel : public TRestMetadata {
     void Initialize();
     void InitFromConfigFile();
 
+#ifdef USE_SolaxFlux
     // The solar model object
     SolarModel sol;
+#endif
 
     // The range integration step size for solar energy spectrum (in keV)
-    //double fStep = 0.01;
-    //std::vector<double> fEnergyRange = {0.1,10.0};
-    //double r_max;
+    // double fStep = 0.01;
+    // std::vector<double> fEnergyRange = {0.1,10.0};
+    // double r_max;
 
     // Variables for diagnostics and metadata
     bool bSolarModelInitialized = false;
@@ -49,25 +53,25 @@ class TRestAxionSolarModel : public TRestMetadata {
     std::string sSolarModelFile;
     std::string sOpacityCodeName;
 
-  public:
+   public:
     // Constructors and destructors
     TRestAxionSolarModel();
-    TRestAxionSolarModel(const char *cfgFileName, std::string name = "");
+    TRestAxionSolarModel(const char* cfgFileName, std::string name = "");
     ~TRestAxionSolarModel();
 
     // Solar axion flux calculators
     std::vector<double> GetSolarAxionFluxGAGamma(std::vector<double> energies, double g_agamma, double r_max);
-    std::vector<double> GetSolarAxionFluxGAGamma(std::vector<double> energies, double r_max=1.0);
-    //std::vector<double> GetSolarAxionFluxGAGamma();
+    std::vector<double> GetSolarAxionFluxGAGamma(std::vector<double> energies, double r_max = 1.0);
+    // std::vector<double> GetSolarAxionFluxGAGamma();
     std::vector<double> GetSolarAxionFluxGAE(std::vector<double> energies, double g_agae, double r_max);
-    std::vector<double> GetSolarAxionFluxGAE(std::vector<double> energies, double r_max=1.0);
-    //std::vector<double> GetSolarAxionFluxGAE();
+    std::vector<double> GetSolarAxionFluxGAE(std::vector<double> energies, double r_max = 1.0);
+    // std::vector<double> GetSolarAxionFluxGAE();
 
     // Diagnostics and metadata
     void PrintMetadata();
     bool isSolarModelClassReady() { return bSolarModelInitialized; }
     std::string GetSolarModelFileName();
-    //std::string GetOpacityCodeName() { return fOpacityCodeName; }
+    // std::string GetOpacityCodeName() { return fOpacityCodeName; }
 
     ClassDef(TRestAxionSolarModel, 1);
 };
