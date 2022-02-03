@@ -85,10 +85,7 @@ magneticField:
       #    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/magneticField/
-    - which python
-    - ls -lrth /usr/bin/pyt*
-    - python magneticField.py
-    - ls -lrth /usr/lib/
+    - python3 magneticField.py
     - cd trilinear
     - restRoot -b -q GetMagneticField_test.C
     - cd ${CI_PROJECT_DIR}/pipeline/magneticField/boundary/
