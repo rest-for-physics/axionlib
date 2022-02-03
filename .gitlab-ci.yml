@@ -37,8 +37,13 @@ build:
   script:
     - echo "**${CI_PROJECT_DIR}**"
     - rm -rf ${CI_PROJECT_DIR}/install
-    - export DEBIAN_FRONTEND=noninteractive
-    - apt-get -y install libmpfrc++-dev libmpfr-dev
+    - wget https://www.mpfr.org/mpfr-4.0.2/mpfr-4.0.2.tar.gz
+    - tar xvzf mpfr-4.0.2.tar.gz
+    - cd mpfr-4.0.2/
+    - ./configure
+    - make
+    - sudo make install
+    - cd ..
     - git clone https://github.com/rest-for-physics/framework.git framework
     - cd framework
     - ./scripts/checkoutRemoteBranch.sh ${CI_COMMIT_BRANCH}
