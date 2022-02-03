@@ -88,6 +88,7 @@ magneticField:
     - which python
     - ls -lrth /usr/bin/pyt*
     - python magneticField.py
+    - ls -lrth /usr/lib/
     - cd trilinear
     - restRoot -b -q GetMagneticField_test.C
     - cd ${CI_PROJECT_DIR}/pipeline/magneticField/boundary/
