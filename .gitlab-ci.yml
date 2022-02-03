@@ -55,7 +55,7 @@ build:
     - cd ../../../
     - mkdir build
     - cd build
-    - cmake ../ -DREST_SOLAXFLUX=OFF -DREST_WELCOME=ON -DRESTLIB_AXION=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
+    - cmake ../ -DREST_SOLAXFLUX=OFF -DREST_WELCOME=ON -DRESTLIB_AXION=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
       #    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
