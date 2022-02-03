@@ -10,7 +10,7 @@ stages:
   - metadata
 
 before_script:
-    - export USER="aXion"
+    - export USER="axion"
 
 # We execute only at the schedulled pipeline that defines CRONJOB variable
 clang-format:
@@ -67,6 +67,7 @@ build:
     paths:
       - ${CI_PROJECT_DIR}/install
       - ${CI_PROJECT_DIR}/framework
+      - /usr/local/lib/libmpfr.so*
     expire_in: 1 day
 
 loadRESTLibs:
@@ -85,7 +86,7 @@ magneticField:
       #    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/magneticField/
-    - ls -lrth /usr/lib
+    - ls -lrth /usr/local/lib/*mpfr*
     - echo $LD_LIBRARY_PATH
     - python magneticField.py
     - cd trilinear
