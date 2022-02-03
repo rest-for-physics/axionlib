@@ -37,6 +37,7 @@ build:
   script:
     - echo "**${CI_PROJECT_DIR}**"
     - rm -rf ${CI_PROJECT_DIR}/install
+    - sudo apt-get -y install libgmp-dev
     - wget https://www.mpfr.org/mpfr-4.0.2/mpfr-4.0.2.tar.gz
     - tar xvzf mpfr-4.0.2.tar.gz
     - cd mpfr-4.0.2/
