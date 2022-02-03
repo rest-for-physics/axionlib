@@ -43,7 +43,7 @@ build:
     - cd mpfr-4.0.2/
     - ./configure
     - make
-    - sudo make install
+    - make install
     - cd ..
     - git clone https://github.com/rest-for-physics/framework.git framework
     - cd framework
