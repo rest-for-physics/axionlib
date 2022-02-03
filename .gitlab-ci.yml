@@ -44,6 +44,7 @@ build:
     - ./configure
     - make
     - make install
+    - ls -lrth /usr/local/lib
     - cd ..
     - git clone https://github.com/rest-for-physics/framework.git framework
     - cd framework
@@ -67,7 +68,7 @@ build:
     paths:
       - ${CI_PROJECT_DIR}/install
       - ${CI_PROJECT_DIR}/framework
-      - /usr/local/lib/libmpfr.so*
+      - /usr/local/lib
     expire_in: 1 day
 
 loadRESTLibs:
