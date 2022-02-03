@@ -10,8 +10,9 @@ stages:
   - metadata
 
 before_script:
-    - export USER="axion"
+    - export USER="aXion"
 
+# We execute only at the schedulled pipeline that defines CRONJOB variable
 clang-format:
     stage: pre-build
     script:
@@ -19,7 +20,6 @@ clang-format:
         - echo "**$CI_SERVER_HOST**"
         - cd ${CI_PROJECT_DIR}/pipeline/clang-format/
         - ./clangformattest.sh
-          # We execute only at a schedulled pipeline that defines CRONJOB variable
     only:
         variables:
             - $CRONJOB
@@ -55,7 +55,7 @@ build:
     - cd ../../../
     - mkdir build
     - cd build
-    - cmake ../ -DREST_WELCOME=ON -DRESTLIB_AXION=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
+    - cmake ../ -DREST_SOLAXFLUX=OFF -DREST_WELCOME=ON -DRESTLIB_AXION=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
     - make install -j2
     - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
