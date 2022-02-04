@@ -1,0 +1,10 @@
+<xml>
+<TRestAxionOptics name="mcpl" >
+	<parameter name="center" value="(0,0,200)mm" />
+	<parameter name="axis" value="(0,0,1)" />
+</TRestAxionOptics>
+
+<TRestAxionOptics name="mcpl2" center="(0,0,300)cm" axis="(0,0,3)" />
+
+<TRestAxionOptics name="mcpl3" center="(0,0,300)cm" />
+</xml>
