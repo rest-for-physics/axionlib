@@ -51,7 +51,9 @@ build:
     - cd framework
     - ./scripts/checkoutRemoteBranch.sh ${CI_COMMIT_BRANCH}
     - git submodule init source/libraries/axion
-    - git submodule update source/libraries/axion
+      # This will download the data from axionlib.
+      # erhaps we should make the data accessible throught https and then open the remote files from the pipeline?
+    - git submodule update --recursive source/libraries/axion
     - cd source/libraries/axion/
     - git checkout ${CI_COMMIT_BRANCH}
     - cd ../../../
