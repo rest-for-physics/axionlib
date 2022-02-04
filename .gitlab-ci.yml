@@ -1,4 +1,4 @@
-image: lobis/root-geant4-garfieldpp:cxx14_ROOTv6-25-01_Geant4v10.4.3
+image: nkx1231/root6-geant4-garfield:0.8
 
 variables:
       GIT_SUBMODULE_STRATEGY: recursive
@@ -11,9 +11,8 @@ stages:
 
 before_script:
     - export USER="axion"
-      #    - git submodule sync --recursive
-      #    - git submodule update --init --recursive
 
+# We execute only at the schedulled pipeline that defines CRONJOB variable
 clang-format:
     stage: pre-build
     script:
@@ -21,7 +20,6 @@ clang-format:
         - echo "**$CI_SERVER_HOST**"
         - cd ${CI_PROJECT_DIR}/pipeline/clang-format/
         - ./clangformattest.sh
-          # We execute only at a schedulled pipeline that defines CRONJOB variable
     only:
         variables:
             - $CRONJOB
@@ -39,18 +37,33 @@ build:
   script:
     - echo "**${CI_PROJECT_DIR}**"
     - rm -rf ${CI_PROJECT_DIR}/install
-    - git clone --single-branch --branch development https://github.com/rest-for-physics/framework.git framework
+      ### Installing MPFR
+    - apt-get -y install libgmp-dev
+    - wget https://www.mpfr.org/mpfr-4.0.2/mpfr-4.0.2.tar.gz
+    - tar xvzf mpfr-4.0.2.tar.gz
+    - cd mpfr-4.0.2/
+    - ./configure --prefix=${CI_PROJECT_DIR}/mpfr-4.0.2/install
+    - make
+    - make install
+    - cd ..
+      ####
+    - git clone https://github.com/rest-for-physics/framework.git framework
     - cd framework
-    - python3.5 pull-submodules.py --force --lfna --dontask
+    - ./scripts/checkoutRemoteBranch.sh ${CI_COMMIT_BRANCH}
+    - git submodule init source/libraries/axion
+      # This will download the data from axionlib.
+      # erhaps we should make the data accessible throught https and then open the remote files from the pipeline?
+    - git submodule update source/libraries/axion
     - cd source/libraries/axion/
     - git checkout ${CI_COMMIT_BRANCH}
-    - git submodule update --init --recursive
+    - git submodule init data
+    - git submodule update data
     - cd ../../../
     - mkdir build
     - cd build
-    - cmake ../ -DREST_WELCOME=ON -DRESTLIB_AXION=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DINSTALL_PREFIX=${CI_PROJECT_DIR}/install
+    - cmake ../ -DREST_SOLAXFLUX=OFF -DREST_WELCOME=ON -DRESTLIB_AXION=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install -DMPFR_PATH=${CI_PROJECT_DIR}/mpfr-4.0.2/install
     - make install -j2
-    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
+      #    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - restRoot -b -q
   except:
@@ -60,13 +73,14 @@ build:
     paths:
       - ${CI_PROJECT_DIR}/install
       - ${CI_PROJECT_DIR}/framework
+      - ${CI_PROJECT_DIR}/mpfr-4.0.2/install/
     expire_in: 1 day
 
 loadRESTLibs:
   type: loadRESTLibs
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
+      #    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - restRoot -b -q
   except:
     variables:
@@ -75,14 +89,27 @@ loadRESTLibs:
 magneticField:
   type: metadata
   script:
-    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
+      #    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/magneticField/
-    - ./magneticField.py
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CI_PROJECT_DIR}/mpfr-4.0.2/install/lib
+    - ls $REST_PATH/data/axion/magneticField/
+    - python magneticField.py
     - cd trilinear
     - restRoot -b -q GetMagneticField_test.C
     - cd ${CI_PROJECT_DIR}/pipeline/magneticField/boundary/
     - restRoot -b -q Boundaries_test.C
+  except:
+      variables:
+        - $CRONJOB
+
+optics:
+  type: metadata
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/pipeline/optics/
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CI_PROJECT_DIR}/mpfr-4.0.2/install/lib
+    - python optics.py
   except:
       variables:
         - $CRONJOB
