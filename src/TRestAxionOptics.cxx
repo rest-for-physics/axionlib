@@ -124,6 +124,9 @@ TRestAxionOptics::~TRestAxionOptics() {}
 void TRestAxionOptics::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
+
+    fEntrance = fCenter - 0.5 * fLength * fAxis;
+    fExit = fCenter + 0.5 * fLength * fAxis;
 }
 
 ///////////////////////////////////////////////
@@ -142,8 +145,11 @@ void TRestAxionOptics::InitFromConfigFile() {
 void TRestAxionOptics::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
+    metadata << "Optics entrance: (" << fEntrance.X() << ", " << fEntrance.Y() << ", " << fEntrance.Z() << ")"
+             << endl;
     metadata << "Optics center: (" << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ")"
              << endl;
+    metadata << "Optics exit: (" << fExit.X() << ", " << fExit.Y() << ", " << fExit.Z() << ")" << endl;
     metadata << "Optics axis: (" << fAxis.X() << ", " << fAxis.Y() << ", " << fAxis.Z() << ")" << endl;
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
