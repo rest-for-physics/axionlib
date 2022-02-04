@@ -89,7 +89,7 @@ magneticField:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/magneticField/
     - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CI_PROJECT_DIR}/mpfr-4.0.2/install/lib
-    - echo $LD_LIBRARY_PATH
+    - ls $REST_PATH/data/axion/magneticField/
     - python magneticField.py
     - cd trilinear
     - restRoot -b -q GetMagneticField_test.C
