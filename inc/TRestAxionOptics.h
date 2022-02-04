@@ -29,11 +29,20 @@
 /// A class to load optics response files (WIP). Perhaps we might inherit later TRestAxionMCPLOptics, ...
 class TRestAxionOptics : public TRestMetadata {
    private:
-    /// It is the position of the optics system. Defined at the entrance of the optics
+    /// It is the position of the center of the optics system.
     TVector3 fCenter = TVector3(0, 0, 0);
 
     /// The axis of the optics system
-    TVector3 fAxis = TVector3(0, 0, 1);
+    TVector3 fAxis = TVector3(0, 0, 1);  //<
+
+    /// Optics length in mm
+    Double_t fLength = 50;  //<
+
+    /// It is the calculated position at the entrance of the optics.
+    TVector3 fEntrance;  //!
+
+    /// It is the calculated position at the exit of the optics.
+    TVector3 fExit;  //!
 
     void Initialize();
 
@@ -41,6 +50,8 @@ class TRestAxionOptics : public TRestMetadata {
     void PrintMetadata();
 
     void InitFromConfigFile();
+
+    virtual TVector3 PropagatePhoton(const TVector3& in);
 
     TRestAxionOptics();
     TRestAxionOptics(const char* cfgFileName, std::string name = "");
