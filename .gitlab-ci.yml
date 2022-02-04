@@ -42,8 +42,8 @@ build:
     - wget https://www.mpfr.org/mpfr-4.0.2/mpfr-4.0.2.tar.gz
     - tar xvzf mpfr-4.0.2.tar.gz
     - cd mpfr-4.0.2/
-    - ./configure
-    - make --prefix=install
+    - ./configure --prefix=install
+    - make
     - make install
     - cd ..
       ####
