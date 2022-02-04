@@ -37,15 +37,16 @@ build:
   script:
     - echo "**${CI_PROJECT_DIR}**"
     - rm -rf ${CI_PROJECT_DIR}/install
+      ### Installing MPFR
     - apt-get -y install libgmp-dev
     - wget https://www.mpfr.org/mpfr-4.0.2/mpfr-4.0.2.tar.gz
     - tar xvzf mpfr-4.0.2.tar.gz
     - cd mpfr-4.0.2/
     - ./configure
-    - make
+    - make --prefix=install
     - make install
-    - ls -lrth /usr/local/lib
     - cd ..
+      ####
     - git clone https://github.com/rest-for-physics/framework.git framework
     - cd framework
     - ./scripts/checkoutRemoteBranch.sh ${CI_COMMIT_BRANCH}
@@ -56,7 +57,7 @@ build:
     - cd ../../../
     - mkdir build
     - cd build
-    - cmake ../ -DREST_SOLAXFLUX=OFF -DREST_WELCOME=ON -DRESTLIB_AXION=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install
+    - cmake ../ -DREST_SOLAXFLUX=OFF -DREST_WELCOME=ON -DRESTLIB_AXION=ON -DREST_GARFIELD=OFF -DREST_G4=OFF -DCMAKE_INSTALL_PREFIX=${CI_PROJECT_DIR}/install -DMPFR_PATH=../mpfr-4.0.2/install
     - make install -j2
       #    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -68,7 +69,7 @@ build:
     paths:
       - ${CI_PROJECT_DIR}/install
       - ${CI_PROJECT_DIR}/framework
-      - /usr/local/lib
+      - ${CI_PROJECT_DIR}/mpfr-4.0.2/install/
     expire_in: 1 day
 
 loadRESTLibs:
@@ -87,7 +88,8 @@ magneticField:
       #    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/magneticField/
-    - ls -lrth /usr/local/lib/*mpfr*
+    - ls ${CI_PROJECT_DIR}/mpfr-4.0.2/
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CI_PROJECT_DIR}/mpfr-4.0.2/install/lib
     - echo $LD_LIBRARY_PATH
     - python magneticField.py
     - cd trilinear
