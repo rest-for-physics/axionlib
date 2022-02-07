@@ -30,13 +30,22 @@
 class TRestAxionOptics : public TRestMetadata {
    private:
     /// It is the position of the center of the optics system.
-    TVector3 fCenter = TVector3(0, 0, 0);
+    TVector3 fCenter = TVector3(0, 0, 0);  //<
 
     /// The axis of the optics system
     TVector3 fAxis = TVector3(0, 0, 1);  //<
 
-    /// Optics length in mm
-    Double_t fLength = 50;  //<
+    /// Optics physical mirror length in mm
+    Double_t fLength = 250;  //<
+
+    /// A vector containing the shells ring radius definitions. First element is the lower radius.
+    std::vector<std::pair<Double_t, Double_t>> fShellsRadii;  //<
+
+    /// An internal variable to register the maximum shell radius
+    Double_t fMaxShellRadius = -1;  //!
+
+    /// An internal variable to register the minimum shell radius
+    Double_t fMinShellRadius = -1;  //!
 
     /// It is the calculated position at the entrance of the optics.
     TVector3 fEntrance;  //!
@@ -46,12 +55,20 @@ class TRestAxionOptics : public TRestMetadata {
 
     void Initialize();
 
+    void SetMaxAndMinShellRadius();
+    Bool_t IsInsideRing(const TVector3& pos, Double_t Rout, Double_t Rin = 0);
+
    public:
+    TVector3 GetPositionAtEntrance(const TVector3& pos, const TVector3& dir);
+    TVector3 GetPositionAtExit(const TVector3& pos, const TVector3& dir);
+
+    Int_t GetEntranceShell(const TVector3& pos, const TVector3& dir);
+
     void PrintMetadata();
 
     void InitFromConfigFile();
 
-    virtual TVector3 PropagatePhoton(const TVector3& in);
+    virtual TVector3 PropagatePhoton(const TVector3& in) { return TVector3(0, 0, 0); }
 
     TRestAxionOptics();
     TRestAxionOptics(const char* cfgFileName, std::string name = "");
