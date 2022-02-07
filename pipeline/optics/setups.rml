@@ -1,5 +1,5 @@
 <xml>
-<TRestAxionOptics name="mcpl" >
+<TRestAxionMCPLOptics name="mcpl" >
 	<parameter name="center" value="(0,0,200)mm" />
 	<parameter name="axis" value="(0,0.02,0.98)" />
 	<parameter name="length" value="22cm" />
@@ -8,7 +8,10 @@
 	<parameter name="shellMinRadii" value="5,10,15,20,25" />
 	<parameter name="shellMaxRadii" value="9.9,14.9,19.9,24.9,29.9" />
 
-</TRestAxionOptics>
+	<parameter name="inputMCPLFilename" value="dummyInput.mcpl" />
+	<parameter name="outputMCPLFilename" value="dummyOutput.mcpl" />
+
+</TRestAxionMCPLOptics>
 
 <TRestAxionOptics name="mcpl2" center="(0,0,300)cm" axis="(0,0,3)" />
 

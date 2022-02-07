@@ -5,18 +5,23 @@ import ROOT
 ROOT.gSystem.Load("libRestFramework.so")
 ROOT.gSystem.Load("libRestAxion.so")
 
-mcplOptics_1 = ROOT.TRestAxionMagneticField("setups.rml", "mcpl")
+mcplOptics_1 = ROOT.TRestAxionMCPLOptics("setups.rml", "mcpl")
 mcplOptics_1.PrintMetadata()
 
-mcplOptics_2 = ROOT.TRestAxionMagneticField("setups.rml", "mcpl2")
-mcplOptics_2.PrintMetadata()
+shells = mcplOptics_1.GetNumberOfShells()
+print( "Number of shells: " + str(shells), end = "" )
+if( shells != 5 ):
+    print( "\nError! Number of shells is not 5!" )
+    exit(1)
+print (" [\033[92m OK \x1b[0m]")
 
-mcplOptics_3 = ROOT.TRestAxionMagneticField("setups.rml", "mcpl3")
-mcplOptics_3.PrintMetadata()
+#mcplOptics_2 = ROOT.TRestAxionMagneticField("setups.rml", "mcpl2")
+#mcplOptics_2.PrintMetadata()
+
+#mcplOptics_3 = ROOT.TRestAxionMagneticField("setups.rml", "mcpl3")
+#mcplOptics_3.PrintMetadata()
 
 
-print ( "Setups where loaded properly" )
-print ("[\033[92m OK \x1b[0m]")
 
 print ("All tests passed!")
 
