@@ -53,12 +53,12 @@ class TRestAxionOptics : public TRestMetadata {
     /// It is the calculated position at the exit of the optics.
     TVector3 fExit;  //!
 
-    void Initialize();
-
     void SetMaxAndMinShellRadius();
     Bool_t IsInsideRing(const TVector3& pos, Double_t Rout, Double_t Rin = 0);
 
    public:
+    void Initialize();
+
     TVector3 GetPositionAtEntrance(const TVector3& pos, const TVector3& dir);
     TVector3 GetPositionAtExit(const TVector3& pos, const TVector3& dir);
 
@@ -68,7 +68,8 @@ class TRestAxionOptics : public TRestMetadata {
 
     void InitFromConfigFile();
 
-    virtual TVector3 PropagatePhoton(const TVector3& in) { return TVector3(0, 0, 0); }
+    /// Photon propagation method to be implemented at the derived class
+    virtual TVector3 PropagatePhoton(const TVector3& in) = 0;
 
     TRestAxionOptics();
     TRestAxionOptics(const char* cfgFileName, std::string name = "");
