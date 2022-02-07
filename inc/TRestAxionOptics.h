@@ -59,6 +59,24 @@ class TRestAxionOptics : public TRestMetadata {
    public:
     void Initialize();
 
+    /// It returns the center of the optics system
+    TVector3 GetCenter() { return fCenter; }
+
+    /// It returns the axis vector of the optics system
+    TVector3 GetAxis() { return fAxis; }
+
+    /// It returns the physical length of the optics system
+    Double_t GetLength() { return fLength; }
+
+    /// It returns the number of shells implemented in the optics system
+    Int_t GetNumberOfShells() { return fShellsRadii.size(); }
+
+    /// It returns the entrance position defined by the optical axis
+    TVector3 GetEntrance() { return fEntrance; }
+
+    /// It returns the exit position defined by the optical axis
+    TVector3 GetExit() { return fExit; }
+
     TVector3 GetPositionAtEntrance(const TVector3& pos, const TVector3& dir);
     TVector3 GetPositionAtExit(const TVector3& pos, const TVector3& dir);
 
