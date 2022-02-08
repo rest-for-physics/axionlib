@@ -9,7 +9,7 @@ mcplOptics_1 = ROOT.TRestAxionMCPLOptics("setups.rml", "mcpl")
 mcplOptics_1.PrintMetadata()
 
 shells = mcplOptics_1.GetNumberOfShells()
-print( "Number of shells: " + str(shells), end = "" )
+print( "Number of shells: " + str(shells) )
 if( shells != 5 ):
     print( "\nError! Number of shells is not 5!" )
     exit(1)
