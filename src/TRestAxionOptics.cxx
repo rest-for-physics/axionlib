@@ -124,16 +124,99 @@ TRestAxionOptics::~TRestAxionOptics() {}
 void TRestAxionOptics::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
+
+    fEntrance = fCenter - 0.5 * fLength * fAxis;
+    fExit = fCenter + 0.5 * fLength * fAxis;
+
+    SetMaxAndMinShellRadius();
+}
+
+///////////////////////////////////////////////
+/// \brief It initializes the fMaxShellRadius and fMinShellRadius using the shell ring definitions
+///
+void TRestAxionOptics::SetMaxAndMinShellRadius() {
+    if (fMinShellRadius == -1 && fShellsRadii.size() > 0) fMinShellRadius = fShellsRadii[0].first;
+    if (fMaxShellRadius == -1 && fShellsRadii.size() > 0) fMaxShellRadius = fShellsRadii[0].second;
+
+    for (const auto& shellRadius : fShellsRadii) {
+        if (shellRadius.first < fMinShellRadius) fMinShellRadius = shellRadius.first;
+        if (shellRadius.second > fMaxShellRadius) fMaxShellRadius = shellRadius.second;
+    }
+}
+
+///////////////////////////////////////////////
+/// \brief It moves a given particle with position `pos` and direction `dir` to the entrance of the optics
+///
+TVector3 TRestAxionOptics::GetPositionAtEntrance(const TVector3& pos, const TVector3& dir) {
+    return REST_Physics::MoveToPlane(pos, dir, fAxis, fEntrance);
+}
+
+///////////////////////////////////////////////
+/// \brief It moves a given particle with position `pos` and direction `dir` to the exit of the optics
+///
+TVector3 TRestAxionOptics::GetPositionAtExit(const TVector3& pos, const TVector3& dir) {
+    return REST_Physics::MoveToPlane(pos, dir, fAxis, fEntrance);
+}
+
+///////////////////////////////////////////////
+/// \brief It determines if a given particle with position `pos` (that **should be** already placed
+/// at the entrance plane of the optics) will be inside a ring with radius between `Rin` and `Rout`.
+///
+/// This method is private since it is just a helper method used by GetRing.
+///
+Bool_t TRestAxionOptics::IsInsideRing(const TVector3& pos, Double_t Rout, Double_t Rin) {
+    Double_t d = REST_Physics::DistanceToAxis(fEntrance, fAxis, pos);
+
+    if (d < Rout && d >= Rin) return true;
+
+    return false;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the optics shell index for a given particle with position `pos` and direction `dir`.
+///
+/// If the particle is not inside any ring it will return -1
+///
+/// This method is protected since it should be used only by derived classes
+///
+Int_t TRestAxionOptics::GetEntranceShell(const TVector3& pos, const TVector3& dir) {
+    TVector3 posEntrance = GetPositionAtEntrance(pos, dir);
+    if (!IsInsideRing(posEntrance, fMaxShellRadius, fMinShellRadius)) return -1;
+
+    int n = 0;
+    for (const auto& shellRadius : fShellsRadii) {
+        if (IsInsideRing(posEntrance, shellRadius.second, shellRadius.first)) return n;
+        n++;
+    }
+
+    return -1;
 }
 
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestAxionOptics field members through a RML file
 ///
 void TRestAxionOptics::InitFromConfigFile() {
-    this->Initialize();
-
     fCenter = Get3DVectorParameterWithUnits("center", TVector3(0, 0, 0));
-    fAxis = Get3DVectorParameterWithUnits("axis", TVector3(0, 0, 2));
+    fAxis = Get3DVectorParameterWithUnits("axis", TVector3(0, 0, 2)).Unit();
+    fLength = GetDblParameterWithUnits("lenght", 250);
+
+    std::vector<Double_t> rMax = StringToElements(GetParameter("shellMaxRadii", "-1"), ",");
+    std::vector<Double_t> rMin = StringToElements(GetParameter("shellMinRadii", "-1"), ",");
+
+    if (rMax.size() != rMin.size())
+        SetError(
+            "TRestAxionOptics. The number of ring radii definitions do not match! Rings will not be "
+            "initialized!");
+    else {
+        fShellsRadii.clear();
+        for (unsigned int n = 0; n < rMax.size(); n++) {
+            std::pair<Double_t, Double_t> p(rMin[n], rMax[n]);
+            fShellsRadii.push_back(p);
+        }
+    }
+
+    // If we recover the metadata class from ROOT file we will need to call Initialize ourselves
+    this->Initialize();
 }
 
 ///////////////////////////////////////////////
@@ -142,8 +225,21 @@ void TRestAxionOptics::InitFromConfigFile() {
 void TRestAxionOptics::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << "Optics center: (" << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ")"
+    metadata << "Optics length: " << fLength << " mm" << endl;
+    metadata << "Optics entrance: (" << fEntrance.X() << ", " << fEntrance.Y() << ", " << fEntrance.Z()
+             << ") mm" << endl;
+    metadata << "Optics center: (" << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ") mm"
              << endl;
+    metadata << "Optics exit: (" << fExit.X() << ", " << fExit.Y() << ", " << fExit.Z() << ") mm" << endl;
     metadata << "Optics axis: (" << fAxis.X() << ", " << fAxis.Y() << ", " << fAxis.Z() << ")" << endl;
+    metadata << " " << endl;
+    metadata << "Relation of mirror shells integrated in the optics:" << endl;
+    metadata << "---------" << endl;
+    int n = 0;
+    for (const auto& shellRadius : fShellsRadii) {
+        metadata << "Shell " << n << ": Rmin = " << shellRadius.first << "mm , Rmax = " << shellRadius.second
+                 << "mm" << endl;
+        n++;
+    }
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }

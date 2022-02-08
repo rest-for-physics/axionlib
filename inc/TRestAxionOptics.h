@@ -29,18 +29,65 @@
 /// A class to load optics response files (WIP). Perhaps we might inherit later TRestAxionMCPLOptics, ...
 class TRestAxionOptics : public TRestMetadata {
    private:
-    /// It is the position of the optics system. Defined at the entrance of the optics
-    TVector3 fCenter = TVector3(0, 0, 0);
+    /// It is the position of the center of the optics system.
+    TVector3 fCenter = TVector3(0, 0, 0);  //<
 
     /// The axis of the optics system
-    TVector3 fAxis = TVector3(0, 0, 1);
+    TVector3 fAxis = TVector3(0, 0, 1);  //<
 
-    void Initialize();
+    /// Optics physical mirror length in mm
+    Double_t fLength = 250;  //<
+
+    /// A vector containing the shells ring radius definitions. First element is the lower radius.
+    std::vector<std::pair<Double_t, Double_t>> fShellsRadii;  //<
+
+    /// An internal variable to register the maximum shell radius
+    Double_t fMaxShellRadius = -1;  //!
+
+    /// An internal variable to register the minimum shell radius
+    Double_t fMinShellRadius = -1;  //!
+
+    /// It is the calculated position at the entrance of the optics.
+    TVector3 fEntrance;  //!
+
+    /// It is the calculated position at the exit of the optics.
+    TVector3 fExit;  //!
+
+    void SetMaxAndMinShellRadius();
+    Bool_t IsInsideRing(const TVector3& pos, Double_t Rout, Double_t Rin = 0);
 
    public:
+    void Initialize();
+
+    /// It returns the center of the optics system
+    TVector3 GetCenter() { return fCenter; }
+
+    /// It returns the axis vector of the optics system
+    TVector3 GetAxis() { return fAxis; }
+
+    /// It returns the physical length of the optics system
+    Double_t GetLength() { return fLength; }
+
+    /// It returns the number of shells implemented in the optics system
+    Int_t GetNumberOfShells() { return fShellsRadii.size(); }
+
+    /// It returns the entrance position defined by the optical axis
+    TVector3 GetEntrance() { return fEntrance; }
+
+    /// It returns the exit position defined by the optical axis
+    TVector3 GetExit() { return fExit; }
+
+    TVector3 GetPositionAtEntrance(const TVector3& pos, const TVector3& dir);
+    TVector3 GetPositionAtExit(const TVector3& pos, const TVector3& dir);
+
+    Int_t GetEntranceShell(const TVector3& pos, const TVector3& dir);
+
     void PrintMetadata();
 
     void InitFromConfigFile();
+
+    /// Photon propagation method to be implemented at the derived class
+    virtual TVector3 PropagatePhoton(const TVector3& in) = 0;
 
     TRestAxionOptics();
     TRestAxionOptics(const char* cfgFileName, std::string name = "");

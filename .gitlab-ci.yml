@@ -1,7 +1,7 @@
 image: nkx1231/root6-geant4-garfield:0.8
 
-variables:
-      GIT_SUBMODULE_STRATEGY: recursive
+#variables:
+#      GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
   - pre-build
