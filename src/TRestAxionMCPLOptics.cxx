@@ -63,6 +63,7 @@
 ///
 
 #include "TRestAxionMCPLOptics.h"
+#include "mcpl.h"
 
 using namespace std;
 
