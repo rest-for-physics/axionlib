@@ -23,5 +23,18 @@
         <addMagneticVolume fileName="B_Field_boundary_test.dat" position="(0,0,2000.01)mm" meshType="rectangular"/>
     </TRestAxionMagneticField>
 
+    <TRestAxionMagneticField name="bFieldBabyIAXO" title="First magnetic field definition" verboseLevel="warning" >
+		<addMagneticVolume fileName="Bykovskiy_201906.dat" position="(200,200,200)mm"
+			gasMixture="He+Xe" gasDensity="1mg/dm3+1e-1mg/dm3" meshSize="(50,50,50)"
+			boundMax="(350,350,5000)" />
+					  
+        <addMagneticVolume fileName="Bykovskiy_201906.bin" position="(800,800,800)mm" field="(1,0,0)"
+							boundMax="(350,350,5000)" />
+
+		<addMagneticVolume field="(0,0,3)T" position="(-800,-800,-800)mm" 
+							boundMax="(100,100,300)" meshSize="(10,20,30)" />
+							
+    </TRestAxionMagneticField>
+
 </axion>
 
