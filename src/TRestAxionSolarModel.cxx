@@ -20,7 +20,7 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-/***************** DOXYGEN DOCUMENTATION ********************************
+//////////////////////////////////////////////////////////////////////////
 /// TRestAxionSolarModel is a class used to calculate all axion interaction
 /// rates in the Sun based on a solar model and opacity code. The main
 /// purpose of the class is to return the two types of solar axion spectra,
@@ -49,11 +49,11 @@
 ///             Sebastian Hoof
 ///
 /// \class      TRestAxionSolarModel
-/// \author     Javier Galan, Sebastian Hoof
+/// \author     Javier Galan
+/// \author	    Sebastian Hoof
 ///
 /// <hr>
 ///
- *************************************************************************/
 
 #include "TRestAxionSolarModel.h"
 

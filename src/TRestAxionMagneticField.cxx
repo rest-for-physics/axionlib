@@ -1080,9 +1080,9 @@ TVector3 TRestAxionMagneticField::GetFieldAverageTransverseVector(TVector3 from,
 
     if ((length > 0) && (numberofpoints > 0)) {
         Bavg = Bavg * (1.0 / numberofpoints);  // calculates the average magnetic field vector
-        BTavg = Bavg -
-                (Bavg * direction) *
-                    direction;  // calculates the transverse component of the average magnetic field vector
+        BTavg =
+            Bavg - (Bavg * direction) *
+                       direction;  // calculates the transverse component of the average magnetic field vector
         debug << "B average vector = (" << Bavg.x() << ", " << Bavg.y() << ", " << Bavg.z() << ")" << endl;
         debug << "Transverse B average vector = (" << BTavg.x() << ", " << BTavg.y() << ", " << BTavg.z()
               << ")" << endl;

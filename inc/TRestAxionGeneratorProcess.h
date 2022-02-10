@@ -40,7 +40,7 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     Int_t fCounter = 0;  //!
 
     /// A pointer to the axion model stored in TRestRun
-    TRestAxionSpectrum *fAxionSpectrum; //!
+    TRestAxionSpectrum* fAxionSpectrum;  //!
 
     /// Random number generator
     TRandom3* fRandom;  //!
