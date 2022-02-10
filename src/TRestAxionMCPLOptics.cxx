@@ -63,6 +63,7 @@
 ///
 
 #include "TRestAxionMCPLOptics.h"
+#include "mcpl.h"
 
 using namespace std;
 
@@ -114,6 +115,54 @@ void TRestAxionMCPLOptics::Initialize() {
 
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
+
+    if (fInputMCPLFilename != "" && fOutputMCPLFilename != "") LoadMCPLFiles();
+}
+
+///////////////////////////////////////////////
+/// \brief Method to load inside the class the MCPL files
+///
+Int_t TRestAxionMCPLOptics::LoadMCPLFiles() {
+    string fname = fInputMCPLFilename;
+    if (fname.find("https") == 0) fname = TRestTools::DownloadRemoteFile(fname);
+    mcpl_file_t f = mcpl_open_file(fname.c_str());
+
+    string fname2 = fOutputMCPLFilename;
+    if (fname2.find("https") == 0) fname2 = TRestTools::DownloadRemoteFile(fname2);
+    mcpl_file_t g = mcpl_open_file(fname2.c_str());
+
+    const mcpl_particle_t *p, *q;
+    while ((p = mcpl_read(f))) {
+        q = mcpl_read(g);
+
+        cout << "Input MCPL file (detector_plane)" << endl;
+        cout << "--------------------------------" << endl;
+        cout << "X: " << p->position[0] << " Y: " << p->position[1] << " Z: " << p->position[2] << endl;
+        cout << "pX: " << p->direction[0] << " pY: " << p->direction[1] << " pZ: " << p->direction[2] << endl;
+        cout << "polX: " << p->polarisation[0] << " polY: " << p->polarisation[1]
+             << " polZ: " << p->polarisation[2] << endl;
+        cout << "Ekin = " << p->ekin << endl;
+        cout << "Time = " << p->time << endl;
+        cout << "Weight = " << p->weight << endl;
+        cout << "User flags = " << p->userflags << endl;
+        cout << endl;
+        cout << "Output MCPL file (post_optics)" << endl;
+        cout << "--------------------------------" << endl;
+        cout << "X: " << q->position[0] << " Y: " << q->position[1] << " Z: " << q->position[2] << endl;
+        cout << "pX: " << q->direction[0] << " pY: " << q->direction[1] << " pZ: " << q->direction[2] << endl;
+        cout << "polX: " << q->polarisation[0] << " polY: " << q->polarisation[1]
+             << " polZ: " << q->polarisation[2] << endl;
+        cout << "Ekin = " << q->ekin << endl;
+        cout << "Time = " << q->time << endl;
+        cout << "Weight = " << q->weight << endl;
+        cout << "User flags = " << q->userflags << endl;
+        cout << endl;
+
+        getchar();
+    }
+    mcpl_close_file(f);
+
+    return 0;
 }
 
 ///////////////////////////////////////////////

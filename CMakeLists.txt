@@ -61,6 +61,11 @@ endif (${REST_SOLAXFLUX} MATCHES "ON")
 
 set( external_libs ${external_libs} -lmpfr )
 
+file(GLOB_RECURSE addon_src
+    "mcpl.c" )
+
+set(addon_inc ${CMAKE_CURRENT_SOURCE_DIR}/external/mcpl)
+
 COMPILELIB("")
 
 INSTALL(DIRECTORY ./data/

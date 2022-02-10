@@ -126,8 +126,7 @@ void TRestAxionGeneratorProcess::InitProcess() {
 ///
 Double_t TRestAxionGeneratorProcess::GenerateEnergy() {
     debug << "Entering TRestAxionGeneratorProcess::GenerateEnergy() ..." << endl;
-    Double_t solarFlux =
-        fAxionSpectrum->GetSolarAxionFlux(fEnergyRange.X(), fEnergyRange.Y(), fEnergyStep);
+    Double_t solarFlux = fAxionSpectrum->GetSolarAxionFlux(fEnergyRange.X(), fEnergyRange.Y(), fEnergyStep);
 
     Double_t random = solarFlux * fRandom->Uniform(0, 1.0);
 

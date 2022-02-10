@@ -125,9 +125,10 @@
 #endif
 
 // Less important options
-#define MPREAL_DOUBLE_BITS_OVERFLOW -1  // Triggers overflow exception during conversion to double if mpreal
-                                        // cannot fit in MPREAL_DOUBLE_BITS_OVERFLOW bits
-                                        // = -1 disables overflow checks (default)
+#define MPREAL_DOUBLE_BITS_OVERFLOW \
+    -1  // Triggers overflow exception during conversion to double if mpreal
+        // cannot fit in MPREAL_DOUBLE_BITS_OVERFLOW bits
+        // = -1 disables overflow checks (default)
 
 // Fast replacement for mpfr_set_zero(x, +1):
 // (a) uses low-level data members, might not be compatible with new versions of MPFR

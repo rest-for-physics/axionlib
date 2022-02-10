@@ -38,6 +38,8 @@ class TRestAxionMCPLOptics : public TRestAxionOptics {
     std::string fOutputMCPLFilename;
 
    public:
+    Int_t LoadMCPLFiles();
+
     void PrintMetadata();
 
     void InitFromConfigFile();
