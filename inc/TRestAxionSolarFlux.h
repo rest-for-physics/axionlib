@@ -32,7 +32,11 @@ class TRestAxionSolarFlux : public TRestMetadata {
 
     void InitFromConfigFile();
 
+    // The filename containning the solar flux table with continuum spectrum
     std::string fFluxDataFile = "";  //<
+
+    // The filename containning the solar flux spectra for monochromatic spectrum
+    std::string fFluxSptFile = "";  //<
 
     // Axion coupling. Defines coupling type and strength.
     std::string fCouplingType;  //<
@@ -40,10 +44,13 @@ class TRestAxionSolarFlux : public TRestMetadata {
     // Axion coupling strength
     Double_t fCouplingStrength;  //<
 
-    // Contains the tabulated solar disk in solar radius and energy
+    // Contains the tabulated solar flux in cm-2 s-1 keV-1 versus solar radius and energy
     std::vector<std::vector<Double_t>> fFluxTable;  //!
 
-    // Contains the contribution to the flux for each solar ring
+    // Contains the tabulated solar flux in cm-2 s-1 versus solar radius for any number of spectral energies
+    std::map<Double_t, std::vector<Double_t>> fFluxLines;  //!
+
+    // Contains the contribution to the flux for each solar ring (continuum + monochromatic)
     std::vector<Double_t> fFluxPerRadius;  //!
 
    public:

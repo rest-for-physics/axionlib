@@ -30,7 +30,10 @@
 ///
 /// \code
 ///     <TRestAxionSolarFlux name="sunPrimakoff" verboseLevel="debug" >
+///			<parameter name="couplingType" value="g_ag"/>
+///			<parameter name="couplingStrength" value="1.e-10"/>
 ///			<parameter name="fluxDataFile" value="Primakoff_Gianotti_201904.dat"/>
+///			<parameter name="fluxSptFile" value="Dummy_Galan_202202.spt"/>
 ///     </TRestAxionSolarFlux>
 /// \endcode
 ///
@@ -179,6 +182,7 @@ void TRestAxionSolarFlux::InitFromConfigFile() {
     debug << "Entering TRestAxionSolarFlux::InitFromConfigFile" << endl;
 
     fFluxDataFile = GetParameter("fluxDataFile", "");
+    fFluxSptFile = GetParameter("fluxSptFile", "");
     fCouplingType = GetParameter("couplingType", "g_ag");
     fCouplingStrength = StringToDouble(GetParameter("couplingStrength", "1.e-10"));
 
