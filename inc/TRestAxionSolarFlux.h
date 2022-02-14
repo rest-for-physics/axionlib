@@ -25,45 +25,34 @@
 
 #include <TRestMetadata.h>
 
-//! A metadata class to define theoretical axion models and calculations related
+//! A metadata class to load tabulated solar axion fluxes
 class TRestAxionSolarFlux : public TRestMetadata {
    private:
     void Initialize();
 
     void InitFromConfigFile();
 
-    TString fSolarAxionModel;  //->
+    std::string fFluxDataFile = "";  //<
 
-    TString fMode;  //->
+    // Axion coupling. Defines coupling type and strength.
+    std::string fCouplingType;  //<
 
-    // Integrated solar axion spectrum in cm-2 s-1
-    Double_t fSolarEnergyFlux = 0;  //->
+    // Axion coupling strength
+    Double_t fCouplingStrength;  //<
 
-    // The axion-photon g10 coupling
-    Double_t fg10 = 1.;  //->
+    // Contains the tabulated solar disk in solar radius and energy
+    std::vector<std::vector<Double_t>> fFluxTable;  //!
 
-    // The integration step for solar energy spectrum
-    Double_t fStep = 1.e-3;  //->
-
-    TVector2 fEnergyRange;  //->
-
-    // Contains the tabulated solar disk in solar radius and energy. As
-    // described in data/solarModel.
-    std::vector<std::vector<Double_t>> fSolarTable;  //->
+    // Contains the contribution to the flux for each solar ring
+    std::vector<Double_t> fFluxPerRadius;  //!
 
    public:
-    Bool_t isSolarTableLoaded() { return fSolarTable.size() > 0; }
+    Bool_t isSolarTableLoaded() { return fFluxTable.size() > 0; }
 
-    TString GetSolarAxionSolarModel() { return fSolarAxionModel; }
-
-    void SetSolarAxionSolarModel(TString modelName) { fSolarAxionModel = modelName; }
-
-    void ResetSolarEnergyFlux() { fSolarEnergyFlux = 0; }
-
-    Double_t GetSolarAxionFlux(Double_t eMin = 0., Double_t eMax = 10., Double_t g10 = 1.,
-                               Double_t step = 0.001);
-
-    Double_t GetDifferentialSolarAxionFlux(Double_t energy, Double_t g10 = 1.);
+    std::pair<Double_t, Double_t> GetRandomEnergyAndRadius() {
+        std::pair<Double_t, Double_t> result = {0, 0};
+        return result;
+    }
 
     void PrintMetadata();
 

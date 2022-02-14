@@ -21,40 +21,16 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionSolarFluxs is a class used to define methods which define
-/// theoretical model results that can be directly used in the calculation
-/// of experimental observables.
-///
-/// TODO. Create an appropriate documentation here.
-///
-/// There will be two modes of defining the solar mode in this class:
-/// *analytical* and *table*.
-///
-/// The following piece of code shows how to define an analytical solar model.
+/// TRestAxionSolarFlux will use a file in ASCII or binary format to initialize
+/// a solar flux table that will describe the solar flux spectrum as a function
+/// of the solar radius. It will be also possible to generate the solar table
+/// by other means.
+/// See for example the method TRestAxionSolarFlux::InitializeSolarTable using
+/// a solar model description by TRestAxionSolarModel.
 ///
 /// \code
 ///     <TRestAxionSolarFlux name="sunPrimakoff" verboseLevel="debug" >
-///    <parameter name="mode" value="analytical" />
-///    <parameter name="solarAxionSolarModel" value="arXiv_0702006_Primakoff" />
-/// </TRestAxionSolarFlux>
-/// \endcode
-///
-/// The available analytical solar axion models, for different production
-/// mechanisms, is given in the following list.
-///
-/// - arXiv_0702006_Primakoff (https://arxiv.org/abs/hep-ex/0702006)
-/// - arXiv_1302.6283_Primakoff ( https://arxiv.org/pdf/1302.6283v2.pdf )
-/// - arXiv_1302.6283_BC ( https://arxiv.org/pdf/1302.6283v2.pdf )
-///
-/// The second mode, *table*, will provide further detail on the solar axion
-/// production as a function of the solar radius. The tables will be
-/// available as a file inside the data/solarModel/ directory. The
-/// *solarAxionSolarModel* parameter
-///
-/// \code
-///     <TRestAxionSolarFlux name="sunPrimakoff" verboseLevel="debug" >
-///         <parameter name="mode" value="table" />
-///         <parameter name="solarAxionSolarModel" value="arXiv_0702006_Primakoff" />
+///			<parameter name="fluxDataFile" value="Primakoff_Gianotti_201904.dat"/>
 ///     </TRestAxionSolarFlux>
 /// \endcode
 ///
@@ -65,7 +41,7 @@
 /// History of developments:
 ///
 /// 2022-February: Recovered from original TRestAxionSolarModel implementation
-///             Javier Galan
+///                Javier Galan
 ///
 /// \class      TRestAxionSolarFlux
 /// \author     Javier Galan
@@ -78,11 +54,25 @@ using namespace std;
 
 ClassImp(TRestAxionSolarFlux);
 
-TRestAxionSolarFlux::TRestAxionSolarFlux() : TRestMetadata() {
-    // TRestAxionSolarFlux default constructor
-    Initialize();
-}
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestAxionSolarFlux::TRestAxionSolarFlux() : TRestMetadata() { Initialize(); }
 
+///////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param name The name of the specific metadata. It will be used to find the
+/// corresponding TRestAxionMagneticField section inside the RML.
+///
 TRestAxionSolarFlux::TRestAxionSolarFlux(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
     cout << "Entering TRestAxionSolarFlux constructor( cfgFileName, name )" << endl;
 
@@ -90,17 +80,50 @@ TRestAxionSolarFlux::TRestAxionSolarFlux(const char* cfgFileName, string name) :
 
     LoadConfigFromFile(fConfigFileName, name);
 
-    PrintMetadata();
+    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
 }
 
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
 TRestAxionSolarFlux::~TRestAxionSolarFlux() {}
 
+///////////////////////////////////////////////
+/// \brief Initialization of TRestAxionSolarFlux members
+///
 void TRestAxionSolarFlux::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
+
+    string fullPathName = SearchFile((string)fFluxDataFile);
+
+    debug << "Loading table from file : " << endl;
+    debug << "File : " << fullPathName << endl;
+
+    if (fullPathName == "") {
+        ferr << "File not found : " << fFluxDataFile << endl;
+        ferr << "Solar model table will not be loaded!!" << endl;
+    } else {
+        TRestTools::ReadASCIITable(fullPathName, fFluxTable);
+        fFluxPerRadius.clear();
+        for (int n = 0; n < fFluxTable.size(); n++) {
+            double sum = 0;
+            for (int m = 0; m < fFluxTable[n].size(); m++) {
+                cout << fFluxTable[n][m] << "\t";
+                sum += fFluxTable[n][m];
+            }
+            fFluxPerRadius.push_back(sum);
+            cout << endl;
+            cout << endl;
+        }
+        cout << endl;
+        for (int n = 0; n < fFluxPerRadius.size(); n++)
+            cout << "n : " << n << " flux : " << fFluxPerRadius[n] << endl;
+        cout << endl;
+    }
 }
 
-// Returns the solar axion flux in cm-2 keV-1 s-1 (on earth)
+/*
 Double_t TRestAxionSolarFlux::GetDifferentialSolarAxionFlux(Double_t energy, Double_t g10) {
     Double_t yearToSeconds = 3600. * 24. * 365.25;
     Double_t m2Tocm2 = 1.e4;
@@ -147,49 +170,28 @@ Double_t TRestAxionSolarFlux::GetSolarAxionFlux(Double_t eMin, Double_t eMax, Do
     fSolarEnergyFlux = fSolarEnergyFlux * step;
 
     return fSolarEnergyFlux;
-}
+} */
 
+///////////////////////////////////////////////
+/// \brief Initialization of TRestAxionSolarFlux metadata members through a RML file
+///
 void TRestAxionSolarFlux::InitFromConfigFile() {
     debug << "Entering TRestAxionSolarFlux::InitFromConfigFile" << endl;
 
+    fFluxDataFile = GetParameter("fluxDataFile", "");
+    fCouplingType = GetParameter("couplingType", "g_ag");
+    fCouplingStrength = StringToDouble(GetParameter("couplingStrength", "1.e-10"));
+
     this->Initialize();
-
-    fMode = GetParameter("mode", "analytical");
-    fSolarAxionModel = GetParameter("solarAxionModel", "arXiv_0702006_Primakoff");
-
-    if (fMode == "table") {
-        fStep = 0.1;
-        debug << "Loading table from file : " << endl;
-        string fullPathName = SearchFile((string)fSolarAxionModel);
-
-        debug << "File : " << fullPathName << endl;
-
-        if (fullPathName == "") {
-            ferr << "File not found : " << fSolarAxionModel << endl;
-            ferr << "Solar model table will not be loaded!!" << endl;
-        } else {
-            TRestTools::ReadASCIITable(fullPathName, fSolarTable);
-            for (int n = 0; n < fSolarTable.size(); n++) {
-                for (int m = 0; m < fSolarTable[n].size(); m++) cout << fSolarTable[n][m] << "\t";
-                cout << endl;
-                cout << endl;
-            }
-        }
-    }
-
-    PrintMetadata();
 }
 
+///////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestAxionMagneticField
+///
 void TRestAxionSolarFlux::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << " - Mode : " << fMode << endl;
-    metadata << " - Solar axion model : " << fSolarAxionModel << endl;
-    metadata << "-------------------------------------------------" << endl;
-    metadata << " - Axion-photon couping : " << fg10 << " x 10^{-10} GeV^{-1}" << endl;
-    metadata << " - Integration step : " << fStep << " keV" << endl;
-    metadata << " - Integration range : ( " << fEnergyRange.X() << ", " << fEnergyRange.Y() << " ) keV"
-             << endl;
-    metadata << " - Calculated solar flux : " << fSolarEnergyFlux << " cm-2 s-1" << endl;
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    metadata << " - Solar axion flux datafile : " << fFluxDataFile << endl;
+    metadata << " - Coupling type : " << fCouplingType << endl;
+    metadata << " - Coupling strength : " << fCouplingStrength << endl;
 }

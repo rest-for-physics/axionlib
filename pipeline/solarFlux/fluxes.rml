@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
 <axion>
+	<!-- This is obsolete. It should be TRestAxionSolarSpectrum 
 	<TRestAxionSolarFlux name="sunPrimakoff" >
 		<parameter name="solarAxionModel" value="arXiv_0702006_Primakoff"/>
-	</TRestAxionSolarFlux>
+	</TRestAxionSolarFlux> -->
 
 	<TRestAxionSolarFlux name="gianotti" >
 		<parameter name="mode" value="table"/>
-		<parameter name="solarAxionModel" value="Primakoff_Gianotti_201904.dat"/>
+		<parameter name="fluxDataFile" value="Primakoff_Gianotti_201904.dat"/>
 	</TRestAxionSolarFlux>
 </axion>
 
