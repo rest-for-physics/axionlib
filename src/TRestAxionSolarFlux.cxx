@@ -102,7 +102,7 @@ void TRestAxionSolarFlux::Initialize() {
 
     LoadMonoChromaticFluxTable();
 
-    IntegrateSolarRingsFluxes();
+    IntegrateSolarFluxes();
 }
 
 ///////////////////////////////////////////////
@@ -120,13 +120,20 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
     debug << "Loading table from file : " << endl;
     debug << "File : " << fullPathName << endl;
 
-    TRestTools::ReadASCIITable(fullPathName, fFluxTable);
+    std::vector<std::vector<Double_t>> fluxTable;
+    TRestTools::ReadASCIITable(fullPathName, fluxTable);
 
-    if (fFluxTable.size() != 100 && fFluxTable[0].size() != 200) {
-        fFluxTable.clear();
+    if (fluxTable.size() != 100 && fluxTable[0].size() != 200) {
+        fluxTable.clear();
         ferr << "LoadContinuumFluxTable. The table does not contain the right number of rows or columns"
              << endl;
         ferr << "Table will not be populated" << endl;
+    }
+
+    for (int n = 0; n < fluxTable.size(); n++) {
+        TH1D* h = new TH1D(Form("ContinuumFluxAtRadius%d", n), "", 200, 0, 20);
+        for (int m = 0; m < fluxTable[n].size(); m++) h->SetBinContent(m + 1, fluxTable[n][m]);
+        fFluxTable.push_back(h);
     }
 }
 
@@ -161,8 +168,9 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
     for (int en = 0; en < asciiTable[0].size(); en++) {
         Double_t energy = asciiTable[0][en];
         std::vector<Double_t> profile;
-        for (int r = 1; r < asciiTable.size(); r++) profile.push_back(asciiTable[r][en]);
-        fFluxLines[energy] = profile;
+        TH1D* h = new TH1D(Form("MonochromeFluxAtEnergy%4.2lf", energy), "", 100, 0, 1);
+        for (int r = 1; r < asciiTable.size(); r++) h->SetBinContent(r, asciiTable[r][en]);
+        fFluxLines[energy] = h;
     }
 }
 
@@ -170,13 +178,17 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
 /// \brief A helper method to initialize the internal class data members with the
 /// integrated flux for each solar ring. It will be called by TRestAxionSolarFlux::Initialize.
 ///
-void TRestAxionSolarFlux::IntegrateSolarRingsFluxes() {
-    fFluxPerRadius.clear();
+void TRestAxionSolarFlux::IntegrateSolarFluxes() {
+    fFluxLineIntegrals.clear();
+    fTotalMonochromaticFlux = 0;
+    for (const auto& line : fFluxLines) {
+        fTotalMonochromaticFlux += line.second->Integral();
+        fFluxLineIntegrals.push_back(fTotalMonochromaticFlux);
+    }
+
+    fTotalFlux = fTotalMonochromaticFlux;
     for (int n = 0; n < fFluxTable.size(); n++) {
-        double sum = 0;
-        for (int m = 0; m < fFluxTable[n].size(); m++) sum += fFluxTable[n][m];
-        for (const auto& line : fFluxLines) sum += line.second[n];
-        fFluxPerRadius.push_back(sum);
+        fTotalFlux += fFluxTable[n]->Integral() * 0.1;  // We integrate in 100eV steps
     }
 }
 
@@ -201,7 +213,8 @@ void TRestAxionSolarFlux::PrintContinuumSolarTable() {
     cout << "Continuum solar flux table: " << endl;
     cout << "--------------------------- " << endl;
     for (int n = 0; n < fFluxTable.size(); n++) {
-        for (int m = 0; m < fFluxTable[n].size(); m++) cout << fFluxTable[n][m] << "\t";
+        for (int m = 0; m < fFluxTable[n]->GetNbinsX(); m++)
+            cout << fFluxTable[n]->GetBinContent(m + 1) << "\t";
         cout << endl;
         cout << endl;
     }
@@ -214,22 +227,25 @@ void TRestAxionSolarFlux::PrintContinuumSolarTable() {
 void TRestAxionSolarFlux::PrintIntegratedRingFlux() {
     cout << "Integrated solar flux per solar ring: " << endl;
     cout << "--------------------------- " << endl;
-    for (int n = 0; n < fFluxPerRadius.size(); n++)
-        cout << "n : " << n << " flux : " << fFluxPerRadius[n] << endl;
-    cout << endl;
+    /*
+for (int n = 0; n < fFluxPerRadius.size(); n++)
+    cout << "n : " << n << " flux : " << fFluxPerRadius[n] << endl;
+cout << endl;
+    */
 }
 
 ///////////////////////////////////////////////
 /// \brief It prints on screen the spectral lines loaded in memory
 ///
 void TRestAxionSolarFlux::PrintMonoChromaticFlux() {
-    cout << "Number of monochromatic lines: " << fFluxPerRadius.size() << endl;
+    //   cout << "Number of monochromatic lines: " << fFluxPerRadius.size() << endl;
     cout << "+++++++++++++++++++++++++++++++++++" << endl;
     for (auto const& line : fFluxLines) {
         cout << "Energy : " << line.first << " keV" << endl;
         cout << "-----------------" << endl;
-        for (int n = 0; n < line.second.size(); n++)
-            cout << "R : " << n << " flux : " << line.second[n] << " cm-2 s-1" << endl;
+        for (int n = 0; n < line.second->GetNbinsX(); n++)
+            cout << "R : " << line.second->GetBinCenter(n + 1)
+                 << " flux : " << line.second->GetBinContent(n + 1) << " cm-2 s-1" << endl;
     }
 }
 
@@ -245,6 +261,9 @@ void TRestAxionSolarFlux::PrintMetadata() {
         metadata << " - Solar axion flux datafile (monochromatic) : " << fFluxSptFile << endl;
     metadata << " - Coupling type : " << fCouplingType << endl;
     metadata << " - Coupling strength : " << fCouplingStrength << endl;
+    metadata << "-------" << endl;
+    metadata << " - Total monochromatic flux : " << fTotalMonochromaticFlux << " cm-2 s-1" << endl;
+    metadata << " - Total flux (continuum + monochromatic) : " << fTotalFlux << " cm-2 s-1" << endl;
     metadata << "++++++++++++++++++" << endl;
 
     if (GetVerboseLevel() >= REST_Debug) {
