@@ -25,6 +25,8 @@
 
 #include <TRestMetadata.h>
 
+#include <TRestAxionSolarModel.h>
+
 //! A metadata class to load tabulated solar axion fluxes
 class TRestAxionSolarFlux : public TRestMetadata {
    private:
@@ -53,20 +55,45 @@ class TRestAxionSolarFlux : public TRestMetadata {
     // Contains the contribution to the flux for each solar ring (continuum + monochromatic)
     std::vector<Double_t> fFluxPerRadius;  //!
 
+    // The total solar disk integrated flux in cm-2 s-1
+    Double_t fTotalFlux = 0;  //!
+
+    void LoadContinuumFluxTable();
+    void LoadMonoChromaticFluxTable();
+    void IntegrateSolarRingsFluxes();
+
    public:
     Bool_t isSolarTableLoaded() { return fFluxTable.size() > 0; }
+
+    Bool_t isSolarSpectrumLoaded() { return fFluxLines.size() > 0; }
 
     std::pair<Double_t, Double_t> GetRandomEnergyAndRadius() {
         std::pair<Double_t, Double_t> result = {0, 0};
         return result;
     }
 
+    /// Tables might be loaded using a solar model description by TRestAxionSolarModel
+    void InitializeSolarTable(TRestAxionSolarModel* model) {
+        // TOBE implemented
+        // This method should initialize the tables fFluxTable and fFluxLines
+    }
+
+    void ExportTables(std::string fname) {
+        // TOBE implemented. Creates fname.dat and fname.spt
+        // If we have external methods to initialize solar flux tables this method
+        // might be used to generate the tables that can be used later on directly
+        //
+        // Check data/solarFlux/README.md for data format and file naming conventions
+    }
+
     void PrintMetadata();
 
-    // Constructors
+    void PrintContinuumSolarTable();
+    void PrintIntegratedRingFlux();
+    void PrintMonoChromaticFlux();
+
     TRestAxionSolarFlux();
     TRestAxionSolarFlux(const char* cfgFileName, std::string name = "");
-    // Destructor
     ~TRestAxionSolarFlux();
 
     ClassDef(TRestAxionSolarFlux, 1);

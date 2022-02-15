@@ -98,82 +98,87 @@ void TRestAxionSolarFlux::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
+    LoadContinuumFluxTable();
+
+    LoadMonoChromaticFluxTable();
+
+    IntegrateSolarRingsFluxes();
+}
+
+///////////////////////////////////////////////
+/// \brief A helper method to load the data file containning continuum spectra as a
+/// function of the solar radius. It will be called by TRestAxionSolarFlux::Initialize.
+///
+void TRestAxionSolarFlux::LoadContinuumFluxTable() {
+    if (fFluxDataFile == "") {
+        debug << "TRestAxionSolarflux::LoadContinuumFluxTable. No solar flux table was defined" << endl;
+        return;
+    }
+
     string fullPathName = SearchFile((string)fFluxDataFile);
 
     debug << "Loading table from file : " << endl;
     debug << "File : " << fullPathName << endl;
 
-    if (fullPathName == "") {
-        ferr << "File not found : " << fFluxDataFile << endl;
-        ferr << "Solar model table will not be loaded!!" << endl;
-    } else {
-        TRestTools::ReadASCIITable(fullPathName, fFluxTable);
-        fFluxPerRadius.clear();
-        for (int n = 0; n < fFluxTable.size(); n++) {
-            double sum = 0;
-            for (int m = 0; m < fFluxTable[n].size(); m++) {
-                cout << fFluxTable[n][m] << "\t";
-                sum += fFluxTable[n][m];
-            }
-            fFluxPerRadius.push_back(sum);
-            cout << endl;
-            cout << endl;
-        }
-        cout << endl;
-        for (int n = 0; n < fFluxPerRadius.size(); n++)
-            cout << "n : " << n << " flux : " << fFluxPerRadius[n] << endl;
-        cout << endl;
+    TRestTools::ReadASCIITable(fullPathName, fFluxTable);
+
+    if (fFluxTable.size() != 100 && fFluxTable[0].size() != 200) {
+        fFluxTable.clear();
+        ferr << "LoadContinuumFluxTable. The table does not contain the right number of rows or columns"
+             << endl;
+        ferr << "Table will not be populated" << endl;
     }
 }
 
-/*
-Double_t TRestAxionSolarFlux::GetDifferentialSolarAxionFlux(Double_t energy, Double_t g10) {
-    Double_t yearToSeconds = 3600. * 24. * 365.25;
-    Double_t m2Tocm2 = 1.e4;
-
-    if (fSolarAxionModel == "arXiv_0702006_Primakoff")
-        return 6.02e10 * g10 * g10 * TMath::Power(energy, 2.481) * TMath::Exp(-energy / 1.205);
-    if (fSolarAxionModel == "arXiv_1302.6283_Primakoff") {
-        Double_t factor = 2.0e22 / yearToSeconds / m2Tocm2;
-        return factor * g10 * g10 * TMath::Power(energy, 2.450) * TMath::Exp(-0.829 * energy);
-    }
-    if (fSolarAxionModel == "arXiv_1302.6283_BC") {
-        Double_t factor_1 = 4.2e24 / yearToSeconds / m2Tocm2;
-        Double_t factor_2 = 8.3e26 / yearToSeconds / m2Tocm2;
-
-        return g10 * g10 *
-               (factor_1 * TMath::Power(energy, 2.987) * TMath::Exp(-0.776 * energy) +
-                factor_2 * energy * TMath::Exp(-.77 * energy) / (1 + 0.667 * TMath::Power(energy, 1.278)));
+///////////////////////////////////////////////
+/// \brief A helper method to load the data file containning monochromatic spectral
+/// lines as a function of the solar radius. It will be called by TRestAxionSolarFlux::Initialize.
+///
+void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
+    if (fFluxSptFile == "") {
+        debug << "TRestAxionSolarflux::LoadMonoChromaticFluxTable. No solar flux monochromatic table was "
+                 "defined"
+              << endl;
+        return;
     }
 
-    warning << "Solar model not recognized" << endl;
-    warning << "--------------------------" << endl;
-    warning << "Solar axion model : " << fSolarAxionModel << endl;
+    string fullPathName = SearchFile((string)fFluxSptFile);
 
-    return 0;
+    debug << "Loading monochromatic lines from file : " << endl;
+    debug << "File : " << fullPathName << endl;
+
+    std::vector<std::vector<Double_t>> asciiTable;
+    TRestTools::ReadASCIITable(fullPathName, asciiTable);
+
+    fFluxLines.clear();
+
+    if (asciiTable.size() != 101) {
+        ferr << "LoadMonoChromaticFluxTable. The table does not contain the right number of rows" << endl;
+        ferr << "Table will not be populated" << endl;
+        return;
+    }
+
+    for (int en = 0; en < asciiTable[0].size(); en++) {
+        Double_t energy = asciiTable[0][en];
+        std::vector<Double_t> profile;
+        for (int r = 1; r < asciiTable.size(); r++) profile.push_back(asciiTable[r][en]);
+        fFluxLines[energy] = profile;
+    }
 }
 
-Double_t TRestAxionSolarFlux::GetSolarAxionFlux(Double_t eMin, Double_t eMax, Double_t g10, Double_t step) {
-    if (fMode == "analytical" && fSolarEnergyFlux > 0)
-        if (fg10 == g10 && fStep == step && eMin == fEnergyRange.X() && eMax == fEnergyRange.Y())
-            return fSolarEnergyFlux;
-
-    info << "TRestAxionSolarFlux::GetSolarAxionFlux re-calculating solar "
-            "axion flux"
-         << endl;
-
-    fg10 = g10;
-    fStep = step;
-    fEnergyRange = TVector2(eMin, eMax);
-
-    fSolarEnergyFlux = 0;
-    for (Double_t en = eMin; en < eMax; en += step)
-        fSolarEnergyFlux += GetDifferentialSolarAxionFlux(en, g10);
-
-    fSolarEnergyFlux = fSolarEnergyFlux * step;
-
-    return fSolarEnergyFlux;
-} */
+///////////////////////////////////////////////
+/// \brief A helper method to initialize the internal class data members with the
+/// integrated flux for each solar ring. It will be called by TRestAxionSolarFlux::Initialize.
+///
+void TRestAxionSolarFlux::IntegrateSolarRingsFluxes() {
+    fFluxPerRadius.clear();
+    for (int n = 0; n < fFluxTable.size(); n++) {
+        double sum = 0;
+        for (int m = 0; m < fFluxTable[n].size(); m++) sum += fFluxTable[n][m];
+        for (const auto& line : fFluxLines) sum += line.second[n];
+        fFluxPerRadius.push_back(sum);
+    }
+}
 
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestAxionSolarFlux metadata members through a RML file
@@ -190,12 +195,61 @@ void TRestAxionSolarFlux::InitFromConfigFile() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionMagneticField
+/// \brief It prints on screen the table that has been loaded in memory
+///
+void TRestAxionSolarFlux::PrintContinuumSolarTable() {
+    cout << "Continuum solar flux table: " << endl;
+    cout << "--------------------------- " << endl;
+    for (int n = 0; n < fFluxTable.size(); n++) {
+        for (int m = 0; m < fFluxTable[n].size(); m++) cout << fFluxTable[n][m] << "\t";
+        cout << endl;
+        cout << endl;
+    }
+    cout << endl;
+}
+
+///////////////////////////////////////////////
+/// \brief It prints on screen the integrated solar flux per solar ring
+///
+void TRestAxionSolarFlux::PrintIntegratedRingFlux() {
+    cout << "Integrated solar flux per solar ring: " << endl;
+    cout << "--------------------------- " << endl;
+    for (int n = 0; n < fFluxPerRadius.size(); n++)
+        cout << "n : " << n << " flux : " << fFluxPerRadius[n] << endl;
+    cout << endl;
+}
+
+///////////////////////////////////////////////
+/// \brief It prints on screen the spectral lines loaded in memory
+///
+void TRestAxionSolarFlux::PrintMonoChromaticFlux() {
+    cout << "Number of monochromatic lines: " << fFluxPerRadius.size() << endl;
+    cout << "+++++++++++++++++++++++++++++++++++" << endl;
+    for (auto const& line : fFluxLines) {
+        cout << "Energy : " << line.first << " keV" << endl;
+        cout << "-----------------" << endl;
+        for (int n = 0; n < line.second.size(); n++)
+            cout << "R : " << n << " flux : " << line.second[n] << " cm-2 s-1" << endl;
+    }
+}
+
+///////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestAxionSolarFlux
 ///
 void TRestAxionSolarFlux::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << " - Solar axion flux datafile : " << fFluxDataFile << endl;
+    if (fFluxDataFile != "")
+        metadata << " - Solar axion flux datafile (continuum) : " << fFluxDataFile << endl;
+    if (fFluxSptFile != "")
+        metadata << " - Solar axion flux datafile (monochromatic) : " << fFluxSptFile << endl;
     metadata << " - Coupling type : " << fCouplingType << endl;
     metadata << " - Coupling strength : " << fCouplingStrength << endl;
+    metadata << "++++++++++++++++++" << endl;
+
+    if (GetVerboseLevel() >= REST_Debug) {
+        PrintContinuumSolarTable();
+        PrintMonoChromaticFlux();
+        PrintIntegratedRingFlux();
+    }
 }
