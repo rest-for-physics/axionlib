@@ -65,16 +65,16 @@ class TRestAxionSolarFlux : public TRestMetadata {
     std::vector<Double_t> fFluxLineIntegrals;  //!
 
     // Total solar flux for monochromatic contributions
-    Double_t fTotalMonochromaticFlux = 0;
+    Double_t fTotalMonochromaticFlux = 0;  //!
 
     // Total solar flux for monochromatic contributions
-    Double_t fTotalContinuumFlux = 0;
+    Double_t fTotalContinuumFlux = 0;  //!
 
     // The ratio between monochromatic and total flux
     Double_t fFluxRatio = 0;  //!
 
     // Random number generator
-    TRandom3* fRandom = nullptr;
+    TRandom3* fRandom = nullptr;  //!
 
     void LoadContinuumFluxTable();
     void LoadMonoChromaticFluxTable();
