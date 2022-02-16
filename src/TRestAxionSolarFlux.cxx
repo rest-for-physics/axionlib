@@ -26,6 +26,11 @@
 /// of the solar radius. It will be also possible to generate the solar table
 /// by other means.
 ///
+/// Once the class has been initialized, the main use of this class will be provided
+/// by the method TRestAxionSolarFlux::GetRandomEnergyAndRadius. This method will
+/// return a random axion energy and position inside the solar radius following the
+/// distributions given by the solar flux tables.
+///
 /// \code
 ///     <TRestAxionSolarFlux name="sunPrimakoff" verboseLevel="debug" >
 ///			<parameter name="couplingType" value="g_ag"/>
@@ -35,10 +40,12 @@
 ///     </TRestAxionSolarFlux>
 /// \endcode
 ///
-/// Once the class has been initialized, the main use of this class will be provided
-/// by the method TRestAxionSolarFlux::GetRandomEnergyAndRadius. This method will
-/// return a random axion energy and position inside the solar radius following the
-/// distributions given by the solar flux tables.
+/// The previous definition was used to generate the following figure using the script
+/// pipeline/solarFlux/solarFlux.py.
+///
+/// \htmlonly <style>div.image img[src="AxionSolarFlux.png"]{width:750px;}</style> \endhtmlonly
+///
+/// ![Solar flux distributions generated with TRestAxionSolarFlux.](AxionSolarFlux.png)
 ///
 /// TODO Implement the method TRestAxionSolarFlux::InitializeSolarTable using
 /// a solar model description by TRestAxionSolarModel.
