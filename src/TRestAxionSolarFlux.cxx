@@ -31,6 +31,25 @@
 /// return a random axion energy and position inside the solar radius following the
 /// distributions given by the solar flux tables.
 ///
+/// For the moment, in order to trace the nature and intensity of the coupling in
+/// future ray-tracking results we need to define the parameters `couplingType` and
+/// `couplingStrength`. The ray-tracing processing will be done for different
+/// coupling components in different event processing chains.
+///
+/// Description of the parameters accepted by this metadata class.
+/// - *couplingType:* A string describing the coupling type, i.e. g_ag, g_ae, g_an, ...
+/// - *couplingStrength:* The intensity of the coupling used to calculate the values
+/// given in the solar flux tables.
+/// - *fluxDataFile:* A table with 100 rows representing the solar ring flux from the
+/// center to the corona, and 200 columns representing the flux, measured in cm-2 s-1 keV-1,
+/// for the range (0,20)keV in steps of 100eV.
+/// - *fluxSptFile:* A table where each column represents a monochromatic energy. The
+/// column contains 101 rows, the first element is the energy of the monochromatic line
+/// while the next 100 elements contain the flux, measured in cm-2 s-1, integrated to
+/// each solar ring, being the second element the ring in the center of the sun.
+///
+/// The following code shows how to define this class inside a RML file.
+///
 /// \code
 ///     <TRestAxionSolarFlux name="sunPrimakoff" verboseLevel="debug" >
 ///			<parameter name="couplingType" value="g_ag"/>
