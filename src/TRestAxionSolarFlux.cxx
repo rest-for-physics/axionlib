@@ -25,8 +25,6 @@
 /// a solar flux table that will describe the solar flux spectrum as a function
 /// of the solar radius. It will be also possible to generate the solar table
 /// by other means.
-/// See for example the method TRestAxionSolarFlux::InitializeSolarTable using
-/// a solar model description by TRestAxionSolarModel.
 ///
 /// \code
 ///     <TRestAxionSolarFlux name="sunPrimakoff" verboseLevel="debug" >
@@ -36,6 +34,14 @@
 ///			<parameter name="fluxSptFile" value="Dummy_Galan_202202.spt"/>
 ///     </TRestAxionSolarFlux>
 /// \endcode
+///
+/// Once the class has been initialized, the main use of this class will be provided
+/// by the method TRestAxionSolarFlux::GetRandomEnergyAndRadius. This method will
+/// return a random axion energy and position inside the solar radius following the
+/// distributions given by the solar flux tables.
+///
+/// TODO Implement the method TRestAxionSolarFlux::InitializeSolarTable using
+/// a solar model description by TRestAxionSolarModel.
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -60,7 +66,7 @@ ClassImp(TRestAxionSolarFlux);
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestAxionSolarFlux::TRestAxionSolarFlux() : TRestMetadata() { Initialize(); }
+TRestAxionSolarFlux::TRestAxionSolarFlux() : TRestMetadata() {}
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -78,8 +84,6 @@ TRestAxionSolarFlux::TRestAxionSolarFlux() : TRestMetadata() { Initialize(); }
 ///
 TRestAxionSolarFlux::TRestAxionSolarFlux(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
     cout << "Entering TRestAxionSolarFlux constructor( cfgFileName, name )" << endl;
-
-    Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
 
@@ -103,6 +107,14 @@ void TRestAxionSolarFlux::Initialize() {
     LoadMonoChromaticFluxTable();
 
     IntegrateSolarFluxes();
+
+    if (!fRandom) {
+        delete fRandom;
+        fRandom = nullptr;
+    }
+
+    fRandom = new TRandom3(fSeed);
+    if (fSeed == 0) fSeed = fRandom->GetSeed();
 }
 
 ///////////////////////////////////////////////
@@ -131,7 +143,7 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
     }
 
     for (int n = 0; n < fluxTable.size(); n++) {
-        TH1D* h = new TH1D(Form("ContinuumFluxAtRadius%d", n), "", 200, 0, 20);
+        TH1D* h = new TH1D(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), "", 200, 0, 20);
         for (int m = 0; m < fluxTable[n].size(); m++) h->SetBinContent(m + 1, fluxTable[n][m]);
         fFluxTable.push_back(h);
     }
@@ -168,7 +180,7 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
     for (int en = 0; en < asciiTable[0].size(); en++) {
         Double_t energy = asciiTable[0][en];
         std::vector<Double_t> profile;
-        TH1D* h = new TH1D(Form("MonochromeFluxAtEnergy%4.2lf", energy), "", 100, 0, 1);
+        TH1D* h = new TH1D(Form("%s_MonochromeFluxAtEnergy%4.2lf", GetName(), energy), "", 100, 0, 1);
         for (int r = 1; r < asciiTable.size(); r++) h->SetBinContent(r, asciiTable[r][en]);
         fFluxLines[energy] = h;
     }
@@ -186,10 +198,17 @@ void TRestAxionSolarFlux::IntegrateSolarFluxes() {
         fFluxLineIntegrals.push_back(fTotalMonochromaticFlux);
     }
 
-    fTotalFlux = fTotalMonochromaticFlux;
+    for (int n = 0; n < fFluxLineIntegrals.size(); n++) fFluxLineIntegrals[n] /= fTotalMonochromaticFlux;
+
+    fTotalContinuumFlux = 0.0;
     for (int n = 0; n < fFluxTable.size(); n++) {
-        fTotalFlux += fFluxTable[n]->Integral() * 0.1;  // We integrate in 100eV steps
+        fTotalContinuumFlux += fFluxTable[n]->Integral() * 0.1;  // We integrate in 100eV steps
+        fFluxTableIntegrals.push_back(fTotalContinuumFlux);
     }
+
+    for (int n = 0; n < fFluxTableIntegrals.size(); n++) fFluxTableIntegrals[n] /= fTotalContinuumFlux;
+
+    fFluxRatio = fTotalMonochromaticFlux / (fTotalContinuumFlux + fTotalMonochromaticFlux);
 }
 
 ///////////////////////////////////////////////
@@ -202,8 +221,40 @@ void TRestAxionSolarFlux::InitFromConfigFile() {
     fFluxSptFile = GetParameter("fluxSptFile", "");
     fCouplingType = GetParameter("couplingType", "g_ag");
     fCouplingStrength = StringToDouble(GetParameter("couplingStrength", "1.e-10"));
+    fSeed = StringToInteger(GetParameter("seed", "0"));
 
     this->Initialize();
+}
+
+///////////////////////////////////////////////
+/// \brief It returns a random solar radius position and energy according to the
+/// flux distributions defined inside the solar tables loaded in the class
+///
+std::pair<Double_t, Double_t> TRestAxionSolarFlux::GetRandomEnergyAndRadius() {
+    std::pair<Double_t, Double_t> result = {0, 0};
+    Double_t rnd = fRandom->Rndm();
+    if (fTotalMonochromaticFlux == 0 || fRandom->Rndm() > fFluxRatio) {
+        // Continuum
+        for (int r = 0; r < fFluxTableIntegrals.size(); r++) {
+            if (rnd < fFluxTableIntegrals[r]) {
+                Double_t energy = fFluxTable[r]->GetRandom();
+                Double_t radius = ((Double_t)r + fRandom->Rndm()) * 0.01;
+                std::pair<Double_t, Double_t> p = {energy, radius};
+                return p;
+            }
+        }
+    } else {
+        // Monochromatic
+        int n = 0;
+        for (const auto& line : fFluxLines) {
+            if (rnd < fFluxLineIntegrals[n]) {
+                std::pair<Double_t, Double_t> p = {line.first, line.second->GetRandom()};
+                return p;
+            }
+            n++;
+        }
+    }
+    return result;
 }
 
 ///////////////////////////////////////////////
@@ -263,7 +314,9 @@ void TRestAxionSolarFlux::PrintMetadata() {
     metadata << " - Coupling strength : " << fCouplingStrength << endl;
     metadata << "-------" << endl;
     metadata << " - Total monochromatic flux : " << fTotalMonochromaticFlux << " cm-2 s-1" << endl;
-    metadata << " - Total flux (continuum + monochromatic) : " << fTotalFlux << " cm-2 s-1" << endl;
+    metadata << " - Total continuum flux : " << fTotalContinuumFlux << " cm-2 s-1" << endl;
+    metadata << "--------" << endl;
+    metadata << " - Random seed : " << fSeed << endl;
     metadata << "++++++++++++++++++" << endl;
 
     if (GetVerboseLevel() >= REST_Debug) {

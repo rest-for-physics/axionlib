@@ -24,6 +24,7 @@
 #define _TRestAxionSolarFlux
 
 #include <TH1D.h>
+#include <TRandom3.h>
 
 #include <TRestMetadata.h>
 
@@ -48,20 +49,32 @@ class TRestAxionSolarFlux : public TRestMetadata {
     // Axion coupling strength
     Double_t fCouplingStrength;  //<
 
+    // Seed used in random generator
+    Int_t fSeed = 0;  //<
+
     // The tabulated solar flux continuum spectra TH1D(100,0,20)keV in cm-2 s-1 keV-1 versus solar radius
     std::vector<TH1D*> fFluxTable;  //!
 
     // The tabulated solar flux in cm-2 s-1 for a number of monochromatic energies versus solar radius
     std::map<Double_t, TH1D*> fFluxLines;  //!
 
-    // Accumulative integrated solar flux for each monochromatic energy
+    // Accumulative integrated solar flux for each solar ring for continuum spectrum (renormalized to unity)
+    std::vector<Double_t> fFluxTableIntegrals;  //!
+
+    // Accumulative integrated solar flux for each monochromatic energy (renormalized to unity)
     std::vector<Double_t> fFluxLineIntegrals;  //!
 
     // Total solar flux for monochromatic contributions
     Double_t fTotalMonochromaticFlux = 0;
 
-    // The total solar disk integrated flux (continuum + monochromatic) in cm-2 s-1
-    Double_t fTotalFlux = 0;  //!
+    // Total solar flux for monochromatic contributions
+    Double_t fTotalContinuumFlux = 0;
+
+    // The ratio between monochromatic and total flux
+    Double_t fFluxRatio = 0;  //!
+
+    // Random number generator
+    TRandom3* fRandom = nullptr;
 
     void LoadContinuumFluxTable();
     void LoadMonoChromaticFluxTable();
@@ -72,10 +85,7 @@ class TRestAxionSolarFlux : public TRestMetadata {
 
     Bool_t isSolarSpectrumLoaded() { return fFluxLines.size() > 0; }
 
-    std::pair<Double_t, Double_t> GetRandomEnergyAndRadius() {
-        std::pair<Double_t, Double_t> result = {0, 0};
-        return result;
-    }
+    std::pair<Double_t, Double_t> GetRandomEnergyAndRadius();
 
     /// Tables might be loaded using a solar model description by TRestAxionSolarModel
     void InitializeSolarTable(TRestAxionSolarModel* model) {
