@@ -21,16 +21,34 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionGeneratorProcess TOBE documented
 ///
-/// The axion is generated with intensity proportional to g_ag = 1.0 x g10
+/// This generator will produce solar axion events with the Sun at position
+/// (0,0,AU) and detector at position (0,0,0).
+///
+/// The axion generation properties, such as coupling type and intensity, are
+/// defined by TRestAxionSolarFlux. That class defines the method
+/// TRestAxionSolarFlux::GetRandomEnergyAndRadius that is exploited by this
+/// process to define initial conditions for each axion, such as angular
+/// direction or energy. The flux intensity and its dependency with the solar
+/// radius and spectral energy will be fully coded inside TRestAxionSolarFlux,
+/// while this method will be able to play with the Sun-generator position,
+/// and the size of the target detector (which is placed at (0,0,0)) to
+/// define an initial axion position, direction and energy.
+///
+/// The following metadata members can be tuned in this process:
+/// - `axionMass:` It defines the axion mass in eV required later on by axion-photon
+/// conversion processes. Its default value is 0.
+/// - `detectorRadius:` All generated axion events will end up in a circular region
+/// placed at the XY plane. This parameter defines the radius of the circular region.
+/// The default value is 10cm.
+///
 ///--------------------------------------------------------------------------
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
-/// 2019-March:  First implementation of shared memory buffer to rawsignal conversion.
+/// 2022-February:  New generator implementation using TRestAxionSolarFlux
 ///             Javier Galan
 ///
 /// \class      TRestAxionGeneratorProcess
@@ -102,8 +120,7 @@ void TRestAxionGeneratorProcess::Initialize() {
     fOutputAxionEvent = new TRestAxionEvent();
 
     fIsExternal = true;
-
-    fRandom = new TRandom3(0);
+    fSingleThreadOnly = true;
 }
 
 ///////////////////////////////////////////////
@@ -113,144 +130,11 @@ void TRestAxionGeneratorProcess::Initialize() {
 void TRestAxionGeneratorProcess::InitProcess() {
     debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
 
-    fAxionSpectrum = (TRestAxionSpectrum*)this->GetMetadata("TRestAxionSpectrum");
+    fAxionFlux = GetMetadata<TRestAxionSolarFlux>();
 
-    if (!fAxionSpectrum) {
-        ferr << "TRestAxionGeneratorProcess. Axion model was not defined!" << endl;
-        exit(0);
+    if (fAxionFlux == nullptr) {
+        if (!this->GetError()) this->SetError("The solar flux definition was not found.");
     }
-}
-
-///////////////////////////////////////////////
-/// \brief This method gets a random energy relying on the solar axion model defined in TRestAxionSolarModel
-///
-Double_t TRestAxionGeneratorProcess::GenerateEnergy() {
-    debug << "Entering TRestAxionGeneratorProcess::GenerateEnergy() ..." << endl;
-    Double_t solarFlux =
-        fAxionSpectrum->GetSolarAxionFlux(fEnergyRange.X(), fEnergyRange.Y(), fEnergyStep);
-
-    Double_t random = solarFlux * fRandom->Uniform(0, 1.0);
-
-    Double_t sum = 0;
-    for (double en = fEnergyRange.X(); en < fEnergyRange.Y(); en += fEnergyStep) {
-        sum += fAxionSpectrum->GetDifferentialSolarAxionFlux(en) * fEnergyStep;
-
-        if (random < sum) {
-            debug << "TRestAxionGeneratorProcess::GenerateEnergy. Energy = " << en << endl;
-            return en + fRandom->Uniform(0, fEnergyStep);
-        }
-    }
-
-    return fEnergyRange.Y();
-}
-
-TVector3 TRestAxionGeneratorProcess::GenerateDirection() {
-    TVector3 direction;
-
-    // For the moment "circleWall" just generates in the XY-plane
-    if (fAngularDistribution == "flux") {
-        return fAngularDirection;
-    }
-
-    warning << "Angular distribution : " << fAngularDistribution << " is not defined!" << endl;
-
-    return fAngularDirection;
-}
-
-TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
-    TVector3 position;
-    Double_t r, x, y, z;
-
-    if (fSpatialDistribution == "circleWall") {
-        do {
-            x = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
-            y = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
-
-            r = x * x + y * y;
-        } while (r > fSpatialRadius * fSpatialRadius);
-
-        position = TVector3(x, y, z);  //+ fSpatialOrigin;
-
-        if (fMode == "XYZRotation") {
-            position.RotateX(fRotation.X());
-            position.RotateY(fRotation.Y());
-            position.RotateZ(fRotation.Z());
-            position = position + fSpatialOrigin;
-        }
-
-        if (fMode == "nPlanRotation") {
-            fNormalPlan = fNormalPlan.Unit();
-            TVector3 rotVec(0, -fNormalPlan.X(), fNormalPlan.Y());
-            Double_t angle = fNormalPlan.Angle(TVector3(1, 0, 0));
-            position.Rotate(angle, rotVec);
-            position = position + fSpatialOrigin;
-        }
-
-        return position;
-    }
-
-    if (fSpatialDistribution == "circleWallXY") {
-        do {
-            x = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
-            y = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
-
-            r = x * x + y * y;
-        } while (r > fSpatialRadius * fSpatialRadius);
-
-        position = TVector3(x, y, 0) + fSpatialOrigin;
-
-        return position;
-    }
-
-    if (fSpatialDistribution == "circleWallXZ") {
-        do {
-            x = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
-            z = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
-
-            r = x * x + z * z;
-        } while (r > fSpatialRadius * fSpatialRadius);
-
-        position = TVector3(x, 0, z) + fSpatialOrigin;
-
-        return position;
-    }
-
-    if (fSpatialDistribution == "circleWallYZ") {
-        do {
-            y = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
-            z = fRandom->Uniform(-fSpatialRadius, fSpatialRadius);
-
-            r = y * y + z * z;
-        } while (r > fSpatialRadius * fSpatialRadius);
-
-        position = TVector3(0, y, z) + fSpatialOrigin;
-
-        return position;
-    }
-
-    if (fSpatialDistribution == "sphereIn") {
-        fRandom->Sphere(x, y, z, fSpatialRadius);
-        position = TVector3(x, y, z) + fSpatialOrigin;
-
-        fAngularDirection = -TVector3(x, y, z);
-        fAngularDirection = fAngularDirection.Unit();
-
-        return position;
-    }
-
-    if (fSpatialDistribution == "sphereOut") {
-        fRandom->Sphere(x, y, z, fSpatialRadius);
-        position = TVector3(x, y, z) + fSpatialOrigin;
-
-        fAngularDirection = TVector3(x, y, z);
-        fAngularDirection = fAngularDirection.Unit();
-
-        return position;
-    }
-
-    warning << "Spatial distribution : " << fSpatialDistribution << " is not defined!" << endl;
-
-    return position;
 }
 
 ///////////////////////////////////////////////
@@ -261,36 +145,26 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     fOutputAxionEvent->SetID(fCounter);
     fCounter++;
 
-    fOutputAxionEvent->SetEnergy(GenerateEnergy());
-    fOutputAxionEvent->SetPosition(GeneratePosition());
-    fOutputAxionEvent->SetDirection(GenerateDirection());
-    fOutputAxionEvent->SetMass(fAxionMass);
-
-    // cout << "anaTree : " << fAnalysisTree << endl;
-    // fAnalysisTree->SetObservableValue( this, "energy", fOutputAxionEvent->GetEnergy() );
-    // fAnalysisTree->PrintObservables();
+    std::pair<Double_t, Double_t> p = fAxionFlux->GetRandomEnergyAndRadius();
+    cout << p.first << " " << p.second << endl;
+    /*
+fOutputAxionEvent->SetEnergy(GenerateEnergy());
+fOutputAxionEvent->SetPosition(GeneratePosition());
+fOutputAxionEvent->SetDirection(GenerateDirection());
+fOutputAxionEvent->SetMass(fAxionMass);
+    */
 
     if (GetVerboseLevel() >= REST_Debug) fOutputAxionEvent->PrintEvent();
 
     return fOutputAxionEvent;
 }
 
-///////////////////////////////////////////////
-/// \brief Function reading input parameters from the RML TRestAxionGeneratorProcess metadata section
-///
-void TRestAxionGeneratorProcess::InitFromConfigFile() {
-    // These 2-params should be moved to TRestAxionSolarModel
-    fEnergyRange = Get2DVectorParameterWithUnits("energyRange");
-    fEnergyStep = GetDblParameterWithUnits("energyStep");
+void TRestAxionGeneratorProcess::PrintMetadata() {
+    TRestMetadata::PrintMetadata();
 
-    fAngularDistribution = GetParameter("angularDistribution", "flux");
-    fAngularDirection = Get3DVectorParameterWithUnits("angularDirection");
+    metadata << "Axion mass: " << fAxionMass << " eV" << endl;
+    metadata << "Detector radius: " << fDetectorRadius * units("cm") << " cm" << endl;
 
-    fSpatialDistribution = GetParameter("spatialDistribution", "circleWall");
-    fSpatialRadius = GetDblParameterWithUnits("spatialRadius");
-    fSpatialOrigin = Get3DVectorParameterWithUnits("spatialOrigin");
-
-    fRotation = StringTo3DVector(GetParameter("rotation"));
-    fNormalPlan = Get3DVectorParameterWithUnits("normalWall");
-    fMode = GetParameter("mode");
+    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
+
