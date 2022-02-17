@@ -28,10 +28,10 @@ class TRestAxionGenericOptics : public TRestAxionOptics {
    private:
     
     /// A vector containing the shells seperations between the two stacks. First element is the lowest radius.
-    std::vector<std::pair<Double_t, Double_t>> fShellsSep;  //<
+    std::vector<Double_t> fShellsSep;  //<
 
     /// A vector containing the shells angles. First element is the lowest radius. Note that the second stack has the tripple of this angle.
-    std::vector<std::pair<Double_t, Double_t>> fShellsAngle;  //<
+    std::vector<Double_t> fShellsAngle;  //<
 
     ///coating materials and surface roughness or better yet: direction to a file that gives the reflectivity
     std::string fReflectivityFileName;
