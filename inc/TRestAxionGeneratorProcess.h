@@ -46,9 +46,7 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     Double_t fAxionMass = 0;  //<
 
     /// The central position of the generator (Default is 10cm)
-    Double_t fDetectorRadius = 0.1;  //<
-
-    void InitFromConfigFile();
+    Double_t fDetectorRadius = 0.5;  //<
 
     void Initialize();
 
