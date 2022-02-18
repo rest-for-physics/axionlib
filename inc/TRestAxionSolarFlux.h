@@ -37,43 +37,43 @@ class TRestAxionSolarFlux : public TRestMetadata {
 
     void InitFromConfigFile();
 
-    // The filename containning the solar flux table with continuum spectrum
+    /// The filename containning the solar flux table with continuum spectrum
     std::string fFluxDataFile = "";  //<
 
-    // The filename containning the solar flux spectra for monochromatic spectrum
+    /// The filename containning the solar flux spectra for monochromatic spectrum
     std::string fFluxSptFile = "";  //<
 
-    // Axion coupling. Defines coupling type and strength.
+    /// Axion coupling. Defines coupling type and strength.
     std::string fCouplingType;  //<
 
-    // Axion coupling strength
+    /// Axion coupling strength
     Double_t fCouplingStrength;  //<
 
-    // Seed used in random generator
+    /// Seed used in random generator
     Int_t fSeed = 0;  //<
 
-    // The tabulated solar flux continuum spectra TH1D(100,0,20)keV in cm-2 s-1 keV-1 versus solar radius
+    /// The tabulated solar flux continuum spectra TH1D(100,0,20)keV in cm-2 s-1 keV-1 versus solar radius
     std::vector<TH1D*> fFluxTable;  //!
 
-    // The tabulated solar flux in cm-2 s-1 for a number of monochromatic energies versus solar radius
+    /// The tabulated solar flux in cm-2 s-1 for a number of monochromatic energies versus solar radius
     std::map<Double_t, TH1D*> fFluxLines;  //!
 
-    // Accumulative integrated solar flux for each solar ring for continuum spectrum (renormalized to unity)
+    /// Accumulative integrated solar flux for each solar ring for continuum spectrum (renormalized to unity)
     std::vector<Double_t> fFluxTableIntegrals;  //!
 
-    // Accumulative integrated solar flux for each monochromatic energy (renormalized to unity)
+    /// Accumulative integrated solar flux for each monochromatic energy (renormalized to unity)
     std::vector<Double_t> fFluxLineIntegrals;  //!
 
-    // Total solar flux for monochromatic contributions
+    /// Total solar flux for monochromatic contributions
     Double_t fTotalMonochromaticFlux = 0;  //!
 
-    // Total solar flux for monochromatic contributions
+    /// Total solar flux for monochromatic contributions
     Double_t fTotalContinuumFlux = 0;  //!
 
-    // The ratio between monochromatic and total flux
+    /// The ratio between monochromatic and total flux
     Double_t fFluxRatio = 0;  //!
 
-    // Random number generator
+    /// Random number generator
     TRandom3* fRandom = nullptr;  //!
 
     void LoadContinuumFluxTable();
@@ -81,8 +81,10 @@ class TRestAxionSolarFlux : public TRestMetadata {
     void IntegrateSolarFluxes();
 
    public:
+    /// It returns true if continuum flux spectra was loaded
     Bool_t isSolarTableLoaded() { return fFluxTable.size() > 0; }
 
+    /// It returns true if monochromatic flux spectra was loaded
     Bool_t isSolarSpectrumLoaded() { return fFluxLines.size() > 0; }
 
     std::pair<Double_t, Double_t> GetRandomEnergyAndRadius();
