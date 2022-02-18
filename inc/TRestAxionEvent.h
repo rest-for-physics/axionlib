@@ -30,19 +30,31 @@
 #include "TVector3.h"
 
 #include "TRestEvent.h"
+#include "TRestSystemOfUnits.h"
 
 /// An event data class to define the parameters related to an axion particle
 class TRestAxionEvent : public TRestEvent {
    private:
-    TVector3 fPosition;    //-> Particle position
-    TVector3 fDirection;   //-> Unitary direction of movement
-    Double_t fEnergy = 0;  //-> Energy of axion in keV
+    /// Particle position
+    TVector3 fPosition;  //<
 
-    Double_t fMass = 0.;  //-> Axion mass in eV
+    /// Particle momentum. Unitary direction.
+    TVector3 fDirection;  //<
 
-    Double_t fGammaProbability = 0;  //-> The conversion probability P_{ag}
+    /// Initial energy of the axion.
+    Double_t fEnergy = 0;  //<
 
-    Double_t fEfficiency = 1;  //-> To include any loss of signal transmission/efficiency
+    /// Axion mass in eV
+    Double_t fMass = 0.;  //<
+
+    /// Conversion probability to be fixed by TRestAxionFieldPropagationProcess
+    Double_t fGammaProbability = 0;  //<
+
+    /// It keeps track of efficiency introduce at different helioscope components
+    std::map<std::string, Double_t> fEfficiencies;
+
+    /// We may use it to integrate a detector response inside each event
+    std::vector<Double_t> fResponse;  //<
 
    protected:
    public:
@@ -58,11 +70,12 @@ class TRestAxionEvent : public TRestEvent {
     Double_t GetDirectionY() { return fDirection.Y(); }  // returns normalized vector y-component
     Double_t GetDirectionZ() { return fDirection.Z(); }  // returns normalized vector z-component
 
-    Double_t GetEnergy() { return fEnergy; }  // returns value in keV
-    Double_t GetMass() { return fMass; }      // returns value in eV
-    Double_t GetEfficiency() { return fEfficiency; }
+    Double_t GetEnergy() { return fEnergy; }            // returns value in keV
+    Double_t GetMass() { return fMass * units("eV"); }  // returns value in eV
 
     Double_t GetGammaProbability() { return fGammaProbability; }
+
+    Double_t GetEfficiency(std::string name) { return fEfficiencies[name]; }
 
     void SetPosition(TVector3 pos) { fPosition = pos; }
     void SetPosition(Double_t x, Double_t y, Double_t z) { SetPosition(TVector3(x, y, z)); }
@@ -74,7 +87,8 @@ class TRestAxionEvent : public TRestEvent {
     void SetMass(Double_t m) { fMass = m; }
 
     void SetGammaProbability(Double_t p) { fGammaProbability = p; }
-    void SetEfficiency(Double_t eff) { fEfficiency = eff; }
+
+    void AddEfficiency(std::string name, Double_t value) { fEfficiencies[name] = value; }
 
     virtual void Initialize();
 
@@ -82,9 +96,7 @@ class TRestAxionEvent : public TRestEvent {
 
     TPad* DrawEvent(TString option = "");
 
-    // Construtor
     TRestAxionEvent();
-    // Destructor
     ~TRestAxionEvent();
 
     ClassDef(TRestAxionEvent, 1);
