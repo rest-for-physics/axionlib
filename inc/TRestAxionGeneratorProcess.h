@@ -42,11 +42,17 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     /// Used internally to define the event id
     Int_t fCounter = 0;  //!
 
+    /// Internal process random generator
+    TRandom3* fRandom;
+
     /// The axion mass
     Double_t fAxionMass = 0;  //<
 
     /// The central position of the generator (Default is 10cm)
     Double_t fDetectorRadius = 0.5;  //<
+
+    // Seed used in random generator
+    Int_t fSeed = 0;  //<
 
     void Initialize();
 

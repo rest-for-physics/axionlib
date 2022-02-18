@@ -23,7 +23,7 @@
 //////////////////////////////////////////////////////////////////////////
 ///
 /// This generator will produce solar axion events with the Sun at position
-/// (0,0,AU) and detector at position (0,0,0).
+/// (0,0,-AU) and detector at position (0,0,0).
 ///
 /// The axion generation properties, such as coupling type and intensity, are
 /// defined by TRestAxionSolarFlux. That class defines the method
@@ -135,6 +135,14 @@ void TRestAxionGeneratorProcess::InitProcess() {
     if (fAxionFlux == nullptr) {
         if (!this->GetError()) this->SetError("The solar flux definition was not found.");
     }
+
+    if (!fRandom) {
+        delete fRandom;
+        fRandom = nullptr;
+    }
+
+    fRandom = new TRandom3(fSeed);
+    if (fSeed == 0) fSeed = fRandom->GetSeed();
 }
 
 ///////////////////////////////////////////////
@@ -146,13 +154,28 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     fCounter++;
 
     std::pair<Double_t, Double_t> p = fAxionFlux->GetRandomEnergyAndRadius();
-    cout << p.first << " " << p.second << endl;
-    /*
-fOutputAxionEvent->SetEnergy(GenerateEnergy());
-fOutputAxionEvent->SetPosition(GeneratePosition());
-fOutputAxionEvent->SetDirection(GenerateDirection());
-fOutputAxionEvent->SetMass(fAxionMass);
-    */
+    Double_t energy = p.first;
+    Double_t radius = p.second;
+
+    // We avoid the use of expensive trigonometric functions
+    Double_t x, y, r;
+    do {
+        x = fRandom->Rndm() - 0.5;
+        y = fRandom->Rndm() - 0.5;
+        r = x * x + y * y;
+    } while (r > 1 || r == 0);
+
+    r = TMath::Sqrt(r);
+
+    TVector3 axionPosition(REST_Physics::solarRadius * radius * x / r,
+                           REST_Physics::solarRadius * radius * y / r, -REST_Physics::AU);
+
+    TVector3 axionDirection = -axionPosition.Unit();
+
+    fOutputAxionEvent->SetEnergy(energy);
+    fOutputAxionEvent->SetPosition(axionPosition);
+    fOutputAxionEvent->SetDirection(axionDirection);
+    fOutputAxionEvent->SetMass(fAxionMass);
 
     if (GetVerboseLevel() >= REST_Debug) fOutputAxionEvent->PrintEvent();
 
@@ -162,8 +185,9 @@ fOutputAxionEvent->SetMass(fAxionMass);
 void TRestAxionGeneratorProcess::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << "Axion mass: " << fAxionMass << " eV" << endl;
+    metadata << "Axion mass: " << fAxionMass * units("eV") << " eV" << endl;
     metadata << "Detector radius: " << fDetectorRadius * units("cm") << " cm" << endl;
+    metadata << "Random seed: " << (UInt_t)fSeed << endl;
 
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
