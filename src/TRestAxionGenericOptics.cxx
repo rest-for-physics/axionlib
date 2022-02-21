@@ -18,11 +18,11 @@
  * REST in $REST_PATH/LICENSE.                                           *
  * If not, see http://www.gnu.org/licenses/.                             *
  * For the list of contributors see $REST_PATH/CREDITS.                  *
-*************************************************************************/
+ *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
 /// TRestAxionGenericOptics is a class that inherits from TRestAxionOptics.
-/// 
+///
 /// ToDO: Write what happens here
 ///
 ///
@@ -72,13 +72,56 @@ ClassImp(TRestAxionGenericOptics);
 ///
 TRestAxionGenericOptics::TRestAxionGenericOptics() : TRestAxionOptics() { Initialize(); }
 
-
-
-
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionMCPLOptics::~TRestAxionMCPLOptics() {}
+TRestAxionGenericOptics::~TRestAxionGenericOptics() {}
 
+///////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param name The name of the specific metadata. It will be used to find the
+/// corresponding TRestAxionMagneticField section inside the RML.
+///
+TRestAxionGenericOptics::TRestAxionGenericOptics(const char* cfgFileName, string name)
+    : TRestAxionOptics(cfgFileName) {
+    debug << "Entering TRestAxionGenericOptics constructor( cfgFileName, name )" << endl;
 
+    Initialize();
 
+    LoadConfigFromFile(fConfigFileName, name);
+
+    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+}
+
+///////////////////////////////////////////////
+/// \brief Initialization of TRestAxionGenericOptics field members through a RML file
+///
+void TRestAxionGenericOptics::InitFromConfigFile() {
+    TRestAxionOptics::InitFromConfigFile();
+
+    /// TODO Initialize metadata members of this class here
+
+    // If we recover the metadata class from ROOT file we will need to call Initialize ourselves
+    this->Initialize();
+}
+
+///////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestAxionMagneticField
+///
+void TRestAxionGenericOptics::PrintMetadata() {
+    TRestAxionOptics::PrintMetadata();
+
+    metadata << "---------" << endl;
+    /// Print here metadata members
+    /// metadata << "xxx : " < fXXX << endl;
+    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+}

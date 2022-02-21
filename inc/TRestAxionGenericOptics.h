@@ -19,6 +19,7 @@
  * If not, see http://www.gnu.org/licenses/.                             *
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
+
 #ifndef _TRestAxionGenericOptics
 #define _TRestAxionGenericOptics
 #include <TRestAxionOptics.h>
@@ -26,23 +27,37 @@
 /// A class calculate the reflection path and probability of X-rays through a Wolter 1 telescope
 class TRestAxionGenericOptics : public TRestAxionOptics {
    private:
-    
     /// A vector containing the shells seperations between the two stacks. First element is the lowest radius.
     std::vector<Double_t> fShellsSep;  //<
 
-    /// A vector containing the shells angles. First element is the lowest radius. Note that the second stack has the tripple of this angle.
+    /// A vector containing the shells angles. First element is the lowest radius. Note that the second stack
+    /// has the tripple of this angle.
     std::vector<Double_t> fShellsAngle;  //<
 
-    ///coating materials and surface roughness or better yet: direction to a file that gives the reflectivity
-    std::string fReflectivityFileName;
+    /// coating materials and surface roughness or better yet: direction to a file that gives the reflectivity
+    std::string fReflectivityFileName;  //<
+
+    void Initialize();
 
    public:
-    void Initialize();
+    void PrintMetadata();
     void InitFromConfigFile();
 
-    /// get the interaction point of the photon with the mirror
-    //TVector3 GetInteractionPoint(const TVector3& pos, const TVector3& dir, ): TRestAxionOptics(){}
-    
+    /// It returns the position at the optics exit plane for the incoming particle
+    TVector3 GetPositionAtExit(const TVector3& pos, const TVector3& dir) { return TVector3(0, 0, 0); }
 
+    /// It returns the direction at the optics exit plane for the incoming particle
+    TVector3 GetDirectionAtExit(const TVector3& pos, const TVector3& dir) { return TVector3(0, 0, 0); }
+
+    /// It returns the efficiency for particle with position `pos` and direction `dir`.
+    Double_t GetEfficiency(const TVector3& pos, const TVector3& dir) { return 0.0; }
+
+    TRestAxionGenericOptics();
+    TRestAxionGenericOptics(const char* cfgFileName, std::string name = "");
+    ~TRestAxionGenericOptics();
+
+    /// get the interaction point of the photon with the mirror
+    // TVector3 GetInteractionPoint(const TVector3& pos, const TVector3& dir, ): TRestAxionOptics(){}
+    ClassDef(TRestAxionGenericOptics, 1);
 };
 #endif
