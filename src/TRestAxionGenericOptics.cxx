@@ -78,7 +78,7 @@ TRestAxionGenericOptics::TRestAxionGenericOptics() : TRestAxionOptics() { Initia
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionMCPLOptics::~TRestAxionMCPLOptics() {}
+TRestAxionGenericOptics::~TRestAxionGenericOptics() {}
 
 
 
