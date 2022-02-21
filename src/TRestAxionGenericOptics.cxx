@@ -115,7 +115,7 @@ void TRestAxionGenericOptics::InitFromConfigFile() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionMagneticField
+/// \brief Prints on screen the information about the metadata members of TRestAxionGenericOptics
 ///
 void TRestAxionGenericOptics::PrintMetadata() {
     TRestAxionOptics::PrintMetadata();
