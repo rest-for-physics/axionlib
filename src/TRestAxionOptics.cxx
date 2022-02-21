@@ -22,31 +22,33 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// TRestAxionOptics is a class that allows to load externally
-/// defined optics response files. This metadata class will define few
-/// common metadata members to define the optics alignment, position, and
-/// load the response data so that it can be used by
-/// TRestAxionOpticsResponseProcess to produce the ray tracing of photons
-/// moving up to a given plane.
+/// defined optics response files. This metadata class will be a generic,
+/// abstract, class that will be inherited by other more dedicated metadata
+/// classes. This class will define few common metadata members helpoing to
+/// describe the optics alignment, position, and basic geometry specifications,
+/// such as number of mirror shells, or additional entrance masks, such as
+/// defining spider net masking regions.
 ///
+/// The derived metadata classes, such as
 ///
-/// TODO We might include opaque regions in our TRestAxionOptics. So, for
-/// example we implement a ring mask, so that only photons going through
-/// that mask will be considered.
 ///
 /// TODO We could add an angle (fTiltTheta and fTiltPhi?) that helps to tilt
-/// the axis by a given value.
+/// the predefined axis by a given value.
 /// We could use for example an auxiliar vector: TVector3 fAxisTilted; //!
 ///
 /// ### RML definition
 ///
-/// We can add any number of magnetic volumes inside the RML definition
-/// as shown in the following piece of code,
 ///
 /// Example 1:
 /// \code
 /// <TRestAxionOptics>
-/// 	<parameter name="center" value="(0,0,950)mm" />
-/// 	<parameter name="axis" value="(0,0,1)" />
+///   	<parameter name="center" value="(0,0,200)mm" />
+///		<parameter name="axis" value="(0,0.02,0.98)" />
+///		<parameter name="length" value="22cm" />
+///
+///		<!-- We build mirror shells with 0.1mm thickness -->
+///		<parameter name="shellMinRadii" value="5,10,15,20,25" />
+///		<parameter name="shellMaxRadii" value="9.9,14.9,19.9,24.9,29.9" />
 /// <TRestAxionOptics/>
 /// \endcode
 ///
@@ -148,13 +150,6 @@ void TRestAxionOptics::SetMaxAndMinShellRadius() {
 /// \brief It moves a given particle with position `pos` and direction `dir` to the entrance of the optics
 ///
 TVector3 TRestAxionOptics::GetPositionAtEntrance(const TVector3& pos, const TVector3& dir) {
-    return REST_Physics::MoveToPlane(pos, dir, fAxis, fEntrance);
-}
-
-///////////////////////////////////////////////
-/// \brief It moves a given particle with position `pos` and direction `dir` to the exit of the optics
-///
-TVector3 TRestAxionOptics::GetPositionAtExit(const TVector3& pos, const TVector3& dir) {
     return REST_Physics::MoveToPlane(pos, dir, fAxis, fEntrance);
 }
 

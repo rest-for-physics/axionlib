@@ -78,16 +78,23 @@ class TRestAxionOptics : public TRestMetadata {
     TVector3 GetExit() { return fExit; }
 
     TVector3 GetPositionAtEntrance(const TVector3& pos, const TVector3& dir);
-    TVector3 GetPositionAtExit(const TVector3& pos, const TVector3& dir);
+
+    /// Pure abstract method to be implemented at inherited class
+    virtual TVector3 GetPositionAtExit(const TVector3& pos, const TVector3& dir) { return TVector3(0, 0, 0); }
+
+    /// Pure abstract method to be implemented at inherited class
+    virtual TVector3 GetDirectionAtExit(const TVector3& pos, const TVector3& dir) {
+        return TVector3(0, 0, 0);
+    }
+
+    /// Pure abstract method to be implemented at inherited class
+    virtual Double_t GetEfficiency(const TVector3& pos, const TVector3& dir) { return 0.0; }
 
     Int_t GetEntranceShell(const TVector3& pos, const TVector3& dir);
 
     void PrintMetadata();
 
     void InitFromConfigFile();
-
-    /// Photon propagation method to be implemented at the derived class
-    virtual TVector3 PropagatePhoton(const TVector3& in) = 0;
 
     TRestAxionOptics();
     TRestAxionOptics(const char* cfgFileName, std::string name = "");
