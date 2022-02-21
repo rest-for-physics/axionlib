@@ -103,6 +103,18 @@ TRestAxionGenericOptics::TRestAxionGenericOptics(const char* cfgFileName, string
 }
 
 ///////////////////////////////////////////////
+/// \brief Initialization of TRestAxionGenericOptics members
+///
+void TRestAxionGenericOptics::Initialize() {
+    TRestAxionOptics::Initialize();
+
+    SetSectionName(this->ClassName());
+    SetLibraryVersion(LIBRARY_VERSION);
+
+    // Call any initialization methods here
+}
+
+///////////////////////////////////////////////
 /// \brief Initialization of TRestAxionGenericOptics field members through a RML file
 ///
 void TRestAxionGenericOptics::InitFromConfigFile() {
