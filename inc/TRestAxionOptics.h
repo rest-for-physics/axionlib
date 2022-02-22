@@ -26,7 +26,7 @@
 #include <TRestMetadata.h>
 #include <iostream>
 
-/// A class to load optics response files (WIP). Perhaps we might inherit later TRestAxionMCPLOptics, ...
+/// An abstract class to define common optics parameters and methods
 class TRestAxionOptics : public TRestMetadata {
    private:
     /// It is the position of the center of the optics system.
@@ -41,20 +41,44 @@ class TRestAxionOptics : public TRestMetadata {
     /// A vector containing the shells ring radius definitions. First element is the lower radius.
     std::vector<std::pair<Double_t, Double_t>> fShellsRadii;  //<
 
+    /// The angle between two consecutive spider arms measured in radians.
+    Double_t fSpiderArmsSeparationAngle = 0;  //<
+
+    /// The position angle at which the spider arm will start
+    Double_t fSpiderOffsetAngle = 0;  //<
+
+    /// The width of each specific spider arm. Measured in radians. Default is 2.5 degrees.
+    Double_t fSpiderWidth = TMath::Pi() / 18. / 4.;  //<
+
+    /// The spider structure will be effective from this radius, in mm. Default is from 0 mm.
+    Double_t fSpiderStartRadius = 0.;  //<
+
     /// An internal variable to register the maximum shell radius
     Double_t fMaxShellRadius = -1;  //!
 
     /// An internal variable to register the minimum shell radius
     Double_t fMinShellRadius = -1;  //!
 
-    /// It is the calculated position at the entrance of the optics.
-    TVector3 fEntrance;  //!
+    /// It is the calculated axis position at the entrance of the optics plane.
+    TVector3 fEntrance = TVector3(0, 0, 0);  //!
 
-    /// It is the calculated position at the exit of the optics.
-    TVector3 fExit;  //!
+    /// It is the calculated axis position at the exit of the optics plane.
+    TVector3 fExit = TVector3(0, 0, 0);  //!
+
+    /// A vector used to define a reference vector at the optics plane
+    TVector3 fReference = TVector3(0, 0, 0);  //!
+
+    /// It defines the forbidden (cosine) angular ranges imposed by the spider structure (0,Pi)
+    std::vector<std::pair<Double_t, Double_t>> fSpiderPositiveRanges;  //!
+
+    /// It defines the forbidden (cosine) angular ranges imposed by the spider structure (Pi,2Pi)
+    std::vector<std::pair<Double_t, Double_t>> fSpiderNegativeRanges;  //!
 
     void SetMaxAndMinShellRadius();
+    void InitializeSpiderAngles();
+
     Bool_t IsInsideRing(const TVector3& pos, Double_t Rout, Double_t Rin = 0);
+    Bool_t HitsSpider(const TVector3& pos, const TVector3& dir);
 
    public:
     void Initialize();

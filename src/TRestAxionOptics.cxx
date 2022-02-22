@@ -23,44 +23,61 @@
 //////////////////////////////////////////////////////////////////////////
 /// TRestAxionOptics is a class that allows to load externally
 /// defined optics response files. This metadata class will be a generic,
-/// abstract, class that will be inherited by other more dedicated metadata
-/// classes. This class will define few common metadata members helpoing to
+/// abstract, class that will be inherited by other more specific metadata
+/// classes. This class will define few common metadata members helping to
 /// describe the optics alignment, position, and basic geometry specifications,
 /// such as number of mirror shells, or additional entrance masks, such as
-/// defining spider net masking regions.
+/// spider mask.
 ///
-/// The derived metadata classes, such as
+/// The derived metadata classes, such as TRestAxionGenericOptics or
+/// TRestAxionMCPLOptics must implement the following virtual methods
+/// TRestAxionOptics::GetPositionAtExit, TRestAxionOptics::GetDirectionAtExit
+/// and TRestAxionOptics::GetEfficiency.
 ///
+/// The following metadata parameters define the optics position, size and
+/// alignment:
+/// * **center**: It defines the center of the optics, entrance and exit
+/// optics planes will be defined using the half lenght and the `center`
+/// position.
+/// * **axis**: It defines the optical axis direction.
+/// * **length**: It defines the size of the optics, used to calculate
+/// the optics plane entrance, and the optics plane exit.
 ///
-/// TODO We could add an angle (fTiltTheta and fTiltPhi?) that helps to tilt
-/// the predefined axis by a given value.
-/// We could use for example an auxiliar vector: TVector3 fAxisTilted; //!
+/// A relevant parameter are the radii that define the mirror shells of
+/// the optics. In practice we define the iner and outer radius of a ring
+/// or corona (which is the space between two shells or mirrors). Thus, the
+/// inner and outer radius of each ring defines the region where photons are
+/// capable to go through. Photons hitting other regions should be ignored.
+/// The method TRestAxionOptics::GetEntranceShell will return the shell
+/// number where the photon entered. If the photon did not enter any
+/// ring, then it will return -1.
 ///
-/// ### RML definition
+/// The following metadata parameters define the ring entrances:
+/// * **shellMinRadii**: It contains a list of lower radius values for
+/// each ring.
+/// * **shellMaxRadii**: It contains a list of higher radius values for
+/// each ring.
 ///
+/// On top of that we may define a spider mask which is usually present
+/// at integrated x-ray optics as an structure to keep the shells in
+/// position. The spider mask will prevent photons from entering inside
+/// the optics mirroring system.
 ///
-/// Example 1:
-/// \code
-/// <TRestAxionOptics>
-///   	<parameter name="center" value="(0,0,200)mm" />
-///		<parameter name="axis" value="(0,0.02,0.98)" />
-///		<parameter name="length" value="22cm" />
+/// The following parameters are used to define the spider mask geometry:
+/// * **spiderArmsSeparationAngle**: It defines the angular distance, measured in
+/// radians, between two consecutive spider arms. If this parameter is equal
+/// to 0, the spider net mask will be disabled. It is disabled by default.
+/// * **spiderOffsetAngle**: It defines the angle at which the first arm
+/// is located. The default is 0, being the first arm located at the
+/// positive y-axis. It cannot take a negative value.
+/// * **spiderWidth**: The width of each specific spider arm. Measured in
+/// radians. Default is 2.5 degrees.
 ///
-///		<!-- We build mirror shells with 0.1mm thickness -->
-///		<parameter name="shellMinRadii" value="5,10,15,20,25" />
-///		<parameter name="shellMaxRadii" value="9.9,14.9,19.9,24.9,29.9" />
-/// <TRestAxionOptics/>
-/// \endcode
+/// The number of arms will be determined by those parameters.
 ///
-/// Example 2:
-/// \code
-/// <TRestAxionOptics center="(0,0,950)mm" axis="(0,0,1)" />
-/// \endcode
-///
-/// Example 3:
-/// \code
-/// <TRestAxionOptics center="(0,0,95)" units="cm" />
-/// \endcode
+/// This class is an abstract class, to see an example of its implementation
+/// inside a RML configuration file, check for TRestAxionGenericOptics or
+/// TRestAxionMCPLOptics.
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -131,6 +148,8 @@ void TRestAxionOptics::Initialize() {
     fExit = fCenter + 0.5 * fLength * fAxis;
 
     SetMaxAndMinShellRadius();
+
+    fReference = TVector3(0, fAxis.Z(), -fAxis.Y());
 }
 
 ///////////////////////////////////////////////
@@ -143,6 +162,52 @@ void TRestAxionOptics::SetMaxAndMinShellRadius() {
     for (const auto& shellRadius : fShellsRadii) {
         if (shellRadius.first < fMinShellRadius) fMinShellRadius = shellRadius.first;
         if (shellRadius.second > fMaxShellRadius) fMaxShellRadius = shellRadius.second;
+    }
+}
+
+///////////////////////////////////////////////
+/// \brief It initializes the fMaxShellRadius and fMinShellRadius using the shell ring definitions
+///
+void TRestAxionOptics::InitializeSpiderAngles() {
+    std::pair<Double_t, Double_t> additional_negative = {-1, -1};
+
+    Double_t angle = fSpiderOffsetAngle;
+    do {
+        Double_t angle_down = angle - fSpiderWidth / 2.;
+        Double_t angle_up = angle + fSpiderWidth / 2.;
+
+        if (angle_down < 0) {
+            additional_negative = {2 * TMath::Pi() + angle_down, 2 * TMath::Pi()};
+            fSpiderPositiveRanges.push_back({0, angle_up});
+
+        } else if (angle_up > TMath::Pi() && angle_down < TMath::Pi()) {
+            fSpiderPositiveRanges.push_back({angle_down, TMath::Pi()});
+            fSpiderNegativeRanges.push_back({TMath::Pi(), angle_up});
+        } else if (angle_up < TMath::Pi()) {
+            fSpiderPositiveRanges.push_back({angle_down, angle_up});
+        } else if (angle_down >= TMath::Pi()) {
+            fSpiderNegativeRanges.push_back({angle_down, angle_up});
+        }
+
+        angle += fSpiderArmsSeparationAngle;
+
+    } while (angle + 1.e-3 < 2 * TMath::Pi());
+
+    if (additional_negative.first != -1 && additional_negative.second != -1)
+        fSpiderNegativeRanges.push_back(additional_negative);
+
+    debug << "Printing negative spider angles" << endl;
+    debug << "-------------------------------" << endl;
+    for (int n = 0; n < fSpiderNegativeRanges.size(); n++) {
+        debug << "n : " << n << " from : " << 180 * fSpiderNegativeRanges[n].first << " to "
+              << 180 * fSpiderNegativeRanges[n].second << endl;
+    }
+
+    debug << "Printing positive spider angles" << endl;
+    debug << "-------------------------------" << endl;
+    for (int n = 0; n < fSpiderPositiveRanges.size(); n++) {
+        debug << "n : " << n << " from : " << 180 * fSpiderPositiveRanges[n].first << " to "
+              << 180 * fSpiderPositiveRanges[n].second << endl;
     }
 }
 
@@ -175,6 +240,7 @@ Bool_t TRestAxionOptics::IsInsideRing(const TVector3& pos, Double_t Rout, Double
 /// This method is protected since it should be used only by derived classes
 ///
 Int_t TRestAxionOptics::GetEntranceShell(const TVector3& pos, const TVector3& dir) {
+    if (HitsSpider(pos, dir)) return -1;
     TVector3 posEntrance = GetPositionAtEntrance(pos, dir);
     if (!IsInsideRing(posEntrance, fMaxShellRadius, fMinShellRadius)) return -1;
 
@@ -183,6 +249,30 @@ Int_t TRestAxionOptics::GetEntranceShell(const TVector3& pos, const TVector3& di
         if (IsInsideRing(posEntrance, shellRadius.second, shellRadius.first)) return n;
         n++;
     }
+
+    return -1;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns true if the particle with position, pos, and direction, dir,
+/// encounters the spider net.
+///
+Bool_t TRestAxionOptics::HitsSpider(const TVector3& pos, const TVector3& dir) {
+    if (fSpiderArmsSeparationAngle == 0) return false;
+
+    TVector3 posEntrance = GetPositionAtEntrance(pos, dir);
+
+    //	fAxis.Y() * fAxis.Z()
+
+    /*
+if (!IsInsideRing(posEntrance, fMaxShellRadius, fMinShellRadius)) return -1;
+
+int n = 0;
+for (const auto& shellRadius : fShellsRadii) {
+    if (IsInsideRing(posEntrance, shellRadius.second, shellRadius.first)) return n;
+    n++;
+}
+    */
 
     return -1;
 }
@@ -210,6 +300,15 @@ void TRestAxionOptics::InitFromConfigFile() {
         }
     }
 
+    fSpiderArmsSeparationAngle = GetDblParameterWithUnits("spiderArmsSeparationAngle", 0.);
+
+    fSpiderOffsetAngle = GetDblParameterWithUnits("spiderOffsetAngle", 0.);
+    if (fSpiderOffsetAngle < 0) fSpiderOffsetAngle = 0;
+
+    fSpiderWidth = GetDblParameterWithUnits("spiderWidth", TMath::Pi() / 18. / 4.);
+
+    fSpiderStartRadius = GetDblParameterWithUnits("spiderStartRadius", 0.);
+
     // If we recover the metadata class from ROOT file we will need to call Initialize ourselves
     this->Initialize();
 }
@@ -235,6 +334,17 @@ void TRestAxionOptics::PrintMetadata() {
         metadata << "Shell " << n << ": Rmin = " << shellRadius.first << "mm , Rmax = " << shellRadius.second
                  << "mm" << endl;
         n++;
+    }
+    if (fSpiderArmsSeparationAngle != 0) {
+        metadata << " " << endl;
+        metadata << "Spider net structure parameters:" << endl;
+        metadata << "--------------------------------" << endl;
+        metadata << " - Arms separation angle : " << 180. * fSpiderArmsSeparationAngle / TMath::Pi()
+                 << " degrees" << endl;
+        metadata << " - First arm offset angle : " << 180. * fSpiderOffsetAngle / TMath::Pi() << " degrees"
+                 << endl;
+        metadata << " - Arm angular width : " << 180. * fSpiderWidth / TMath::Pi() << " degrees" << endl;
+        metadata << " - Spider start radius : " << fSpiderStartRadius * units("cm") << " cm" << endl;
     }
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
