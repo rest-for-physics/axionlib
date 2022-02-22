@@ -28,20 +28,27 @@
 ///
 /// ### RML definition
 ///
-/// We can add any number of magnetic volumes inside the RML definition
-/// as shown in the following piece of code,
-///
 /// Example 1:
 /// \code
-/// <TRestAxionGenericOptics name="XMM" >
-///	   <parameter name="center" value="(0,0,200)mm" />
-///	   <parameter name="axis" value="(0,0.02,0.98)" />
-///	   <parameter name="length" value="22cm" />
+/// <TRestAxionGenericOptics name="dummy">
+///   	<parameter name="center" value="(0,0,200)mm" />
+///		<parameter name="axis" value="(0,0.02,0.98)" />
+///		<parameter name="length" value="22cm" />
 ///
-///	   <!-- We build mirror shells with 0.1mm thickness -->
-///	   <parameter name="shellMinRadii" value="5,10,15,20,25" />
-///	   <parameter name="shellMaxRadii" value="9.9,14.9,19.9,24.9,29.9" />
-/// </TRestAxionGenericOptics>
+///		<!-- We build mirror shells with 0.1mm thickness -->
+///		<parameter name="shellMinRadii" value="5,10,15,20,25" />
+///		<parameter name="shellMaxRadii" value="9.9,14.9,19.9,24.9,29.9" />
+/// <TRestAxionOptics/>
+/// \endcode
+///
+/// Example 2:
+/// \code
+/// <TRestAxionGenericOptics center="(0,0,950)mm" axis="(0,0,1)" />
+/// \endcode
+///
+/// Example 3:
+/// \code
+/// <TRestAxionGenericOptics center="(0,0,95)" units="cm" />
 /// \endcode
 ///
 ///--------------------------------------------------------------------------
