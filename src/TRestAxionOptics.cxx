@@ -148,6 +148,8 @@ void TRestAxionOptics::Initialize() {
     fExit = fCenter + 0.5 * fLength * fAxis;
 
     SetMaxAndMinShellRadius();
+
+    if (fSpiderOffsetAngle < 0) fSpiderOffsetAngle = 0;
     if (fSpiderArmsSeparationAngle > 0) InitializeSpiderAngles();
 
     // A vector orthogonal to the axis, thus belonging to the optics plane
@@ -312,9 +314,7 @@ Bool_t TRestAxionOptics::HitsSpider(const TVector3& pos) {
 /// \brief Initialization of TRestAxionOptics field members through a RML file
 ///
 void TRestAxionOptics::InitFromConfigFile() {
-    fCenter = Get3DVectorParameterWithUnits("center", TVector3(0, 0, 0));
-    fAxis = Get3DVectorParameterWithUnits("axis", TVector3(0, 0, 2)).Unit();
-    fLength = GetDblParameterWithUnits("lenght", 250);
+    TRestMetadata::InitFromConfigFile();
 
     std::vector<Double_t> rMax = StringToElements(GetParameter("shellMaxRadii", "-1"), ",");
     std::vector<Double_t> rMin = StringToElements(GetParameter("shellMinRadii", "-1"), ",");
@@ -330,15 +330,6 @@ void TRestAxionOptics::InitFromConfigFile() {
             fShellsRadii.push_back(p);
         }
     }
-
-    fSpiderArmsSeparationAngle = GetDblParameterWithUnits("spiderArmsSeparationAngle", 0.);
-
-    fSpiderOffsetAngle = GetDblParameterWithUnits("spiderOffsetAngle", 0.);
-    if (fSpiderOffsetAngle < 0) fSpiderOffsetAngle = 0;
-
-    fSpiderWidth = GetDblParameterWithUnits("spiderWidth", TMath::Pi() / 18. / 4.);
-
-    fSpiderStartRadius = GetDblParameterWithUnits("spiderStartRadius", 0.);
 
     // If we recover the metadata class from ROOT file we will need to call Initialize ourselves
     this->Initialize();
