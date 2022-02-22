@@ -5,7 +5,8 @@
 	<constant name="pi" value="3.1415927" />
 </globals>
 
-<TRestAxionOptics name="basic1" >
+<!-- Turn verbose level to "debug" to see additional output -->
+<TRestAxionOptics name="basic1" verboseLevel="info" >
 	<parameter name="center" value="(0,0,200)mm" />
 	<parameter name="axis" value="(0,0.02,0.98)" />
 	<parameter name="length" value="22cm" />
