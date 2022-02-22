@@ -1,0 +1,22 @@
+<xml>
+
+<globals>
+	<constant name="R0" value="3" />
+	<constant name="pi" value="3.1415927" />
+</globals>
+
+<TRestAxionOptics name="basic1" >
+	<parameter name="center" value="(0,0,200)mm" />
+	<parameter name="axis" value="(0,0.02,0.98)" />
+	<parameter name="length" value="22cm" />
+
+	<!-- We build mirror shells with 0.1mm thickness -->
+	<parameter name="shellMinRadii" value="0,7,10,15,20,25" />
+	<parameter name="shellMaxRadii" value="R0,9.9,14.9,19.9,24.9,29.9" />
+
+	<parameter name="spiderArmsSeparationAngle" value="pi*30./180." />
+	<parameter name="spiderOffsetAngle" value="0.0" />
+	<parameter name="spiderWidth" value="pi*2.5/180." />
+	<parameter name="spiderStartRadius" value="R0" units="cm" />
+</TRestAxionOptics>
+</xml>
