@@ -148,8 +148,11 @@ void TRestAxionOptics::Initialize() {
     fExit = fCenter + 0.5 * fLength * fAxis;
 
     SetMaxAndMinShellRadius();
+    if (fSpiderArmsSeparationAngle > 0) InitializeSpiderAngles();
 
-    fReference = TVector3(0, fAxis.Z(), -fAxis.Y());
+    // A vector orthogonal to the axis, thus belonging to the optics plane
+    // and to be used as reference for spider structure. It defines angle = 0
+    fReference = TVector3(0, fAxis.Z(), -fAxis.Y()).Unit();
 }
 
 ///////////////////////////////////////////////
@@ -196,18 +199,42 @@ void TRestAxionOptics::InitializeSpiderAngles() {
     if (additional_negative.first != -1 && additional_negative.second != -1)
         fSpiderNegativeRanges.push_back(additional_negative);
 
+    debug << "Printing positive spider angles" << endl;
+    debug << "-------------------------------" << endl;
+    for (int n = 0; n < fSpiderPositiveRanges.size(); n++) {
+        debug << "n : " << n << " from : " << 180 * fSpiderPositiveRanges[n].first / TMath::Pi() << " to "
+              << 180 * fSpiderPositiveRanges[n].second / TMath::Pi() << endl;
+    }
+
     debug << "Printing negative spider angles" << endl;
     debug << "-------------------------------" << endl;
     for (int n = 0; n < fSpiderNegativeRanges.size(); n++) {
-        debug << "n : " << n << " from : " << 180 * fSpiderNegativeRanges[n].first << " to "
-              << 180 * fSpiderNegativeRanges[n].second << endl;
+        debug << "n : " << n << " from : " << 180 * fSpiderNegativeRanges[n].first / TMath::Pi() << " to "
+              << 180 * fSpiderNegativeRanges[n].second / TMath::Pi() << endl;
+    }
+
+    for (int n = 0; n < fSpiderNegativeRanges.size(); n++) {
+        fSpiderNegativeRanges[n].first = TMath::Cos(fSpiderNegativeRanges[n].first);
+        fSpiderNegativeRanges[n].second = TMath::Cos(fSpiderNegativeRanges[n].second);
+    }
+
+    for (int n = 0; n < fSpiderPositiveRanges.size(); n++) {
+        fSpiderPositiveRanges[n].first = TMath::Cos(fSpiderPositiveRanges[n].first);
+        fSpiderPositiveRanges[n].second = TMath::Cos(fSpiderPositiveRanges[n].second);
     }
 
     debug << "Printing positive spider angles" << endl;
     debug << "-------------------------------" << endl;
     for (int n = 0; n < fSpiderPositiveRanges.size(); n++) {
-        debug << "n : " << n << " from : " << 180 * fSpiderPositiveRanges[n].first << " to "
-              << 180 * fSpiderPositiveRanges[n].second << endl;
+        debug << "n : " << n << " from : " << fSpiderPositiveRanges[n].first << " to "
+              << fSpiderPositiveRanges[n].second << endl;
+    }
+
+    debug << "Printing negative spider cosines" << endl;
+    debug << "--------------------------------" << endl;
+    for (int n = 0; n < fSpiderNegativeRanges.size(); n++) {
+        debug << "n : " << n << " from : " << fSpiderNegativeRanges[n].first << " to "
+              << fSpiderNegativeRanges[n].second << endl;
     }
 }
 
@@ -222,7 +249,8 @@ TVector3 TRestAxionOptics::GetPositionAtEntrance(const TVector3& pos, const TVec
 /// \brief It determines if a given particle with position `pos` (that **should be** already placed
 /// at the entrance plane of the optics) will be inside a ring with radius between `Rin` and `Rout`.
 ///
-/// This method is private since it is just a helper method used by GetRing.
+/// This method is private since it is just a helper method used by GetRing, and it will only
+/// work under the assumption that the particle position is already at the entrance optics plane.
 ///
 Bool_t TRestAxionOptics::IsInsideRing(const TVector3& pos, Double_t Rout, Double_t Rin) {
     Double_t d = REST_Physics::DistanceToAxis(fEntrance, fAxis, pos);
@@ -240,8 +268,8 @@ Bool_t TRestAxionOptics::IsInsideRing(const TVector3& pos, Double_t Rout, Double
 /// This method is protected since it should be used only by derived classes
 ///
 Int_t TRestAxionOptics::GetEntranceShell(const TVector3& pos, const TVector3& dir) {
-    if (HitsSpider(pos, dir)) return -1;
     TVector3 posEntrance = GetPositionAtEntrance(pos, dir);
+    if (HitsSpider(posEntrance)) return -1;
     if (!IsInsideRing(posEntrance, fMaxShellRadius, fMinShellRadius)) return -1;
 
     int n = 0;
@@ -254,27 +282,30 @@ Int_t TRestAxionOptics::GetEntranceShell(const TVector3& pos, const TVector3& di
 }
 
 ///////////////////////////////////////////////
-/// \brief It returns true if the particle with position, pos, and direction, dir,
+/// \brief It returns `true` if the particle with position `pos` and direction `dir`
 /// encounters the spider net.
 ///
-Bool_t TRestAxionOptics::HitsSpider(const TVector3& pos, const TVector3& dir) {
-    if (fSpiderArmsSeparationAngle == 0) return false;
+/// This method is private since it is just a helper method used by GetEntranceShell, and it will only
+/// work under the assumption that the particle position is already at the entrance optics plane.
+///
+Bool_t TRestAxionOptics::HitsSpider(const TVector3& pos) {
+    Double_t d = REST_Physics::DistanceToAxis(fEntrance, fAxis, pos);
+    if (fSpiderArmsSeparationAngle == 0 || d < fSpiderStartRadius) return false;
 
-    TVector3 posEntrance = GetPositionAtEntrance(pos, dir);
+    TVector3 posUnit = pos.Unit();
+    Double_t cos_angle = posUnit.Dot(fReference);
 
-    //	fAxis.Y() * fAxis.Z()
+    if (pos.X() >= 0) {
+        for (const auto& ang : fSpiderPositiveRanges) {
+            if (cos_angle > ang.first && cos_angle < ang.second) return true;
+        }
+    } else {
+        for (const auto& ang : fSpiderNegativeRanges) {
+            if (cos_angle > ang.first && cos_angle < ang.second) return true;
+        }
+    }
 
-    /*
-if (!IsInsideRing(posEntrance, fMaxShellRadius, fMinShellRadius)) return -1;
-
-int n = 0;
-for (const auto& shellRadius : fShellsRadii) {
-    if (IsInsideRing(posEntrance, shellRadius.second, shellRadius.first)) return n;
-    n++;
-}
-    */
-
-    return -1;
+    return false;
 }
 
 ///////////////////////////////////////////////

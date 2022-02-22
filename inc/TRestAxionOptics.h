@@ -78,7 +78,7 @@ class TRestAxionOptics : public TRestMetadata {
     void InitializeSpiderAngles();
 
     Bool_t IsInsideRing(const TVector3& pos, Double_t Rout, Double_t Rin = 0);
-    Bool_t HitsSpider(const TVector3& pos, const TVector3& dir);
+    Bool_t HitsSpider(const TVector3& pos);
 
    public:
     void Initialize();
