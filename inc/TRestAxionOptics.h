@@ -50,8 +50,8 @@ class TRestAxionOptics : public TRestMetadata {
     /// The width of each specific spider arm. Measured in radians. Default is 2.5 degrees.
     Double_t fSpiderWidth = TMath::Pi() / 18. / 4.;  //<
 
-    /// The spider structure will be effective from this radius, in mm. Default is from 0 mm.
-    Double_t fSpiderStartRadius = 0.;  //<
+    /// The spider structure will be effective from this radius, in mm. Default is from 20 mm.
+    Double_t fSpiderStartRadius = 20.;  //<
 
     /// An internal variable to register the maximum shell radius
     Double_t fMaxShellRadius = -1;  //!
