@@ -57,7 +57,7 @@ class TRestAxionGenericOptics : public TRestAxionOptics {
     ~TRestAxionGenericOptics();
 
     /// get the interaction point of the photon with the mirror
-    // TVector3 GetInteractionPoint(const TVector3& pos, const TVector3& dir, ): TRestAxionOptics(){}
+    TVector3 GetInteractionPoint(const TVector3& pos, const TVector3& dir);
     ClassDef(TRestAxionGenericOptics, 1);
 };
 #endif
