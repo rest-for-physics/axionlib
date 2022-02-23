@@ -36,7 +36,7 @@ class TRestAxionOptics : public TRestMetadata {
     TVector3 fAxis = TVector3(0, 0, 1);  //<
 
     /// Optics physical mirror length in mm
-    Double_t fLength = 250;  //<
+    Double_t fLength = 300;  //<
 
     /// A vector containing the shells ring radius definitions. First element is the lower radius.
     std::vector<std::pair<Double_t, Double_t>> fShellsRadii;  //<
@@ -90,7 +90,11 @@ class TRestAxionOptics : public TRestMetadata {
     TVector3 GetAxis() { return fAxis; }
 
     /// It returns the physical length of one mirror stack; the whole optical system would be L=(fLength + 1/2 * xSep) * (cos(angleShell) + cos(angleShell)) which doesn't work here because the angele hasn't been defined
-    Double_t GetLength() { return fLength; }
+    Double_t GetMirrLength() { return fLength; }
+   
+   /// It returns the physical length of the whole optics approximated
+    Double_t GetLength() { return fLength * 2; }
+
 
     /// It returns the number of shells implemented in the optics system
     Int_t GetNumberOfShells() { return fShellsRadii.size(); }
