@@ -134,7 +134,8 @@ void TRestAxionGenericOptics::InitFromConfigFile() {
 }
 
 ///////////////////////////////////////////////
-/// \brief This calculates the interaction Point between the X-Ray photons path and a mirror in the predetermined layer
+/// \brief This calculates the interaction Point between the X-Ray photons path and a mirror in the
+/// predetermined layer
 ///
 TVector3 TRestAxionGenericOptics::GetInteractionPoint(const TVector3& pos, const TVector3& dir) {
     Int_t layer = TRestAxionOptics::GetEntranceShell(pos, dir);
@@ -142,12 +143,14 @@ TVector3 TRestAxionGenericOptics::GetInteractionPoint(const TVector3& pos, const
     Double_t angle = fShellsAngle[layer];
     Double_t xSep = fShellsSep[layer];
     Double_t fLength = TRestAxionOptics::GetMirrLength();
-    // Double_t distMirrors = 0 for first stack and (fLength + xSep) * cos(angle) for the second // distance of the mirror should be added in for second stack 
+    // Double_t distMirrors = 0 for first stack and (fLength + xSep) * cos(angle) for the second // distance
+    // of the mirror should be added in for second stack
     Double_t r2 = r1 - fLength * sin(angle);
     // r1 = sqrt((pos[0] + s * dir[0]) * (pos[0] + s * dir[0]) +
     //    (pos[1] + s * dir[1]) * (pos[1] + s * dir[1])) -
-    //  ((r2 - r1) * (pos[2] + s * dir[2] - distMirrors) / (cos(angle) * fLength))  //needs to be solved for s, maybe by incresing s for some value and comparing this to r1
-    return (0, 0, 0);
+    //  ((r2 - r1) * (pos[2] + s * dir[2] - distMirrors) / (cos(angle) * fLength))  //needs to be solved for
+    //  s, maybe by incresing s for some value and comparing this to r1
+    return TVector3(0, 0, 0);
 }
 
 ///////////////////////////////////////////////
