@@ -38,9 +38,6 @@ class TRestAxionOptics : public TRestMetadata {
     /// Optics physical mirror length in mm
     Double_t fLength = 300;  //<
 
-    /// A vector containing the shells ring radius definitions. First element is the lower radius.
-    std::vector<std::pair<Double_t, Double_t>> fShellsRadii;  //<
-
     /// The angle between two consecutive spider arms measured in radians.
     Double_t fSpiderArmsSeparationAngle = 0;  //<
 
@@ -79,6 +76,11 @@ class TRestAxionOptics : public TRestMetadata {
 
     Bool_t IsInsideRing(const TVector3& pos, Double_t Rout, Double_t Rin = 0);
     Bool_t HitsSpider(const TVector3& pos);
+   
+   protected:
+   
+    /// A vector containing the shells ring radius definitions. First element is the lower radius.
+    std::vector<std::pair<Double_t, Double_t>> fShellsRadii;  //<
 
    public:
     void Initialize();
