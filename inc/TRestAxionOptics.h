@@ -89,7 +89,7 @@ class TRestAxionOptics : public TRestMetadata {
     /// It returns the axis vector of the optics system
     TVector3 GetAxis() { return fAxis; }
 
-    /// It returns the physical length of the optics system
+    /// It returns the physical length of one mirror stack; the whole optical system would be L=(fLength + 1/2 * xSep) * (cos(angleShell) + cos(angleShell)) which doesn't work here because the angele hasn't been defined
     Double_t GetLength() { return fLength; }
 
     /// It returns the number of shells implemented in the optics system
