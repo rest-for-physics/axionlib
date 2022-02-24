@@ -77,11 +77,12 @@
 ///
 /// The following image is generated as a validation or a way to visualize the
 /// TRestAxionOptics::GetEntranceRing method. Each color represents a particle
-/// hitting in a different ring. The position is drawn at the generator plane,
-/// and not at the optics plane. This creates an effect of diffusion since the
-/// generator random direction is slightly tilted respect to the optical axis.
+/// hitting in a different ring. The position is drawn at both, the generator
+/// plane and the optics entrance plane. This creates an effect of diffusion at
+/// the generator plane since the generator random direction is slightly tilted
+/// respect to the optical axis.
 ///
-/// /// \htmlonly <style>div.image img[src="opticsBasic.png"]{width:750px;}</style> \endhtmlonly
+/// \htmlonly <style>div.image img[src="opticsBasic.png"]{width:750px;}</style> \endhtmlonly
 ///
 /// ![Basic optics validation for method TRestAxionOptics::GetEntranceRing](opticsBasic.png)
 ///
