@@ -26,7 +26,7 @@
 /// abstract, class that will be inherited by other more specific metadata
 /// classes. This class will define few common metadata members helping to
 /// describe the optics alignment, position, and basic geometry specifications,
-/// such as number of mirror shells, or additional entrance masks, such as
+/// such as number of mirror rings, or additional entrance masks, such as
 /// spider mask.
 ///
 /// The derived metadata classes, such as TRestAxionGenericOptics or
@@ -43,23 +43,23 @@
 /// * **length**: It defines the size of the optics, used to calculate
 /// the optics plane entrance, and the optics plane exit.
 ///
-/// A relevant parameter are the radii that define the mirror shells of
+/// A relevant parameter are the radii that define the mirror rings of
 /// the optics. In practice we define the iner and outer radius of a ring
-/// or corona (which is the space between two shells or mirrors). Thus, the
+/// or corona (which is the space between two rings or mirrors). Thus, the
 /// inner and outer radius of each ring defines the region where photons are
 /// capable to go through. Photons hitting other regions should be ignored.
-/// The method TRestAxionOptics::GetEntranceShell will return the shell
+/// The method TRestAxionOptics::GetEntranceRing will return the ring
 /// number where the photon entered. If the photon did not enter any
 /// ring, then it will return -1.
 ///
 /// The following metadata parameters define the ring entrances:
-/// * **shellMinRadii**: It contains a list of lower radius values for
+/// * **ringMinRadii**: It contains a list of lower radius values for
 /// each ring.
-/// * **shellMaxRadii**: It contains a list of higher radius values for
+/// * **ringMaxRadii**: It contains a list of higher radius values for
 /// each ring.
 ///
 /// On top of that we may define a spider mask which is usually present
-/// at integrated x-ray optics as an structure to keep the shells in
+/// at integrated x-ray optics as an structure to keep the rings in
 /// position. The spider mask will prevent photons from entering inside
 /// the optics mirroring system.
 ///
@@ -76,14 +76,14 @@
 /// The number of arms will be determined by those parameters.
 ///
 /// The following image is generated as a validation or a way to visualize the
-/// TRestAxionOptics::GetEntranceShell method. Each color represents a particle
-/// hitting in a different shell. The position is drawn at the generator plane,
+/// TRestAxionOptics::GetEntranceRing method. Each color represents a particle
+/// hitting in a different ring. The position is drawn at the generator plane,
 /// and not at the optics plane. This creates an effect of diffusion since the
 /// generator random direction is slightly tilted respect to the optical axis.
 ///
 /// /// \htmlonly <style>div.image img[src="opticsBasic.png"]{width:750px;}</style> \endhtmlonly
 ///
-/// ![Basic optics validation for method TRestAxionOptics::GetEntranceShell](opticsBasic.png)
+/// ![Basic optics validation for method TRestAxionOptics::GetEntranceRing](opticsBasic.png)
 ///
 /// This image was generated using the pipeline/metadata/optics/basic.py script.
 /// And the rings description can be found at the corresponding basic.rml file.
@@ -160,7 +160,7 @@ void TRestAxionOptics::Initialize() {
     fEntrance = fCenter - 0.5 * fLength * fAxis;
     fExit = fCenter + 0.5 * fLength * fAxis;
 
-    SetMaxAndMinShellRadius();
+    SetMaxAndMinRingRadius();
 
     if (fSpiderOffsetAngle < 0) fSpiderOffsetAngle = 0;
     if (fSpiderArmsSeparationAngle > 0) InitializeSpiderAngles();
@@ -171,20 +171,20 @@ void TRestAxionOptics::Initialize() {
 }
 
 ///////////////////////////////////////////////
-/// \brief It initializes the fMaxShellRadius and fMinShellRadius using the shell ring definitions
+/// \brief It initializes the fMaxRingRadius and fMinRingRadius using the ring ring definitions
 ///
-void TRestAxionOptics::SetMaxAndMinShellRadius() {
-    if (fMinShellRadius == -1 && fShellsRadii.size() > 0) fMinShellRadius = fShellsRadii[0].first;
-    if (fMaxShellRadius == -1 && fShellsRadii.size() > 0) fMaxShellRadius = fShellsRadii[0].second;
+void TRestAxionOptics::SetMaxAndMinRingRadius() {
+    if (fMinRingRadius == -1 && fRingsRadii.size() > 0) fMinRingRadius = fRingsRadii[0].first;
+    if (fMaxRingRadius == -1 && fRingsRadii.size() > 0) fMaxRingRadius = fRingsRadii[0].second;
 
-    for (const auto& shellRadius : fShellsRadii) {
-        if (shellRadius.first < fMinShellRadius) fMinShellRadius = shellRadius.first;
-        if (shellRadius.second > fMaxShellRadius) fMaxShellRadius = shellRadius.second;
+    for (const auto& ringRadius : fRingsRadii) {
+        if (ringRadius.first < fMinRingRadius) fMinRingRadius = ringRadius.first;
+        if (ringRadius.second > fMaxRingRadius) fMaxRingRadius = ringRadius.second;
     }
 }
 
 ///////////////////////////////////////////////
-/// \brief It initializes the fMaxShellRadius and fMinShellRadius using the shell ring definitions
+/// \brief It initializes the fMaxRingRadius and fMinRingRadius using the ring ring definitions
 ///
 void TRestAxionOptics::InitializeSpiderAngles() {
     std::pair<Double_t, Double_t> additional_negative = {-1, -1};
@@ -276,20 +276,20 @@ Bool_t TRestAxionOptics::IsInsideRing(const TVector3& pos, Double_t Rout, Double
 }
 
 ///////////////////////////////////////////////
-/// \brief It returns the optics shell index for a given particle with position `pos` and direction `dir`.
+/// \brief It returns the optics ring index for a given particle with position `pos` and direction `dir`.
 ///
 /// If the particle is not inside any ring it will return -1
 ///
 /// This method is protected since it should be used only by derived classes
 ///
-Int_t TRestAxionOptics::GetEntranceShell(const TVector3& pos, const TVector3& dir) {
+Int_t TRestAxionOptics::GetEntranceRing(const TVector3& pos, const TVector3& dir) {
     TVector3 posEntrance = GetPositionAtEntrance(pos, dir);
     if (HitsSpider(posEntrance)) return -1;
-    if (!IsInsideRing(posEntrance, fMaxShellRadius, fMinShellRadius)) return -1;
+    if (!IsInsideRing(posEntrance, fMaxRingRadius, fMinRingRadius)) return -1;
 
     int n = 0;
-    for (const auto& shellRadius : fShellsRadii) {
-        if (IsInsideRing(posEntrance, shellRadius.second, shellRadius.first)) return n;
+    for (const auto& ringRadius : fRingsRadii) {
+        if (IsInsideRing(posEntrance, ringRadius.second, ringRadius.first)) return n;
         n++;
     }
 
@@ -300,7 +300,7 @@ Int_t TRestAxionOptics::GetEntranceShell(const TVector3& pos, const TVector3& di
 /// \brief It returns `true` if the particle with position `pos` and direction `dir`
 /// encounters the spider net.
 ///
-/// This method is private since it is just a helper method used by GetEntranceShell, and it will only
+/// This method is private since it is just a helper method used by GetEntranceRing, and it will only
 /// work under the assumption that the particle position is already at the entrance optics plane.
 ///
 Bool_t TRestAxionOptics::HitsSpider(const TVector3& pos) {
@@ -329,18 +329,18 @@ Bool_t TRestAxionOptics::HitsSpider(const TVector3& pos) {
 void TRestAxionOptics::InitFromConfigFile() {
     TRestMetadata::InitFromConfigFile();
 
-    std::vector<Double_t> rMax = StringToElements(GetParameter("shellMaxRadii", "-1"), ",");
-    std::vector<Double_t> rMin = StringToElements(GetParameter("shellMinRadii", "-1"), ",");
+    std::vector<Double_t> rMax = StringToElements(GetParameter("ringMaxRadii", "-1"), ",");
+    std::vector<Double_t> rMin = StringToElements(GetParameter("ringMinRadii", "-1"), ",");
 
     if (rMax.size() != rMin.size())
         SetError(
             "TRestAxionOptics. The number of ring radii definitions do not match! Rings will not be "
             "initialized!");
     else {
-        fShellsRadii.clear();
+        fRingsRadii.clear();
         for (unsigned int n = 0; n < rMax.size(); n++) {
             std::pair<Double_t, Double_t> p(rMin[n], rMax[n]);
-            fShellsRadii.push_back(p);
+            fRingsRadii.push_back(p);
         }
     }
 
@@ -362,11 +362,11 @@ void TRestAxionOptics::PrintMetadata() {
     metadata << "Optics exit: (" << fExit.X() << ", " << fExit.Y() << ", " << fExit.Z() << ") mm" << endl;
     metadata << "Optics axis: (" << fAxis.X() << ", " << fAxis.Y() << ", " << fAxis.Z() << ")" << endl;
     metadata << " " << endl;
-    metadata << "Relation of mirror shells integrated in the optics:" << endl;
+    metadata << "Relation of mirror rings integrated in the optics:" << endl;
     metadata << "---------" << endl;
     int n = 0;
-    for (const auto& shellRadius : fShellsRadii) {
-        metadata << "Shell " << n << ": Rmin = " << shellRadius.first << "mm , Rmax = " << shellRadius.second
+    for (const auto& ringRadius : fRingsRadii) {
+        metadata << "Ring " << n << ": Rmin = " << ringRadius.first << "mm , Rmax = " << ringRadius.second
                  << "mm" << endl;
         n++;
     }
