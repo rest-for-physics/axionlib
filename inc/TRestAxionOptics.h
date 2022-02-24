@@ -107,6 +107,8 @@ class TRestAxionOptics : public TRestMetadata {
     /// It returns the exit position defined by the optical axis
     TVector3 GetExit() { return fExit; }
 
+    Double_t GetMaxRingRadius() { return fMaxShellRadius; }
+
     TVector3 GetPositionAtEntrance(const TVector3& pos, const TVector3& dir);
 
     /// Pure abstract method to be implemented at inherited class
