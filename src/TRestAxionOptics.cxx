@@ -75,6 +75,19 @@
 ///
 /// The number of arms will be determined by those parameters.
 ///
+/// The following image is generated as a validation or a way to visualize the
+/// TRestAxionOptics::GetEntranceShell method. Each color represents a particle
+/// hitting in a different shell. The position is drawn at the generator plane,
+/// and not at the optics plane. This creates an effect of diffusion since the
+/// generator random direction is slightly tilted respect to the optical axis.
+///
+/// /// \htmlonly <style>div.image img[src="opticsBasic.png"]{width:750px;}</style> \endhtmlonly
+///
+/// ![Basic optics validation for method TRestAxionOptics::GetEntranceShell](opticsBasic.png)
+///
+/// This image was generated using the pipeline/metadata/optics/basic.py script.
+/// And the rings description can be found at the corresponding basic.rml file.
+///
 /// This class is an abstract class, to see an example of its implementation
 /// inside a RML configuration file, check for TRestAxionGenericOptics or
 /// TRestAxionMCPLOptics.
@@ -152,7 +165,7 @@ void TRestAxionOptics::Initialize() {
     if (fSpiderOffsetAngle < 0) fSpiderOffsetAngle = 0;
     if (fSpiderArmsSeparationAngle > 0) InitializeSpiderAngles();
 
-    // A vector orthogonal to the axis, thus belonging to the optics plane
+    // A vector orthogonal to the axis, thus parallel to the optics plane
     // and to be used as reference for spider structure. It defines angle = 0
     fReference = TVector3(0, fAxis.Z(), -fAxis.Y()).Unit();
 }
@@ -294,12 +307,12 @@ Bool_t TRestAxionOptics::HitsSpider(const TVector3& pos) {
     Double_t d = REST_Physics::DistanceToAxis(fEntrance, fAxis, pos);
     if (fSpiderArmsSeparationAngle == 0 || d < fSpiderStartRadius) return false;
 
-    TVector3 posUnit = pos.Unit();
+    TVector3 posUnit = (pos - fEntrance).Unit();
     Double_t cos_angle = posUnit.Dot(fReference);
 
-    if (pos.X() >= 0) {
+    if (posUnit.X() >= 0) {
         for (const auto& ang : fSpiderPositiveRanges) {
-            if (cos_angle > ang.first && cos_angle < ang.second) return true;
+            if (cos_angle < ang.first && cos_angle > ang.second) return true;
         }
     } else {
         for (const auto& ang : fSpiderNegativeRanges) {
