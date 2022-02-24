@@ -138,11 +138,11 @@ void TRestAxionGenericOptics::InitFromConfigFile() {
 /// predetermined layer
 ///
 TVector3 TRestAxionGenericOptics::GetInteractionPoint(const TVector3& pos, const TVector3& dir) {
-    Int_t layer = TRestAxionOptics::GetEntranceShell(pos, dir);
-    Double_t r1 = fShellsRadii[layer].second;
+    Int_t layer = GetEntranceRing(pos, dir);
+    Double_t r1 = fRingsRadii[layer].second;
     Double_t angle = fShellsAngle[layer];
     Double_t xSep = fShellsSep[layer];
-    Double_t fLength = TRestAxionOptics::GetMirrLength();
+    Double_t fLength = GetMirrLength();
     // Double_t distMirrors = 0 for first stack and (fLength + xSep) * cos(angle) for the second // distance
     // of the mirror should be added in for second stack
     Double_t r2 = r1 - fLength * sin(angle);

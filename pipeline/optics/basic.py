@@ -30,21 +30,21 @@ genSize = 80
 basicOptics = ROOT.TRestAxionOptics("basic.rml", "basic")
 spiderOptics = ROOT.TRestAxionOptics("basic.rml", "basic_spider")
 
-shells = basicOptics.GetNumberOfShells()
-print( "Number of shells (no-spider): " + str(shells) )
+rings = basicOptics.GetNumberOfRings()
+print( "Number of rings (no-spider): " + str(rings) )
 
 maxRingRadius = basicOptics.GetMaxRingRadius()
 print( "Max ring radius (no-spider): " + str(maxRingRadius) )
 
-shells_sp = spiderOptics.GetNumberOfShells()
-print( "Number of shells (spider): " + str(shells_sp) )
+rings_sp = spiderOptics.GetNumberOfRings()
+print( "Number of rings (spider): " + str(rings_sp) )
 
 maxRingRadius_sp = spiderOptics.GetMaxRingRadius()
 print( "Max ring radius (spider): " + str(maxRingRadius_sp) )
 
 # OP: Optics plane GP: Generator plane OPS: Optics plane spider
 graphsOP = []
-for n in range(shells):
+for n in range(rings):
     gr = ROOT.TGraph()
     gr.SetMarkerStyle(20)
     gr.SetMarkerSize(0.5)
@@ -60,7 +60,7 @@ for n in range(shells):
     graphsOP.append(gr)
 
 graphsGP = []
-for n in range(shells):
+for n in range(rings):
     gr = ROOT.TGraph()
     gr.SetMarkerStyle(20)
     gr.SetMarkerSize(0.5)
@@ -76,7 +76,7 @@ for n in range(shells):
     graphsGP.append(gr)
 
 graphsOPS = []
-for n in range(shells):
+for n in range(rings):
     gr = ROOT.TGraph()
     gr.SetMarkerStyle(20)
     gr.SetMarkerSize(0.5)
@@ -92,7 +92,7 @@ for n in range(shells):
     graphsOPS.append(gr)
 
 graphsGPS = []
-for n in range(shells):
+for n in range(rings):
     gr = ROOT.TGraph()
     gr.SetMarkerStyle(20)
     gr.SetMarkerSize(0.5)
@@ -117,7 +117,7 @@ for n in range(totalSamples):
 
      posEntrance = basicOptics.GetPositionAtEntrance( pos, direction )
 
-     ring = basicOptics.GetEntranceShell( pos, direction ) 
+     ring = basicOptics.GetEntranceRing( pos, direction ) 
      if( ring >= 0 ):
          graphsGP[ring].SetPoint(graphsGP[ring].GetN(), x, y )
          graphsOP[ring].SetPoint(graphsOP[ring].GetN(), posEntrance.X(), posEntrance.Y() )
@@ -127,7 +127,7 @@ graphsOP[0].GetXaxis().SetLimits(-maxRingRadius-20,maxRingRadius+20);
 graphsOP[0].GetHistogram().SetMaximum(maxRingRadius+20);
 graphsOP[0].GetHistogram().SetMinimum(-maxRingRadius-20);
 graphsOP[0].Draw("AP")
-for n in range(1,shells):
+for n in range(1,rings):
     graphsOP[n].Draw("P")
 
 pad1.cd(1)
@@ -135,7 +135,7 @@ graphsGP[0].GetXaxis().SetLimits(-maxRingRadius-20,maxRingRadius+20);
 graphsGP[0].GetHistogram().SetMaximum(maxRingRadius+20);
 graphsGP[0].GetHistogram().SetMinimum(-maxRingRadius-20);
 graphsGP[0].Draw("AP")
-for n in range(1,shells):
+for n in range(1,rings):
     graphsGP[n].Draw("P")
 
 for n in range(totalSamples):
@@ -147,7 +147,7 @@ for n in range(totalSamples):
 
      posEntrance = spiderOptics.GetPositionAtEntrance( pos, direction )
 
-     ring = spiderOptics.GetEntranceShell( pos, direction ) 
+     ring = spiderOptics.GetEntranceRing( pos, direction ) 
      if( ring >= 0 ):
          graphsGPS[ring].SetPoint(graphsGPS[ring].GetN(), x, y )
          graphsOPS[ring].SetPoint(graphsOPS[ring].GetN(), posEntrance.X(), posEntrance.Y() )
@@ -157,7 +157,7 @@ graphsOPS[0].GetXaxis().SetLimits(-maxRingRadius_sp-20,maxRingRadius_sp+20);
 graphsOPS[0].GetHistogram().SetMaximum(maxRingRadius_sp+20);
 graphsOPS[0].GetHistogram().SetMinimum(-maxRingRadius_sp-20);
 graphsOPS[0].Draw("AP")
-for n in range(1,shells):
+for n in range(1,rings):
     graphsOPS[n].Draw("P")
 
 pad1.cd(3)
@@ -165,7 +165,7 @@ graphsGPS[0].GetXaxis().SetLimits(-maxRingRadius_sp-20,maxRingRadius_sp+20);
 graphsGPS[0].GetHistogram().SetMaximum(maxRingRadius_sp+20);
 graphsGPS[0].GetHistogram().SetMinimum(-maxRingRadius_sp-20);
 graphsGPS[0].Draw("AP")
-for n in range(1,shells):
+for n in range(1,rings):
     graphsGPS[n].Draw("P")
 
 c1.Print(outfname)
