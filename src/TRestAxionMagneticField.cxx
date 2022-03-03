@@ -193,7 +193,7 @@
 ///
 /// \code
 /// TRestAxionMagneticField *mag = new TRestAxionMagneticField("fields.rml", "babyIAXO" );
-/// mag->GetFieldBoundaries(0, TVector3(100,100, -4000) , TVector3(0.02, 0.03, 1))
+/// mag->GetFieldBoundaries(TVector3(100,100, -4000) , TVector3(0.02, 0.03, 1))
 /// \endcode
 ///
 /// In the other hand, TRestAxionMagneticField::GetVolumeBoundaries will return the
@@ -576,6 +576,8 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 
     return fCanvas;
 }
+
+TCanvas* DrawTracks(TVector3 vanishingPoint, Int_t volId) {}
 
 ///////////////////////////////////////////////
 /// \brief A method to help loading magnetic field data, as x,y,z,Bx,By,Bz into a magnetic volume definition
@@ -1190,7 +1192,7 @@ Bool_t TRestAxionMagneticField::CheckOverlaps() {
 /// std::vector
 /// will be empty.
 ///
-std::vector<TVector3> TRestAxionMagneticField::GetVolumeBoundaries(Int_t id, TVector3 pos, TVector3 dir) {
+std::vector<TVector3> TRestAxionMagneticField::GetVolumeBoundaries(TVector3 pos, TVector3 dir Int_t id) {
     MagneticFieldVolume* vol = GetMagneticVolume(id);
 
     std::vector<TVector3> boundaries;
@@ -1210,9 +1212,9 @@ std::vector<TVector3> TRestAxionMagneticField::GetVolumeBoundaries(Int_t id, TVe
 ///
 /// If no intersection is found the returned std::vector will be empty.
 ///
-std::vector<TVector3> TRestAxionMagneticField::GetFieldBoundaries(Int_t id, TVector3 pos, TVector3 dir,
-                                                                  Double_t precision) {
-    std::vector<TVector3> volumeBoundaries = GetVolumeBoundaries(id, pos, dir);
+std::vector<TVector3> TRestAxionMagneticField::GetFieldBoundaries(TVector3 pos, TVector3 dir,
+                                                                  Double_t precision, Int_t id) {
+    std::vector<TVector3> volumeBoundaries = GetVolumeBoundaries(pos, dir, id);
     if (volumeBoundaries.size() != 2) return volumeBoundaries;
 
     if (IsFieldConstant(id)) return volumeBoundaries;
