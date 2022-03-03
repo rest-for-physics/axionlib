@@ -1080,9 +1080,9 @@ TVector3 TRestAxionMagneticField::GetFieldAverageTransverseVector(TVector3 from,
 
     if ((length > 0) && (numberofpoints > 0)) {
         Bavg = Bavg * (1.0 / numberofpoints);  // calculates the average magnetic field vector
-        BTavg = Bavg -
-                (Bavg * direction) *
-                    direction;  // calculates the transverse component of the average magnetic field vector
+        BTavg =
+            Bavg - (Bavg * direction) *
+                       direction;  // calculates the transverse component of the average magnetic field vector
         debug << "B average vector = (" << Bavg.x() << ", " << Bavg.y() << ", " << Bavg.z() << ")" << endl;
         debug << "Transverse B average vector = (" << BTavg.x() << ", " << BTavg.y() << ", " << BTavg.z()
               << ")" << endl;
@@ -1133,7 +1133,7 @@ Bool_t TRestAxionMagneticField::CheckOverlaps() {
 /// \brief Finds the in/out particle trajectory boundaries for a particular magnetic region bounding box.
 ///
 /// This method checks if the trajectory defined by the position `pos` and direction `dir` passes through
-/// the magnetic ﬁeld region/volume `id` given. If two such points (entry point and exit point) are found,
+/// the magnetic field region/volume `id` given. If two such points (entry point and exit point) are found,
 /// their coordinates are returned. In the example shown in Fig. 1 from TRestAxionFieldPropagationProcess
 /// these points are: IN 1 and OUT 1 for the region #1 and IN2 and OUT 2 for the region #2.
 ///
