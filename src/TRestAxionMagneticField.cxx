@@ -151,6 +151,55 @@
 ///    </TRestAxionMagneticField>
 /// \endcode
 ///
+/// ### Using this class
+///
+/// Once we have created an instance of this class we will be able to access the
+/// magnetic field directly, at any point by using trilinear interpolation.
+///
+/// For example, the following code will retrieve the field at a position found
+/// at a distance z=-2m at the magnet axis,
+///
+/// \code
+/// TRestAxionMagneticField *mag = new TRestAxionMagneticField("fields.rml", "babyIAXO" );
+/// mag->GetMagneticField( 0, 0, -2000 );
+/// \endcode
+///
+/// or in a similar way,
+///
+/// \code
+/// TRestAxionMagneticField *mag = new TRestAxionMagneticField("fields.rml", "babyIAXO" );
+/// mag->GetMagneticField( TVector3(0, 0, -2000), true );
+/// \endcode
+///
+/// where the second argument, `true` will enable the warning message system.
+///
+/// The following code evaluates the transversal field component at
+/// 1m distance along the Z-axis, for a vector pointing in the direction (0,1,1).
+///
+/// \code
+/// TRestAxionMagneticField *mag = new TRestAxionMagneticField("fields.rml", "babyIAXO" );
+/// mag->GetTransversalComponent( TVector3(0,0,1000), TVector3(0,1,1) );
+/// \endcode
+///
+/// There are also geometric functions that allow to identify the boundaries of
+/// the magnetic volume. A test particle will penetrate in the bounding box and identify
+/// the moment where the field changes to a value different from (0,0,0) in order
+/// to identify the entrance and exit point.
+///
+/// The following code will return two TVector3 with the magnetic volume entrance
+/// and exit coordinates, for a test particle being placed at x=10cm, y=10cm and
+/// z=-4m, pointing towards the magnetic field with a slight direction deviation from
+/// the magnet axis.
+///
+/// \code
+/// TRestAxionMagneticField *mag = new TRestAxionMagneticField("fields.rml", "babyIAXO" );
+/// mag->GetFieldBoundaries(0, TVector3(100,100, -4000) , TVector3(0.02, 0.03, 1))
+/// \endcode
+///
+/// In the other hand, TRestAxionMagneticField::GetVolumeBoundaries will return the
+/// bounding box containing that magnetic field.
+///
+///
 /// ### Visualizing the magnetic field
 ///
 /// TODO Review and validate DrawHistogram drawing method and describe its
