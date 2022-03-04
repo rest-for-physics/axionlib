@@ -156,7 +156,7 @@ class TRestAxionMagneticField : public TRestMetadata {
     TCanvas* DrawHistogram(TString projection, TString Bcomp, Int_t volIndex = -1, Double_t step = -1,
                            TString style = "COLZ0", Double_t depth = -100010.0);
 
-    TCanvas* DrawTracks(TVector3 vanishingPoint, Int_t volId = 0);
+    TCanvas* DrawTracks(TVector3 vanishingPoint, Int_t divisions, Int_t volId = 0);
 
     void PrintMetadata();
 

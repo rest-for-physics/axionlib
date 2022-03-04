@@ -517,7 +517,7 @@ debug << "+------------------------+" << endl;
 /// i.e., the starting and ending points of one segment of the particle trajectory along which the
 /// **transversal**
 /// component of the magnetic field is not zero.
-
+///
 std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldBoundaries(Double_t minStep) {
     std::vector<std::vector<TVector3>> boundaryFinalCollection;
 
@@ -540,7 +540,7 @@ std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldB
 
     for (Int_t p = 0; p < N; p++) {
         buffVect.clear();
-        buffVect = fAxionMagneticField->GetFieldBoundaries(p, posInitial, direction);
+        buffVect = fAxionMagneticField->GetFieldBoundaries(posInitial, direction, p);
         if (buffVect.size() == 2) {
             boundaryFinalCollection.push_back(buffVect);
         }
