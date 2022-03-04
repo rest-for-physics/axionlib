@@ -23,20 +23,20 @@
 //////////////////////////////////////////////////////////////////////////
 ///
 /// This process is designed to work with the most general case of the magnetic field description using the
-/// help of TRestAxionMagneticField metadata class. This means that the magnetic ﬁeld volume can be made of
-/// several magnetic ﬁeld "regions" (as described in the documentation of TRestAxionMagneticField, where each
-/// "region" is deﬁned by a separate `<addMagnetVolume...>` line in its RML conﬁguration ﬁle. One such example
-/// of generic magnetic ﬁeld volume description is shown in the following figure, where the volume consists of
-/// four regions labeled #1 . . . #4. In the following example the regions appear as connected regions
-/// although in general they could be completely unconnected, or isolated regions. Anywhere where no region is
-/// defined the field will be equal to zero.
+/// help of TRestAxionMagneticField metadata class. This means that the magnetic field volume can be made of
+/// several magnetic field "regions" (as described in the documentation of TRestAxionMagneticField, where each
+/// "region" is defined by a separate `<addMagnetVolume...>` line in its RML configuration file. One such
+/// example of generic magnetic field volume description is shown in the following figure, where the volume
+/// consists of four regions labeled #1 . . . #4. In the following example the regions appear as connected
+/// regions although in general they could be completely unconnected, or isolated regions. Anywhere where no
+/// region is defined the field will be equal to zero.
 ///
 /// \htmlonly <style>div.image img[src="AxionMagnetTrajectory.png"]{width:500px;}</style> \endhtmlonly
 ///
 /// ![Schematic of the axion trajectory through the magnetic field volumes.](AxionMagnetTrajectory.png)
 ///
 /// Here, the boundaries of each region are represented by blue lines. Also, in some (or all) regions the
-/// magnetic ﬁeld can be zero in its outer parts in order to define a more complex field shape inside.
+/// magnetic field can be zero in its outer parts in order to define a more complex field shape inside.
 /// These parts where \f$B = 0\f$ are shown in blue, while the parts of the
 /// regions with \f$B \neq 0\f$ are shown in green. In this case, it is possible that the particle, right
 /// after entering the region, passes through the part where \f$B = 0\f$ before traversing the section with
@@ -312,7 +312,7 @@ std::vector<TVector3> TRestAxionFieldPropagationProcess::InOut(std::vector<TVect
 /// \brief Finds the in/out particle trajectory boundaries for a particular magnetic volume.
 ///
 /// This method checks if the particle (with the initial position `pos` and direction `dir`) passes through
-/// the magnetic ﬁeld region speciﬁed by the input parameter p. It is done by searching for the points where
+/// the magnetic field region specified by the input parameter p. It is done by searching for the points where
 /// the particle trajectory intersects the boundary planes of that region. If two such points (entry point and
 /// exit point) are found, their coordinates are stored in the vector boundaries. In the example shown in Fig.
 /// 1 these points are: IN 1 and OUT 1 for the region #1 and IN2  and OUT 2 for the region #2.
@@ -517,7 +517,7 @@ debug << "+------------------------+" << endl;
 /// i.e., the starting and ending points of one segment of the particle trajectory along which the
 /// **transversal**
 /// component of the magnetic field is not zero.
-
+///
 std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldBoundaries(Double_t minStep) {
     std::vector<std::vector<TVector3>> boundaryFinalCollection;
 
@@ -540,7 +540,7 @@ std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldB
 
     for (Int_t p = 0; p < N; p++) {
         buffVect.clear();
-        buffVect = fAxionMagneticField->GetFieldBoundaries(p, posInitial, direction);
+        buffVect = fAxionMagneticField->GetFieldBoundaries(posInitial, direction, p);
         if (buffVect.size() == 2) {
             boundaryFinalCollection.push_back(buffVect);
         }

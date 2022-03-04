@@ -123,8 +123,9 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     Bool_t CheckOverlaps();
 
-    std::vector<TVector3> GetVolumeBoundaries(Int_t id, TVector3 pos, TVector3 dir);
-    std::vector<TVector3> GetFieldBoundaries(Int_t id, TVector3 pos, TVector3 dir, Double_t precision = 0);
+    std::vector<TVector3> GetVolumeBoundaries(TVector3 pos, TVector3 dir, Int_t id = 0);
+    std::vector<TVector3> GetFieldBoundaries(TVector3 pos, TVector3 dir, Double_t precision = 0,
+                                             Int_t id = 0);
 
     TVector3 GetMagneticField(Double_t x, Double_t y, Double_t z);
     TVector3 GetMagneticField(TVector3 pos, Bool_t showWarning = true);
@@ -154,6 +155,8 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     TCanvas* DrawHistogram(TString projection, TString Bcomp, Int_t volIndex = -1, Double_t step = -1,
                            TString style = "COLZ0", Double_t depth = -100010.0);
+
+    TCanvas* DrawTracks(TVector3 vanishingPoint, Int_t divisions, Int_t volId = 0);
 
     void PrintMetadata();
 
