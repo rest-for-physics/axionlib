@@ -26,7 +26,7 @@
 #include <TRestMetadata.h>
 #include <iostream>
 
-/// A class to load optics response files (WIP). Perhaps we might inherit later TRestAxionMCPLOptics, ...
+/// An abstract class to define common optics parameters and methods
 class TRestAxionOptics : public TRestMetadata {
    private:
     /// It is the position of the center of the optics system.
@@ -36,25 +36,50 @@ class TRestAxionOptics : public TRestMetadata {
     TVector3 fAxis = TVector3(0, 0, 1);  //<
 
     /// Optics physical mirror length in mm
-    Double_t fLength = 250;  //<
+    Double_t fLength = 300;  //<
 
-    /// A vector containing the shells ring radius definitions. First element is the lower radius.
-    std::vector<std::pair<Double_t, Double_t>> fShellsRadii;  //<
+    /// The angle between two consecutive spider arms measured in radians.
+    Double_t fSpiderArmsSeparationAngle = 0;  //<
+
+    /// The position angle at which the spider arm will start
+    Double_t fSpiderOffsetAngle = 0;  //<
+
+    /// The width of each specific spider arm. Measured in radians. Default is 2.5 degrees.
+    Double_t fSpiderWidth = TMath::Pi() / 18. / 4.;  //<
+
+    /// The spider structure will be effective from this radius, in mm. Default is from 20 mm.
+    Double_t fSpiderStartRadius = 20.;  //<
 
     /// An internal variable to register the maximum shell radius
-    Double_t fMaxShellRadius = -1;  //!
+    Double_t fMaxRingRadius = -1;  //!
 
     /// An internal variable to register the minimum shell radius
-    Double_t fMinShellRadius = -1;  //!
+    Double_t fMinRingRadius = -1;  //!
 
-    /// It is the calculated position at the entrance of the optics.
-    TVector3 fEntrance;  //!
+    /// It is the calculated axis position at the entrance of the optics plane.
+    TVector3 fEntrance = TVector3(0, 0, 0);  //!
 
-    /// It is the calculated position at the exit of the optics.
-    TVector3 fExit;  //!
+    /// It is the calculated axis position at the exit of the optics plane.
+    TVector3 fExit = TVector3(0, 0, 0);  //!
 
-    void SetMaxAndMinShellRadius();
+    /// A vector used to define a reference vector at the optics plane
+    TVector3 fReference = TVector3(0, 0, 0);  //!
+
+    /// It defines the forbidden (cosine) angular ranges imposed by the spider structure (0,Pi)
+    std::vector<std::pair<Double_t, Double_t>> fSpiderPositiveRanges;  //!
+
+    /// It defines the forbidden (cosine) angular ranges imposed by the spider structure (Pi,2Pi)
+    std::vector<std::pair<Double_t, Double_t>> fSpiderNegativeRanges;  //!
+
+    void SetMaxAndMinRingRadius();
+    void InitializeSpiderAngles();
+
     Bool_t IsInsideRing(const TVector3& pos, Double_t Rout, Double_t Rin = 0);
+    Bool_t HitsSpider(const TVector3& pos);
+
+   protected:
+    /// A vector containing the shells ring radius definitions. First element is the lower radius.
+    std::vector<std::pair<Double_t, Double_t>> fRingsRadii;  //<
 
    public:
     void Initialize();
@@ -65,11 +90,16 @@ class TRestAxionOptics : public TRestMetadata {
     /// It returns the axis vector of the optics system
     TVector3 GetAxis() { return fAxis; }
 
-    /// It returns the physical length of the optics system
-    Double_t GetLength() { return fLength; }
+    /// It returns the physical length of one mirror stack; the whole optical system would be L=(fLength + 1/2
+    /// * xSep) * (cos(angleRing) + cos(angleRing)) which doesn't work here because the angele hasn't been
+    /// defined
+    Double_t GetMirrLength() { return fLength; }
+
+    /// It returns the physical length of the whole optics approximated
+    Double_t GetLength() { return fLength * 2; }
 
     /// It returns the number of shells implemented in the optics system
-    Int_t GetNumberOfShells() { return fShellsRadii.size(); }
+    Int_t GetNumberOfRings() { return fRingsRadii.size(); }
 
     /// It returns the entrance position defined by the optical axis
     TVector3 GetEntrance() { return fEntrance; }
@@ -77,17 +107,27 @@ class TRestAxionOptics : public TRestMetadata {
     /// It returns the exit position defined by the optical axis
     TVector3 GetExit() { return fExit; }
 
-    TVector3 GetPositionAtEntrance(const TVector3& pos, const TVector3& dir);
-    TVector3 GetPositionAtExit(const TVector3& pos, const TVector3& dir);
+    /// It returns the maximum entrance radius
+    Double_t GetMaxRingRadius() { return fMaxRingRadius; }
 
-    Int_t GetEntranceShell(const TVector3& pos, const TVector3& dir);
+    TVector3 GetPositionAtEntrance(const TVector3& pos, const TVector3& dir);
+
+    /// Pure abstract method to be implemented at inherited class
+    virtual TVector3 GetPositionAtExit(const TVector3& pos, const TVector3& dir) { return TVector3(0, 0, 0); }
+
+    /// Pure abstract method to be implemented at inherited class
+    virtual TVector3 GetDirectionAtExit(const TVector3& pos, const TVector3& dir) {
+        return TVector3(0, 0, 0);
+    }
+
+    /// Pure abstract method to be implemented at inherited class
+    virtual Double_t GetEfficiency(const TVector3& pos, const TVector3& dir) { return 0.0; }
+
+    Int_t GetEntranceRing(const TVector3& pos, const TVector3& dir);
 
     void PrintMetadata();
 
     void InitFromConfigFile();
-
-    /// Photon propagation method to be implemented at the derived class
-    virtual TVector3 PropagatePhoton(const TVector3& in) = 0;
 
     TRestAxionOptics();
     TRestAxionOptics(const char* cfgFileName, std::string name = "");

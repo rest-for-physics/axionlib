@@ -110,6 +110,7 @@ optics:
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/optics/
     - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CI_PROJECT_DIR}/mpfr-4.0.2/install/lib
     - python optics.py
+    - python basic.py
   except:
       variables:
         - $CRONJOB

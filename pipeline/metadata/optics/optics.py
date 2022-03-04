@@ -8,10 +8,10 @@ ROOT.gSystem.Load("libRestAxion.so")
 mcplOptics_1 = ROOT.TRestAxionMCPLOptics("setups.rml", "mcpl")
 mcplOptics_1.PrintMetadata()
 
-shells = mcplOptics_1.GetNumberOfShells()
-print( "Number of shells: " + str(shells) )
-if( shells != 5 ):
-    print( "\nError! Number of shells is not 5!" )
+rings  = mcplOptics_1.GetNumberOfRings()
+print( "Number of rings: " + str(rings) )
+if( rings != 5 ):
+    print( "\nError! Number of rings is not 5!" )
     exit(1)
 print (" [\033[92m OK \x1b[0m]")
 
