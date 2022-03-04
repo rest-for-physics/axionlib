@@ -664,7 +664,7 @@ TCanvas* TRestAxionMagneticField::DrawTracks(TVector3 vanishingPoint, Int_t divi
         Double_t delta = fBoundMax[volId][2] * 2. / divisions;
 
         Double_t field = this->GetTransversalComponent(position, direction);
-        fieldGr->AddPoint(posZ, field);
+        fieldGr->SetPoint(fieldGr->GetN(), posZ, field);
 
         while (posZ <= fPositions[volId][2] + fBoundMax[volId].Z()) {
             TVector3 posAlongAxis = TVector3(fPositions[volId][0], fPositions[volId][1], posZ);
@@ -672,7 +672,7 @@ TCanvas* TRestAxionMagneticField::DrawTracks(TVector3 vanishingPoint, Int_t divi
             position = MoveToPlane(position, direction, TVector3(0, 0, 1), posAlongAxis);
             Double_t field = this->GetTransversalComponent(position, direction);
 
-            fieldGr->AddPoint(posZ, field);
+            fieldGr->SetPoint(fieldGr->GetN(), posZ, field);
 
             posZ += delta;
         }
@@ -681,7 +681,7 @@ TCanvas* TRestAxionMagneticField::DrawTracks(TVector3 vanishingPoint, Int_t divi
         position = MoveToPlane(position, direction, TVector3(0, 0, 1), posAlongAxis);
 
         Double_t field2 = this->GetTransversalComponent(position, direction);
-        fieldGr->AddPoint(posZ, field2);
+        fieldGr->SetPoint(fieldGr->GetN(), posZ, field2);
 
         pad1->cd(2);
         fieldGr->SetLineWidth(3);
