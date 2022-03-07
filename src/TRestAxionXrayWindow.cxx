@@ -1,0 +1,275 @@
+/*************************************************************************
+ * This file is part of the REST software framework.                     *
+ *                                                                       *
+ * Copyright (C) 2016 GIFNA/TREX (University of Zaragoza)                *
+ * For more information see http://gifna.unizar.es/trex                  *
+ *                                                                       *
+ * REST is free software: you can redistribute it and/or modify          *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation, either version 3 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * REST is distributed in the hope that it will be useful,               *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the          *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have a copy of the GNU General Public License along with   *
+ * REST in $REST_PATH/LICENSE.                                           *
+ * If not, see http://www.gnu.org/licenses/.                             *
+ * For the list of contributors see $REST_PATH/CREDITS.                  *
+ *************************************************************************/
+
+//////////////////////////////////////////////////////////////////////////
+/// TRestAxionXrayWindow implements parameters that define the windows
+/// properties, such as material and thickness so that the transmission
+/// probability for a photon of a given energy can be calculated.
+///
+/// For the moment, the window geometry is fixed to be a circular window.
+/// Therefore, the following are the most basic parameters of any window
+/// construction:
+///
+/// * **material**: The material used by the window. The name must match
+/// the name of one of the files found at `data/transmission/` removing
+/// the extension.
+/// * **thickness**: The depth of the window that defines finally the total
+/// x-ray photon absorption.
+/// * **radius**: The radius of the window where photons will be accepted.
+///
+/// On top of that, we might define different types of windows that will
+/// allow us to create different structures, such as a strong back where
+/// photon opacity is only defined at a regular grid or stripped pattern.
+/// We may define the window type using:
+///
+/// - **type**: We may define different options that define the regions
+/// of space where the window material will be effective.
+///   -# **foil**: It defines a homogeneous region of material, all the
+///    region inside the window radius will present the same efficiency.
+///   -# **stripped**: It defines a stripped pattern where the absorption
+///   will be effective, otherwise, if the photon is inside the window
+///   but it doesnt hit the stripped pattern, the transmission will be
+///   equal to 1.
+///   -# **grid**: It defines a grid pattern where the absorption
+///   will be effective, otherwise, if the photon is inside the window
+///   but it doesnt hit the grid pattern, the transmission will be
+///   equal to 1.
+///
+/// In the case that the window type is defined to be *stripped* or
+/// *grid*. Then, few additional parameters are necessary to define the
+/// pattern structure, made of masking strips on one direction (stripped),
+/// or masking strips on both directions (grid).
+///
+/// * **patternGap**: The distance between 2 masking structures, or
+/// periodicity.
+/// * **patternWidth**: The width of the masking structure.
+/// * **patternOffset**: If this parameter is 0, the first strip will
+/// centered at the origin. If not, the pattern will be shifted. In the
+/// case of the grid, it will be used to displace the grid on both
+/// directions, X and Y.
+///
+/// Once all the parameters have been defined inside an instance of this
+/// class, we will be able to recover the transmission at any given point
+/// inside the window using the method TRestAxionXrayWindow::GetEfficiecy.
+///
+/// The corresponding RML section for initialization through a configuration
+/// file would be as follows.
+///
+/// \code
+///	<TRestAxionXrayWindow name="windowTest" verboseLevel="warning" >
+///	</TRestAxionXrayWindow>
+/// \endcode
+///
+///--------------------------------------------------------------------------
+///
+/// RESTsoft - Software for Rare Event Searches with TPCs
+///
+/// History of developments:
+///
+/// 2019-March: First concept and implementation of TRestAxionXrayWindow class.
+///             Javier Galan
+///
+/// \class      TRestAxionXrayWindow
+/// \author     Javier Galan
+///
+/// <hr>
+///
+
+#include "TRestAxionXrayWindow.h"
+using namespace std;
+
+#include "TRestSystemOfUnits.h"
+using namespace REST_Units;
+
+ClassImp(TRestAxionXrayWindow);
+
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+TRestAxionXrayWindow::TRestAxionXrayWindow() : TRestMetadata() { Initialize(); }
+
+///////////////////////////////////////////////
+/// \brief Constructor loading data from a config file
+///
+/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
+/// the path to the config file must be specified using full path, absolute or
+/// relative.
+///
+/// The default behaviour is that the config file must be specified with
+/// full path, absolute or relative.
+///
+/// \param cfgFileName A const char* giving the path to an RML file.
+/// \param name The name of the specific metadata. It will be used to find the
+/// corresponding TRestGeant4Metadata section inside the RML.
+///
+TRestAxionXrayWindow::TRestAxionXrayWindow(const char* cfgFileName, string name)
+    : TRestMetadata(cfgFileName) {
+    debug << "Entering TRestAxionXrayWindow constructor( cfgFileName, name )" << endl;
+
+    Initialize();
+
+    LoadConfigFromFile(fConfigFileName, name);
+}
+
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
+TRestAxionXrayWindow::~TRestAxionXrayWindow() {}
+
+///////////////////////////////////////////////
+/// \brief Initialization of TRestAxionXrayWindow members. It removes all gases.
+///
+void TRestAxionXrayWindow::Initialize() {
+    SetSectionName(this->ClassName());
+    SetLibraryVersion(LIBRARY_VERSION);
+
+    fEnergy.clear();
+    fTransmission.clear();
+}
+
+///////////////////////////////////////////////
+/// \brief It reads the data files from the corresponding material that
+/// needs to be found in the axiolib database with .sol extension.
+/// Usually placed under `data/axion/transmission/`
+///
+void TRestAxionXrayWindow::ReadMaterial() {
+    std::string materialFileName = SearchFile(fMaterial + ".sol");
+
+    debug << "TRestAxionXrayWindow::ReadMaterial. Reading file : " << materialFileName << endl;
+
+    if (!TRestTools::fileExists(materialFileName)) {
+        ferr << "TRestAxionXrayWindow::ReadMaterial( )" << endl;
+        ferr << "Material file not found : " << materialFileName << endl;
+        exit(1);
+    }
+
+    FILE* fin = fopen(materialFileName.c_str(), "rt");
+
+    fEnergy.clear();
+    fTransmission.clear();
+    double en, value;
+    while (fscanf(fin, "%lf\t%lf\n", &en, &value) != EOF) {
+        debug << "Energy : " << en << "eV -- Abs : " << value << endl;
+
+        fEnergy.push_back(en / 1000.);
+        cout << fThickness << " mm" << endl;
+        cout << fThickness * units("um") << endl;
+        fTransmission.push_back(TMath::Power(value, fThickness * units("um")));
+    }
+
+    debug << "Items read : " << fEnergy.size() << endl;
+
+    fclose(fin);
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the window transmission probability for the given energy (in keV)
+/// and window position.
+///
+/// For the case of patterned window (stripped or grid), it will return 1 if the strip is
+/// not hitted.
+///
+Double_t TRestAxionXrayWindow::GetTransmission(Double_t energy, Double_t x, Double_t y) {
+    if (fEnergy.size() == 0) ReadMaterial();
+
+    if ((x - fCenter.X()) * (x - fCenter.X()) + (y - fCenter.Y()) * (y - fCenter.Y()) > fRadius * fRadius)
+        return 0;
+
+    if (!HitsPattern(x, y)) return 1.;
+
+    Double_t energyIndex = GetEnergyIndex(energy);
+
+    // Transmission
+    double y2 = fTransmission[energyIndex + 1];
+    double y1 = fTransmission[energyIndex];
+
+    // Normalized field
+    double x2 = fEnergy[energyIndex + 1];
+    double x1 = fEnergy[energyIndex];
+
+    double m = (y2 - y1) / (x2 - x1);
+    double n = y1 - m * x1;
+
+    if (m * energy + n < 0) {
+        ferr << "TRestAxionXrayWindow::GetAbsorptionCoefficient. Negative coefficient!" << endl;
+        cout << "y2 : " << y2 << " y1 : " << y1 << endl;
+        cout << "x2 : " << x2 << " x1 : " << x1 << endl;
+        cout << "m : " << m << " n : " << n << endl;
+        cout << "E : " << energy << " bin : " << energyIndex << endl;
+        GetChar();
+    }
+
+    return (m * energy + n);
+}
+
+Bool_t TRestAxionXrayWindow::HitsPattern(Double_t x, Double_t y) {
+    if (fWindowType == "stripped") {
+        Int_t xNew = (Int_t)((x + fPatternOffset) / fPatternGap);
+
+        Double_t xNew2 = (x + fPatternOffset) - xNew * fPatternGap;
+
+        if (xNew2 > fPatternWidth / 2. && xNew2 < -fPatternWidth / 2.) return false;
+    }
+
+    return true;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the vector element index, from `fEnergy`, that is just below the given input energy.
+///
+Int_t TRestAxionXrayWindow::GetEnergyIndex(Double_t energy) {
+    for (unsigned int n = 0; n < fEnergy.size(); n++)
+        if (energy < fEnergy[n]) return n - 1;
+    return -1;
+}
+
+///////////////////////////////////////////////
+/// \brief Prints out the transmission probability curve loaded in memory.
+/// for debugging pourposes.
+///
+void TRestAxionXrayWindow::PrintTransmissionData() {
+    if (fEnergy.size() == 0) ReadMaterial();
+    for (unsigned int n = 0; n < fEnergy.size(); n++)
+        cout << "Energy : " << fEnergy[n] << " Transmission : " << fTransmission[n] << endl;
+}
+
+///////////////////////////////////////////////
+/// \brief Prints on screen the information about the metadata members of TRestAxionXrayWindow
+///
+void TRestAxionXrayWindow::PrintMetadata() {
+    TRestMetadata::PrintMetadata();
+
+    metadata << "X-ray window type: " << fWindowType << endl;
+    metadata << "Window center: ( " << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ") mm"
+             << endl;
+    metadata << "Thickness: " << fThickness * units("um") << " um" << endl;
+    metadata << "Material: " << fMaterial << endl;
+    metadata << "Window radius: " << fRadius << " mm" << endl;
+    if (fWindowType != "foil") {
+        metadata << "------" << endl;
+        metadata << "Pattern periodicity: " << fPatternGap << " mm" << endl;
+        metadata << "Pattern width: " << fPatternWidth << " mm" << endl;
+        metadata << "Pattern offset: " << fPatternOffset << " mm" << endl;
+    }
+
+    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+}
