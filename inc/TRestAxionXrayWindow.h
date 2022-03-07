@@ -67,6 +67,8 @@ class TRestAxionXrayWindow : public TRestMetadata {
     Int_t GetEnergyIndex(Double_t energy);
 
    public:
+    Double_t GetWindowRadius() { return fRadius; }
+
     Double_t GetTransmission(Double_t energy, Double_t x, Double_t y);
 
     void PrintTransmissionData();

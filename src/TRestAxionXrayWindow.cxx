@@ -22,8 +22,10 @@
 
 //////////////////////////////////////////////////////////////////////////
 /// TRestAxionXrayWindow implements parameters that define the windows
-/// properties, such as material and thickness so that the transmission
-/// probability for a photon of a given energy can be calculated.
+/// properties, such as material and thickness. This class will load the
+/// transmission data to calculate the transmission for a photon of a
+/// given energy and position. The window might be defined as a uniform
+/// foil or using a particular structure.
 ///
 /// For the moment, the window geometry is fixed to be a circular window.
 /// Therefore, the following are the most basic parameters of any window
@@ -76,8 +78,21 @@
 ///
 /// \code
 ///	<TRestAxionXrayWindow name="windowTest" verboseLevel="warning" >
+///		<parameter name="center" value="(0,0,0)mm" />
+///
+///		<parameter name="type" value="foil" />
+///		<parameter name="thickness" value="0.3um" />
+///		<parameter name="material" value="Si3N4" />
+///		<parameter name="radius" value="8mm" />
 ///	</TRestAxionXrayWindow>
 /// \endcode
+///
+/// The pipeline example found at `pipeline/transmission/windowPlot.py` will
+/// use a definition with 3 layers to generate the following plot.
+///
+/// \htmlonly <style>div.image img[src="windowsTransmission.png"]{width:800px;}</style> \endhtmlonly
+///
+/// ![Windows trasmission at energy ranges (0-5)keV, (5-10)keV and (10-15)keV.](windowsTransmission.png)
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -171,8 +186,6 @@ void TRestAxionXrayWindow::ReadMaterial() {
         debug << "Energy : " << en << "eV -- Abs : " << value << endl;
 
         fEnergy.push_back(en / 1000.);
-        cout << fThickness << " mm" << endl;
-        cout << fThickness * units("um") << endl;
         fTransmission.push_back(TMath::Power(value, fThickness * units("um")));
     }
 
@@ -183,7 +196,7 @@ void TRestAxionXrayWindow::ReadMaterial() {
 
 ///////////////////////////////////////////////
 /// \brief It returns the window transmission probability for the given energy (in keV)
-/// and window position.
+/// and window position, using energy linear interpolation.
 ///
 /// For the case of patterned window (stripped or grid), it will return 1 if the strip is
 /// not hitted.
@@ -221,13 +234,43 @@ Double_t TRestAxionXrayWindow::GetTransmission(Double_t energy, Double_t x, Doub
     return (m * energy + n);
 }
 
+///////////////////////////////////////////////
+/// \brief It returns true if the window pattern is hitted. False otherwise.
+///
 Bool_t TRestAxionXrayWindow::HitsPattern(Double_t x, Double_t y) {
     if (fWindowType == "stripped") {
-        Int_t xNew = (Int_t)((x + fPatternOffset) / fPatternGap);
+        Double_t xEval = fPatternWidth / 2. + x - fPatternOffset;
 
-        Double_t xNew2 = (x + fPatternOffset) - xNew * fPatternGap;
+        if (xEval > 0) {
+            while (xEval > fPatternGap) xEval -= fPatternGap;
+        } else {
+            while (xEval < 0) xEval += fPatternGap;
+        }
 
-        if (xNew2 > fPatternWidth / 2. && xNew2 < -fPatternWidth / 2.) return false;
+        if (xEval > fPatternWidth) {
+            return false;
+        }
+    } else if (fWindowType == "grid") {
+        Double_t xEval = fPatternWidth / 2. + x - fPatternOffset;
+
+        if (xEval > 0) {
+            while (xEval > fPatternGap) xEval -= fPatternGap;
+        } else {
+            while (xEval < 0) xEval += fPatternGap;
+        }
+
+        if (xEval < fPatternWidth) return true;
+
+        Double_t yEval = fPatternWidth / 2. + y - fPatternOffset;
+
+        if (yEval > 0) {
+            while (yEval > fPatternGap) yEval -= fPatternGap;
+        } else {
+            while (yEval < 0) yEval += fPatternGap;
+        }
+
+        if (yEval < fPatternWidth) return true;
+        return false;
     }
 
     return true;
