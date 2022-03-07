@@ -58,7 +58,7 @@ if( b1 != 8900 or b2 != 7266 or b3 != 8124 or b4 != 6633 ):
     exit(202)
 print ("[\033[92m OK \x1b[0m]")
 
-boundaries = castField.GetFieldBoundaries(0, ROOT.TVector3(12,34,0), ROOT.TVector3(0,-1,0) )
+boundaries = castField.GetFieldBoundaries( ROOT.TVector3(12,34,0), ROOT.TVector3(0,-1,0) )
 
 yMax = int( 1000 * boundaries[0].Y() )
 yMin = int( 1000 * boundaries[1].Y() )
