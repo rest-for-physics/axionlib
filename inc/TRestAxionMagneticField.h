@@ -31,7 +31,6 @@
 #include "TVector3.h"
 #include "TVectorD.h"
 
-#include "TRestAxionBufferGas.h"
 #include "TRestMesh.h"
 
 /// A structure to define the properties and store the field data of a single magnetic volume inside
@@ -45,9 +44,6 @@ struct MagneticFieldVolume {
 
     /// The field data connected to the grid defined by the mesh
     std::vector<std::vector<std::vector<TVector3>>> field;
-
-    /// A pointer to the gas properties
-    TRestAxionBufferGas* bGas = NULL;
 };
 
 /// A class to load magnetic field maps and evaluate the field on those maps including interpolation.
@@ -67,12 +63,6 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     /// The type of the mesh used (default is cylindrical)
     std::vector<TString> fMeshType;  //<
-
-    /// The gas mixture components that define the medium in each magnetic volume
-    std::vector<TString> fGasMixtures;  //<
-
-    /// The gas components densities corresponding to the gas mixture defined for each volume
-    std::vector<TString> fGasDensities;  //<
 
     /// A vector to store the maximum bounding box values
     std::vector<TVector3> fBoundMax;  //<
