@@ -19,7 +19,7 @@ def validateClass(className):
     with open(className, 'r') as file:
         data = file.read()
 
-        data = data[data.find("::Initialize"):]
+        data = data[data.find("::Initialize()"):]
         data = getMethodDefinition(data)
         data = removeCppComment(data)
 
