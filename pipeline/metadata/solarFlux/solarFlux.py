@@ -100,7 +100,7 @@ if ( int( x[0]*100 ) != 800 or int( x[1]*100 ) != 58 ):
     
 print ("[\033[92m OK \x1b[0m]")
 
-continuumFlux = ROOT.TRestAxionSolarFlux("fluxes.rml", "continuum")
+continuumFlux = ROOT.TRestAxionSolarFlux("fluxes.rml", "Gianotti")
 
 if continuumFlux.GetError():
     print ( continuumFlux.GetErrorMessage() )
