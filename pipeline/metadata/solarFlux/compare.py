@@ -45,22 +45,27 @@ for x in range(totalSamples):
 
 pad1.cd(1)
 enSpt_G = G_spt.ProjectionX()
+enSpt_G.Scale( primakoffG.GetTotalFlux()/100. ) # 100eV binsize
 enSpt_G.SetTitle("Energy spectrum")
 enSpt_G.GetYaxis().SetTitleSize(0.05);
 enSpt_G.SetStats(0)
 enSpt_G.GetXaxis().SetTitle("Energy [keV]")
 enSpt_G.GetXaxis().SetTitleSize(0.05);
 enSpt_G.GetXaxis().SetLabelSize(0.05);
+enSpt_G.GetYaxis().SetTitle("Flux [cm-2 s-1 keV-1]")
+enSpt_G.GetYaxis().SetTitleSize(0.05);
+enSpt_G.GetYaxis().SetLabelSize(0.05);
 enSpt_G.SetFillStyle(4050)
 enSpt_G.SetFillColorAlpha(ROOT.kBlue, 0.1);
 enSpt_G.SetLineColor(ROOT.kBlue+2)
-enSpt_G.Draw()
+enSpt_G.Draw("hist")
 
 enSpt_LH = LH_spt.ProjectionX()
+enSpt_LH.Scale( primakoffLH.GetTotalFlux()/100. ) # 100eV binsize
 enSpt_LH.SetFillStyle(4050)
 enSpt_LH.SetFillColorAlpha(ROOT.kOrange, 0.1);
 enSpt_LH.SetLineColor(ROOT.kOrange+3)
-enSpt_LH.Draw("SAME")
+enSpt_LH.Draw("hist SAME")
 
 legend = ROOT.TLegend(0.45,0.85,0.88,0.76);
 legend.AddEntry(enSpt_G,"Primakoff Gianotti","f");
@@ -91,7 +96,7 @@ legend.Draw()
 
 c1.Print(outfname)
 
-print ("All tests passed!  [\033[92m OK \x1b[0m]")
+print ("File: " + str(outfname) + " was generated [\033[92m OK \x1b[0m]")
 
 print ("")
 
