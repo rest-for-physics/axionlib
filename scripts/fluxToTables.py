@@ -19,6 +19,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--file', dest='fname', type=str, help='Input filename .flux')
 parser.add_argument('--out', dest='outfname', type=str, help='Output filename .dat')
+parser.add_argument('--binsize', dest='binsize', type=float, help='The energy bin size used at the .flux file [in eV].')
 parser.add_argument('--skiprows', dest='skiprows', type=int, help='The number of header rows to be skipped')
 args = parser.parse_args()
 
@@ -26,6 +27,11 @@ args = parser.parse_args()
 skiprows = 3
 if args.skiprows != None:
     skiprows = args.skiprows
+
+# This is the default for Primakoff_LennertHoof.flux
+binsize = 10
+if args.skiprows != None:
+    binsize = args.binsize
 
 if args.fname == None:
     parser.print_usage()
@@ -52,7 +58,7 @@ fluxTable = TH2D( "flux", "Flux table", 100, 0., 1., 200, 0., 20. )
 for n in range(len(data)):
     r = 0.005 + data[0][n]
     en = data[1][n] - 0.005
-    flux = data[2][n]
+    flux = data[2][n] * binsize/100.
 
     fluxTable.Fill( r, en, flux )
 
