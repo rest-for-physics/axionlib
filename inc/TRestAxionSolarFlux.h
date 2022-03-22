@@ -87,6 +87,9 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// It returns true if monochromatic flux spectra was loaded
     Bool_t isSolarSpectrumLoaded() { return fFluxLines.size() > 0; }
 
+    /// It returns the total integrated flux at earth in cm-2 s-1
+    Double_t GetTotalFlux() { return fTotalContinuumFlux + fTotalMonochromaticFlux; }
+
     std::pair<Double_t, Double_t> GetRandomEnergyAndRadius();
 
     /// Tables might be loaded using a solar model description by TRestAxionSolarModel
