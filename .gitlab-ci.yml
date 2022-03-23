@@ -91,13 +91,13 @@ magneticField:
   script:
       #    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/pipeline/magneticField/
+    - cd ${CI_PROJECT_DIR}/pipeline/metadata/magneticField/
     - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CI_PROJECT_DIR}/mpfr-4.0.2/install/lib
     - ls $REST_PATH/data/axion/magneticField/
     - python magneticField.py
     - cd trilinear
     - restRoot -b -q GetMagneticField_test.C
-    - cd ${CI_PROJECT_DIR}/pipeline/magneticField/boundary/
+    - cd ${CI_PROJECT_DIR}/pipeline/metadata/magneticField/boundary/
     - restRoot -b -q Boundaries_test.C
   except:
       variables:
@@ -107,12 +107,13 @@ optics:
   type: metadata
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/pipeline/optics/
+    - cd ${CI_PROJECT_DIR}/pipeline/metadata/optics/
     - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CI_PROJECT_DIR}/mpfr-4.0.2/install/lib
     - python optics.py
   except:
       variables:
         - $CRONJOB
+
 
 xRayTransmission:
   type: metadata
@@ -121,6 +122,15 @@ xRayTransmission:
     - cd ${CI_PROJECT_DIR}/pipeline/transmission/
     - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CI_PROJECT_DIR}/mpfr-4.0.2/install/lib
     - python windowPlot.py
+
+solarFlux:
+  type: metadata
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/pipeline/metadata/solarFlux/
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CI_PROJECT_DIR}/mpfr-4.0.2/install/lib
+    - python solarFlux.py
+    - python compare.py
   except:
       variables:
         - $CRONJOB
