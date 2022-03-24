@@ -32,7 +32,7 @@ siFoil = ROOT.TRestAxionXrayWindow("windows.rml", "siliconFoil")
 
 radius = cathode.GetWindowRadius()
 print ( "\nGetting window radius" )
-if( radius != 8 ):
+if radius != 8:
     print ("\nThe window radius is not as expected! Exit code : 102")
     exit(102)
 print ( "[\033[92m OK \x1b[0m]" )
