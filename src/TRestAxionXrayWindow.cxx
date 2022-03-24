@@ -49,7 +49,7 @@
 ///    region inside the window radius will present the same efficiency.
 ///   -# **stripped**: It defines a stripped pattern where the absorption
 ///   will be effective, otherwise, if the photon is inside the window
-///   but it doesnt hit the stripped pattern, the transmission will be
+///   but it doesn't hit the stripped pattern, the transmission will be
 ///   equal to 1.
 ///   -# **grid**: It defines a grid pattern where the absorption
 ///   will be effective, otherwise, if the photon is inside the window
