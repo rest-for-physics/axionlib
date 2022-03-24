@@ -292,7 +292,7 @@ Bool_t TRestAxionXrayWindow::HitsPattern(Double_t x, Double_t y) {
 /// \brief It returns the vector element index, from `fEnergy`, that is just below the given input energy.
 ///
 Int_t TRestAxionXrayWindow::GetEnergyIndex(Double_t energy) {
-    for (unsigned int n = 0; n < fEnergy.size(); n++)
+    for (int n = 0; n < fEnergy.size(); n++)
         if (energy < fEnergy[n]) return n - 1;
     return -1;
 }
