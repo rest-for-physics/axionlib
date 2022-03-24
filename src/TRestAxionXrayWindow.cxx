@@ -233,7 +233,7 @@ Double_t TRestAxionXrayWindow::GetTransmission(Double_t energy, Double_t x, Doub
         cout << "x2 : " << x2 << " x1 : " << x1 << endl;
         cout << "m : " << m << " n : " << n << endl;
         cout << "E : " << energy << " bin : " << energyIndex << endl;
-        GetChar();
+        return 0;
     }
 
     return (m * energy + n);
