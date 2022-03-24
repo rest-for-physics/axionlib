@@ -211,6 +211,11 @@ Double_t TRestAxionXrayWindow::GetTransmission(Double_t energy, Double_t x, Doub
 
     Double_t energyIndex = GetEnergyIndex(energy);
 
+    if (energyIndex < 0) {
+        warning << "Energy : " << energy << " keV is out of range!" << endl;
+        return 0;
+    }
+
     // Transmission
     double y2 = fTransmission[energyIndex + 1];
     double y1 = fTransmission[energyIndex];
