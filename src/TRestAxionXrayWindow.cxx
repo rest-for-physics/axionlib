@@ -21,7 +21,7 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionXrayWindow implements parameters that define the windows
+/// TRestAxionXrayWindow implements parameters that define the window
 /// properties, such as material and thickness. This class will load the
 /// transmission data to calculate the transmission for a photon of a
 /// given energy and position. The window might be defined as a uniform
