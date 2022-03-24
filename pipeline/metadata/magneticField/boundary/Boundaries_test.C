@@ -21,7 +21,7 @@ void Boundaries_test() {
     direction.SetXYZ(0.0, 0.0, 1.0);
     // testing boundaries in Volume #0
     boundaries.clear();
-    boundaries = myField->GetVolumeBoundaries(0, position, direction);
+    boundaries = myField->GetVolumeBoundaries(position, direction);
     true_boundaries.resize(2);
     true_boundaries[0].SetXYZ(10.0, 10.0, -1000.0);
     true_boundaries[1].SetXYZ(10.0, 10.0, 1000.0);
@@ -34,7 +34,7 @@ void Boundaries_test() {
         return 5;
     }
     field_boundaries.clear();
-    field_boundaries = myField->GetFieldBoundaries(0, position, direction);
+    field_boundaries = myField->GetFieldBoundaries(position, direction);
     true_field_boundaries.resize(2);
     true_field_boundaries[0].SetXYZ(10.0, 10.0, -505.0);
     true_field_boundaries[1].SetXYZ(10.0, 10.0, 605.0);
@@ -48,7 +48,7 @@ void Boundaries_test() {
     }
     // testing boundaries in Volume #1
     boundaries.clear();
-    boundaries = myField->GetVolumeBoundaries(1, position, direction);
+    boundaries = myField->GetVolumeBoundaries(position, direction, 1);
     true_boundaries.clear();
     true_boundaries[0].SetXYZ(10.0, 10.0, 1000.01);
     true_boundaries[1].SetXYZ(10.0, 10.0, 3000.01);
@@ -61,12 +61,14 @@ void Boundaries_test() {
         return 5;
     }
     field_boundaries.clear();
-    field_boundaries = myField->GetFieldBoundaries(1, position, direction);
+    field_boundaries = myField->GetFieldBoundaries(position, direction, 0, 1);
     true_field_boundaries.clear();
     true_field_boundaries[0].SetXYZ(10.0, 10.0, 1495.01);
     true_field_boundaries[1].SetXYZ(10.0, 10.0, 2605.01);
     if ((CheckValues(field_boundaries[0], true_field_boundaries[0])) ||
         (CheckValues(field_boundaries[1], true_field_boundaries[1]))) {
+        field_boundaries[0].Print();
+        field_boundaries[1].Print();
         cout << "Error occured in GetFieldBoundaries method when evaluating in Volume #1 for initial "
                 "position  ("
              << position.X() << ", " << position.Y() << ", " << position.Z() << ") and direction ("
@@ -79,7 +81,7 @@ void Boundaries_test() {
     direction.SetXYZ(0.0, 0.0, -1.0);
     // testing boundaries in Volume #0
     boundaries.clear();
-    boundaries = myField->GetVolumeBoundaries(0, position, direction);
+    boundaries = myField->GetVolumeBoundaries(position, direction);
     true_boundaries.resize(2);
     true_boundaries[0].SetXYZ(20.0, 20.0, 1000.0);
     true_boundaries[1].SetXYZ(20.0, 20.0, -1000.0);
@@ -92,7 +94,7 @@ void Boundaries_test() {
         return 5;
     }
     field_boundaries.clear();
-    field_boundaries = myField->GetFieldBoundaries(0, position, direction);
+    field_boundaries = myField->GetFieldBoundaries(position, direction);
     true_field_boundaries.resize(2);
     true_field_boundaries[0].SetXYZ(20.0, 20.0, 605.0);
     true_field_boundaries[1].SetXYZ(20.0, 20.0, -505.0);
@@ -106,7 +108,7 @@ void Boundaries_test() {
     }
     // testing boundaries in Volume #1
     boundaries.clear();
-    boundaries = myField->GetVolumeBoundaries(1, position, direction);
+    boundaries = myField->GetVolumeBoundaries(position, direction, 1);
     true_boundaries.clear();
     true_boundaries[0].SetXYZ(20.0, 20.0, 3000.01);
     true_boundaries[1].SetXYZ(20.0, 20.0, 1000.01);
@@ -119,7 +121,7 @@ void Boundaries_test() {
         return 5;
     }
     field_boundaries.clear();
-    field_boundaries = myField->GetFieldBoundaries(1, position, direction);
+    field_boundaries = myField->GetFieldBoundaries(position, direction, 0, 1);
     true_field_boundaries.clear();
     true_field_boundaries[0].SetXYZ(20.0, 20.0, 2605.01);
     true_field_boundaries[1].SetXYZ(20.0, 20.0, 1495.01);
@@ -137,7 +139,7 @@ void Boundaries_test() {
     direction.SetXYZ(1.0, 0.0, 35.0);
     // testing boundaries in Volume #0
     boundaries.clear();
-    boundaries = myField->GetVolumeBoundaries(0, position, direction);
+    boundaries = myField->GetVolumeBoundaries(position, direction);
     true_boundaries.resize(2);
     true_boundaries[0].SetXYZ(-59.7143, 0.0, -1000.0);
     true_boundaries[1].SetXYZ(-2.57143, 0.0, 1000.0);
@@ -150,7 +152,7 @@ void Boundaries_test() {
         return 5;
     }
     field_boundaries.clear();
-    field_boundaries = myField->GetFieldBoundaries(0, position, direction);
+    field_boundaries = myField->GetFieldBoundaries(position, direction);
     true_field_boundaries.resize(2);
     true_field_boundaries[0].SetXYZ(-45.5772, 0.0, -505.202);
     true_field_boundaries[1].SetXYZ(-13.8525, 0.0, 605.161);
@@ -164,7 +166,7 @@ void Boundaries_test() {
     }
     // testing boundaries in Volume #1
     boundaries.clear();
-    boundaries = myField->GetVolumeBoundaries(1, position, direction);
+    boundaries = myField->GetVolumeBoundaries(position, direction, 1);
     true_boundaries.clear();
     true_boundaries[0].SetXYZ(-2.57114, 0.0, 1000.01);
     true_boundaries[1].SetXYZ(54.5717, 0.0, 3000.01);
@@ -177,7 +179,7 @@ void Boundaries_test() {
         return 5;
     }
     field_boundaries.clear();
-    field_boundaries = myField->GetFieldBoundaries(1, position, direction);
+    field_boundaries = myField->GetFieldBoundaries(position, direction, 0, 1);
     true_field_boundaries.clear();
     true_field_boundaries[0].SetXYZ(11.5659, 0.0, 1494.81);
     true_field_boundaries[1].SetXYZ(43.2906, 0.0, 2605.17);
@@ -195,7 +197,7 @@ void Boundaries_test() {
     direction.SetXYZ(0.7, 0.0, 40.0);
     // testing boundaries in Volume #0
     boundaries.clear();
-    boundaries = myField->GetVolumeBoundaries(0, position, direction);
+    boundaries = myField->GetVolumeBoundaries(position, direction);
     true_boundaries.resize(2);
     true_boundaries[0].SetXYZ(-69.65, 0.0, -1000.0);
     true_boundaries[1].SetXYZ(-34.65, 0.0, 1000.0);
@@ -208,7 +210,7 @@ void Boundaries_test() {
         return 5;
     }
     field_boundaries.clear();
-    field_boundaries = myField->GetFieldBoundaries(0, position, direction);
+    field_boundaries = myField->GetFieldBoundaries(position, direction);
     true_field_boundaries.resize(2);
     true_field_boundaries[0].SetXYZ(-49.9655, 0.0, 124.828);
     true_field_boundaries[1].SetXYZ(-41.5614, 0.0, 605.06);
@@ -222,7 +224,7 @@ void Boundaries_test() {
     }
     // testing boundaries in Volume #1
     boundaries.clear();
-    boundaries = myField->GetVolumeBoundaries(1, position, direction);
+    boundaries = myField->GetVolumeBoundaries(position, direction, 1);
     true_boundaries.clear();
     true_boundaries[0].SetXYZ(-34.6498, 0.0, 1000.01);
     true_boundaries[1].SetXYZ(0.350175, 0.0, 3000.01);
@@ -235,7 +237,7 @@ void Boundaries_test() {
         return 5;
     }
     field_boundaries.clear();
-    field_boundaries = myField->GetFieldBoundaries(1, position, direction);
+    field_boundaries = myField->GetFieldBoundaries(position, direction, 0, 1);
     true_field_boundaries.clear();
     true_field_boundaries[0].SetXYZ(-25.9887, 0.0, 1494.93);
     true_field_boundaries[1].SetXYZ(-6.56127, 0.0, 2605.07);

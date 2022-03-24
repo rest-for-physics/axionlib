@@ -24,10 +24,18 @@
 		<parameter name="seed" value="137" />
 	</TRestAxionSolarFlux>
 
-	<TRestAxionSolarFlux name="continuum" verboseLevel="info" >
+	<TRestAxionSolarFlux name="Gianotti" verboseLevel="info" >
 		<parameter name="couplingType" value="g_ag"/>
 		<parameter name="couplingStrength" value="1.e-10"/>
 		<parameter name="fluxDataFile" value="Primakoff_Gianotti_201904.dat"/>
+
+		<parameter name="seed" value="137" />
+	</TRestAxionSolarFlux>
+
+	<TRestAxionSolarFlux name="LennertHoof" verboseLevel="info" >
+		<parameter name="couplingType" value="g_ag"/>
+		<parameter name="couplingStrength" value="1.e-10"/>
+		<parameter name="fluxDataFile" value="Primakoff_LennertHoof_202203.dat"/>
 
 		<parameter name="seed" value="137" />
 	</TRestAxionSolarFlux>
