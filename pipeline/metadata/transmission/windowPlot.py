@@ -16,12 +16,12 @@ ROOT.gSystem.Load("libRestFramework.so")
 ROOT.gSystem.Load("libRestAxion.so")
 
 ### Creating a canvas and pad for drawing
-c1 = TCanvas( 'c1', 'My canvas', 1200,400 )
+c1 = TCanvas( 'c1', 'My canvas', 1200, 400 )
 c1.GetFrame().SetBorderSize( 6 )
 c1.GetFrame().SetBorderMode( -1 )
 
-pad1 = TPad("pad1","This is pad1",0.01,0.02,0.99,0.97);
-pad1.Divide(3,1)
+pad1 = TPad( "pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97 );
+pad1.Divide( 3, 1 )
 pad1.Draw()
 
 totalSamples = 100000
