@@ -44,7 +44,7 @@ class TRestAxionXrayWindow : public TRestMetadata {
     Double_t fRadius = 8;  //<
 
     /// The periodity of the pattern structure
-    Double_t fPatternGap = 0;  //<
+    Double_t fPatternGap = 1;  //<
 
     /// The width of the pattern structure
     Double_t fPatternWidth = 0.5;  //<

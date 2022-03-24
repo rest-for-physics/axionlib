@@ -159,6 +159,13 @@ void TRestAxionXrayWindow::Initialize() {
 
     fEnergy.clear();
     fTransmission.clear();
+
+    if (fWindowType != "foil" && fPatternGap == 0) {
+        ferr << "TRestAxionXrayWindow::Initialize. fPatternGap cannot be zero!" << endl;
+        fPatternGap = 1;
+    }
+
+    if (fPatternGap < 0) fPatternGap = -fPatternGap;
 }
 
 ///////////////////////////////////////////////
