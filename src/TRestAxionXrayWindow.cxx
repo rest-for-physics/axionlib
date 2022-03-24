@@ -53,7 +53,7 @@
 ///   equal to 1.
 ///   -# **grid**: It defines a grid pattern where the absorption
 ///   will be effective, otherwise, if the photon is inside the window
-///   but it doesnt hit the grid pattern, the transmission will be
+///   but it doesn't hit the grid pattern, the transmission will be
 ///   equal to 1.
 ///
 /// In the case that the window type is defined to be *stripped* or
