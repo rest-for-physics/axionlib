@@ -43,7 +43,7 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     Int_t fCounter = 0;  //!
 
     /// Internal process random generator
-    TRandom3* fRandom;
+    TRandom3* fRandom = nullptr;  //!
 
     /// The axion mass
     Double_t fAxionMass = 0;  //<
