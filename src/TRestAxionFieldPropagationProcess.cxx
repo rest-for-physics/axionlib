@@ -128,7 +128,8 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
 }
 
 TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput) {
-    fAxionEvent = (TRestAxionEvent*)evInput;
+    // Already done by TRestAxionEventProcess
+    // fAxionEvent = (TRestAxionEvent*)evInput;
 
     /*
 TVector3 position = *(fAxionEvent->GetPosition());
