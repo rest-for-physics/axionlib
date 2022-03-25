@@ -80,6 +80,8 @@ class TRestAxionEvent : public TRestEvent {
     void SetPosition(TVector3 pos) { fPosition = pos; }
     void SetPosition(Double_t x, Double_t y, Double_t z) { SetPosition(TVector3(x, y, z)); }
 
+    void IncreasePosition(const TVector3& increase) { fPosition += increase; }
+
     void SetDirection(TVector3 dir) { fDirection = dir; }
     void SetDirection(Double_t px, Double_t py, Double_t pz) { SetDirection(TVector3(px, py, pz)); }
 
