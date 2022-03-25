@@ -23,29 +23,39 @@
 #ifndef RestCore_TRestAxionEventProcess
 #define RestCore_TRestAxionEventProcess
 
+#include "TRestAxionEvent.h"
 #include "TRestEventProcess.h"
 
-/// A base class for any REST event process
+/// A base class for any axion event process. Defines position, rotation and component displacement.
 class TRestAxionEventProcess : public TRestEventProcess {
    private:
-    // unused datamember, set as private
-    ///< not used, keep for compatibility
-    // TRestEvent* fInputEvent = nullptr;  //!
-    ///< not used, keep for compatibility
-    // TRestEvent* fOutputEvent = nullptr;  //!
+    /// The position respect wich the rotation will be applied
+    TVector3 fCenter = TVector3(0, 0, 0);
+
+    /// The rotation angle respect to the Y-axis
+    Double_t fTheta = 0;
+
+    /// The rotation angle with respect to Z-axis (propagation axis)
+    Double_t fPhi = 0;
+
+    /// The displacement applied to the process component
+    TVector2 fDisplacement = TVector2(0, 0);
 
    protected:
-    // utils
+    /// A pointer to the specific TRestAxionEvent
+    TRestAxionEvent* fAxionEvent;  //!
+
     void BeginPrintProcess();
     void EndPrintProcess();
 
    public:
-    // process running methods
     /// To be executed at the beginning of the run (outside event loop)
     virtual void InitProcess() {}
+
     /// Begin of event process, preparation work. Called right before ProcessEvent()
     void BeginOfEventProcess(TRestEvent* evInput = nullptr);
-    /// End of event process. Nothing to do. Called directly after ProcessEvent()
+
+    /// End of event process. Called directly after ProcessEvent()
     void EndOfEventProcess(TRestEvent* evInput = nullptr);
 
     TRestAxionEventProcess();

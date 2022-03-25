@@ -108,6 +108,8 @@ Int_t TRestAxionEventProcess::LoadSectionMetadata() {
 ///
 void TRestAxionEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
     TRestEventProcess::BeginOfEventProcess(inEv);
+
+    fAxionEvent = (TRestAxionEvent*)inEv;
     // TODO rotation
 }
 
@@ -127,6 +129,17 @@ void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
 /// event type, and several separators
 void TRestAxionEventProcess::BeginPrintProcess() {
     TRestEventProcess::BeginPrintProcess();
-    // TODO print here rotation angle and displacement
+
+    metadata << "Center: (" << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ")" << endl;
+    metadata << "Theta angle: " << fTheta * 180. / TMath::Pi() << " degrees" << endl;
+    metadata << "Phi angle: " << fPhi * 180. / TMath::Pi() << " degrees" << endl;
+    metadata << "X-displacement: " << fDisplacement.X() << " mm" << endl;
+    metadata << "Y-displacement: " << fDisplacement.Y() << " mm" << endl;
+    metadata << " --------------------------- " << endl;
+    metadata << " " << endl;
 }
 
+//////////////////////////////////////////////////////////////////////////
+/// \brief Adds the footer for PrintMetadata
+///
+void TRestAxionEventProcess::EndPrintProcess() { TRestEventProcess::EndPrintProcess(); }

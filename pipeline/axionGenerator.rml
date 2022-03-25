@@ -11,6 +11,7 @@ internal values are saved.
   <globals>
     <parameter name="verboseLevel" value="essential" /> <!-- options are : silent(0), essential(1), info(2), info(3), extreme(4) -->
     <parameter name="inputFileName" value=""/>
+    <parameter name="Pi" value="3.1415927"/>
   </globals>
 
   <TRestRun name="axionRun" title="REST Metadata run info (template)" verboseLevel="info">
@@ -62,11 +63,11 @@ internal values are saved.
 		<observable name="posZ" value="ON" /> 
 	</addProcess>
 
-	<addProcess type="TRestAxionFieldPropagationProcess" name="babyMagnet" value="OFF" verboseLevel="info" >
-                <parameter name="mode" value="plan" /> <!-- plan or distance -->
-                <parameter name="distance" value="30000mm" />
-                <parameter name="finalNPlan" value="(0,0,1)mm" />
-                <parameter name="finalPositionPlan" value="(0,0,10000)mm" />
+	<addProcess type="TRestAxionFieldPropagationProcess" name="babyMagnet" value="ON" verboseLevel="info" >
+		<parameter name="center" value="(0,0,-5)m" />
+		<parameter name="theta" value="10.*Pi/180." />
+		<parameter name="phi" value="5.*Pi/180." />
+		<parameter name="displacement" value="(7,-7)mm" />
 	</addProcess>
 
 	<addProcess type="TRestAxionTransmissionProcess" name="magnetWindow" value="OFF" verboseLevel="info" >
