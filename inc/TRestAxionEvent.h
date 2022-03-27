@@ -67,7 +67,7 @@ class TRestAxionEvent : public TRestEvent {
     Double_t GetPositionY() { return fPosition.Y(); }  // returns value in mm
     Double_t GetPositionZ() { return fPosition.Z(); }  // returns value in mm
 
-    TVector3* GetDirection() { return &fDirection; }
+    TVector3 GetDirection() { return fDirection; }
 
     Double_t GetDirectionX() { return fDirection.X(); }  // returns normalized vector x-component.
     Double_t GetDirectionY() { return fDirection.Y(); }  // returns normalized vector y-component
