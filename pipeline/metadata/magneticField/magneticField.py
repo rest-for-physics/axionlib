@@ -33,6 +33,16 @@ b2 = int( 1000 * babyField.GetTransversalComponent( p2, d1))
 b3 = int( 1000 * babyField.GetTransversalComponent( p3, d1))
 b4 = int( 1000 * babyField.GetTransversalComponent( p4, d1))
 
+startFrom = ROOT.TVector3(-300,300,-2500)
+goTo = ROOT.TVector3(300,-300,2500)
+b5 = int( 1000. * babyField.GetTransversalFieldAverage( startFrom, goTo, 20, 500) )
+
+print ( "\nEvaluating transversal field average Bykovskiy_201906.dat centered at (0,0,0)" )
+if( b5 != 1548  ):
+    print ("\nEvaluation of field failed! Exit code : 302")
+    exit(302)
+print ( "[\033[92m OK \x1b[0m]" )
+
 print ( "\nEvaluating field volume Bykovskiy_201906.dat centered at (0,0,0)" )
 if( b1 != 2007 or b2 != 1998 or b3 != 1998 or b4 != 1119 ):
     print ("\nEvaluation of field failed! Exit code : 102")
