@@ -50,6 +50,9 @@ class TRestAxionEvent : public TRestEvent {
     /// The effective magnetic field fixed by TRestAxionFieldPropagationProcess
     Double_t fBSquared = 0;  //<
 
+    /// The effective conversion length fixed by TRestAxionFieldPropagationProcess
+    Double_t fLcoherence = 0;  //<
+
     /// It keeps track of efficiency introduced at different helioscope components
     std::map<std::string, Double_t> fEfficiencies;
 
@@ -74,6 +77,7 @@ class TRestAxionEvent : public TRestEvent {
     Double_t GetMass() { return fMass * units("eV"); }  // returns value in eV
 
     Double_t GetBSquared() { return fBSquared; }
+    Double_t GetLConversion() { return fLcoherence; }
 
     Double_t GetEfficiency(std::string name) { return fEfficiencies[name]; }
 
@@ -92,6 +96,7 @@ class TRestAxionEvent : public TRestEvent {
     void SetMass(Double_t m) { fMass = m; }
 
     void SetBSquared(Double_t b) { fBSquared = b; }
+    void SetLConversion(Double_t conv) { fLcoherence = conv; }
 
     void AddEfficiency(std::string name, Double_t value) { fEfficiencies[name] = value; }
 

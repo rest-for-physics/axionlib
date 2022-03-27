@@ -114,11 +114,12 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     SetObservableValue("energy", fAxionEvent->GetEnergy());
 
-    SetObservableValue("posX", fAxionEvent->GetPosition()->X());
-    SetObservableValue("posY", fAxionEvent->GetPosition()->Y());
-    SetObservableValue("posZ", fAxionEvent->GetPosition()->Z());
+    SetObservableValue("posX", fAxionEvent->GetPosition().X());
+    SetObservableValue("posY", fAxionEvent->GetPosition().Y());
+    SetObservableValue("posZ", fAxionEvent->GetPosition().Z());
 
-    SetObservableValue("probability", fAxionEvent->GetGammaProbability());
+    SetObservableValue("B2", fAxionEvent->GetBSquared());
+    SetObservableValue("Lcoh", fAxionEvent->GetLConversion());
 
     if (GetVerboseLevel() >= REST_Debug) fAxionEvent->PrintEvent();
 
