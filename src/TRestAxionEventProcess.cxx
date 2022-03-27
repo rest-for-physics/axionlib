@@ -65,8 +65,18 @@ void TRestAxionEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
     TRestEventProcess::BeginOfEventProcess(inEv);
 
     fAxionEvent = (TRestAxionEvent*)inEv;
+    debug << "BoEP: Initial Position. X: " << fAxionEvent->GetPosition().X()
+          << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z() << endl;
+    debug << "BoEP: Initial Direction. X: " << fAxionEvent->GetDirection().X()
+          << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z() << endl;
     fAxionEvent->RotateZX(fCenter, -fTheta, -fPhi);
     fAxionEvent->Translate(TVector3(-fDisplacement.X(), -fDisplacement.Y(), 0));
+    debug << " ---- " << endl;
+    debug << "BoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
+          << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z() << endl;
+    debug << "BoEP: Final Direction. X: " << fAxionEvent->GetDirection().X()
+          << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z() << endl;
+    debug << " ++++ " << endl;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -76,8 +86,18 @@ void TRestAxionEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
 void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
     TRestEventProcess::EndOfEventProcess(evInput);
 
+    debug << "EoEP: Initial Position. X: " << fAxionEvent->GetPosition().X()
+          << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z() << endl;
+    debug << "EoEP: Initial Direction. X: " << fAxionEvent->GetDirection().X()
+          << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z() << endl;
+    debug << " ---- " << endl;
     fAxionEvent->Translate(TVector3(fDisplacement.X(), fDisplacement.Y(), 0));
     fAxionEvent->RotateXZ(fCenter, fPhi, fTheta);
+    debug << "EoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
+          << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z() << endl;
+    debug << "EoEP: Final Direction. X: " << fAxionEvent->GetDirection().X()
+          << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z() << endl;
+    debug << " ++++ " << endl;
 }
 
 //////////////////////////////////////////////////////////////////////////
