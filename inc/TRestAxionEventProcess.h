@@ -29,7 +29,7 @@
 /// A base class for any axion event process. Defines position, rotation and component displacement.
 class TRestAxionEventProcess : public TRestEventProcess {
    private:
-    /// The position respect wich the rotation will be applied
+    /// The position respect which the rotation will be applied
     TVector3 fCenter = TVector3(0, 0, 0);
 
     /// The rotation angle respect to the Y-axis

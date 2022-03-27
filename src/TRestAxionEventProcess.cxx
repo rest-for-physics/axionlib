@@ -55,51 +55,6 @@ TRestAxionEventProcess::TRestAxionEventProcess() { fSingleThreadOnly = false; }
 TRestAxionEventProcess::~TRestAxionEventProcess() {}
 
 //////////////////////////////////////////////////////////////////////////
-/// \brief Load extra section metadata: outputlevel after calling
-/// TRestMetadata::LoadSectionMetadata()
-///
-/*
-Int_t TRestAxionEventProcess::LoadSectionMetadata() {
-    TRestMetadata::LoadSectionMetadata();
-
-    if (ToUpper(GetParameter("observable", "")) == "ALL") {
-        fDynamicObs = true;
-    }
-
-    // load cuts
-    fCuts.clear();
-    if (ToUpper(GetParameter("cutsEnabled", "false")) == "TRUE") {
-        TiXmlElement* ele = fElement->FirstChildElement();
-        while (ele != nullptr) {
-            if (ele->Value() != nullptr && (string)ele->Value() == "cut") {
-                if (ele->Attribute("name") != nullptr && ele->Attribute("value") != nullptr) {
-                    string name = ele->Attribute("name");
-                    name = (string)this->GetName() + "_" + name;
-                    TVector2 value = StringTo2DVector(ele->Attribute("value"));
-                    if (value.X() != value.Y()) fCuts.push_back(pair<string, TVector2>(name, value));
-                }
-            }
-
-            else if (ele->Value() != nullptr && (string)ele->Value() == "parameter") {
-                if (ele->Attribute("name") != nullptr && ele->Attribute("value") != nullptr) {
-                    string name = ele->Attribute("name");
-                    if (name.find("Cut") == name.size() - 3 || name.find("CutRange") == name.size() - 8) {
-                        name = name.substr(0, name.find("Cut") + 3);
-                        TVector2 value = StringTo2DVector(ele->Attribute("value"));
-                        if (value.X() != value.Y()) fCuts.push_back(pair<string, TVector2>(name, value));
-                    }
-                }
-            }
-
-            ele = ele->NextSiblingElement();
-        }
-    }
-
-    return 0;
-}
-*/
-
-//////////////////////////////////////////////////////////////////////////
 /// \brief Begin of event process, preparation work. Called right before ProcessEvent()
 ///
 /// This method is called before calling ProcessEvent(). We initialize the process's output
@@ -110,15 +65,19 @@ void TRestAxionEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
     TRestEventProcess::BeginOfEventProcess(inEv);
 
     fAxionEvent = (TRestAxionEvent*)inEv;
-    // TODO rotation
+    fAxionEvent.RotateZX(fCenter, -fTheta, -fPhi);
+    fAxionEvent.Translate(TVector3(-fDisplacement.X(), -fDisplacement.Y(), 0));
 }
 
 //////////////////////////////////////////////////////////////////////////
 /// \brief End of event process. Validate the updated observable number matches total defined observable
 /// number
+///
 void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
     TRestEventProcess::EndOfEventProcess(evInput);
-    // TODO undo rotation
+
+    fAxionEvent->Translate(TVector3(fDisplacement.X(), fDisplacement.Y(), 0));
+    fAxionEvent->RotateXZ(fCenter, fPhi, fTheta);
 }
 
 //////////////////////////////////////////////////////////////////////////
