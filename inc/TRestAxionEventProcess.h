@@ -53,10 +53,10 @@ class TRestAxionEventProcess : public TRestEventProcess {
     virtual void InitProcess() {}
 
     /// Begin of event process, preparation work. Called right before ProcessEvent()
-    void BeginOfEventProcess(TRestEvent* evInput = nullptr);
+    virtual void BeginOfEventProcess(TRestEvent* evInput = nullptr);
 
     /// End of event process. Called directly after ProcessEvent()
-    void EndOfEventProcess(TRestEvent* evInput = nullptr);
+    virtual void EndOfEventProcess(TRestEvent* evInput = nullptr);
 
     TRestAxionEventProcess();
     ~TRestAxionEventProcess();
