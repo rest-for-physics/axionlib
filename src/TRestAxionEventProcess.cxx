@@ -65,8 +65,8 @@ void TRestAxionEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
     TRestEventProcess::BeginOfEventProcess(inEv);
 
     fAxionEvent = (TRestAxionEvent*)inEv;
-    fAxionEvent.RotateZX(fCenter, -fTheta, -fPhi);
-    fAxionEvent.Translate(TVector3(-fDisplacement.X(), -fDisplacement.Y(), 0));
+    fAxionEvent->RotateZX(fCenter, -fTheta, -fPhi);
+    fAxionEvent->Translate(TVector3(-fDisplacement.X(), -fDisplacement.Y(), 0));
 }
 
 //////////////////////////////////////////////////////////////////////////
