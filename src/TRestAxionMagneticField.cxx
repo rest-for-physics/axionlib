@@ -1134,13 +1134,11 @@ std::vector<Double_t> TRestAxionMagneticField::GetTransversalComponentAlongPath(
 ///
 Double_t TRestAxionMagneticField::GetTransversalFieldAverage(TVector3 from, TVector3 to, Double_t dl,
                                                              Int_t Nmax) {
-    Double_t length = (to - from).Mag();
-
     Double_t Bavg = 0.;
     std::vector<Double_t> Bt = GetTransversalComponentAlongPath(from, to, dl, Nmax);
     for (auto& b : Bt) Bavg += b;
 
-    if (length > 0) return Bavg / length;
+    if (Bt.size() > 0) return Bavg / Bt.size();
 
     ferr << "TRestAxionMagneticField::GetTransversalFieldAverage. Lenght is zero!" << endl;
     return 0.;
