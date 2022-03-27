@@ -37,7 +37,7 @@ class TRestAxionFieldPropagationProcess : public TRestAxionEventProcess {
     void Initialize();
 
     /// A pointer to the magnetic field stored in TRestRun
-    TRestAxionMagneticField* fAxionMagneticField;  //!
+    TRestAxionMagneticField* fField;  //!
 
    protected:
    public:

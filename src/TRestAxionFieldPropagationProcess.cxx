@@ -119,9 +119,9 @@ void TRestAxionFieldPropagationProcess::Initialize() {
 void TRestAxionFieldPropagationProcess::InitProcess() {
     debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
 
-    fAxionMagneticField = (TRestAxionMagneticField*)this->GetMetadata("TRestAxionMagneticField");
+    fField = (TRestAxionMagneticField*)this->GetMetadata("TRestAxionMagneticField");
 
-    if (!fAxionMagneticField) {
+    if (!fField) {
         ferr << "TRestAxionFieldPropagationprocess. Magnetic Field was not defined!" << endl;
         exit(0);
     }
@@ -129,36 +129,26 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
 
 TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput) {
     // Already done by TRestAxionEventProcess
-    // fAxionEvent = (TRestAxionEvent*)evInput;
+    fAxionEvent = (TRestAxionEvent*)evInput;
+    debug << "TRestAxionFieldPropagationProcess::ProcessEvent : " << fAxionEvent->GetID() << endl;
 
-    /*
-TVector3 position = *(fAxionEvent->GetPosition());
-TVector3 direction = *(fAxionEvent->GetDirection());
-Double_t Ea = fAxionEvent->GetEnergy();
-Double_t ma = fAxionEvent->GetMass();
+    std::vector<TVector3> trackBounds =
+        fField->GetFieldBoundaries(fAxionEvent->GetPosition(), fAxionEvent->GetDirection());
 
-debug << "+------------------------+" << endl;
-debug << "Initial position of the axion input : " << endl;
-debug << "(" << position.X() << "," << position.Y() << "," << position.Z() << ")" << endl;
-debug << "Direction of the axion input : " << endl;
-debug << "(" << direction.X() << "," << direction.Y() << "," << direction.Z() << ")" << endl;
-debug << "Axion energy : " << Ea << endl;
-debug << "Axion mass : " << ma << endl;
-debug << "axion amplitude = " << faxionAmplitude.real << " + " << faxionAmplitude.img << "i" << endl;
-debug << "parallel photon amplitude = " << fparallelPhotonAmplitude.real << " + "
-      << fparallelPhotonAmplitude.img << "i" << endl;
-debug << "orthogonal photon amplitude = " << forthogonalPhotonAmplitude.real << " + "
-      << forthogonalPhotonAmplitude.img << "i" << endl;
-debug << "+------------------------+" << endl;
-    */
+    if (trackBounds.size() == 0) {
+        fAxionEvent->SetBSquared(0);
+        fAxionEvent->SetLConversion(0);
+    } else {
+        Double_t B = fField->GetTransversalFieldAverage(trackBounds[0], trackBounds[1], 100, 200);
+        Double_t lenght = (trackBounds[1] - trackBounds[0]).Mag();
 
-    debug << "+------------------------+" << endl;
-    debug << "Final position of the axion : " << endl;
-    debug << "(" << fAxionEvent->GetPositionX() << "," << fAxionEvent->GetPositionY() << ","
-          << fAxionEvent->GetPositionZ() << ")" << endl;
-    debug << "+------------------------+" << endl;
+        fAxionEvent->SetBSquared(B * B);
+        fAxionEvent->SetLConversion(lenght);
+    }
 
     if (GetVerboseLevel() >= REST_Debug) fAxionEvent->PrintEvent();
+
+    /// Missing to propagate the axion to the end of magnet bore?
 
     return fAxionEvent;
 }
