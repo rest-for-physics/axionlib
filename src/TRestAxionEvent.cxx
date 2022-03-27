@@ -129,6 +129,6 @@ void TRestAxionEvent::PrintEvent() {
          << endl;
     cout << "Direction : ( " << fDirection.X() << ", " << fDirection.Y() << ", " << fDirection.Z() << " )"
          << endl;
-    cout << "Gamma state probability : " << fGammaProbability << endl;
+    cout << "B^2 : " << fBSquared << " T^2" << endl;
     cout << endl;
 }

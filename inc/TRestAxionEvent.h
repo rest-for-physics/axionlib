@@ -47,10 +47,10 @@ class TRestAxionEvent : public TRestEvent {
     /// Axion mass in eV
     Double_t fMass = 0.;  //<
 
-    /// Conversion probability to be fixed by TRestAxionFieldPropagationProcess
-    Double_t fGammaProbability = 0;  //<
+    /// The effective magnetic field fixed by TRestAxionFieldPropagationProcess
+    Double_t fBSquared = 0;  //<
 
-    /// It keeps track of efficiency introduce at different helioscope components
+    /// It keeps track of efficiency introduced at different helioscope components
     std::map<std::string, Double_t> fEfficiencies;
 
     /// We may use it to integrate a detector response inside each event
@@ -58,7 +58,7 @@ class TRestAxionEvent : public TRestEvent {
 
    protected:
    public:
-    TVector3* GetPosition() { return &fPosition; }
+    TVector3 GetPosition() { return fPosition; }
 
     Double_t GetPositionX() { return fPosition.X(); }  // returns value in mm
     Double_t GetPositionY() { return fPosition.Y(); }  // returns value in mm
@@ -73,29 +73,27 @@ class TRestAxionEvent : public TRestEvent {
     Double_t GetEnergy() { return fEnergy; }            // returns value in keV
     Double_t GetMass() { return fMass * units("eV"); }  // returns value in eV
 
-    Double_t GetGammaProbability() { return fGammaProbability; }
+    Double_t GetBSquared() { return fBSquared; }
 
     Double_t GetEfficiency(std::string name) { return fEfficiencies[name]; }
 
     void SetPosition(TVector3 pos) { fPosition = pos; }
     void SetPosition(Double_t x, Double_t y, Double_t z) { SetPosition(TVector3(x, y, z)); }
 
-    void IncreasePosition(const TVector3& increase) { fPosition += increase; }
+    void Translate(const TVector3& delta);
 
     void SetDirection(TVector3 dir) { fDirection = dir; }
     void SetDirection(Double_t px, Double_t py, Double_t pz) { SetDirection(TVector3(px, py, pz)); }
 
-    void SetEnergy(Double_t en) { fEnergy = en; }
-    void SetMass(Double_t m) { fMass = m; }
-
-    void SetGammaProbability(Double_t p) { fGammaProbability = p; }
-
-    void AddEfficiency(std::string name, Double_t value) { fEfficiencies[name] = value; }
-
     void RotateZX(const TVector3& center, Double_t phi, Double_t theta);
     void RotateXZ(const TVector3& center, Double_t theta, Double_t phi);
 
-    void Translate(const TVector3& delta);
+    void SetEnergy(Double_t en) { fEnergy = en; }
+    void SetMass(Double_t m) { fMass = m; }
+
+    void SetBSquared(Double_t b) { fBSquared = b; }
+
+    void AddEfficiency(std::string name, Double_t value) { fEfficiencies[name] = value; }
 
     virtual void Initialize();
 
