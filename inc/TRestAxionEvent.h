@@ -92,6 +92,9 @@ class TRestAxionEvent : public TRestEvent {
 
     void AddEfficiency(std::string name, Double_t value) { fEfficiencies[name] = value; }
 
+    void RotateZX(const TVector3& center, Double_t phi, Double_t theta);
+    void RotateXZ(const TVector3& center, Double_t theta, Double_t phi);
+
     virtual void Initialize();
 
     virtual void PrintEvent();

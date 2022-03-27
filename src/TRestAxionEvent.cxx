@@ -82,6 +82,40 @@ TPad* TRestAxionEvent::DrawEvent(TString option) {
     return fPad;
 }
 
+///////////////////////////////////////////////
+/// \brief This method will produce a rotation respect to a `center` given by argument.
+/// First we rotate the particle and direction along the X-axis by an angle `theta`, then
+/// we rotate the particle and direction along the Z-axis by an angle `phi`.
+///
+void TRestAxionEvent::RotateXZ(const TVector3& center, Double_t theta, Double_t phi) {
+    TVector3 ref = fPosition - center;
+
+    ref.RotateX(theta);
+    ref.RotateZ(phi);
+
+    fPosition = ref + center;
+
+    fDirection.RotateX(theta);
+    fDirection.RotateZ(phi);
+}
+
+///////////////////////////////////////////////
+/// \brief This method will produce a rotation respect to a `center` given by argument.
+/// First we rotate the particle and direction along the Z-axis by an angle `phi`, then
+/// we rotate the particle and direction along the X-axis by an angle `theta`.
+///
+void TRestAxionEvent::RotateZX(const TVector3& center, Double_t phi, Double_t theta) {
+    TVector3 ref = fPosition - center;
+
+    ref.RotateZ(phi);
+    ref.RotateX(theta);
+
+    fPosition = ref + center;
+
+    fDirection.RotateZ(phi);
+    fDirection.RotateX(theta);
+}
+
 void TRestAxionEvent::PrintEvent() {
     TRestEvent::PrintEvent();
 
