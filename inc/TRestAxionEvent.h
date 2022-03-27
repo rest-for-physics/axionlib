@@ -95,6 +95,8 @@ class TRestAxionEvent : public TRestEvent {
     void RotateZX(const TVector3& center, Double_t phi, Double_t theta);
     void RotateXZ(const TVector3& center, Double_t theta, Double_t phi);
 
+    void Translate(const TVector3& delta);
+
     virtual void Initialize();
 
     virtual void PrintEvent();

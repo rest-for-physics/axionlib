@@ -100,6 +100,11 @@ void TRestAxionEvent::RotateXZ(const TVector3& center, Double_t theta, Double_t 
 }
 
 ///////////////////////////////////////////////
+/// \brief This method will produce a tranlation of the axion position by an amount `delta`.
+///
+void TRestAxionEvent::Translate(const TVector3& delta) { fPosition += delta; }
+
+///////////////////////////////////////////////
 /// \brief This method will produce a rotation respect to a `center` given by argument.
 /// First we rotate the particle and direction along the Z-axis by an angle `phi`, then
 /// we rotate the particle and direction along the X-axis by an angle `theta`.
