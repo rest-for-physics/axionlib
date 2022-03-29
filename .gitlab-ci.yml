@@ -92,6 +92,7 @@ optics:
   type: metadata
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/pipeline/metadata/optics/
     - python optics.py
     - python basic.py
   except:
