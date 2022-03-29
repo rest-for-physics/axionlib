@@ -82,7 +82,7 @@
 /// of the field, which will only happen when the evaluated coordinates are
 /// inside the bounding volume.
 ///
-/// All parameteres are optional, and if not provided they will take their default
+/// All parameters are optional, and if not provided they will take their default
 /// values.
 ///
 /// \note If no magnetic field map is provided, i.e. we just want to define a
@@ -91,27 +91,6 @@
 /// the possibility to define a constant magnetic field vector for that volume
 /// using the `field` parameter. In that case the method
 /// TRestMagneticField::IsFieldConstant will return true.
-///
-/// ### Adding gas properties to each of the magnetic volumes.
-///
-/// On top of the magnetic field map that we associate to a magnetic region (or
-/// volume) we can - optionally - assign gas properties to the volume. This is done
-/// using an interface to the TRestAxionBufferGas. And we may initialize as follows
-/// at the `addMagneticVolume` entry in the corresponding RML section.
-///
-/// \code
-/// <TRestAxionMagneticField>
-///         <addMagneticVolume file="magnetic.file" position="(30,0,0)cm"
-///							gasMixture="He" gasDensity="0.1mg/dm3"/>
-///         <addMagneticVolume file="magnetic.file" position="(-30,0,0)cm"
-///							gasMixture="He+Xe" gasDensity="3g/m3+0.2mg/dm3"/>
-/// <TRestAxionMagneticField/>
-/// \endcode
-///
-/// \note If no magnetic field map, neither a constant field is provided, this
-/// class might still serve to define different regions distributed in the space
-/// that describe different gas properties, even though the magnetic field will
-/// be equal to zero.
 ///
 /// ### The magnetic field file format.
 ///
@@ -137,9 +116,8 @@
 ///    <TRestAxionMagneticField name="bFieldBabyIAXO" title="First magnetic field definition"
 ///    verboseLevel="info" >
 ///
-///		<!-- A volume from a text file centered at (0,0,0) in a Helium+Xenon gas mixture -->
-///		<addMagneticVolume fileName="Bykovskiy_201906.dat" position="(0,0,0)mm"
-///					gasMixture="He+Xe" gasDensity="1mg/dm3+1e-1mg/dm3" />
+///		<!-- A volume from a text file centered at (0,0,0) -->
+///		<addMagneticVolume fileName="Bykovskiy_201906.dat" position="(0,0,0)mm" />
 ///
 ///		<!-- A volume from binary file, include Bx=1T offset, and boundMax validation -->
 ///		<addMagneticVolume fileName="Bykovskiy_202004.bin" position="(800,800,800)mm"
@@ -151,7 +129,69 @@
 ///    </TRestAxionMagneticField>
 /// \endcode
 ///
+/// ### Using this class
+///
+/// Once we have created an instance of this class we will be able to access the
+/// magnetic field directly, at any point by using trilinear interpolation.
+///
+/// For example, the following code will retrieve the field at a position found
+/// at a distance z=-2m at the magnet axis,
+///
+/// \code
+/// TRestAxionMagneticField *mag = new TRestAxionMagneticField("fields.rml", "babyIAXO" );
+/// mag->GetMagneticField( 0, 0, -2000 );
+/// \endcode
+///
+/// or in a similar way,
+///
+/// \code
+/// TRestAxionMagneticField *mag = new TRestAxionMagneticField("fields.rml", "babyIAXO" );
+/// mag->GetMagneticField( TVector3(0, 0, -2000), true );
+/// \endcode
+///
+/// where the second argument, `true` will enable the warning message system.
+///
+/// The following code evaluates the transversal field component at
+/// 1m distance along the Z-axis, for a vector pointing in the direction (0,1,1).
+///
+/// \code
+/// TRestAxionMagneticField *mag = new TRestAxionMagneticField("fields.rml", "babyIAXO" );
+/// mag->GetTransversalComponent( TVector3(0,0,1000), TVector3(0,1,1) );
+/// \endcode
+///
+/// There are also geometric functions that allow to identify the boundaries of
+/// the magnetic volume. A test particle will penetrate in the bounding box and identify
+/// the moment where the field changes to a value different from (0,0,0) in order
+/// to identify the entrance and exit point.
+///
+/// The following code will return two TVector3 with the magnetic volume entrance
+/// and exit coordinates, for a test particle being placed at x=10cm, y=10cm and
+/// z=-4m, pointing towards the magnetic field with a slight direction deviation from
+/// the magnet axis.
+///
+/// \code
+/// TRestAxionMagneticField *mag = new TRestAxionMagneticField("fields.rml", "babyIAXO" );
+/// mag->GetFieldBoundaries(TVector3(100,100, -4000) , TVector3(0.02, 0.03, 1))
+/// \endcode
+///
+/// In the other hand, TRestAxionMagneticField::GetVolumeBoundaries will return the
+/// bounding box containing that magnetic field.
+///
 /// ### Visualizing the magnetic field
+///
+/// You may visualize the magnetic field profile along tracks towards a vanishing point
+/// by using the TRestAxionMagneticField::DrawTracks method, using:
+///
+/// \code
+///   TRestAxionMagneticField *field = new TRestAxionMagneticField( "fields.rml", "babyIAXO" );
+///   field->DrawTracks( TVector3(0,0,8000), 100 );
+/// \endcode
+///
+/// That will produce the following plot:
+///
+/// \htmlonly <style>div.image img[src="trackBprofile.png"]{width:800px;}</style> \endhtmlonly
+///
+/// ![Tracks through the magnetic field volume and its corresponding T-field component](trackBprofile.png)
 ///
 /// TODO Review and validate DrawHistogram drawing method and describe its
 /// use here.
@@ -183,6 +223,7 @@ using namespace std;
 #include "TRestPhysics.h"
 using namespace REST_Physics;
 
+#include "TGraph.h"
 ClassImp(TRestAxionMagneticField);
 
 ///////////////////////////////////////////////
@@ -220,7 +261,6 @@ TRestAxionMagneticField::TRestAxionMagneticField(const char* cfgFileName, string
 ///
 TRestAxionMagneticField::~TRestAxionMagneticField() {
     debug << "Entering ... TRestAxionMagneticField() destructor." << endl;
-    for (int n = 0; n < fMagneticFieldVolumes.size(); n++) delete fMagneticFieldVolumes[n].bGas;
 }
 
 ///////////////////////////////////////////////
@@ -529,8 +569,136 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 }
 
 ///////////////////////////////////////////////
-/// \brief A method to help loading magnetic field data, as x,y,z,Bx,By,Bz into a magnetic volume definition
-/// using its corresponding mesh.
+/// \brief A method that creates a canvas where tracks traversing the magnetic volume
+/// are drawm together with their corresponding field intensity profile along the Z-axis.
+///
+TCanvas* TRestAxionMagneticField::DrawTracks(TVector3 vanishingPoint, Int_t divisions, Int_t volId) {
+    if (fCanvas != NULL) {
+        delete fCanvas;
+        fCanvas = NULL;
+    }
+    fCanvas = new TCanvas("fCanvas", "", 1600, 600);
+
+    TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
+    pad1->Divide(2, 1);
+    pad1->Draw();
+
+    pad1->cd(1);
+
+    Double_t genSizeY = fBoundMax[volId].Y() * 3.;
+    Double_t genPositionZ = fPositions[volId][2] - fBoundMax[volId].Z() - 2000;
+    Double_t finalPositionZ = fPositions[volId][2] + fBoundMax[volId].Z() + 2000;
+
+    // We generate the particle at different Y-highs
+    TGraph* bBox = new TGraph();
+    bBox->SetPoint(0, fPositions[volId][2] - fBoundMax[volId].Z(),
+                   fPositions[volId][1] - fBoundMax[volId].Y());
+    bBox->SetPoint(1, fPositions[volId][2] - fBoundMax[volId].Z(),
+                   fPositions[volId][1] + fBoundMax[volId].Y());
+    bBox->SetPoint(2, fPositions[volId][2] + fBoundMax[volId].Z(),
+                   fPositions[volId][1] + fBoundMax[volId].Y());
+    bBox->SetPoint(3, fPositions[volId][2] + fBoundMax[volId].Z(),
+                   fPositions[volId][1] - fBoundMax[volId].Y());
+    bBox->SetPoint(4, fPositions[volId][2] - fBoundMax[volId].Z(),
+                   fPositions[volId][1] - fBoundMax[volId].Y());
+
+    debug << "Gen position : " << genPositionZ << endl;
+
+    bBox->GetXaxis()->SetLimits(genPositionZ - 500, finalPositionZ + 500);
+    bBox->GetHistogram()->SetMaximum(genSizeY + 100);
+    bBox->GetHistogram()->SetMinimum(-genSizeY - 100);
+
+    bBox->GetXaxis()->SetTitle("Z [mm]");
+    bBox->GetXaxis()->SetTitleSize(0.05);
+    bBox->GetXaxis()->SetLabelSize(0.05);
+    bBox->GetYaxis()->SetTitle("Y [mm]");
+    bBox->GetYaxis()->SetTitleOffset(1.3);
+    bBox->GetYaxis()->SetTitleSize(0.05);
+    bBox->GetYaxis()->SetLabelSize(0.05);
+    bBox->SetLineWidth(2);
+    bBox->Draw("AL");
+
+    Int_t n = 0;
+    for (Double_t y = genSizeY; y >= -genSizeY; y -= fBoundMax[volId].Y()) {
+        TVector3 position(0, y, genPositionZ);
+        TVector3 direction = (vanishingPoint - position).Unit();
+
+        std::vector<TVector3> trackBounds = this->GetFieldBoundaries(position, direction);
+        TGraph* grB = new TGraph();
+        grB->SetPoint(0, trackBounds[0].Z(), trackBounds[0].Y());
+        grB->SetPoint(1, trackBounds[1].Z(), trackBounds[1].Y());
+
+        debug << "Initial" << endl;
+        debug << "-------" << endl;
+        if (GetVerboseLevel() >= REST_Debug) position.Print();
+
+        debug << endl;
+        debug << "Start moving along" << endl;
+        debug << "++++++++++++++++++" << endl;
+
+        TGraph* fieldGr = new TGraph();
+        Double_t posZ = fPositions[volId][2] - fBoundMax[volId].Z() - 10;
+        Double_t delta = fBoundMax[volId][2] * 2. / divisions;
+
+        Double_t field = this->GetTransversalComponent(position, direction);
+        fieldGr->SetPoint(fieldGr->GetN(), posZ, field);
+
+        while (posZ <= fPositions[volId][2] + fBoundMax[volId].Z()) {
+            TVector3 posAlongAxis = TVector3(fPositions[volId][0], fPositions[volId][1], posZ);
+
+            position = MoveToPlane(position, direction, TVector3(0, 0, 1), posAlongAxis);
+            Double_t field = this->GetTransversalComponent(position, direction);
+
+            fieldGr->SetPoint(fieldGr->GetN(), posZ, field);
+
+            posZ += delta;
+        }
+
+        TVector3 posAlongAxis = TVector3(fPositions[volId][0], fPositions[volId][1], posZ + 10);
+        position = MoveToPlane(position, direction, TVector3(0, 0, 1), posAlongAxis);
+
+        Double_t field2 = this->GetTransversalComponent(position, direction);
+        fieldGr->SetPoint(fieldGr->GetN(), posZ, field2);
+
+        pad1->cd(2);
+        fieldGr->SetLineWidth(3);
+        fieldGr->SetLineColor(38 + n);
+        fieldGr->GetXaxis()->SetLimits(genPositionZ - 500, finalPositionZ + 500);
+        fieldGr->GetHistogram()->SetMaximum(2.5);
+        fieldGr->GetHistogram()->SetMinimum(0);
+        fieldGr->GetXaxis()->SetTitle("Z [mm]");
+        fieldGr->GetXaxis()->SetTitleSize(0.05);
+        fieldGr->GetXaxis()->SetLabelSize(0.05);
+        fieldGr->GetYaxis()->SetTitle("B [T]");
+        fieldGr->GetYaxis()->SetTitleOffset(1.3);
+        fieldGr->GetYaxis()->SetTitleSize(0.05);
+        fieldGr->GetYaxis()->SetLabelSize(0.05);
+        if (y == genSizeY)
+            fieldGr->Draw("AL");
+        else
+            fieldGr->Draw("L");
+        pad1->cd(1);
+
+        TGraph* gr = new TGraph();
+        gr->SetPoint(0, genPositionZ, y);
+        position = MoveToPlane(position, direction, TVector3(0, 0, 1), TVector3(0, 0, finalPositionZ));
+        gr->SetPoint(1, finalPositionZ, position.Y());
+
+        gr->SetLineWidth(1.5);
+        gr->Draw("L");
+        grB->SetLineColor(38 + n);
+        n++;
+        grB->SetLineWidth(3);
+        grB->Draw("L");
+    }
+    bBox->Draw("L");
+
+    return fCanvas;
+}
+
+///////////////////////////////////////////////
+/// \brief A method to help loading magnetic field data, as x,y,z,Bx,By,Bz into a magnetic volume
+/// definition using its corresponding mesh.
 ///
 /// This method will be made private since it will only be used internally.
 ///
@@ -727,13 +895,6 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         mVolume.position = fPositions[n];
         mVolume.mesh = restMesh;
 
-        if (mVolume.bGas == NULL) mVolume.bGas = new TRestAxionBufferGas();
-        if (fGasMixtures[n] != "vacuum") {
-            debug << "Setting gas mixture: " << fGasMixtures[n] << endl;
-            debug << "Densities: " << fGasDensities[n] << endl;
-            mVolume.bGas->SetGasMixture(fGasMixtures[n], fGasDensities[n]);
-        }
-
         if (fieldData.size() > 0) LoadMagneticFieldData(mVolume, fieldData);
 
         if (fBoundMax[n] == TVector3(0, 0, 0)) {
@@ -764,7 +925,8 @@ TVector3 TRestAxionMagneticField::GetMagneticField(Double_t x, Double_t y, Doubl
 
 ///////////////////////////////////////////////
 /// \brief It returns the magnetic field vector at TVector3(pos) using trilinear interpolation
-/// that is implemented following instructions given at https://en.wikipedia.org/wiki/Trilinear_interpolation
+/// that is implemented following instructions given at
+/// https://en.wikipedia.org/wiki/Trilinear_interpolation
 ///
 /// The warning in case the evaluated point is found outside any volume might be disabled using
 /// the `showWarning` argument.
@@ -774,7 +936,8 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos, Bool_t showWarn
 
     if (id < 0) {
         if (showWarning)
-            warning << "TRestAxionMagneticField::GetMagneticField position is outside any volume" << endl;
+            warning << "TRestAxionMagneticField::GetMagneticField position (" << pos.X() << ", " << pos.Y()
+                    << ", " << pos.Z() << ") is outside any volume" << endl;
         return TVector3(0, 0, 0);
     } else {
         if (IsFieldConstant(id)) return fConstantField[id];
@@ -878,68 +1041,6 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos, Bool_t showWarn
 }
 
 ///////////////////////////////////////////////
-/// \brief It returns the effective photon mass in eV for the given position `(x,y,z)` and energy `en` using
-/// the gas properties defined at the corresponding magnetic volume.
-///
-Double_t TRestAxionMagneticField::GetPhotonMass(Double_t x, Double_t y, Double_t z, Double_t en) {
-    return GetPhotonMass(TVector3(x, y, z), en);
-}
-
-///////////////////////////////////////////////
-/// \brief It returns the effective photon mass in eV for the given position `pos` and energy `en` using the
-/// gas properties defined at the corresponding magnetic volume.
-///
-Double_t TRestAxionMagneticField::GetPhotonMass(TVector3 pos, Double_t en) {
-    Int_t id = GetVolumeIndex(pos);
-
-    return GetPhotonMass(id, en);
-}
-
-///////////////////////////////////////////////
-/// \brief It returns the effective photon mass in eV at the corresponding magnetic volume id.
-///
-Double_t TRestAxionMagneticField::GetPhotonMass(Int_t id, Double_t en) {
-    if (id >= 0) {
-        return fMagneticFieldVolumes[id].bGas->GetPhotonMass(en);
-    } else {
-        warning << "TRestAxionMagneticField::GetPhotonMass position is outside any volume" << endl;
-    }
-    return -1;
-}
-
-///////////////////////////////////////////////
-/// \brief It returns the photon absorption length in cm-1 for the given position `(x,y,z)` and energy `en`
-/// using the gas properties defined at the corresponding magnetic volume.
-///
-Double_t TRestAxionMagneticField::GetPhotonAbsorptionLength(Double_t x, Double_t y, Double_t z, Double_t en) {
-    return GetPhotonAbsorptionLength(TVector3(x, y, z), en);
-}
-
-///////////////////////////////////////////////
-/// \brief It returns the photon absorption length in cm-1 for the given position `pos` and energy `en` using
-/// the gas properties defined at the corresponding magnetic volume.
-///
-Double_t TRestAxionMagneticField::GetPhotonAbsorptionLength(TVector3 pos, Double_t en) {
-    Int_t id = GetVolumeIndex(pos);
-
-    return GetPhotonAbsorptionLength(id, en);
-}
-
-///////////////////////////////////////////////
-/// \brief It returns the photon absorption length in cm-1 for the given position `pos` and energy `en` at the
-/// given volume id.
-///
-Double_t TRestAxionMagneticField::GetPhotonAbsorptionLength(Int_t id, Double_t en) {
-    if (id >= 0) {
-        return fMagneticFieldVolumes[id].bGas->GetPhotonAbsorptionLength(en);
-    } else {
-        warning << "TRestAxionMagneticField::GetPhotonAbsorptionLength position is outside any volume"
-                << endl;
-    }
-    return -1;
-}
-
-///////////////////////////////////////////////
 /// \brief It returns the corresponding volume index at the given position. If not found it will return
 /// -1.
 ///
@@ -979,22 +1080,23 @@ TVector3 TRestAxionMagneticField::GetVolumePosition(Int_t id) {
 }
 
 ///////////////////////////////////////////////
-/// \brief It returns the intensity of the transversal magnetic field component for the defined propagation
-/// `direction` and `position` given by argument.
+/// \brief It returns the intensity of the transversal magnetic field component for the defined
+/// propagation `direction` and `position` given by argument.
 ///
 Double_t TRestAxionMagneticField::GetTransversalComponent(TVector3 position, TVector3 direction) {
-    return abs(GetMagneticField(position).Perp(direction));
+    return abs(GetMagneticField(position, false).Perp(direction));
 }
 
 ///////////////////////////////////////////////
 /// \brief It returns a vector describing the transversal magnetic field component between `from` and `to`
 /// positions given by argument.
 ///
-/// The differential element `dl` is by default 1mm, but it can be modified through the third argument of this
-/// function.
+/// The differential element `dl` is by default 1mm, but it can be modified through the third argument of
+/// this function.
 ///
 /// The maximum number of divisions (unlimited by default) of the output vector can be fixed by the forth
-/// argument. In that case, the differential element `dl` length might be increased to fullfil such condition.
+/// argument. In that case, the differential element `dl` length might be increased to fullfil such
+/// condition.
 ///
 std::vector<Double_t> TRestAxionMagneticField::GetTransversalComponentAlongPath(TVector3 from, TVector3 to,
                                                                                 Double_t dl, Int_t Nmax) {
@@ -1027,8 +1129,8 @@ std::vector<Double_t> TRestAxionMagneticField::GetTransversalComponentAlongPath(
 /// The differential element `dl` defines the integration step, and it is by default 1mm, but it can be
 /// modified through the third argument of this function.
 ///
-/// The maximum number of divisions of the output vector can be fixed by the forth argument. In that case, the
-/// differential element `dl` length might be increased to fullfil such condition.
+/// The maximum number of divisions of the output vector can be fixed by the forth argument. In that case,
+/// the differential element `dl` length might be increased to fullfil such condition.
 ///
 Double_t TRestAxionMagneticField::GetTransversalFieldAverage(TVector3 from, TVector3 to, Double_t dl,
                                                              Int_t Nmax) {
@@ -1052,7 +1154,8 @@ Double_t TRestAxionMagneticField::GetTransversalFieldAverage(TVector3 from, TVec
 /// modified through the third argument of this function.
 ///
 /// The maximum number of divisions (unlimited by default)  can be fixed by the forth
-/// argument. In that case, the differential element `dl` length might be increased to fullfil such condition.
+/// argument. In that case, the differential element `dl` length might be increased to fullfil such
+/// condition.
 ///
 TVector3 TRestAxionMagneticField::GetFieldAverageTransverseVector(TVector3 from, TVector3 to, Double_t dl,
                                                                   Int_t Nmax) {
@@ -1080,9 +1183,9 @@ TVector3 TRestAxionMagneticField::GetFieldAverageTransverseVector(TVector3 from,
 
     if ((length > 0) && (numberofpoints > 0)) {
         Bavg = Bavg * (1.0 / numberofpoints);  // calculates the average magnetic field vector
-        BTavg = Bavg -
-                (Bavg * direction) *
-                    direction;  // calculates the transverse component of the average magnetic field vector
+        BTavg =
+            Bavg - (Bavg * direction) *
+                       direction;  // calculates the transverse component of the average magnetic field vector
         debug << "B average vector = (" << Bavg.x() << ", " << Bavg.y() << ", " << Bavg.z() << ")" << endl;
         debug << "Transverse B average vector = (" << BTavg.x() << ", " << BTavg.y() << ", " << BTavg.z()
               << ")" << endl;
@@ -1133,15 +1236,16 @@ Bool_t TRestAxionMagneticField::CheckOverlaps() {
 /// \brief Finds the in/out particle trajectory boundaries for a particular magnetic region bounding box.
 ///
 /// This method checks if the trajectory defined by the position `pos` and direction `dir` passes through
-/// the magnetic ﬁeld region/volume `id` given. If two such points (entry point and exit point) are found,
-/// their coordinates are returned. In the example shown in Fig. 1 from TRestAxionFieldPropagationProcess
-/// these points are: IN 1 and OUT 1 for the region #1 and IN2 and OUT 2 for the region #2.
+/// the magnetic field region/volume `id` given. If two such points (entry point and exit point) are
+/// found, their coordinates are returned. In the example shown in Fig. 1 from
+/// TRestAxionFieldPropagationProcess these points are: IN 1 and OUT 1 for the region #1 and IN2 and OUT 2
+/// for the region #2.
 ///
 /// If no intersection is found, or the particle is not moving towards the volume, the returned
 /// std::vector
 /// will be empty.
 ///
-std::vector<TVector3> TRestAxionMagneticField::GetVolumeBoundaries(Int_t id, TVector3 pos, TVector3 dir) {
+std::vector<TVector3> TRestAxionMagneticField::GetVolumeBoundaries(TVector3 pos, TVector3 dir, Int_t id) {
     MagneticFieldVolume* vol = GetMagneticVolume(id);
 
     std::vector<TVector3> boundaries;
@@ -1161,9 +1265,9 @@ std::vector<TVector3> TRestAxionMagneticField::GetVolumeBoundaries(Int_t id, TVe
 ///
 /// If no intersection is found the returned std::vector will be empty.
 ///
-std::vector<TVector3> TRestAxionMagneticField::GetFieldBoundaries(Int_t id, TVector3 pos, TVector3 dir,
-                                                                  Double_t precision) {
-    std::vector<TVector3> volumeBoundaries = GetVolumeBoundaries(id, pos, dir);
+std::vector<TVector3> TRestAxionMagneticField::GetFieldBoundaries(TVector3 pos, TVector3 dir,
+                                                                  Double_t precision, Int_t id) {
+    std::vector<TVector3> volumeBoundaries = GetVolumeBoundaries(pos, dir, id);
     if (volumeBoundaries.size() != 2) return volumeBoundaries;
 
     if (IsFieldConstant(id)) return volumeBoundaries;
@@ -1247,14 +1351,6 @@ void TRestAxionMagneticField::InitFromConfigFile() {
             fBoundMax.back().SetY(fBoundMax.back().X());
         }
 
-        TString gasMixture = GetParameter("gasMixture", magVolumeDef);
-        if (gasMixture == "NO_SUCH_PARA") gasMixture = "vacuum";
-        fGasMixtures.push_back(gasMixture);
-
-        TString gasDensity = GetParameter("gasDensity", magVolumeDef);
-        if (gasDensity == "NO_SUCH_PARA") gasDensity = "0";
-        fGasDensities.push_back(gasDensity);
-
         debug << "Reading new magnetic volume" << endl;
         debug << "-----" << endl;
         debug << "Filename : " << filename << endl;
@@ -1265,8 +1361,6 @@ void TRestAxionMagneticField::InitFromConfigFile() {
               << endl;
         debug << "Mesh size ( " << meshSize.X() << ", " << meshSize.Y() << ", " << meshSize.Z() << ")"
               << endl;
-        debug << "Gas mixture : " << gasMixture << endl;
-        debug << "Gas density : " << gasDensity << endl;
         debug << "----" << endl;
 
         magVolumeDef = GetNextElement(magVolumeDef);
@@ -1312,8 +1406,6 @@ void TRestAxionMagneticField::PrintMetadata() {
         metadata << "  - Offset field [T] : (" << fConstantField[p].X() << ", " << fConstantField[p].Y()
                  << ", " << fConstantField[p].Z() << ")" << endl;
         metadata << "  - File loaded : " << fFileNames[p] << endl;
-        metadata << "  - Buffer gas mixture : " << fGasMixtures[p] << endl;
-        metadata << "  - Buffer gas densities : " << fGasDensities[p] << endl;
         metadata << " " << endl;
         metadata << "  - Bounds : " << endl;
         metadata << "    xmin : " << xMin << " mm , xmax : " << xMax << " mm" << endl;

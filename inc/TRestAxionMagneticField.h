@@ -31,7 +31,6 @@
 #include "TVector3.h"
 #include "TVectorD.h"
 
-#include "TRestAxionBufferGas.h"
 #include "TRestMesh.h"
 
 /// A structure to define the properties and store the field data of a single magnetic volume inside
@@ -45,9 +44,6 @@ struct MagneticFieldVolume {
 
     /// The field data connected to the grid defined by the mesh
     std::vector<std::vector<std::vector<TVector3>>> field;
-
-    /// A pointer to the gas properties
-    TRestAxionBufferGas* bGas = NULL;
 };
 
 /// A class to load magnetic field maps and evaluate the field on those maps including interpolation.
@@ -67,12 +63,6 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     /// The type of the mesh used (default is cylindrical)
     std::vector<TString> fMeshType;  //<
-
-    /// The gas mixture components that define the medium in each magnetic volume
-    std::vector<TString> fGasMixtures;  //<
-
-    /// The gas components densities corresponding to the gas mixture defined for each volume
-    std::vector<TString> fGasDensities;  //<
 
     /// A vector to store the maximum bounding box values
     std::vector<TVector3> fBoundMax;  //<
@@ -123,8 +113,9 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     Bool_t CheckOverlaps();
 
-    std::vector<TVector3> GetVolumeBoundaries(Int_t id, TVector3 pos, TVector3 dir);
-    std::vector<TVector3> GetFieldBoundaries(Int_t id, TVector3 pos, TVector3 dir, Double_t precision = 0);
+    std::vector<TVector3> GetVolumeBoundaries(TVector3 pos, TVector3 dir, Int_t id = 0);
+    std::vector<TVector3> GetFieldBoundaries(TVector3 pos, TVector3 dir, Double_t precision = 0,
+                                             Int_t id = 0);
 
     TVector3 GetMagneticField(Double_t x, Double_t y, Double_t z);
     TVector3 GetMagneticField(TVector3 pos, Bool_t showWarning = true);
@@ -154,6 +145,8 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     TCanvas* DrawHistogram(TString projection, TString Bcomp, Int_t volIndex = -1, Double_t step = -1,
                            TString style = "COLZ0", Double_t depth = -100010.0);
+
+    TCanvas* DrawTracks(TVector3 vanishingPoint, Int_t divisions, Int_t volId = 0);
 
     void PrintMetadata();
 
