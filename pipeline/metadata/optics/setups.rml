@@ -5,8 +5,8 @@
 	<parameter name="length" value="22cm" />
 
 	<!-- We build mirror shells with 0.1mm thickness -->
-	<parameter name="shellMinRadii" value="5,10,15,20,25" />
-	<parameter name="shellMaxRadii" value="9.9,14.9,19.9,24.9,29.9" />
+	<parameter name="ringMinRadii" value="5,10,15,20,25" />
+	<parameter name="ringMaxRadii" value="9.9,14.9,19.9,24.9,29.9" />
 
 	<parameter name="inputMCPLFilename" value="dummyInput.mcpl" />
 	<parameter name="outputMCPLFilename" value="dummyOutput.mcpl" />

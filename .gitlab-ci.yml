@@ -24,7 +24,7 @@ clang-format:
 validateLibrary:
     stage: pre-build
     script:
-        - python3 pipeline/validateLibrary.py .
+        - python pipeline/validateLibrary.py .
     except:
         variables:
             - $CRONJOB == "YES"
@@ -79,7 +79,7 @@ magneticField:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/magneticField/
     - ls $REST_PATH/data/axion/magneticField/
-    - python3 magneticField.py
+    - python magneticField.py
     - cd trilinear
     - restRoot -b -q GetMagneticField_test.C
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/magneticField/boundary/
@@ -92,8 +92,8 @@ optics:
   type: metadata
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/pipeline/metadata/optics/
-    - python3 optics.py
+    - python optics.py
+    - python basic.py
   except:
       variables:
         - $CRONJOB
@@ -103,8 +103,8 @@ solarFlux:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/solarFlux/
-    - python3 solarFlux.py
-    - python3 compare.py
+    - python solarFlux.py
+    - python compare.py
   except:
       variables:
         - $CRONJOB
