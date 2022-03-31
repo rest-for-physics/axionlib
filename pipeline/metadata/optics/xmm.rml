@@ -1,6 +1,6 @@
 <xml>
 	<globals>
-		<constant name="R0" value="20" />
+		<constant name="R0" value="153.126" />
 		<constant name="pi" value="3.1415927" />
 	</globals>
 
@@ -19,5 +19,12 @@
 		<!-- The following values are only for comparison -->
 		<parameter name="f" value="7500mm" />
 		<parameter name="alpha" value="0.29, 0.294, 0.298, 0.303, 0.307, 0.312, 0.316, 0.321, 0.325, 0.33, 0.335, 0.34, 0.345, 0.35, 0.355, 0.36, 0.366, 0.371, 0.377, 0.382, 0.388, 0.393, 0.399, 0.405, 0.411, 0.417, 0.423, 0.429, 0.435, 0.441, 0.448, 0.454, 0.461, 0.467, 0.474, 0.481, 0.489, 0.496, 0.503, 0.51, 0.518, 0.525, 0.533, 0.54, 0.548, 0.556, 0.564, 0.573, 0.581, 0.59, 0.598, 0.607, 0.616, 0.625, 0.634, 0.643, 0.652, 0.661" />
-    	</TRestAxionOptics>
+    	
+		<!-- The XMM spider structur in 2D in the following -->
+		<parameter name="spiderArmsSeparationAngle" value="pi*20/180." />
+		<parameter name="spiderOffsetAngle" value="0.0" />
+		<parameter name="spiderWidth" value="pi*2.5/180." />
+		<parameter name="spiderStartRadius" value="R0" units="mm" />
+	
+	</TRestAxionOptics>
 </xml>
