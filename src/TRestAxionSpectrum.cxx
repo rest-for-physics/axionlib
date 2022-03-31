@@ -66,7 +66,7 @@ void TRestAxionSpectrum::InitFromConfigFile() {
         } else {
             fDefaultG1 = g1ref;
             if (not(std::isnan(g2ref))) {
-                cout << "Check!" << endl;
+                std::cout << "Check!" << std::endl;
                 // N.B. If g2 > 0 has no effect, a warning will be issued by SolarAxionFluxLib.
 #ifdef USE_SolaxFlux
                 spectrum = AxionSpectrum(sTableFileName, g1ref, g2ref);
@@ -83,10 +83,10 @@ void TRestAxionSpectrum::InitFromConfigFile() {
                 int table_submode = get<0>(table_params);
                 if (table_submode > 1) {
                     fDefaultG2 = get<2>(table_params);
-                    cout
+                    std::cout
                         << "WARNING! Your table for TRestAxionSpectrum supports two separate spectra, but you did not specify a value for coupling 'g2'.\n\
                               TRestAxionSpectrum will assume a default value of "
-                        << fDefaultG2 << " (in appropriate units)." << endl;
+                        << fDefaultG2 << " (in appropriate units)." << std::endl;
                 };
 #endif
             };

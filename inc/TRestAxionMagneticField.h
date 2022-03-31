@@ -50,7 +50,7 @@ struct MagneticFieldVolume {
 class TRestAxionMagneticField : public TRestMetadata {
    private:
     /// The name of the filenames containing the field data
-    std::vector<string> fFileNames;  //<
+    std::vector<std::string> fFileNames;  //<
 
     /// The absolute position of each of the magnetic volumes defined in this class
     std::vector<TVector3> fPositions;  //<

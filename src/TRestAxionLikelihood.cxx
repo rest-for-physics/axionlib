@@ -185,7 +185,7 @@ void TRestAxionLikelihood::GenerateMonteCarlo() {
     debug << "Number of steps : " << fNSteps << " :: " << fMeasuredCountsPerStep.size() << endl;
 }
 
-void TRestAxionLikelihood::LikelihoodTest(string fname) {
+void TRestAxionLikelihood::LikelihoodTest(const string& fname) {
     FILE* f = fopen(fname.c_str(), "wt");
 
     for (Double_t m = 0.008; m < 10; m = m * 1.04) {
