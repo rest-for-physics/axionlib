@@ -81,7 +81,7 @@ class TRestAxionLikelihood : public TRestMetadata {
 
     Double_t GetSignal(Double_t ma, Double_t g10_4, Double_t rho, Double_t tExp);
 
-    void LikelihoodTest(std::string fname);
+    void LikelihoodTest(const std::string& fname);
 
     void PrintMetadata();
 
