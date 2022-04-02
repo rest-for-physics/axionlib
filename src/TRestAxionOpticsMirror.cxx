@@ -129,7 +129,7 @@ void TRestAxionOpticsMirror::Initialize() {
     fHenkeKeys["Scan"] = "Angle";
     fHenkeKeys["Min"] = "0";
     fHenkeKeys["Max"] = "90";
-    fHenkeKeys["Npts"] = "5";
+    fHenkeKeys["Npts"] = "90";
     fHenkeKeys["temp"] = "Energy+%28eV%29";
     fHenkeKeys["Fixed"] = "200";
     fHenkeKeys["Plot"] = "LinLog";
@@ -153,8 +153,12 @@ void TRestAxionOpticsMirror::LoadTables() {
         return;
     }
 
+    cout << "--------------------------------- INFO ------------------------------" << endl;
     cout << "The optics material properties were not found in the database" << endl;
-    cout << "Trying to download them from Henke database" << endl;
+    cout << "Downloading from Henke database. This process will take a long time." << endl;
+    cout << "After producing these files, please, contribute them to the " << endl;
+    cout << "rest-for-physics/axionlib-data inside the optics directory ..." << endl;
+    cout << "---------------------------------- INFO ------------------------------" << endl;
 
     fReflectivityTable.clear();
     fTransmissionTable.clear();
@@ -247,9 +251,38 @@ std::string TRestAxionOpticsMirror::DownloadHenkeFile() {
 }
 
 ///////////////////////////////////////////////
-/// \brief
+/// \brief It returns the interpolated reflectivity for a given angle (in degrees)
+/// and a given energy (in keV).
 ///
-Double_t GetReflectivity(const Double_t angle, const Double_t energy) { return 0.; }
+Double_t GetReflectivity(const Double_t angle, const Double_t energy) {
+    Double_t en = energy;
+    if (en < 0.030) {
+        warning << "Energy is below 30eV! It should be between 30eV and 15keV" << endl;
+        warning << "Setting energy to 30eV" << endl;
+        en = 0.030;
+    }
+
+    if (en > 15) {
+        warning << "Energy is above 15keV! It should be between 30eV and 15keV" << endl;
+        warning << "Setting energy to 15keV" << endl;
+        en = 15;
+    }
+
+    Double_t ang = angle;
+    if (ang < 0.0) {
+        warning << "Angle is below 0 degrees! It should be between 0 and 90 degrees" << endl;
+        warning << "Setting angle to 0 degrees" << endl;
+        ang = 0.0;
+    }
+
+    if (ang > 90) {
+        warning << "Angle is above 90 degrees! It should be between 0 and 90 degrees" << endl;
+        warning << "Setting angle to 90 degrees" << endl;
+        ang = 90;
+    }
+
+    return energy;
+}
 
 ///////////////////////////////////////////////
 /// \brief
