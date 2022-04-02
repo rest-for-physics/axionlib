@@ -145,8 +145,8 @@ void TRestAxionOpticsMirror::LoadTables() {
                                    "_" + fSigma1 + ".transmission");
 
     if (mirrorFile != "" && windowFile != "") {
-        TRestTools::ReadASCIITable(mirrorFile, fReflectivityTable);
-        TRestTools::ReadASCIITable(windowFile, fTransmissionTable);
+        TRestTools::ReadBinaryTable(mirrorFile, fReflectivityTable, 901);
+        TRestTools::ReadBinaryTable(windowFile, fTransmissionTable, 901);
         return;
     }
 
@@ -202,6 +202,10 @@ void TRestAxionOpticsMirror::LoadTables() {
     ExportTables();
 }
 
+///////////////////////////////////////////////
+/// \brief It is a private method to export the tables to a binary file once the tables
+/// have been downloaded from Henke database
+///
 Int_t TRestAxionOpticsMirror::ExportTables() {
     if (fReflectivityTable.size() == 0) {
         ferr << "Nothing to export!" << endl;
@@ -217,13 +221,13 @@ Int_t TRestAxionOpticsMirror::ExportTables() {
 
     string fnameR = fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate + "_" + fSigma1 +
                     ".reflectivity";
-    TRestTools::ExportASCIITable(path + fnameR, fReflectivityTable);
+    TRestTools::ExportBinaryTable(path + fnameR, fReflectivityTable);
 
     info << "Reflectivity table generated at: " << path + fnameR << endl;
 
     string fnameT = fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate + "_" + fSigma1 +
                     ".transmission";
-    TRestTools::ExportASCIITable(path + fnameT, fTransmissionTable);
+    TRestTools::ExportBinaryTable(path + fnameT, fTransmissionTable);
 
     info << "Transmission table generated at: " << path + fnameT << endl;
 
@@ -281,7 +285,7 @@ Double_t TRestAxionOpticsMirror::GetReflectivity(const Double_t angle, const Dou
         ang = 90;
     }
 
-    Int_t lowAngBin = (Int_t)((ang) / 0.01);
+    Int_t lowAngBin = (Int_t)((ang) / 0.1);
     Double_t deltaAng = (ang - (Double_t)(lowAngBin)*0.1) / 0.1;  // between 0 and 1
 
     Double_t REnLowAngLow = fReflectivityTable[lowEnBin][lowAngBin];
