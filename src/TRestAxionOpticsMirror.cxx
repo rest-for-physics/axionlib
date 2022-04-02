@@ -21,7 +21,7 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionMirrorReflectivity is a class that allows to load externally
+/// TRestAxionOpticsMirror is a class that allows to load externally
 /// defined optics response files. This metadata class will be a generic,
 /// abstract, class that will be inherited by other more specific metadata
 /// classes. This class will define few common metadata members helping to
@@ -39,7 +39,7 @@
 /// the optics plane entrance, and the optics plane exit.
 ///
 /// The following image is generated as a validation or a way to visualize the
-/// TRestAxionMirrorReflectivity::GetEntranceRing method. Each color represents a particle
+/// TRestAxionOpticsMirror::GetEntranceRing method. Each color represents a particle
 /// hitting in a different ring. The position is drawn at both, the generator
 /// plane and the optics entrance plane. This creates an effect of diffusion at
 /// the generator plane since the generator random direction is slightly tilted
@@ -57,28 +57,28 @@
 ///
 /// History of developments:
 ///
-/// 2022-February: First concept and implementation of TRestAxionMirrorReflectivity class.
+/// 2022-February: First concept and implementation of TRestAxionOpticsMirror class.
 ///            	  Javier Galan
 ///
-/// \class      TRestAxionMirrorReflectivity
+/// \class      TRestAxionOpticsMirror
 /// \author     Javier Galan <javier.galan@unizar.es>
 ///
 /// <hr>
 ///
 
-#include "TRestAxionMirrorReflectivity.h"
+#include "TRestAxionOpticsMirror.h"
 
 using namespace std;
 
 #include "TRestPhysics.h"
 using namespace REST_Physics;
 
-ClassImp(TRestAxionMirrorReflectivity);
+ClassImp(TRestAxionOpticsMirror);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestAxionMirrorReflectivity::TRestAxionMirrorReflectivity() : TRestMetadata() { Initialize(); }
+TRestAxionOpticsMirror::TRestAxionOpticsMirror() : TRestMetadata() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -94,9 +94,9 @@ TRestAxionMirrorReflectivity::TRestAxionMirrorReflectivity() : TRestMetadata() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// corresponding TRestAxionMagneticField section inside the RML.
 ///
-TRestAxionMirrorReflectivity::TRestAxionMirrorReflectivity(const char* cfgFileName, string name)
+TRestAxionOpticsMirror::TRestAxionOpticsMirror(const char* cfgFileName, string name)
     : TRestMetadata(cfgFileName) {
-    debug << "Entering TRestAxionMirrorReflectivity constructor( cfgFileName, name )" << endl;
+    debug << "Entering TRestAxionOpticsMirror constructor( cfgFileName, name )" << endl;
 
     Initialize();
 
@@ -108,12 +108,12 @@ TRestAxionMirrorReflectivity::TRestAxionMirrorReflectivity(const char* cfgFileNa
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionMirrorReflectivity::~TRestAxionMirrorReflectivity() {}
+TRestAxionOpticsMirror::~TRestAxionOpticsMirror() {}
 
 ///////////////////////////////////////////////
-/// \brief Initialization of TRestAxionMirrorReflectivity members
+/// \brief Initialization of TRestAxionOpticsMirror members
 ///
-void TRestAxionMirrorReflectivity::Initialize() {
+void TRestAxionOpticsMirror::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
@@ -139,7 +139,7 @@ void TRestAxionMirrorReflectivity::Initialize() {
 ///////////////////////////////////////////////
 /// \brief Loads the reflectivity table
 ///
-void TRestAxionMirrorReflectivity::LoadTables() {
+void TRestAxionOpticsMirror::LoadTables() {
     if (fHenkeKeys.size() == 0) Initialize();
 
     string mirrorFile = SearchFile(fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate +
@@ -201,7 +201,7 @@ void TRestAxionMirrorReflectivity::LoadTables() {
     ExportTables();
 }
 
-Int_t TRestAxionMirrorReflectivity::ExportTables() {
+Int_t TRestAxionOpticsMirror::ExportTables() {
     if (fReflectivityTable.size() == 0) {
         ferr << "Nothing to export!" << endl;
         return 1;
@@ -235,7 +235,7 @@ Int_t TRestAxionMirrorReflectivity::ExportTables() {
 ///
 /// \return It returns the location and filename of the downloaded file.
 ///
-std::string TRestAxionMirrorReflectivity::DownloadHenkeFile() {
+std::string TRestAxionOpticsMirror::DownloadHenkeFile() {
     string url = "https://henke.lbl.gov/cgi-bin/laymir.pl";
     string result = TRestTools::POSTRequest(url, fHenkeKeys);
 
@@ -257,9 +257,9 @@ Double_t GetReflectivity(const Double_t angle, const Double_t energy) { return 0
 Double_t GetTransmission(const Double_t angle, const Double_t energy) { return 0.; }
 
 ///////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionMirrorReflectivity
+/// \brief Prints on screen the information about the metadata members of TRestAxionOpticsMirror
 ///
-void TRestAxionMirrorReflectivity::PrintMetadata() {
+void TRestAxionOpticsMirror::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     metadata << "Mirror type: " << fMirrorType << endl;

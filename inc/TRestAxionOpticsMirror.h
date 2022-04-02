@@ -20,14 +20,14 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef _TRestAxionMirrorReflectivity
-#define _TRestAxionMirrorReflectivity
+#ifndef _TRestAxionOpticsMirror
+#define _TRestAxionOpticsMirror
 
 #include <TRestMetadata.h>
 #include <iostream>
 
 /// A metadata class accessing the Henke database to load reflectivity data
-class TRestAxionMirrorReflectivity : public TRestMetadata {
+class TRestAxionOpticsMirror : public TRestMetadata {
    private:
     /// The mirror type (Thick, Single, Bilayer, Multilayer). Only `Single` is supported now.
     std::string fMirrorType = "Single";  //<
@@ -74,10 +74,10 @@ class TRestAxionMirrorReflectivity : public TRestMetadata {
 
     void PrintMetadata();
 
-    TRestAxionMirrorReflectivity();
-    TRestAxionMirrorReflectivity(const char* cfgFileName, std::string name = "");
-    ~TRestAxionMirrorReflectivity();
+    TRestAxionOpticsMirror();
+    TRestAxionOpticsMirror(const char* cfgFileName, std::string name = "");
+    ~TRestAxionOpticsMirror();
 
-    ClassDef(TRestAxionMirrorReflectivity, 1);
+    ClassDef(TRestAxionOpticsMirror, 1);
 };
 #endif
