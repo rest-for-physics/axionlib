@@ -116,7 +116,145 @@ TRestAxionMirrorReflectivity::~TRestAxionMirrorReflectivity() {}
 void TRestAxionMirrorReflectivity::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
+
+    fHenkeKeys.clear();
+    fHenkeKeys["Layer"] = fLayer;
+    fHenkeKeys["Ldensity"] = "-1";
+    fHenkeKeys["Thick"] = fLayerThickness;
+    fHenkeKeys["Sigma1"] = fSigma1;
+    fHenkeKeys["Substrate"] = fSubstrate;
+    fHenkeKeys["Sdensity"] = "-1";
+    fHenkeKeys["Sigma2"] = "0";
+    fHenkeKeys["Pol"] = "0";
+    fHenkeKeys["Scan"] = "Angle";
+    fHenkeKeys["Min"] = "0";
+    fHenkeKeys["Max"] = "90";
+    fHenkeKeys["Npts"] = "5";
+    fHenkeKeys["temp"] = "Energy+%28eV%29";
+    fHenkeKeys["Fixed"] = "200";
+    fHenkeKeys["Plot"] = "LinLog";
+    fHenkeKeys["Output"] = "Plot";
 }
+
+///////////////////////////////////////////////
+/// \brief Loads the reflectivity table
+///
+void TRestAxionMirrorReflectivity::LoadTables() {
+    if (fHenkeKeys.size() == 0) Initialize();
+
+    string mirrorFile = SearchFile(fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate +
+                                   "_" + fSigma1 + ".reflectivity");
+    string windowFile = SearchFile(fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate +
+                                   "_" + fSigma1 + ".transmission");
+
+    if (mirrorFile != "" && windowFile != "") {
+        TRestTools::ReadASCIITable(mirrorFile, fReflectivityTable);
+        TRestTools::ReadASCIITable(windowFile, fTransmissionTable);
+        return;
+    }
+
+    cout << "The optics material properties were not found in the database" << endl;
+    cout << "Trying to download them from Henke database" << endl;
+
+    fReflectivityTable.clear();
+    fTransmissionTable.clear();
+    map<Int_t, std::vector<Float_t>> reflectivity;
+    map<Int_t, std::vector<Float_t>> transmission;
+    for (int n = 0; n < 90; n += 9) {
+        fHenkeKeys["Min"] = IntegerToString(n);
+        fHenkeKeys["Max"] = IntegerToString(n + 9);
+
+        cout.flush();
+        vector<Float_t> reflect;
+        vector<Float_t> transm;
+        reflect.clear();
+        transm.clear();
+
+        cout << "Reading angles between " << n << " and " << n + 9 << ".";
+        for (int e = 30; e <= 15000; e += 30) {
+            fHenkeKeys["Fixed"] = IntegerToString(e);
+            cout << ".";
+            cout.flush();
+            string fname = DownloadHenkeFile();
+
+            std::vector<std::vector<Float_t>> data;
+            TRestTools::ReadASCIITable(fname, data, 2);
+
+            // we skip the last point if we are not at the latest angles file
+            Int_t N = data.size() - 1;
+            if (n == 81) N = N + 1;
+
+            for (int m = 0; m < N; m++) reflectivity[e].push_back(data[m][1]);
+            for (int m = 0; m < N; m++) transmission[e].push_back(data[m][2]);
+        }
+        cout << endl;
+    }
+    cout << "Number of angles stored : " << reflectivity[30].size() << endl;
+
+    for (const auto& x : reflectivity) {
+        fReflectivityTable.push_back(x.second);
+    }
+    for (const auto& x : transmission) {
+        fTransmissionTable.push_back(x.second);
+    }
+
+    ExportTables();
+}
+
+Int_t TRestAxionMirrorReflectivity::ExportTables() {
+    if (fReflectivityTable.size() == 0) {
+        ferr << "Nothing to export!" << endl;
+        return 1;
+    }
+
+    string path = REST_USER_PATH + "/export/";
+
+    if (!TRestTools::fileExists(path)) {
+        cout << "Creating path: " << path << endl;
+        system(("mkdir -p " + path).c_str());
+    }
+
+    string fnameR = fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate + "_" + fSigma1 +
+                    ".reflectivity";
+    TRestTools::ExportASCIITable(path + fnameR, fReflectivityTable);
+
+    info << "Reflectivity table generated at: " << path + fnameR << endl;
+
+    string fnameT = fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate + "_" + fSigma1 +
+                    ".transmission";
+    TRestTools::ExportASCIITable(path + fnameT, fTransmissionTable);
+
+    info << "Transmission table generated at: " << path + fnameT << endl;
+
+    return 0;
+}
+
+///////////////////////////////////////////////
+/// \brief It downloads the reflectivity file for the present mirror properties
+/// defined at the metadata members.
+///
+/// \return It returns the location and filename of the downloaded file.
+///
+std::string TRestAxionMirrorReflectivity::DownloadHenkeFile() {
+    string url = "https://henke.lbl.gov/cgi-bin/laymir.pl";
+    string result = TRestTools::POSTRequest(url, fHenkeKeys);
+
+    size_t start = result.find("HREF=\"") + 6;
+    size_t length = result.find(".dat\">") + 4 - start;
+    result = result.substr(start, length);
+
+    return TRestTools::DownloadRemoteFile("https://henke.lbl.gov/" + result);
+}
+
+///////////////////////////////////////////////
+/// \brief
+///
+Double_t GetReflectivity(const Double_t angle, const Double_t energy) { return 0.; }
+
+///////////////////////////////////////////////
+/// \brief
+///
+Double_t GetTransmission(const Double_t angle, const Double_t energy) { return 0.; }
 
 ///////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionMirrorReflectivity
@@ -124,5 +262,10 @@ void TRestAxionMirrorReflectivity::Initialize() {
 void TRestAxionMirrorReflectivity::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
+    metadata << "Mirror type: " << fMirrorType << endl;
+    metadata << "Layer material: " << fLayer << endl;
+    metadata << "Layer thickness: " << fLayerThickness << " nm" << endl;
+    metadata << "Substrate material: " << fSubstrate << endl;
+    metadata << "Roughness: " << fSigma1 << "nm" << endl;
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }

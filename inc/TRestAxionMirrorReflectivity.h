@@ -29,12 +29,48 @@
 /// A metadata class accessing the Henke database to load reflectivity data
 class TRestAxionMirrorReflectivity : public TRestMetadata {
    private:
+    /// The mirror type (Thick, Single, Bilayer, Multilayer). Only `Single` is supported now.
+    std::string fMirrorType = "Single";  //<
+
+    /// The mirror layer material (chemical forumula).
+    std::string fLayer = "C";  //<
+
+    /// The layer thickness in nm
+    std::string fLayerThickness = "30";  //<
+
+    /// The substrate material
+    std::string fSubstrate = "SiO2";  //<
+
+    /// Top surface roughness in nm
+    std::string fSigma1 = "0";  //<
+
+    /// A set of key-value pairs sent to the Henke website for data request
+    std::map<std::string, std::string> fHenkeKeys;  //!
+
+    /// The reflectivity loaded as a table with angle versus energy
+    std::vector<std::vector<Float_t> > fReflectivityTable;  //!
+
+    /// The transmission loaded as a table with angle versus energy
+    std::vector<std::vector<Float_t> > fTransmissionTable;  //!
+
+    std::string DownloadHenkeFile();
+
    protected:
    public:
     void Initialize();
 
-    /// Pure abstract method to be implemented at inherited class
-    virtual Double_t GetEfficiency(const TVector3& pos, const TVector3& dir) { return 0.0; }
+    void SetMirrorType(const std::string& type) { fMirrorType = type; }
+    void SetLayerMaterial(const std::string& layer) { fLayer = layer; }
+    void SetLayerThickness(const std::string& thickness) { fLayerThickness = thickness; }
+    void SetSubstrateMaterial(const std::string& substrate) { fSubstrate = substrate; }
+    void SetRoughness(const std::string& roughness) { fSigma1 = roughness; }
+
+    void LoadTables();
+    Int_t ExportTables();
+
+    Double_t GetReflectivity(const Double_t angle, const Double_t energy);
+
+    Double_t GetTransmission(const Double_t angle, const Double_t energy);
 
     void PrintMetadata();
 
