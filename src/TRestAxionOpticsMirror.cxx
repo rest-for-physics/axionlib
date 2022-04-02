@@ -70,9 +70,6 @@
 
 using namespace std;
 
-#include "TRestPhysics.h"
-using namespace REST_Physics;
-
 ClassImp(TRestAxionOpticsMirror);
 
 ///////////////////////////////////////////////
@@ -254,7 +251,7 @@ std::string TRestAxionOpticsMirror::DownloadHenkeFile() {
 /// \brief It returns the interpolated reflectivity for a given angle (in degrees)
 /// and a given energy (in keV).
 ///
-Double_t GetReflectivity(const Double_t angle, const Double_t energy) {
+Double_t TRestAxionOpticsMirror::GetReflectivity(const Double_t angle, const Double_t energy) {
     Double_t en = energy;
     if (en < 0.030) {
         warning << "Energy is below 30eV! It should be between 30eV and 15keV" << endl;
@@ -262,11 +259,14 @@ Double_t GetReflectivity(const Double_t angle, const Double_t energy) {
         en = 0.030;
     }
 
-    if (en > 15) {
+    if (en >= 15) {
         warning << "Energy is above 15keV! It should be between 30eV and 15keV" << endl;
         warning << "Setting energy to 15keV" << endl;
-        en = 15;
+        en = 14.9999;
     }
+
+    Int_t lowEnBin = (Int_t)((en - 0.03) / 0.03);
+    Double_t deltaE = (en - (Double_t)(lowEnBin + 1) * 0.03) / 0.03;  // between 0 and 1
 
     Double_t ang = angle;
     if (ang < 0.0) {
@@ -281,13 +281,72 @@ Double_t GetReflectivity(const Double_t angle, const Double_t energy) {
         ang = 90;
     }
 
-    return energy;
+    Int_t lowAngBin = (Int_t)((ang) / 0.01);
+    Double_t deltaAng = (ang - (Double_t)(lowAngBin)*0.1) / 0.1;  // between 0 and 1
+
+    Double_t REnLowAngLow = fReflectivityTable[lowEnBin][lowAngBin];
+    Double_t REnLowAngHi = fReflectivityTable[lowEnBin][lowAngBin + 1];
+    Double_t REnHiAngLow = fReflectivityTable[lowEnBin + 1][lowAngBin];
+    Double_t REnHiAngHi = fReflectivityTable[lowEnBin + 1][lowAngBin + 1];
+
+    // We have renormalized the grid to unity and now we apply the equation z = f(x,y)
+    // where x is associated with the energy, y is associated with the angle
+    // z = f(x,y) = (1−x)(1−y) * v00+x(1−y) * v10+(1−x)y * v01+xy * v11
+    // So that, for example, when x=1 and v=1 we get v11=REnHiAngHi
+    return (1 - deltaE) * (1 - deltaAng) * REnLowAngLow + deltaE * (1 - deltaAng) * REnHiAngLow +
+           (1 - deltaE) * deltaAng * REnLowAngHi + deltaE * deltaAng * REnHiAngHi;
 }
 
 ///////////////////////////////////////////////
-/// \brief
+/// \brief It returns the interpolated transmission for a given angle (in degrees)
+/// and a given energy (in keV).
 ///
-Double_t GetTransmission(const Double_t angle, const Double_t energy) { return 0.; }
+Double_t TRestAxionOpticsMirror::GetTransmission(const Double_t angle, const Double_t energy) {
+    Double_t en = energy;
+    if (en < 0.030) {
+        warning << "Energy is below 30eV! It should be between 30eV and 15keV" << endl;
+        warning << "Setting energy to 30eV" << endl;
+        en = 0.030;
+    }
+
+    if (en >= 15) {
+        warning << "Energy is above 15keV! It should be between 30eV and 15keV" << endl;
+        warning << "Setting energy to 15keV" << endl;
+        en = 14.9999;
+    }
+
+    Int_t lowEnBin = (Int_t)((en - 0.03) / 0.03);
+    Double_t deltaE = (en - (Double_t)(lowEnBin + 1) * 0.03) / 0.03;  // between 0 and 1
+
+    Double_t ang = angle;
+    if (ang < 0.0) {
+        warning << "Angle is below 0 degrees! It should be between 0 and 90 degrees" << endl;
+        warning << "Setting angle to 0 degrees" << endl;
+        ang = 0.0;
+    }
+
+    if (ang > 90) {
+        warning << "Angle is above 90 degrees! It should be between 0 and 90 degrees" << endl;
+        warning << "Setting angle to 90 degrees" << endl;
+        ang = 90;
+    }
+
+    Int_t lowAngBin = (Int_t)((ang) / 0.01);
+    Double_t deltaAng = (ang - (Double_t)(lowAngBin)*0.1) / 0.1;  // between 0 and 1
+
+    Double_t REnLowAngLow = fTransmissionTable[lowEnBin][lowAngBin];
+    Double_t REnLowAngHi = fTransmissionTable[lowEnBin][lowAngBin + 1];
+    Double_t REnHiAngLow = fTransmissionTable[lowEnBin + 1][lowAngBin];
+    Double_t REnHiAngHi = fTransmissionTable[lowEnBin + 1][lowAngBin + 1];
+
+    // We have renormalized the grid to unity and now we apply the equation z = f(x,y)
+    // where x is associated with the energy, y is associated with the angle
+    // z = f(x,y) = (1−x)(1−y) * v00+𝑥(1−y) * v10+(1−𝑥)y * v01+xy * v11
+    // So that, for example, when x=1 and v=1 we get v11=REnHiAngHi
+
+    return (1 - deltaE) * (1 - deltaAng) * REnLowAngLow + deltaE * (1 - deltaAng) * REnHiAngLow +
+           (1 - deltaE) * deltaAng * REnLowAngHi + deltaE * deltaAng * REnHiAngHi;
+}
 
 ///////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionOpticsMirror
