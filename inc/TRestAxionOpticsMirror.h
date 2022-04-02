@@ -55,7 +55,8 @@ class TRestAxionOpticsMirror : public TRestMetadata {
 
     std::string DownloadHenkeFile();
 
-   protected:
+    Int_t ExportTables();
+
    public:
     void Initialize();
 
@@ -66,7 +67,6 @@ class TRestAxionOpticsMirror : public TRestMetadata {
     void SetRoughness(const std::string& roughness) { fSigma1 = roughness; }
 
     void LoadTables();
-    Int_t ExportTables();
 
     Double_t GetReflectivity(const Double_t angle, const Double_t energy);
 
