@@ -26,6 +26,8 @@
 #include <TRestMetadata.h>
 #include <iostream>
 
+#include <TCanvas.h>
+
 /// A metadata class accessing the Henke database to load reflectivity data
 class TRestAxionOpticsMirror : public TRestMetadata {
    private:
@@ -53,6 +55,9 @@ class TRestAxionOpticsMirror : public TRestMetadata {
     /// The transmission loaded as a table with angle versus energy
     std::vector<std::vector<Float_t> > fTransmissionTable;  //!
 
+    /// A canvas to insert the optic properties drawing
+    TCanvas* fCanvas = nullptr;  //!
+
     std::string DownloadHenkeFile();
 
     Int_t ExportTables();
@@ -73,6 +78,8 @@ class TRestAxionOpticsMirror : public TRestMetadata {
     Double_t GetTransmission(const Double_t angle, const Double_t energy);
 
     void PrintMetadata();
+
+    TCanvas* DrawOpticProperties(std::string options = "", Double_t lowRange = 1.e-5);
 
     TRestAxionOpticsMirror();
     TRestAxionOpticsMirror(const char* cfgFileName, std::string name = "");
