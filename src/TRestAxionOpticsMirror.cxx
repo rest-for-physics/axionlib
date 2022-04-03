@@ -297,6 +297,8 @@ std::string TRestAxionOpticsMirror::DownloadHenkeFile() {
 /// and a given energy (in keV).
 ///
 Double_t TRestAxionOpticsMirror::GetReflectivity(const Double_t angle, const Double_t energy) {
+    if (fReflectivityTable.size() == 0) LoadTables();
+
     Double_t en = energy;
     if (en < 0.030) {
         warning << "Energy is below 30eV! It should be between 30eV and 15keV" << endl;
@@ -347,6 +349,8 @@ Double_t TRestAxionOpticsMirror::GetReflectivity(const Double_t angle, const Dou
 /// and a given energy (in keV).
 ///
 Double_t TRestAxionOpticsMirror::GetTransmission(const Double_t angle, const Double_t energy) {
+    if (fTransmissionTable.size() == 0) LoadTables();
+
     Double_t en = energy;
     if (en < 0.030) {
         warning << "Energy is below 30eV! It should be between 30eV and 15keV" << endl;
