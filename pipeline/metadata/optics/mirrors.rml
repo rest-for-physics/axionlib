@@ -1,0 +1,9 @@
+<mirrors>
+	<TRestAxionOpticsMirror name="default">
+		<parameter name="mirrorType" value="Single" />
+		<parameter name="layer" value="C" />
+		<parameter name="layerThickness" value="30" />
+		<parameter name="substrate" value="SiO2" />
+		<parameter name="sigma1" value="0" />
+	</TRestAxionOpticsMirror>
+</mirrors>
