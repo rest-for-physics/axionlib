@@ -21,35 +21,72 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionOpticsMirror is a class that allows to load externally
-/// defined optics response files. This metadata class will be a generic,
-/// abstract, class that will be inherited by other more specific metadata
-/// classes. This class will define few common metadata members helping to
-/// describe the optics alignment, position, and basic geometry specifications,
-/// such as number of mirror rings, or additional entrance masks, such as
-/// spider mask.
+/// TRestAxionOpticsMirror is a class that allows to define specific
+/// mirror properties, such as the layer material and thickness, the
+/// substrate material, or the surface roughness through different
+/// class metadata members.
 ///
-/// The following metadata parameters define the optics position, size and
-/// alignment:
-/// * **center**: It defines the center of the optics, entrance and exit
-/// optics planes will be defined using the half lenght and the `center`
-/// position.
-/// * **axis**: It defines the optical axis direction.
-/// * **length**: It defines the size of the optics, used to calculate
-/// the optics plane entrance, and the optics plane exit.
+/// The following metadata parameters are used to define the mirror
+/// properties:
+/// * **mirrorType**: It defines the mirror type (Single, Thick, Bilayer,
+/// Multilayer). For the moment only `Single` layer type has been implemented.
+/// * **layer**: It defines the layer material. Chemical formula.
+/// * **layerThickness**: It defines the layer thickness in nm.
+/// * **substrate**: It defines the substrate material. Chemical formula.
+/// * **sigmal1**: It defines the layer roughness in nm.
 ///
-/// The following image is generated as a validation or a way to visualize the
-/// TRestAxionOpticsMirror::GetEntranceRing method. Each color represents a particle
-/// hitting in a different ring. The position is drawn at both, the generator
-/// plane and the optics entrance plane. This creates an effect of diffusion at
-/// the generator plane since the generator random direction is slightly tilted
-/// respect to the optical axis.
+/// The metadata members defined will generate a request to the Henke
+/// database to retrieve reflectivity and transmission values as a
+/// function of the angle and energy of the incident photon. Once the
+/// metadata members have been defined, it is necessary to call the
+/// method TRestAxionOpticsMirror::LoadTables in order to initialize
+/// the reflectivity and transmission tables.
 ///
-/// \htmlonly <style>div.image img[src="xyz.png"]{width:750px;}</style> \endhtmlonly
+/// The download process will take a reasonable amount of time, and after
+/// all the data files have been downloaded, this class will generate a
+/// unique table containning the reflectivity as a function of angle and
+/// energy. The tables will be exported to the REST user path so that
+/// in future calls these tables will be directly loaded without requiring
+/// to download them again.
 ///
-/// ![Image description](xyz.png)
+/// The following code shows how to define the mirror properties and launch
+/// the drawing of few plots showing the reflectivity as a function of
+/// incident angle and  energy.
 ///
-/// This image was generated using the xyz script.
+/// \code
+///     TRestAxionOpticsMirror *mirror = new TRestAxionOpticMirror();
+///		mirror->SetMirrorType("Single");
+///		mirror->SetLayer("SiO2");
+///		mirror->SetLayerThickness("30");
+///		mirror->SetSubstrateMaterial("C");
+///		mirror->SetRoughness("C");
+///
+///     mirror->LoadTables();
+///     mirror->DrawOpticsProperties();
+/// \endcode
+///
+/// Alternatively we may use a RML definition and pass some options to the
+/// TRestAxionOpticMirror::DrawOpticsProperties to define what it will be
+/// drawn.
+///
+/// The following code will draw the reflectivity as a function of the angle
+/// in the 0 to 5 degrees range at four different energies (1,4,7,10)keV, and
+/// as a function of the energy in the 0 to 15 keV range at three different
+/// angles (0.5,1,1.5) degrees. The lower y-axis value will be fixed to 1.e-4.
+/// See the method documentation for more details.
+///
+/// \code
+///     TRestAxionOpticsMirror *mirror = new TRestAxionOpticMirror("mirror.rml", "default");
+///     mirror->DrawOpticsProperties("[1,4,7,10](0,15):[0.5,1,1.5](0,5)", 1.e-4);
+/// \endcode
+///
+///
+/// The following plots have been generated using the DrawOpticsProperties using those
+/// options.
+//
+/// \htmlonly <style>div.image img[src="reflectivity.png"]{width:750px;}</style> \endhtmlonly
+///
+/// ![The reflectivity as a function of the incidence angle and the energy in keV.](reflectivity.png)
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -57,7 +94,7 @@
 ///
 /// History of developments:
 ///
-/// 2022-February: First concept and implementation of TRestAxionOpticsMirror class.
+/// 2022-April: First concept and implementation of TRestAxionOpticsMirror class.
 ///            	  Javier Galan
 ///
 /// \class      TRestAxionOpticsMirror
@@ -372,10 +409,24 @@ void TRestAxionOpticsMirror::PrintMetadata() {
 
 ///////////////////////////////////////////////
 /// \brief A method that creates a canvas where the mirror optics properties are drawn.
+/// It generates two plots, on the left the reflectivity as a function of the angle, and
+/// on the right the reflectivity as a function of the energy.
 ///
+/// The first argument is a string where we may specify the energies and angles to be plotted
+/// against the angle and energy. Between square brackets [ ] we define the values that will
+/// be plotted, while between parenthesis we define the range of the x-axis to be plotted.
+/// First, the energy curves to be plotted together with the energy range are given. Then,
+/// the angle curves and the angular range is given.
+///
+/// For example the following definition will produce a plot with 3 energies (2,5,10) keV
+/// as a function of the angle, in the range 0 to 45 degrees, and a second plot with 4
+/// angles (1,2,5,15) degrees in the energy range 0 to 15keV.
+///
+/// ```
 /// [2,5,10](0,15):[1,2,5,15](0,45)
+/// ```
 ///
-TCanvas* TRestAxionOpticsMirror::DrawOpticProperties(std::string options, Double_t lowRange) {
+TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Double_t lowRange) {
     if (fReflectivityTable.size() == 0) LoadTables();
 
     std::vector<string> optList = TRestTools::GetOptions(options);
