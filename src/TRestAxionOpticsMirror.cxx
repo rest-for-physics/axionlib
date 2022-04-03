@@ -49,6 +49,17 @@
 /// in future calls these tables will be directly loaded without requiring
 /// to download them again.
 ///
+/// The data will be downloaded from Henke with a 0.1 degrees and 100 eV
+/// precision. Therefore, the tables will contain 901 columns with the
+/// angles between 0 and 90 degrees, and 500 rows with energies between
+/// 30eV and 15keV.
+///
+/// The main functionality of this class is provided by the
+/// TRestAxionOpticsMirror::GetReflectivity and TRestAxionOpticsMirror::GetTransmission
+/// methods. Those methods will return the reflectivity or transmission
+/// values for the given angle (degrees) and energy (keV) given in the
+/// argument.
+///
 /// The following code shows how to define the mirror properties and launch
 /// the drawing of few plots showing the reflectivity as a function of
 /// incident angle and  energy.
@@ -69,20 +80,16 @@
 /// TRestAxionOpticMirror::DrawOpticsProperties to define what it will be
 /// drawn.
 ///
-/// The following code will draw the reflectivity as a function of the angle
-/// in the 0 to 5 degrees range at four different energies (1,4,7,10)keV, and
-/// as a function of the energy in the 0 to 15 keV range at three different
-/// angles (0.5,1,1.5) degrees. The lower y-axis value will be fixed to 1.e-4.
-/// See the method documentation for more details.
-///
 /// \code
 ///     TRestAxionOpticsMirror *mirror = new TRestAxionOpticMirror("mirror.rml", "default");
 ///     mirror->DrawOpticsProperties("[1,4,7,10](0,15):[0.5,1,1.5](0,5)", 1.e-4);
 /// \endcode
 ///
-///
-/// The following plots have been generated using the DrawOpticsProperties using those
-/// options.
+/// The previous code will draw the reflectivity as a function of the angle
+/// in the 0 to 5 degrees range at four different energies (1,4,7,10)keV, and
+/// as a function of the energy in the 0 to 15 keV range at three different
+/// angles (0.5,1,1.5) degrees. The lower y-axis value will be fixed to 1.e-4.
+/// See the method documentation for more details.
 //
 /// \htmlonly <style>div.image img[src="reflectivity.png"]{width:750px;}</style> \endhtmlonly
 ///
