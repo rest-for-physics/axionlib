@@ -76,6 +76,15 @@
 ///     mirror->DrawOpticsProperties();
 /// \endcode
 ///
+/// Once the mirror data tables have been loaded we may get the reflectivity
+/// or transmission at a given angle (in degrees) and energy (in keV).
+///
+/// \code
+///	    Double_t angle = 0.5; // degrees
+///	    Double_t energy= 2; // keV
+///     mirror->GetReflectivity( angle, energy );
+/// \endcode
+///
 /// Alternatively we may use a RML definition and pass some options to the
 /// TRestAxionOpticMirror::DrawOpticsProperties to define what it will be
 /// drawn.
