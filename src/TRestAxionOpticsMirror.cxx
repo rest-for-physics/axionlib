@@ -489,7 +489,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
         TGraph* gr = new TGraph();
         gr->SetName(grname.c_str());
         for (double a = aRange[0]; a <= aRange[1]; a += (aRange[1] - aRange[0]) / 100.) {
-            gr->AddPoint(a, GetReflectivity(a, energies[n]));
+            gr->SetPoint(gr->GetN(), a, GetReflectivity(a, energies[n]));
         }
         gr->SetLineColor(49 - n * 3);
         gr->SetLineWidth(3);
@@ -536,7 +536,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
         TGraph* gr = new TGraph();
         gr->SetName(grname.c_str());
         for (double e = eRange[0]; e <= eRange[1]; e += (eRange[1] - eRange[0]) / 100.) {
-            gr->AddPoint(e, GetReflectivity(angles[n], e));
+            gr->SetPoint(gr->GetN(), e, GetReflectivity(angles[n], e));
         }
         gr->SetLineColor(49 - n * 3);
         gr->SetLineWidth(3);
