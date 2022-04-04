@@ -49,7 +49,7 @@
 /// in future calls these tables will be directly loaded without requiring
 /// to download them again.
 ///
-/// The data will be downloaded from Henke with a 0.01 degrees and 100 eV
+/// The data will be downloaded from Henke with a 0.01 degrees and 30 eV
 /// precision. Therefore, the tables will contain 901 columns with the
 /// angles between 0 and 9 degrees, and 500 rows with energies between
 /// 30eV and 15keV.
