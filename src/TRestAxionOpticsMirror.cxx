@@ -114,6 +114,7 @@
 #include <TAxis.h>
 #include <TGraph.h>
 #include <TH1F.h>
+#include <TLatex.h>
 #include <TLegend.h>
 
 using namespace std;
@@ -467,7 +468,8 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
         delete fCanvas;
         fCanvas = NULL;
     }
-    fCanvas = new TCanvas("canv", "", 1400, 600);
+    fCanvas = new TCanvas("canv", "This is the canvas title", 1400, 600);
+    fCanvas->Draw();
 
     TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
     pad1->Divide(2, 1);
@@ -566,6 +568,17 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
         legendA->AddEntry(lname.c_str(), ltitle.c_str(), "l");
     }
     legendA->Draw();
+
+    fCanvas->cd();  // c1 is the TCanvas
+    TPad* pad5 = new TPad("all", "all", 0, 0, 1, 1);
+    pad5->SetFillStyle(4000);  // transparent
+    pad5->Draw();
+    pad5->cd();
+    TLatex* lat = new TLatex();
+    std::string title = "Mirror type:" + fMirrorType + ". Layer: " + fLayer +
+                        ". Thickness: " + fLayerThickness + "nm. Substrate: " + fSubstrate +
+                        ". Roughness: " + fSigma1 + "nm";
+    lat->DrawLatexNDC(.05, .95, title.c_str());
 
     return fCanvas;
 }
