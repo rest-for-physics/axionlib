@@ -49,9 +49,9 @@
 /// in future calls these tables will be directly loaded without requiring
 /// to download them again.
 ///
-/// The data will be downloaded from Henke with a 0.1 degrees and 100 eV
+/// The data will be downloaded from Henke with a 0.01 degrees and 100 eV
 /// precision. Therefore, the tables will contain 901 columns with the
-/// angles between 0 and 90 degrees, and 500 rows with energies between
+/// angles between 0 and 9 degrees, and 500 rows with energies between
 /// 30eV and 15keV.
 ///
 /// The main functionality of this class is provided by the
@@ -183,8 +183,8 @@ void TRestAxionOpticsMirror::Initialize() {
     fHenkeKeys["Pol"] = "0";
     fHenkeKeys["Scan"] = "Angle";
     fHenkeKeys["Min"] = "0";
-    fHenkeKeys["Max"] = "90";
-    fHenkeKeys["Npts"] = "90";
+    fHenkeKeys["Max"] = "9";
+    fHenkeKeys["Npts"] = "100";
     fHenkeKeys["temp"] = "Energy+%28eV%29";
     fHenkeKeys["Fixed"] = "200";
     fHenkeKeys["Plot"] = "LinLog";
@@ -219,9 +219,9 @@ void TRestAxionOpticsMirror::LoadTables() {
     fTransmissionTable.clear();
     map<Int_t, std::vector<Float_t>> reflectivity;
     map<Int_t, std::vector<Float_t>> transmission;
-    for (int n = 0; n < 90; n += 9) {
+    for (int n = 0; n < 9; n++) {
         fHenkeKeys["Min"] = IntegerToString(n);
-        fHenkeKeys["Max"] = IntegerToString(n + 9);
+        fHenkeKeys["Max"] = IntegerToString(n + 1);
 
         cout.flush();
         vector<Float_t> reflect;
@@ -229,7 +229,7 @@ void TRestAxionOpticsMirror::LoadTables() {
         reflect.clear();
         transm.clear();
 
-        cout << "Reading angles between " << n << " and " << n + 9 << ".";
+        cout << "Scanning angles between " << n << " and " << n + 1 << ".";
         for (int e = 30; e <= 15000; e += 30) {
             fHenkeKeys["Fixed"] = IntegerToString(e);
             cout << ".";
@@ -241,7 +241,7 @@ void TRestAxionOpticsMirror::LoadTables() {
 
             // we skip the last point if we are not at the latest angles file
             Int_t N = data.size() - 1;
-            if (n == 81) N = N + 1;
+            if (n == 8) N = N + 1;
 
             for (int m = 0; m < N; m++) reflectivity[e].push_back(data[m][1]);
             for (int m = 0; m < N; m++) transmission[e].push_back(data[m][2]);
@@ -334,15 +334,15 @@ Double_t TRestAxionOpticsMirror::GetReflectivity(const Double_t angle, const Dou
 
     Double_t ang = angle;
     if (ang < 0.0) {
-        warning << "Angle is below 0 degrees! It should be between 0 and 90 degrees" << endl;
+        warning << "Angle is below 0 degrees! It should be between 0 and 9 degrees" << endl;
         warning << "Setting angle to 0 degrees" << endl;
         ang = 0.0;
     }
 
-    if (ang > 90) {
-        warning << "Angle is above 90 degrees! It should be between 0 and 90 degrees" << endl;
-        warning << "Setting angle to 90 degrees" << endl;
-        ang = 90;
+    if (ang > 9) {
+        warning << "Angle is above 9 degrees! It should be between 0 and 9 degrees" << endl;
+        warning << "Setting angle to 9 degrees" << endl;
+        ang = 9;
     }
 
     Int_t lowAngBin = (Int_t)((ang) / 0.1);
@@ -386,15 +386,15 @@ Double_t TRestAxionOpticsMirror::GetTransmission(const Double_t angle, const Dou
 
     Double_t ang = angle;
     if (ang < 0.0) {
-        warning << "Angle is below 0 degrees! It should be between 0 and 90 degrees" << endl;
+        warning << "Angle is below 0 degrees! It should be between 0 and 9 degrees" << endl;
         warning << "Setting angle to 0 degrees" << endl;
         ang = 0.0;
     }
 
-    if (ang > 90) {
-        warning << "Angle is above 90 degrees! It should be between 0 and 90 degrees" << endl;
-        warning << "Setting angle to 90 degrees" << endl;
-        ang = 90;
+    if (ang > 9) {
+        warning << "Angle is above 9 degrees! It should be between 0 and 9 degrees" << endl;
+        warning << "Setting angle to 9 degrees" << endl;
+        ang = 9;
     }
 
     Int_t lowAngBin = (Int_t)((ang) / 0.01);
@@ -466,7 +466,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
     if (eRange[0] < 0.03) eRange[0] = 0.03;
     if (eRange[1] > 15) eRange[1] = 15;
     if (aRange[0] < 0.0) aRange[0] = 0.0;
-    if (aRange[1] > 90) aRange[1] = 90;
+    if (aRange[1] > 9) aRange[1] = 9;
 
     //   Double_t lowReflec = TRestTools::GetMinValueFromTable(fReflectivityTable);
     //   Double_t highReflec = TRestTools::GetMaxValueFromTable(fReflectivityTable);
