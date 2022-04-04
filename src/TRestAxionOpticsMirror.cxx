@@ -65,9 +65,9 @@
 /// incident angle and  energy.
 ///
 /// \code
-///     TRestAxionOpticsMirror *mirror = new TRestAxionOpticMirror();
+///     TRestAxionOpticsMirror *mirror = new TRestAxionOpticsMirror();
 ///		mirror->SetMirrorType("Single");
-///		mirror->SetLayer("C");
+///		mirror->SetLayerMaterial("C");
 ///		mirror->SetLayerThickness("30");
 ///		mirror->SetSubstrateMaterial("SiO2");
 ///		mirror->SetRoughness("0");
