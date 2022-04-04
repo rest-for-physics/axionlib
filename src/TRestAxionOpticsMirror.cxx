@@ -427,15 +427,13 @@ void TRestAxionOpticsMirror::PrintMetadata() {
 /// The first argument is a string where we may specify the energies and angles to be plotted
 /// against the angle and energy. Between square brackets [ ] we define the values that will
 /// be plotted, while between parenthesis we define the range of the x-axis to be plotted.
-/// First, the energy curves to be plotted together with the energy range are given. Then,
-/// the angle curves and the angular range is given.
 ///
 /// For example the following definition will produce a plot with 3 energies (2,5,10) keV
 /// as a function of the angle, in the range 0 to 45 degrees, and a second plot with 4
 /// angles (1,2,5,15) degrees in the energy range 0 to 15keV.
 ///
 /// ```
-/// [2,5,10](0,15):[1,2,5,15](0,45)
+/// [2,5,10](0,45):[1,2,5,15](0,15)
 /// ```
 ///
 TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Double_t lowRange) {
@@ -451,10 +449,10 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
     }
 
     std::vector<double> energies = StringToElements(optList[0], "[", ",", "]");
-    std::vector<double> eRange = StringToElements(optList[0], "(", ",", ")");
+    std::vector<double> aRange = StringToElements(optList[0], "(", ",", ")");
 
     std::vector<double> angles = StringToElements(optList[1], "[", ",", "]");
-    std::vector<double> aRange = StringToElements(optList[1], "(", ",", ")");
+    std::vector<double> eRange = StringToElements(optList[1], "(", ",", ")");
 
     if (eRange[0] < 0.03) eRange[0] = 0.03;
     if (eRange[1] > 15) eRange[1] = 15;
