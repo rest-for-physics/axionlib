@@ -67,10 +67,10 @@
 /// \code
 ///     TRestAxionOpticsMirror *mirror = new TRestAxionOpticMirror();
 ///		mirror->SetMirrorType("Single");
-///		mirror->SetLayer("SiO2");
+///		mirror->SetLayer("C");
 ///		mirror->SetLayerThickness("30");
-///		mirror->SetSubstrateMaterial("C");
-///		mirror->SetRoughness("C");
+///		mirror->SetSubstrateMaterial("SiO2");
+///		mirror->SetRoughness("0");
 ///
 ///     mirror->LoadTables();
 ///     mirror->DrawOpticsProperties();
