@@ -195,7 +195,7 @@ void TRestAxionOpticsMirror::Initialize() {
 /// \brief Loads the reflectivity table
 ///
 void TRestAxionOpticsMirror::LoadTables() {
-    if (fHenkeKeys.size() == 0) Initialize();
+    Initialize();
 
     string mirrorFile = SearchFile(fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate +
                                    "_" + fSigma1 + ".reflectivity");
