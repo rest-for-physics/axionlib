@@ -236,15 +236,15 @@ void TRestAxionOpticsMirror::LoadTables() {
             cout.flush();
             string fname = DownloadHenkeFile();
 
-            std::vector<std::vector<Float_t>> data;
+            std::vector<std::vector<Double_t>> data;
             TRestTools::ReadASCIITable(fname, data, 2);
 
             // we skip the last point if we are not at the latest angles file
             Int_t N = data.size() - 1;
             if (n == 4.5) N = N + 1;
 
-            for (int m = 0; m < N; m++) reflectivity[e].push_back(data[m][1]);
-            for (int m = 0; m < N; m++) transmission[e].push_back(data[m][2]);
+            for (int m = 0; m < N; m++) reflectivity[e].push_back((Float_t)data[m][1]);
+            for (int m = 0; m < N; m++) transmission[e].push_back((Float_t)data[m][2]);
         }
         cout << endl;
     }
@@ -323,10 +323,10 @@ Double_t TRestAxionOpticsMirror::GetReflectivity(const Double_t angle, const Dou
         en = 0.030;
     }
 
-    if (en >= 15) {
+    if (en > 15) {
         warning << "Energy is above 15keV! It should be between 30eV and 15keV" << endl;
         warning << "Setting energy to 15keV" << endl;
-        en = 14.9999;
+        en = 15;
     }
 
     Int_t lowEnBin = (Int_t)((en - 0.03) / 0.03);
@@ -375,10 +375,10 @@ Double_t TRestAxionOpticsMirror::GetTransmission(const Double_t angle, const Dou
         en = 0.030;
     }
 
-    if (en >= 15) {
+    if (en > 15) {
         warning << "Energy is above 15keV! It should be between 30eV and 15keV" << endl;
         warning << "Setting energy to 15keV" << endl;
-        en = 14.9999;
+        en = 15;
     }
 
     Int_t lowEnBin = (Int_t)((en - 0.03) / 0.03);
