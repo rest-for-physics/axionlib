@@ -183,8 +183,8 @@ void TRestAxionOpticsMirror::Initialize() {
     fHenkeKeys["Pol"] = "0";
     fHenkeKeys["Scan"] = "Angle";
     fHenkeKeys["Min"] = "0";
-    fHenkeKeys["Max"] = "9";
-    fHenkeKeys["Npts"] = "100";
+    fHenkeKeys["Max"] = "4.5";
+    fHenkeKeys["Npts"] = "450";
     fHenkeKeys["temp"] = "Energy+%28eV%29";
     fHenkeKeys["Fixed"] = "200";
     fHenkeKeys["Plot"] = "LinLog";
@@ -219,9 +219,9 @@ void TRestAxionOpticsMirror::LoadTables() {
     fTransmissionTable.clear();
     map<Int_t, std::vector<Float_t>> reflectivity;
     map<Int_t, std::vector<Float_t>> transmission;
-    for (int n = 0; n < 9; n++) {
-        fHenkeKeys["Min"] = IntegerToString(n);
-        fHenkeKeys["Max"] = IntegerToString(n + 1);
+    for (double n = 0; n < 9; n = n + 4.5) {
+        fHenkeKeys["Min"] = DoubleToString(n);
+        fHenkeKeys["Max"] = DoubleToString(n + 4.5);
 
         cout.flush();
         vector<Float_t> reflect;
@@ -229,7 +229,7 @@ void TRestAxionOpticsMirror::LoadTables() {
         reflect.clear();
         transm.clear();
 
-        cout << "Scanning angles between " << n << " and " << n + 1 << ".";
+        cout << "Scanning angles between " << n << " and " << n + 4.5 << ".";
         for (int e = 30; e <= 15000; e += 30) {
             fHenkeKeys["Fixed"] = IntegerToString(e);
             cout << ".";
@@ -241,7 +241,7 @@ void TRestAxionOpticsMirror::LoadTables() {
 
             // we skip the last point if we are not at the latest angles file
             Int_t N = data.size() - 1;
-            if (n == 8) N = N + 1;
+            if (n == 4.5) N = N + 1;
 
             for (int m = 0; m < N; m++) reflectivity[e].push_back(data[m][1]);
             for (int m = 0; m < N; m++) transmission[e].push_back(data[m][2]);
