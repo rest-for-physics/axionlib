@@ -79,7 +79,8 @@ class TRestAxionOpticsMirror : public TRestMetadata {
 
     void PrintMetadata();
 
-    TCanvas* DrawOpticsProperties(std::string options = "", Double_t lowRange = 1.e-5);
+    TCanvas* DrawOpticsProperties(std::string options = "", Double_t lowRange = 1.e-5,
+                                  Double_t lowRange2 = 1.e-3);
 
     TRestAxionOpticsMirror();
     TRestAxionOpticsMirror(const char* cfgFileName, std::string name = "");
