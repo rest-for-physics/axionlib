@@ -345,8 +345,8 @@ Double_t TRestAxionOpticsMirror::GetReflectivity(const Double_t angle, const Dou
         ang = 9;
     }
 
-    Int_t lowAngBin = (Int_t)((ang) / 0.1);
-    Double_t deltaAng = (ang - (Double_t)(lowAngBin)*0.1) / 0.1;  // between 0 and 1
+    Int_t lowAngBin = (Int_t)((ang) / 0.01);
+    Double_t deltaAng = (ang - (Double_t)(lowAngBin)*0.01) / 0.01;  // between 0 and 1
 
     Double_t REnLowAngLow = fReflectivityTable[lowEnBin][lowAngBin];
     Double_t REnLowAngHi = fReflectivityTable[lowEnBin][lowAngBin + 1];
@@ -398,7 +398,7 @@ Double_t TRestAxionOpticsMirror::GetTransmission(const Double_t angle, const Dou
     }
 
     Int_t lowAngBin = (Int_t)((ang) / 0.01);
-    Double_t deltaAng = (ang - (Double_t)(lowAngBin)*0.1) / 0.1;  // between 0 and 1
+    Double_t deltaAng = (ang - (Double_t)(lowAngBin)*0.01) / 0.01;  // between 0 and 1
 
     Double_t REnLowAngLow = fTransmissionTable[lowEnBin][lowAngBin];
     Double_t REnLowAngHi = fTransmissionTable[lowEnBin][lowAngBin + 1];
