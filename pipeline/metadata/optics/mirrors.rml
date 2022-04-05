@@ -6,4 +6,12 @@
 		<parameter name="substrate" value="SiO2" />
 		<parameter name="sigma1" value="0" />
 	</TRestAxionOpticsMirror>
+
+	<TRestAxionOpticsMirror name="XMM">
+		<parameter name="mirrorType" value="Single" />
+		<parameter name="layer" value="Au" />
+		<parameter name="layerThickness" value="250" />
+		<parameter name="substrate" value="Ni" />
+		<parameter name="sigma1" value="0.4" />
+	</TRestAxionOpticsMirror>
 </mirrors>
