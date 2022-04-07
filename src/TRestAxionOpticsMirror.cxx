@@ -69,8 +69,8 @@
 ///		mirror->SetMirrorType("Single");
 ///		mirror->SetLayerMaterial("C");
 ///		mirror->SetLayerThickness("30");
+///		mirror->SetLayerRoughness("0");
 ///		mirror->SetSubstrateMaterial("SiO2");
-///		mirror->SetRoughness("0");
 ///
 ///     mirror->LoadTables();
 ///     mirror->DrawOpticsProperties();
@@ -524,7 +524,9 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
 
     std::vector<string> optList = TRestTools::GetOptions(options);
 
-    if (optList.size() == 0) optList = TRestTools::GetOptions("[2,4,8](0,15):[0.25,0.5,1](0,5)");
+    if (optList.size() == 0)
+        optList = TRestTools::GetOptions(
+            "[1,4,7,10](0,9){0.6,0.68,0.9,0.88}:[0.25,0.5,0.75,1](0,10){0.2,0.2,0.45,0.45}");
 
     if (optList.size() != 2) {
         ferr << "TRestAxionOpticsMirror::DrawOpticsProperties. Wrong arguments!" << endl;
@@ -696,15 +698,18 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
     TLatex* lat = new TLatex();
 
     std::string title;
-    if (fMirrorType == "Single")
+    if (fMirrorType == "Single") {
         title = "Mirror type:" + fMirrorType + " Substrate: " + fSubstrate + ". Layer: " + fLayerTop +
                 " Thickness: " + fLayerThicknessTop + "nm Roughness: " + fSigmaTop + "nm.";
-    if (fMirrorType == "Bilayer")
+        lat->SetTextSize(0.02);
+    }
+    if (fMirrorType == "Bilayer") {
         title = "Mirror type:" + fMirrorType + " Substrate: " + fSubstrate + ". TOP Layer: " + fLayerTop +
                 " Thickness: " + fLayerThicknessTop + "nm Roughness: " + fSigmaTop +
                 "nm. \nBOTTOM Layer: " + fLayerBottom + " Thickness: " + fLayerThicknessBottom +
                 "nm Roughness: " + fSigmaBottom + " nm.";
-    lat->SetTextSize(0.02);
+        lat->SetTextSize(0.015);
+    }
     lat->SetTextAlign(22);
     lat->DrawLatexNDC(.5, .95, title.c_str());
     return fCanvas;
