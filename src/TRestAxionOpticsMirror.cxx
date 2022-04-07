@@ -500,11 +500,11 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
         delete fCanvas;
         fCanvas = NULL;
     }
-    fCanvas = new TCanvas("canv", "This is the canvas title", 1400, 600);
+    fCanvas = new TCanvas("canv", "This is the canvas title", 1400, 1200);
     fCanvas->Draw();
 
     TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
-    pad1->Divide(2, 1);
+    pad1->Divide(2, 2);
     pad1->Draw();
 
     ////// Drawing reflectivity versus angle
@@ -524,7 +524,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
             gr->SetPoint(gr->GetN(), a, GetReflectivity(a, energies[n]));
         }
         gr->SetLineColor(49 - n * 3);
-        gr->SetLineWidth(1);
+        gr->SetLineWidth(2);
         ref_vs_ang_graph.push_back(gr);
     }
 
@@ -579,7 +579,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
             gr->SetPoint(gr->GetN(), e, GetReflectivity(angles[n], e));
         }
         gr->SetLineColor(49 - n * 3);
-        gr->SetLineWidth(1);
+        gr->SetLineWidth(2);
         ref_vs_en_graph.push_back(gr);
     }
 
@@ -615,6 +615,28 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
     }
     legendA->Draw();
 
+    //// DRAWING LINEAR SCALE
+
+    ////// Drawing reflectivity versus angle
+    pad1->cd(3);
+    pad1->cd(3)->SetRightMargin(0.09);
+    pad1->cd(3)->SetLeftMargin(0.15);
+    pad1->cd(3)->SetBottomMargin(0.15);
+    // ref_vs_ang_graph[0]->GetHistogram()->SetMinimum(0);
+    ref_vs_ang_graph[0]->Draw("AL");
+    for (int n = 1; n < energies.size(); n++) ref_vs_ang_graph[n]->Draw("L");
+
+    ////// Drawing reflectivity versus energy
+    pad1->cd(4);
+    pad1->cd(4)->SetRightMargin(0.09);
+    pad1->cd(4)->SetLeftMargin(0.15);
+    pad1->cd(4)->SetBottomMargin(0.15);
+
+    // ref_vs_en_graph[0]->GetHistogram()->SetMinimum(0);
+    ref_vs_en_graph[0]->Draw("AL");
+    for (int n = 1; n < angles.size(); n++) ref_vs_en_graph[n]->Draw("L");
+
+    /// Drawing a main title
     fCanvas->cd();  // c1 is the TCanvas
     TPad* pad5 = new TPad("all", "all", 0, 0, 1, 1);
     pad5->SetFillStyle(4000);  // transparent
@@ -624,7 +646,8 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
     std::string title = "Mirror type:" + fMirrorType + ". Layer: " + fLayer +
                         ". Thickness: " + fLayerThickness + "nm. Substrate: " + fSubstrate +
                         ". Roughness: " + fSigma1 + "nm";
-    lat->DrawLatexNDC(.05, .95, title.c_str());
-
+    lat->SetTextSize(0.02);
+    lat->SetTextAlign(22);
+    lat->DrawLatexNDC(.5, .95, title.c_str());
     return fCanvas;
 }
