@@ -62,6 +62,9 @@ class TRestAxionOpticsMirror : public TRestMetadata {
 
     Int_t ExportTables();
 
+    std::string GetReflectivityFilename();
+    std::string GetTransmissionFilename();
+
    public:
     void Initialize();
 

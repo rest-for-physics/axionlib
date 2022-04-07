@@ -203,10 +203,8 @@ void TRestAxionOpticsMirror::Initialize() {
 void TRestAxionOpticsMirror::LoadTables() {
     Initialize();
 
-    string mirrorFile = SearchFile(fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate +
-                                   "_" + fSigma1 + ".reflectivity");
-    string windowFile = SearchFile(fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate +
-                                   "_" + fSigma1 + ".transmission");
+    string mirrorFile = SearchFile(GetReflectivityFilename());
+    string windowFile = SearchFile(GetTransmissionFilename());
 
     if (mirrorFile != "" && windowFile != "") {
         TRestTools::ReadBinaryTable(mirrorFile, fReflectivityTable, 901);
@@ -267,6 +265,24 @@ void TRestAxionOpticsMirror::LoadTables() {
 }
 
 ///////////////////////////////////////////////
+/// \brief It returns the corresponding reflectivity filename for the mirror properties defined in the data
+/// members
+///
+std::string TRestAxionOpticsMirror::GetReflectivityFilename() {
+    string fnameR = "Reflectivity_" + fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate +
+                    "_" + fSigma1 + ".N901f";
+}
+//
+///////////////////////////////////////////////
+/// \brief It returns the corresponding transmission filename for the mirror properties defined in the data
+/// members
+///
+std::string TRestAxionOpticsMirror::GetTransmissionFilename() {
+    string fnameR = "Transmission_" + fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate +
+                    "_" + fSigma1 + ".N901f";
+}
+
+///////////////////////////////////////////////
 /// \brief It is a private method to export the tables to a binary file once the tables
 /// have been downloaded from Henke database
 ///
@@ -283,16 +299,12 @@ Int_t TRestAxionOpticsMirror::ExportTables() {
         system(("mkdir -p " + path).c_str());
     }
 
-    string fnameR = fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate + "_" + fSigma1 +
-                    ".reflectivity";
+    string fnameR = GetReflectivityFilename();
     TRestTools::ExportBinaryTable(path + fnameR, fReflectivityTable);
-
     info << "Reflectivity table generated at: " << path + fnameR << endl;
 
-    string fnameT = fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate + "_" + fSigma1 +
-                    ".transmission";
+    string fnameT = GetTransmissionFilename();
     TRestTools::ExportBinaryTable(path + fnameT, fTransmissionTable);
-
     info << "Transmission table generated at: " << path + fnameT << endl;
 
     return 0;
