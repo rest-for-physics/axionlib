@@ -31,20 +31,29 @@
 /// A metadata class accessing the Henke database to load reflectivity data
 class TRestAxionOpticsMirror : public TRestMetadata {
    private:
-    /// The mirror type (Thick, Single, Bilayer, Multilayer). Only `Single` is supported now.
+    /// The mirror type (Thick, Single, Bilayer, Multilayer). Only `Single/Bilayer` is supported now.
     std::string fMirrorType = "Single";  //<
 
-    /// The mirror layer material (chemical forumula).
-    std::string fLayer = "C";  //<
+    /// The mirror layer material (chemical formula).
+    std::string fLayerTop = "C";  //<
 
     /// The layer thickness in nm
-    std::string fLayerThickness = "30";  //<
+    std::string fLayerThicknessTop = "30";  //<
+
+    /// Layer surface roughness in nm
+    std::string fSigmaTop = "0";  //<
+
+    /// The mirror bottom layer material (chemical formula). Only used for "Bilayer" mirror type.
+    std::string fLayerBottom = "";  //<
+
+    /// The bottom layer thickness in nm. Only used for "Bilayer" mirror type.
+    std::string fLayerThicknessBottom = "";  //<
+
+    /// Bottom layer surface roughness in nm. Only used for "Bilayer" mirror type.
+    std::string fSigmaBottom = "";  //<
 
     /// The substrate material
     std::string fSubstrate = "SiO2";  //<
-
-    /// Top surface roughness in nm
-    std::string fSigma1 = "0";  //<
 
     /// A set of key-value pairs sent to the Henke website for data request
     std::map<std::string, std::string> fHenkeKeys;  //!
@@ -69,10 +78,16 @@ class TRestAxionOpticsMirror : public TRestMetadata {
     void Initialize();
 
     void SetMirrorType(const std::string& type) { fMirrorType = type; }
-    void SetLayerMaterial(const std::string& layer) { fLayer = layer; }
-    void SetLayerThickness(const std::string& thickness) { fLayerThickness = thickness; }
+    void SetLayerMaterial(const std::string& layer) { fLayerTop = layer; }
+    void SetLayerThickness(const std::string& thickness) { fLayerThicknessTop = thickness; }
+    void SetLayerRoughness(const std::string& roughness) { fSigmaTop = roughness; }
+    void SetTopLayerMaterial(const std::string& layer) { fLayerTop = layer; }
+    void SetTopLayerThickness(const std::string& thickness) { fLayerThicknessTop = thickness; }
+    void SetTopLayerRoughness(const std::string& roughness) { fSigmaTop = roughness; }
+    void SetBottomLayerMaterial(const std::string& layer) { fLayerBottom = layer; }
+    void SetBottomLayerThickness(const std::string& thickness) { fLayerThicknessBottom = thickness; }
+    void SetBottomLayerRoughness(const std::string& roughness) { fSigmaBottom = roughness; }
     void SetSubstrateMaterial(const std::string& substrate) { fSubstrate = substrate; }
-    void SetRoughness(const std::string& roughness) { fSigma1 = roughness; }
 
     void LoadTables();
 

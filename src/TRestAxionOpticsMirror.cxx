@@ -179,13 +179,29 @@ void TRestAxionOpticsMirror::Initialize() {
     SetLibraryVersion(LIBRARY_VERSION);
 
     fHenkeKeys.clear();
-    fHenkeKeys["Layer"] = fLayer;
-    fHenkeKeys["Ldensity"] = "-1";
-    fHenkeKeys["Thick"] = fLayerThickness;
-    fHenkeKeys["Sigma1"] = fSigma1;
+
+    if (fMirrorType == "Single") {
+        fHenkeKeys["Ldensity"] = "-1";
+        fHenkeKeys["Layer"] = fLayerTop;
+        fHenkeKeys["Thick"] = fLayerThicknessTop;
+        fHenkeKeys["Sigma1"] = fSigmaTop;
+        fHenkeKeys["Sigma2"] = "0";
+    }
+
+    if (fMirrorType == "Bilayer") {
+        fHenkeKeys["Tdensity"] = "-1";
+        fHenkeKeys["Tlayer"] = fLayerTop;
+        fHenkeKeys["Thickt"] = fLayerThicknessTop;
+        fHenkeKeys["Sigmat"] = fSigmaTop;
+        fHenkeKeys["Bdensity"] = "-1";
+        fHenkeKeys["Blayer"] = fLayerBottom;
+        fHenkeKeys["Thickb"] = fLayerThicknessBottom;
+        fHenkeKeys["Sigmab"] = fSigmaBottom;
+        fHenkeKeys["Sigmas"] = "0";
+    }
+
     fHenkeKeys["Substrate"] = fSubstrate;
     fHenkeKeys["Sdensity"] = "-1";
-    fHenkeKeys["Sigma2"] = "0";
     fHenkeKeys["Pol"] = "0";
     fHenkeKeys["Scan"] = "Angle";
     fHenkeKeys["Min"] = "0";
@@ -269,8 +285,12 @@ void TRestAxionOpticsMirror::LoadTables() {
 /// members
 ///
 std::string TRestAxionOpticsMirror::GetReflectivityFilename() {
-    string fnameR = "Reflectivity_" + fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate +
-                    "_" + fSigma1 + ".N901f";
+    string fnameR = "Reflectivy_" + fMirrorType + "_" + fLayerTop + "_" + fLayerThicknessTop + "_" +
+                    fSubstrate + "_" + fSigmaTop + ".N901f";
+    if (fMirrorType == "Bilayer")
+        fnameR = "Reflectivity_" + fMirrorType + "_" + fLayerTop + "_" + fLayerThicknessTop + "_" +
+                 fSigmaTop + "_" + fLayerBottom + "_" + fLayerThicknessBottom + "_" + fSigmaBottom + "_" +
+                 fSubstrate + ".N901f";
     return fnameR;
 }
 
@@ -279,8 +299,12 @@ std::string TRestAxionOpticsMirror::GetReflectivityFilename() {
 /// members
 ///
 std::string TRestAxionOpticsMirror::GetTransmissionFilename() {
-    string fnameT = "Transmission_" + fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate +
-                    "_" + fSigma1 + ".N901f";
+    string fnameT = "Transmission_" + fMirrorType + "_" + fLayerTop + "_" + fLayerThicknessTop + "_" +
+                    fSubstrate + "_" + fSigmaTop + ".N901f";
+    if (fMirrorType == "Bilayer")
+        fnameT = "Transmission_" + fMirrorType + "_" + fLayerTop + "_" + fLayerThicknessTop + "_" +
+                 fSigmaTop + "_" + fLayerBottom + "_" + fLayerThicknessBottom + "_" + fSigmaBottom + "_" +
+                 fSubstrate + ".N901f";
     return fnameT;
 }
 
@@ -319,7 +343,9 @@ Int_t TRestAxionOpticsMirror::ExportTables() {
 /// \return It returns the location and filename of the downloaded file.
 ///
 std::string TRestAxionOpticsMirror::DownloadHenkeFile() {
-    string url = "https://henke.lbl.gov/cgi-bin/laymir.pl";
+    string perlName = "laymir.pl";
+    if (fMirrorType == "Bilayer") perlName = "bimir.pl";
+    string url = "https://henke.lbl.gov/cgi-bin/" + perlName;
     string result = TRestTools::POSTRequest(url, fHenkeKeys);
 
     size_t start = result.find("HREF=\"") + 6;
@@ -441,10 +467,21 @@ void TRestAxionOpticsMirror::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     metadata << "Mirror type: " << fMirrorType << endl;
-    metadata << "Layer material: " << fLayer << endl;
-    metadata << "Layer thickness: " << fLayerThickness << " nm" << endl;
+    if (fMirrorType == "Single") {
+        metadata << "Layer material: " << fLayerTop << endl;
+        metadata << "Layer thickness: " << fLayerThicknessTop << " nm" << endl;
+        metadata << "Layer roughness: " << fSigmaTop << "nm" << endl;
+    }
+
+    if (fMirrorType == "Bilayer") {
+        metadata << "Top layer material: " << fLayerTop << endl;
+        metadata << "Top layer thickness: " << fLayerThicknessTop << " nm" << endl;
+        metadata << "Top layer roughness: " << fSigmaTop << "nm" << endl;
+        metadata << "Bottom layer material: " << fLayerBottom << endl;
+        metadata << "Bottom layer thickness: " << fLayerThicknessBottom << " nm" << endl;
+        metadata << "Bottom layer roughness: " << fSigmaBottom << "nm" << endl;
+    }
     metadata << "Substrate material: " << fSubstrate << endl;
-    metadata << "Roughness: " << fSigma1 << "nm" << endl;
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
 
@@ -657,9 +694,16 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
     pad5->Draw();
     pad5->cd();
     TLatex* lat = new TLatex();
-    std::string title = "Mirror type:" + fMirrorType + ". Layer: " + fLayer +
-                        ". Thickness: " + fLayerThickness + "nm. Substrate: " + fSubstrate +
-                        ". Roughness: " + fSigma1 + "nm";
+
+    std::string title;
+    if (fMirrorType == "Single")
+        title = "Mirror type:" + fMirrorType + " Substrate: " + fSubstrate + ". Layer: " + fLayerTop +
+                " Thickness: " + fLayerThicknessTop + "nm Roughness: " + fSigmaTop + "nm.";
+    if (fMirrorType == "Bilayer")
+        title = "Mirror type:" + fMirrorType + " Substrate: " + fSubstrate + ". TOP Layer: " + fLayerTop +
+                " Thickness: " + fLayerThicknessTop + "nm Roughness: " + fSigmaTop +
+                "nm. \nBOTTOM Layer: " + fLayerBottom + " Thickness: " + fLayerThicknessBottom +
+                "nm Roughness: " + fSigmaBottom + " nm.";
     lat->SetTextSize(0.02);
     lat->SetTextAlign(22);
     lat->DrawLatexNDC(.5, .95, title.c_str());
