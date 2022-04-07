@@ -271,15 +271,17 @@ void TRestAxionOpticsMirror::LoadTables() {
 std::string TRestAxionOpticsMirror::GetReflectivityFilename() {
     string fnameR = "Reflectivity_" + fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate +
                     "_" + fSigma1 + ".N901f";
+    return fnameR;
 }
-//
+
 ///////////////////////////////////////////////
 /// \brief It returns the corresponding transmission filename for the mirror properties defined in the data
 /// members
 ///
 std::string TRestAxionOpticsMirror::GetTransmissionFilename() {
-    string fnameR = "Transmission_" + fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate +
+    string fnameT = "Transmission_" + fMirrorType + "_" + fLayer + "_" + fLayerThickness + "_" + fSubstrate +
                     "_" + fSigma1 + ".N901f";
+    return fnameT;
 }
 
 ///////////////////////////////////////////////
