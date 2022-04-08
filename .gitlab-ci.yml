@@ -99,6 +99,15 @@ optics:
       variables:
         - $CRONJOB
 
+
+xRayTransmission:
+  type: metadata
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/pipeline/metadata/transmission/
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CI_PROJECT_DIR}/mpfr-4.0.2/install/lib
+    - python windowPlot.py
+
 solarFlux:
   type: metadata
   script:
