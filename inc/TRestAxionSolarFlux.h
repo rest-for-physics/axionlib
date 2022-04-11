@@ -24,6 +24,7 @@
 #define _TRestAxionSolarFlux
 
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TRandom3.h>
 
 #include <TRestMetadata.h>
@@ -34,8 +35,6 @@
 class TRestAxionSolarFlux : public TRestMetadata {
    private:
     void Initialize();
-
-    void InitFromConfigFile();
 
     /// The filename containning the solar flux table with continuum spectrum
     std::string fFluxDataFile = "";  //<
@@ -51,6 +50,12 @@ class TRestAxionSolarFlux : public TRestMetadata {
 
     /// Seed used in random generator
     Int_t fSeed = 0;  //<
+
+    /// It will be used when loading `.flux` files to define the input file energy binsize in eV.
+    Double_t fBinSize = 0;  //<
+
+    /// It will be used when loading `.flux` files to define the threshold for peak identification
+    Double_t fPeakThreshold = 0;  //<
 
     /// The tabulated solar flux continuum spectra TH1F(100,0,20)keV in cm-2 s-1 keV-1 versus solar radius
     std::vector<TH1F*> fFluxTable;  //!
@@ -93,19 +98,15 @@ class TRestAxionSolarFlux : public TRestMetadata {
 
     std::pair<Double_t, Double_t> GetRandomEnergyAndRadius();
 
+    void LoadTables();
+
     /// Tables might be loaded using a solar model description by TRestAxionSolarModel
     void InitializeSolarTable(TRestAxionSolarModel* model) {
         // TOBE implemented
         // This method should initialize the tables fFluxTable and fFluxLines
     }
 
-    void ExportTables(std::string fname) {
-        // TOBE implemented. Creates fname.dat and fname.spt
-        // If we have external methods to initialize solar flux tables this method
-        // might be used to generate the tables that can be used later on directly
-        //
-        // Check data/solarFlux/README.md for data format and file naming conventions
-    }
+    void ExportTables(std::string fname);
 
     void PrintMetadata();
 

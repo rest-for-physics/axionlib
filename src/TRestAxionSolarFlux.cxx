@@ -48,6 +48,18 @@
 /// while the next 100 elements contain the flux, measured in cm-2 s-1, integrated to
 /// each solar ring, being the second element the ring in the center of the sun.
 ///
+/// Additionally this class will be able to read `.flux` files that are the original files
+/// produced in 3-columns format (inner radius [solar units] / energy [keV] /
+/// flux [cm-2 s-1 keV-1]). The `.flux` files may contain the full information,
+/// continuum and spectral. Those components will be splited into two independent
+/// contributions by TRestAxionSolarFlux::ReadFluxFile to be managed internally. Two
+/// additional parameters *will be required* to translate the `.flux` files into the tables
+/// that are understood by this class.
+/// - *binSize:* The energy binning used on the `.flux` file.
+/// - *peakThreshold:* The ratio between the flux provided at the `.flux` file and the
+/// average flux calculated in 100eV steps. If the flux ratio is higher than this value,
+/// the flux at that particular bin will be considered a peak.
+///
 /// The following code shows how to define this class inside a RML file.
 ///
 /// \code
@@ -58,6 +70,10 @@
 ///			<parameter name="fluxSptFile" value="Dummy_Galan_202202.spt"/>
 ///     </TRestAxionSolarFlux>
 /// \endcode
+///
+/// When the flux is loaded manually inside the `restRoot` interface or inside a
+/// macro or script, after metadata initialization, it is necessary to call
+/// the method TRestAxionSolarFlux::LoadTables.
 ///
 /// The previous definition was used to generate the following figure using the script
 /// pipeline/solarFlux/solarFlux.py.
@@ -130,7 +146,17 @@ void TRestAxionSolarFlux::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    if (fFluxDataFile != "" && TRestTools::GetFileNameExtension(fFluxDataFile) == ".flux") {
+    LoadTables();
+}
+
+///////////////////////////////////////////////
+/// \brief It will load the tables in memory by using the filename information provided
+/// inside the metadata members.
+///
+void TRestAxionSolarFlux::LoadTables() {
+    if (fFluxDataFile == "" && fFluxSptFile == "") return;
+
+    if (TRestTools::GetFileNameExtension(fFluxDataFile) == "flux") {
         ReadFluxFile();
     } else {
         LoadContinuumFluxTable();
@@ -154,7 +180,9 @@ void TRestAxionSolarFlux::Initialize() {
 ///
 void TRestAxionSolarFlux::LoadContinuumFluxTable() {
     if (fFluxDataFile == "") {
-        debug << "TRestAxionSolarflux::LoadContinuumFluxTable. No solar flux table was defined" << endl;
+        debug << "TRestAxionSolarflux::LoadContinuumFluxTable. No solar flux continuum table was "
+                 "defined"
+              << endl;
         return;
     }
 
@@ -164,9 +192,14 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
     debug << "File : " << fullPathName << endl;
 
     std::vector<std::vector<Float_t>> fluxTable;
-    if (TRestTools::GetFileNameExtension(fFluxDataFile) == ".dat")
-        TRestTools::ReadASCIITable(fullPathName, fluxTable);
-    else if (TRestTools::IsBinaryFile(fFluxDataFile))
+    if (TRestTools::GetFileNameExtension(fFluxDataFile) == "dat") {
+        std::vector<std::vector<Double_t>> doubleTable;
+        TRestTools::ReadASCIITable(fullPathName, doubleTable);
+        for (const auto& row : doubleTable) {
+            std::vector<Float_t> floatVec(row.begin(), row.end());
+            fluxTable.push_back(floatVec);
+        }
+    } else if (TRestTools::IsBinaryFile(fFluxDataFile))
         TRestTools::ReadBinaryTable(fullPathName, fluxTable);
     else {
         fluxTable.clear();
@@ -189,28 +222,6 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
 }
 
 ///////////////////////////////////////////////
-/// \brief It loads a .flux file. It will split continuum and monochromatic peaks.
-///
-void TRestAxionSolarFlux::ReadFluxFile() {
-    if (fFluxDataFile == "") {
-        debug << "TRestAxionSolarflux::LoadContinuumFluxTable. No solar flux table was defined" << endl;
-        return;
-    }
-
-    string fullPathName = SearchFile((string)fFluxDataFile);
-
-    debug << "Loading table from file : " << endl;
-    debug << "File : " << fullPathName << endl;
-
-    /*
-std::vector<std::vector<Float_t>> fluxTable;
-std::vector<std::vector<Float_t>> sptTable;
-
-TRestTools::ReadASCIITable(fname, fluxTable);
-    */
-}
-
-///////////////////////////////////////////////
 /// \brief A helper method to load the data file containning monochromatic spectral
 /// lines as a function of the solar radius. It will be called by TRestAxionSolarFlux::Initialize.
 ///
@@ -227,8 +238,16 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
     debug << "Loading monochromatic lines from file : " << endl;
     debug << "File : " << fullPathName << endl;
 
+    std::vector<std::vector<Double_t>> doubleTable;
+    TRestTools::ReadASCIITable(fullPathName, doubleTable);
+
     std::vector<std::vector<Float_t>> asciiTable;
-    TRestTools::ReadASCIITable(fullPathName, asciiTable);
+    for (const auto& row : doubleTable) {
+        std::vector<Float_t> floatVec(row.begin(), row.end());
+        asciiTable.push_back(floatVec);
+    }
+
+    TRestTools::PrintTable(asciiTable, 0, 10);
 
     fFluxLines.clear();
 
@@ -248,12 +267,80 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
 }
 
 ///////////////////////////////////////////////
+/// \brief It loads a .flux file. It will split continuum and monochromatic peaks, loading
+/// both internal flux tables.
+///
+void TRestAxionSolarFlux::ReadFluxFile() {
+    if (fFluxDataFile == "") {
+        ferr << "TRestAxionSolarflux::ReadFluxFile. No solar flux table was defined" << endl;
+        return;
+    }
+
+    if (fBinSize <= 0) {
+        ferr << "TRestAxionSolarflux::ReadFluxFile. Energy bin size of .flux file must be specified." << endl;
+        ferr << "Please, define binSize parameter in eV." << endl;
+        return;
+    }
+
+    if (fPeakThreshold <= 0) {
+        warning
+            << "TRestAxionSolarflux::ReadFluxFile. Peak threshold must be specified to generate .spt file."
+            << endl;
+        warning
+            << "Only continuum table will be generated. If this was intentional, please, ignore this warning."
+            << endl;
+        return;
+    }
+
+    string fullPathName = SearchFile((string)fFluxDataFile);
+
+    debug << "Loading flux table ...  " << endl;
+    debug << "File : " << fullPathName << endl;
+    std::vector<std::vector<Double_t>> fluxData;
+    TRestTools::ReadASCIITable(fullPathName, fluxData, 3);
+
+    TH2F* h = new TH2F(Form("%s_ContinuumFlux", GetName()), "", 100, 0., 1., 200, 0., 20.);
+
+    for (const auto& data : fluxData) {
+        Double_t r = 0.005 + data[0];
+        Double_t en = data[1] - 0.005;
+        Double_t flux = data[2] * fBinSize / 0.1;  // contribution to 100 eV bin
+
+        h->Fill(r, en, flux);
+    }
+
+    std::map<Float_t, std::vector<Float_t>> energies;
+    for (const auto& data : fluxData) {
+        Double_t r = 0.005 + data[0];
+        Double_t en = data[1] - 0.005;
+        Double_t flux = data[2] * 1000 / fBinSize;  // per eV
+
+        Int_t binR = h->GetXaxis()->FindBin(r);
+        Int_t binE = h->GetYaxis()->FindBin(en);
+
+        Double_t continuumFlux = h->GetBinContent(binR, binE) / 100;  // per eV
+
+        if (flux > fPeakThreshold * continuumFlux) {
+            cout << "Identified peak at radius : " << r << " and energy: " << en << endl;
+        }
+
+        /*
+    std::vector<std::vector<Float_t>> fluxTable;
+    std::vector<std::vector<Float_t>> sptTable;
+
+    TRestTools::ReadASCIITable(fname, fluxTable);
+        */
+    }
+}
+
+///////////////////////////////////////////////
 /// \brief A helper method to initialize the internal class data members with the
 /// integrated flux for each solar ring. It will be called by TRestAxionSolarFlux::Initialize.
 ///
 void TRestAxionSolarFlux::IntegrateSolarFluxes() {
     fFluxLineIntegrals.clear();
     fTotalMonochromaticFlux = 0;
+
     for (const auto& line : fFluxLines) {
         fTotalMonochromaticFlux += line.second->Integral();
         fFluxLineIntegrals.push_back(fTotalMonochromaticFlux);
@@ -275,6 +362,7 @@ void TRestAxionSolarFlux::IntegrateSolarFluxes() {
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestAxionSolarFlux metadata members through a RML file
 ///
+/*
 void TRestAxionSolarFlux::InitFromConfigFile() {
     debug << "Entering TRestAxionSolarFlux::InitFromConfigFile" << endl;
 
@@ -285,7 +373,7 @@ void TRestAxionSolarFlux::InitFromConfigFile() {
     fSeed = StringToInteger(GetParameter("seed", "0"));
 
     this->Initialize();
-}
+} */
 
 ///////////////////////////////////////////////
 /// \brief It returns a random solar radius position and energy according to the
@@ -378,6 +466,8 @@ void TRestAxionSolarFlux::PrintMetadata() {
     metadata << " - Total continuum flux : " << fTotalContinuumFlux << " cm-2 s-1" << endl;
     metadata << "--------" << endl;
     metadata << " - Random seed : " << fSeed << endl;
+    if (fBinSize > 0) metadata << " - Energy bin size : " << fBinSize * units("eV") << " eV" << endl;
+    if (fPeakThreshold > 0) metadata << " - Peak identification threshold : " << fPeakThreshold << endl;
     metadata << "++++++++++++++++++" << endl;
 
     if (GetVerboseLevel() >= REST_Debug) {
@@ -385,4 +475,19 @@ void TRestAxionSolarFlux::PrintMetadata() {
         PrintMonoChromaticFlux();
         PrintIntegratedRingFlux();
     }
+}
+
+///////////////////////////////////////////////
+/// \brief It will create files with the continuum and spectral flux components to be used
+/// in a later ocasion.
+///
+void TRestAxionSolarFlux::ExportTables(string fname) {
+    // TODO if we have loaded the data through TRestAxionSolarModel we should
+    // create the filename on base to that
+
+    // TOBE implemented. Creates fname.N200f and fname.spt
+    // If we have external methods to initialize solar flux tables this method
+    // might be used to generate the tables that can be used later on directly
+
+    // Check data/solarFlux/README.md for data format and file naming conventions
 }
