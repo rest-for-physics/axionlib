@@ -23,7 +23,7 @@
 #ifndef _TRestAxionSolarFlux
 #define _TRestAxionSolarFlux
 
-#include <TH1D.h>
+#include <TH1F.h>
 #include <TRandom3.h>
 
 #include <TRestMetadata.h>
@@ -52,11 +52,11 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// Seed used in random generator
     Int_t fSeed = 0;  //<
 
-    /// The tabulated solar flux continuum spectra TH1D(100,0,20)keV in cm-2 s-1 keV-1 versus solar radius
-    std::vector<TH1D*> fFluxTable;  //!
+    /// The tabulated solar flux continuum spectra TH1F(100,0,20)keV in cm-2 s-1 keV-1 versus solar radius
+    std::vector<TH1F*> fFluxTable;  //!
 
     /// The tabulated solar flux in cm-2 s-1 for a number of monochromatic energies versus solar radius
-    std::map<Double_t, TH1D*> fFluxLines;  //!
+    std::map<Double_t, TH1F*> fFluxLines;  //!
 
     /// Accumulative integrated solar flux for each solar ring for continuum spectrum (renormalized to unity)
     std::vector<Double_t> fFluxTableIntegrals;  //!
@@ -76,6 +76,7 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// Random number generator
     TRandom3* fRandom = nullptr;  //!
 
+    void ReadFluxFile();
     void LoadContinuumFluxTable();
     void LoadMonoChromaticFluxTable();
     void IntegrateSolarFluxes();

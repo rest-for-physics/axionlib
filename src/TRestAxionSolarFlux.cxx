@@ -69,6 +69,8 @@
 /// TODO Implement the method TRestAxionSolarFlux::InitializeSolarTable using
 /// a solar model description by TRestAxionSolarModel.
 ///
+/// TODO Perhaps it would be interesting to replace fFluxTable for a TH2D
+///
 ///--------------------------------------------------------------------------
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
@@ -128,9 +130,12 @@ void TRestAxionSolarFlux::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    LoadContinuumFluxTable();
-
-    LoadMonoChromaticFluxTable();
+    if (fFluxDataFile != "" && TRestTools::GetFileNameExtension(fFluxDataFile) == ".flux") {
+        ReadFluxFile();
+    } else {
+        LoadContinuumFluxTable();
+        LoadMonoChromaticFluxTable();
+    }
 
     IntegrateSolarFluxes();
 
@@ -158,21 +163,51 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
     debug << "Loading table from file : " << endl;
     debug << "File : " << fullPathName << endl;
 
-    std::vector<std::vector<Double_t>> fluxTable;
-    TRestTools::ReadASCIITable(fullPathName, fluxTable);
+    std::vector<std::vector<Float_t>> fluxTable;
+    if (TRestTools::GetFileNameExtension(fFluxDataFile) == ".dat")
+        TRestTools::ReadASCIITable(fullPathName, fluxTable);
+    else if (TRestTools::IsBinaryFile(fFluxDataFile))
+        TRestTools::ReadBinaryTable(fullPathName, fluxTable);
+    else {
+        fluxTable.clear();
+        ferr << "Filename extension was not recognized!" << endl;
+        ferr << "Solar flux table will not be populated" << endl;
+    }
 
     if (fluxTable.size() != 100 && fluxTable[0].size() != 200) {
         fluxTable.clear();
         ferr << "LoadContinuumFluxTable. The table does not contain the right number of rows or columns"
              << endl;
-        ferr << "Table will not be populated" << endl;
+        ferr << "Solar flux table will not be populated" << endl;
     }
 
     for (int n = 0; n < fluxTable.size(); n++) {
-        TH1D* h = new TH1D(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), "", 200, 0, 20);
+        TH1F* h = new TH1F(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), "", 200, 0, 20);
         for (int m = 0; m < fluxTable[n].size(); m++) h->SetBinContent(m + 1, fluxTable[n][m]);
         fFluxTable.push_back(h);
     }
+}
+
+///////////////////////////////////////////////
+/// \brief It loads a .flux file. It will split continuum and monochromatic peaks.
+///
+void TRestAxionSolarFlux::ReadFluxFile() {
+    if (fFluxDataFile == "") {
+        debug << "TRestAxionSolarflux::LoadContinuumFluxTable. No solar flux table was defined" << endl;
+        return;
+    }
+
+    string fullPathName = SearchFile((string)fFluxDataFile);
+
+    debug << "Loading table from file : " << endl;
+    debug << "File : " << fullPathName << endl;
+
+    /*
+std::vector<std::vector<Float_t>> fluxTable;
+std::vector<std::vector<Float_t>> sptTable;
+
+TRestTools::ReadASCIITable(fname, fluxTable);
+    */
 }
 
 ///////////////////////////////////////////////
@@ -192,7 +227,7 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
     debug << "Loading monochromatic lines from file : " << endl;
     debug << "File : " << fullPathName << endl;
 
-    std::vector<std::vector<Double_t>> asciiTable;
+    std::vector<std::vector<Float_t>> asciiTable;
     TRestTools::ReadASCIITable(fullPathName, asciiTable);
 
     fFluxLines.clear();
@@ -204,9 +239,9 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
     }
 
     for (int en = 0; en < asciiTable[0].size(); en++) {
-        Double_t energy = asciiTable[0][en];
-        std::vector<Double_t> profile;
-        TH1D* h = new TH1D(Form("%s_MonochromeFluxAtEnergy%4.2lf", GetName(), energy), "", 100, 0, 1);
+        Float_t energy = asciiTable[0][en];
+        std::vector<Float_t> profile;
+        TH1F* h = new TH1F(Form("%s_MonochromeFluxAtEnergy%4.2lf", GetName(), energy), "", 100, 0, 1);
         for (int r = 1; r < asciiTable.size(); r++) h->SetBinContent(r, asciiTable[r][en]);
         fFluxLines[energy] = h;
     }
