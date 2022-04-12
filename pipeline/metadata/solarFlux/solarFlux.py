@@ -27,7 +27,7 @@ pad1.Draw()
 
 combinedFlux = ROOT.TRestAxionSolarFlux("fluxes.rml", "combined")
 combinedFlux.LoadTables()
-monoFlux.PrintMetadata()
+combinedFlux.PrintMetadata()
 
 if combinedFlux.GetError():
     print ( combinedFlux.GetErrorMessage() )
