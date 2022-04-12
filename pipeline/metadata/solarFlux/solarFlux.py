@@ -26,6 +26,8 @@ pad1.Divide(2,2)
 pad1.Draw()
 
 combinedFlux = ROOT.TRestAxionSolarFlux("fluxes.rml", "combined")
+combinedFlux.LoadTables()
+monoFlux.PrintMetadata()
 
 if combinedFlux.GetError():
     print ( combinedFlux.GetErrorMessage() )
@@ -87,6 +89,8 @@ solarDisk.Draw()
 c1.Print(outfname)
 
 monoFlux = ROOT.TRestAxionSolarFlux("fluxes.rml", "mono")
+monoFlux.LoadTables()
+monoFlux.PrintMetadata()
 
 if monoFlux.GetError():
     print ( monoFlux.GetErrorMessage() )
@@ -101,6 +105,8 @@ if ( int( x[0]*100 ) != 800 or int( x[1]*100 ) != 58 ):
 print ("[\033[92m OK \x1b[0m]")
 
 continuumFlux = ROOT.TRestAxionSolarFlux("fluxes.rml", "Gianotti")
+continuumFlux.LoadTables()
+continuumFlux.PrintMetadata()
 
 if continuumFlux.GetError():
     print ( continuumFlux.GetErrorMessage() )
