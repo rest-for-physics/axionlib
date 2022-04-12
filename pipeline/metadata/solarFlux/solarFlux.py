@@ -64,6 +64,7 @@ enSpt.GetYaxis().SetTitleSize(0.05);
 enSpt.SetStats(0)
 enSpt.Draw()
 if ( enSpt.GetMaximumBin() != 41 ):
+    print ( "\nMaximum Bin is not the expected one! Exit code : 1" )
     exit(1)
 
 pad1.cd(3)
@@ -73,6 +74,7 @@ rSpt.GetYaxis().SetTitleSize(0.05);
 rSpt.SetStats(0)
 rSpt.Draw()
 if ( rSpt.GetMaximumBin() != 25 ):
+    print ( "\nMaximum Bin is not the expected one! Exit code : 2" )
     exit(2)
 
 pad1.cd(4)
