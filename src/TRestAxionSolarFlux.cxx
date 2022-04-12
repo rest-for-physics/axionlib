@@ -146,6 +146,7 @@ void TRestAxionSolarFlux::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
+    fTablesLoaded = false;
     LoadTables();
 }
 
@@ -172,6 +173,8 @@ void TRestAxionSolarFlux::LoadTables() {
 
     fRandom = new TRandom3(fSeed);
     if (fSeed == 0) fSeed = fRandom->GetSeed();
+
+    fTablesLoaded = true;
 }
 
 ///////////////////////////////////////////////
@@ -381,6 +384,7 @@ void TRestAxionSolarFlux::InitFromConfigFile() {
 ///
 std::pair<Double_t, Double_t> TRestAxionSolarFlux::GetRandomEnergyAndRadius() {
     std::pair<Double_t, Double_t> result = {0, 0};
+    if (!fTablesLoaded) return result;
     Double_t rnd = fRandom->Rndm();
     if (fTotalMonochromaticFlux == 0 || fRandom->Rndm() > fFluxRatio) {
         // Continuum

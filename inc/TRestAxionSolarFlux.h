@@ -81,6 +81,9 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// Random number generator
     TRandom3* fRandom = nullptr;  //!
 
+    /// A metadata member to control if the tables have been loaded
+    Bool_t fTablesLoaded = false;  //!
+
     void ReadFluxFile();
     void LoadContinuumFluxTable();
     void LoadMonoChromaticFluxTable();
