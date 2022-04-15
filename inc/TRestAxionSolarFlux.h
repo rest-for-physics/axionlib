@@ -23,6 +23,7 @@
 #ifndef _TRestAxionSolarFlux
 #define _TRestAxionSolarFlux
 
+#include <TCanvas.h>
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TRandom3.h>
@@ -81,6 +82,9 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// Random number generator
     TRandom3* fRandom = nullptr;  //!
 
+    /// A canvas pointer for drawing
+    TCanvas* fCanvas = nullptr;  //!
+
     /// A metadata member to control if the tables have been loaded
     Bool_t fTablesLoaded = false;  //!
 
@@ -102,6 +106,8 @@ class TRestAxionSolarFlux : public TRestMetadata {
     std::pair<Double_t, Double_t> GetRandomEnergyAndRadius();
 
     void LoadTables();
+
+    TCanvas* DrawFluxFile(std::string fname, Double_t binSize = 0.001);
 
     /// Tables might be loaded using a solar model description by TRestAxionSolarModel
     void InitializeSolarTable(TRestAxionSolarModel* model) {

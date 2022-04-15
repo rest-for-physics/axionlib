@@ -315,6 +315,7 @@ void TRestAxionSolarFlux::ReadFluxFile() {
         peaks = 0;
         // We just identify pronounced peaks, not smoothed gaussians!
         const int smearPoints = (Int_t)(5 / (fBinSize * 100));
+        const int excludePoints = smearPoints / 5;
         for (const auto& data : fluxData) {
             Float_t r = 0.005 + data[0];
             Float_t en = data[1] - 0.005;
@@ -326,14 +327,14 @@ void TRestAxionSolarFlux::ReadFluxFile() {
             Double_t avgFlux = 0;
             Int_t n = 0;
             for (int e = binE - smearPoints; e <= binE + smearPoints; e++) {
-                if (e < 1 || e == binE) continue;
+                if (e < 1 || (e < binE + excludePoints && e > binE - excludePoints)) continue;
                 n++;
                 avgFlux += continuumHist->GetBinContent(binR, e);
             }
             avgFlux /= n;
 
             Float_t targetBinFlux = continuumHist->GetBinContent(binR, binE);
-            Float_t thrFlux = avgFlux * fPeakRatio;
+            Float_t thrFlux = avgFlux + fPeakRatio * TMath::Sqrt(avgFlux);
             if (targetBinFlux > 0 && targetBinFlux > thrFlux) {
                 continuumHist->SetBinContent(binR, binE, avgFlux);
                 peaks++;
@@ -369,6 +370,54 @@ void TRestAxionSolarFlux::ReadFluxFile() {
             fFluxLines[energy] = hm;
         }
     }
+
+    cout << "Number of peaks identified: " << fFluxLines.size() << endl;
+}
+
+///////////////////////////////////////////////
+/// \brief It draws the contents of a .flux file. This method just receives the
+/// name of the .flux file and it works stand-alone.
+///
+TCanvas* TRestAxionSolarFlux::DrawFluxFile(string fname, Double_t binSize) {
+    string fullPathName = SearchFile(fname);
+
+    std::vector<std::vector<Double_t>> fluxData;
+    TRestTools::ReadASCIITable(fullPathName, fluxData, 3);
+
+    TH2F* originalHist =
+        new TH2F(Form("FullTable", GetName()), "", 100, 0., 1., (Int_t)(20. / binSize), 0., 20.);
+
+    for (const auto& data : fluxData) {
+        Double_t r = 0.005 + data[0];
+        Double_t en = data[1] - 0.005;
+        Double_t flux = data[2] * binSize;  // flux in cm-2 s-1 bin-1
+
+        originalHist->Fill(r, en, flux);
+    }
+
+    cout << "Total flux : " << originalHist->Integral() << " cm-2 s-1" << endl;
+
+    if (fCanvas != nullptr) {
+        delete fCanvas;
+        fCanvas = nullptr;
+    }
+    fCanvas = new TCanvas("canv", "This is the canvas title", 1400, 1200);
+    fCanvas->Draw();
+
+    TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
+    pad1->Draw();
+
+    fCanvas->cd();
+    pad1->cd();
+    // pad1->SetLogy();
+
+    TH1F* hh = (TH1F*)originalHist->ProjectionY();
+    // hh->GetXaxis()->SetRange(1000, 1500);
+    hh->Draw("hist");
+
+    fCanvas->Update();
+
+    return fCanvas;
 }
 
 ///////////////////////////////////////////////
@@ -451,9 +500,9 @@ void TRestAxionSolarFlux::PrintIntegratedRingFlux() {
     cout << "Integrated solar flux per solar ring: " << endl;
     cout << "--------------------------- " << endl;
     /*
-for (int n = 0; n < fFluxPerRadius.size(); n++)
+    for (int n = 0; n < fFluxPerRadius.size(); n++)
     cout << "n : " << n << " flux : " << fFluxPerRadius[n] << endl;
-cout << endl;
+    cout << endl;
     */
 }
 
