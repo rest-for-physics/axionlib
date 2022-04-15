@@ -398,22 +398,6 @@ void TRestAxionSolarFlux::IntegrateSolarFluxes() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Initialization of TRestAxionSolarFlux metadata members through a RML file
-///
-/*
-void TRestAxionSolarFlux::InitFromConfigFile() {
-debug << "Entering TRestAxionSolarFlux::InitFromConfigFile" << endl;
-
-fFluxDataFile = GetParameter("fluxDataFile", "");
-fFluxSptFile = GetParameter("fluxSptFile", "");
-fCouplingType = GetParameter("couplingType", "g_ag");
-fCouplingStrength = StringToDouble(GetParameter("couplingStrength", "1.e-10"));
-fSeed = StringToInteger(GetParameter("seed", "0"));
-
-this->Initialize();
-} */
-
-///////////////////////////////////////////////
 /// \brief It returns a random solar radius position and energy according to the
 /// flux distributions defined inside the solar tables loaded in the class
 ///
