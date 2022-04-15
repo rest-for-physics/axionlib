@@ -55,7 +55,7 @@ class TRestAxionSolarFlux : public TRestMetadata {
     Double_t fBinSize = 0;  //<
 
     /// It will be used when loading `.flux` files to define the threshold for peak identification
-    Double_t fPeakThreshold = 0;  //<
+    Double_t fPeakRatio = 0;  //<
 
     /// The tabulated solar flux continuum spectra TH1F(100,0,20)keV in cm-2 s-1 keV-1 versus solar radius
     std::vector<TH1F*> fFluxTable;  //!

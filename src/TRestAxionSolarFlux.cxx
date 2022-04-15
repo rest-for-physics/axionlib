@@ -56,9 +56,9 @@
 /// additional parameters *will be required* to translate the `.flux` files into the tables
 /// that are understood by this class.
 /// - *binSize:* The energy binning used on the `.flux` file.
-/// - *peakThreshold:* The ratio between the flux provided at the `.flux` file and the
-/// average flux calculated in 100eV steps. If the flux ratio is higher than this value,
-/// the flux at that particular bin will be considered a peak.
+/// - *peakRatio:* The ratio between the flux provided at the `.flux` file and the
+/// average flux calculated in the peak surroundings. If the flux ratio is higher than
+/// this value, the flux at that particular bin will be considered a peak.
 ///
 /// The following code shows how to define this class inside a RML file.
 ///
@@ -127,8 +127,6 @@ TRestAxionSolarFlux::TRestAxionSolarFlux() : TRestMetadata() {}
 /// corresponding TRestAxionMagneticField section inside the RML.
 ///
 TRestAxionSolarFlux::TRestAxionSolarFlux(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
-    cout << "Entering TRestAxionSolarFlux constructor( cfgFileName, name )" << endl;
-
     LoadConfigFromFile(fConfigFileName, name);
 
     if (GetVerboseLevel() >= REST_Info) PrintMetadata();
@@ -262,7 +260,6 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
 
     for (int en = 0; en < asciiTable[0].size(); en++) {
         Float_t energy = asciiTable[0][en];
-        std::vector<Float_t> profile;
         TH1F* h = new TH1F(Form("%s_MonochromeFluxAtEnergy%4.2lf", GetName(), energy), "", 100, 0, 1);
         for (int r = 1; r < asciiTable.size(); r++) h->SetBinContent(r, asciiTable[r][en]);
         fFluxLines[energy] = h;
@@ -274,21 +271,16 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
 /// both internal flux tables.
 ///
 void TRestAxionSolarFlux::ReadFluxFile() {
-    if (fFluxDataFile == "") {
-        ferr << "TRestAxionSolarflux::ReadFluxFile. No solar flux table was defined" << endl;
-        return;
-    }
-
     if (fBinSize <= 0) {
         ferr << "TRestAxionSolarflux::ReadFluxFile. Energy bin size of .flux file must be specified." << endl;
         ferr << "Please, define binSize parameter in eV." << endl;
         return;
     }
 
-    if (fPeakThreshold <= 0) {
-        warning
-            << "TRestAxionSolarflux::ReadFluxFile. Peak threshold must be specified to generate .spt file."
-            << endl;
+    if (fPeakRatio <= 0) {
+        warning << "TRestAxionSolarflux::ReadFluxFile. Peak ratio must be specified to generate "
+                   "monochromatic spectrum."
+                << endl;
         warning
             << "Only continuum table will be generated. If this was intentional, please, ignore this warning."
             << endl;
@@ -302,37 +294,80 @@ void TRestAxionSolarFlux::ReadFluxFile() {
     std::vector<std::vector<Double_t>> fluxData;
     TRestTools::ReadASCIITable(fullPathName, fluxData, 3);
 
-    TH2F* h = new TH2F(Form("%s_ContinuumFlux", GetName()), "", 100, 0., 1., 200, 0., 20.);
+    TH2F* originalHist =
+        new TH2F(Form("FullTable", GetName()), "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
+    TH2F* continuumHist =
+        new TH2F(Form("ContinuumTable", GetName()), "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
+    TH2F* spectrumHist =
+        new TH2F(Form("LinesTable", GetName()), "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
 
     for (const auto& data : fluxData) {
         Double_t r = 0.005 + data[0];
         Double_t en = data[1] - 0.005;
-        Double_t flux = data[2] * fBinSize / 0.1;  // contribution to 100 eV bin
+        Double_t flux = data[2] * fBinSize;  // flux in cm-2 s-1 bin-1
 
-        h->Fill(r, en, flux);
+        originalHist->Fill(r, en, flux);
+        continuumHist->Fill(r, en, flux);
     }
 
-    std::map<Float_t, std::vector<Float_t>> energies;
-    for (const auto& data : fluxData) {
-        Double_t r = 0.005 + data[0];
-        Double_t en = data[1] - 0.005;
-        Double_t flux = data[2] * 1000 / fBinSize;  // per eV
+    Int_t peaks = 0;
+    do {
+        peaks = 0;
+        // We just identify pronounced peaks, not smoothed gaussians!
+        const int smearPoints = (Int_t)(5 / (fBinSize * 100));
+        for (const auto& data : fluxData) {
+            Float_t r = 0.005 + data[0];
+            Float_t en = data[1] - 0.005;
+            Float_t flux = data[2];  // flux per cm-2 s-1 keV-1
 
-        Int_t binR = h->GetXaxis()->FindBin(r);
-        Int_t binE = h->GetYaxis()->FindBin(en);
+            Int_t binR = continuumHist->GetXaxis()->FindBin(r);
+            Int_t binE = continuumHist->GetYaxis()->FindBin(en);
 
-        Double_t continuumFlux = h->GetBinContent(binR, binE) / 100;  // per eV
+            Double_t avgFlux = 0;
+            Int_t n = 0;
+            for (int e = binE - smearPoints; e <= binE + smearPoints; e++) {
+                if (e < 1 || e == binE) continue;
+                n++;
+                avgFlux += continuumHist->GetBinContent(binR, e);
+            }
+            avgFlux /= n;
 
-        if (flux > fPeakThreshold * continuumFlux) {
-            cout << "Identified peak at radius : " << r << " and energy: " << en << endl;
+            Float_t targetBinFlux = continuumHist->GetBinContent(binR, binE);
+            Float_t thrFlux = avgFlux * fPeakRatio;
+            if (targetBinFlux > 0 && targetBinFlux > thrFlux) {
+                continuumHist->SetBinContent(binR, binE, avgFlux);
+                peaks++;
+            }
+        }
+    } while (peaks > 0);
+
+    for (int n = 0; n < originalHist->GetNbinsX(); n++)
+        for (int m = 0; m < originalHist->GetNbinsY(); m++) {
+            Float_t orig = originalHist->GetBinContent(n + 1, m + 1);
+            Float_t cont = continuumHist->GetBinContent(n + 1, m + 1);
+
+            spectrumHist->SetBinContent(n + 1, m + 1, orig - cont);
         }
 
-        /*
-    std::vector<std::vector<Float_t>> fluxTable;
-    std::vector<std::vector<Float_t>> sptTable;
+    continuumHist->Rebin2D(1, (Int_t)(0.1 / fBinSize));  // cm-2 s-1 (100eV)-1
+    continuumHist->Scale(10);                            // cm-2 s-1 keV-1
+    // It could be over here if we would use directly a TH2D
 
-    TRestTools::ReadASCIITable(fname, fluxTable);
-        */
+    fFluxTable.clear();
+    for (int n = 0; n < continuumHist->GetNbinsX(); n++) {
+        TH1F* hc =
+            (TH1F*)continuumHist->ProjectionY(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), n + 1, n + 1);
+        fFluxTable.push_back(hc);
+    }
+
+    fFluxLines.clear();
+    for (int n = 0; n < spectrumHist->GetNbinsY(); n++) {
+        if (spectrumHist->ProjectionX("", n + 1, n + 1)->Integral() > 0) {
+            Double_t energy = spectrumHist->ProjectionY()->GetBinCenter(n + 1);
+            TH1F* hm = (TH1F*)spectrumHist->ProjectionX(
+                Form("%s_MonochromeFluxAtEnergy%4.2lf", GetName(), energy), n + 1, n + 1);
+            fFluxLines[energy] = hm;
+        }
     }
 }
 
@@ -367,15 +402,15 @@ void TRestAxionSolarFlux::IntegrateSolarFluxes() {
 ///
 /*
 void TRestAxionSolarFlux::InitFromConfigFile() {
-    debug << "Entering TRestAxionSolarFlux::InitFromConfigFile" << endl;
+debug << "Entering TRestAxionSolarFlux::InitFromConfigFile" << endl;
 
-    fFluxDataFile = GetParameter("fluxDataFile", "");
-    fFluxSptFile = GetParameter("fluxSptFile", "");
-    fCouplingType = GetParameter("couplingType", "g_ag");
-    fCouplingStrength = StringToDouble(GetParameter("couplingStrength", "1.e-10"));
-    fSeed = StringToInteger(GetParameter("seed", "0"));
+fFluxDataFile = GetParameter("fluxDataFile", "");
+fFluxSptFile = GetParameter("fluxSptFile", "");
+fCouplingType = GetParameter("couplingType", "g_ag");
+fCouplingStrength = StringToDouble(GetParameter("couplingStrength", "1.e-10"));
+fSeed = StringToInteger(GetParameter("seed", "0"));
 
-    this->Initialize();
+this->Initialize();
 } */
 
 ///////////////////////////////////////////////
@@ -471,7 +506,7 @@ void TRestAxionSolarFlux::PrintMetadata() {
     metadata << "--------" << endl;
     metadata << " - Random seed : " << fSeed << endl;
     if (fBinSize > 0) metadata << " - Energy bin size : " << fBinSize * units("eV") << " eV" << endl;
-    if (fPeakThreshold > 0) metadata << " - Peak identification threshold : " << fPeakThreshold << endl;
+    if (fPeakRatio > 0) metadata << " - Peak/continuum ratio  : " << fPeakRatio << endl;
     metadata << "++++++++++++++++++" << endl;
 
     if (GetVerboseLevel() >= REST_Debug) {
