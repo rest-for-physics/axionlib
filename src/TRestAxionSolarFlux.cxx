@@ -375,17 +375,28 @@ void TRestAxionSolarFlux::ReadFluxFile() {
 }
 
 ///////////////////////////////////////////////
-/// \brief It draws the contents of a .flux file. This method just receives the
-/// name of the .flux file and it works stand-alone.
+/// \brief It builds a histogram with the continuum spectrum component
 ///
-TCanvas* TRestAxionSolarFlux::DrawFluxFile(string fname, Double_t binSize) {
+TH1F* TRestAxionSolarFlux::GetContinuumSpectrum() {
+    TH1F* continuumHist = new TH1F("ContinuumHist", "", 200, 0, 20);
+    for (const auto& x : fFluxTable) {
+        continuumHist->Add(x);
+    }
+    return continuumHist;
+}
+
+///////////////////////////////////////////////
+/// \brief It builds a histogram using the contents of the .flux file given
+/// in the argument.
+///
+TH1F* TRestAxionSolarFlux::GetFluxHistogram(string fname, Double_t binSize) {
     string fullPathName = SearchFile(fname);
 
     std::vector<std::vector<Double_t>> fluxData;
     TRestTools::ReadASCIITable(fullPathName, fluxData, 3);
 
     TH2F* originalHist =
-        new TH2F(Form("FullTable", GetName()), "", 100, 0., 1., (Int_t)(20. / binSize), 0., 20.);
+        new TH2F(Form("FluxTable", GetName()), "", 100, 0., 1., (Int_t)(20. / binSize), 0., 20.);
 
     for (const auto& data : fluxData) {
         Double_t r = 0.005 + data[0];
@@ -395,8 +406,14 @@ TCanvas* TRestAxionSolarFlux::DrawFluxFile(string fname, Double_t binSize) {
         originalHist->Fill(r, en, flux);
     }
 
-    cout << "Total flux : " << originalHist->Integral() << " cm-2 s-1" << endl;
+    return (TH1F*)originalHist->ProjectionY();
+}
 
+///////////////////////////////////////////////
+/// \brief It draws the contents of a .flux file. This method just receives the
+/// name of the .flux file and it works stand-alone.
+///
+TCanvas* TRestAxionSolarFlux::DrawFluxFile(string fname, Double_t binSize) {
     if (fCanvas != nullptr) {
         delete fCanvas;
         fCanvas = nullptr;
@@ -409,13 +426,8 @@ TCanvas* TRestAxionSolarFlux::DrawFluxFile(string fname, Double_t binSize) {
 
     fCanvas->cd();
     pad1->cd();
-    // pad1->SetLogy();
 
-    TH1F* hh = (TH1F*)originalHist->ProjectionY();
-    // hh->GetXaxis()->SetRange(1000, 1500);
-    hh->Draw("hist");
-
-    fCanvas->Update();
+    GetFluxHistogram(fname, binSize)->Draw("hist");
 
     return fCanvas;
 }
