@@ -107,8 +107,10 @@ class TRestAxionSolarFlux : public TRestMetadata {
 
     void LoadTables();
 
-    TH1F* GetFluxHistogram(std::string fname, Double_t binSize);
     TH1F* GetContinuumSpectrum();
+    TH1F* GetMonochromaticSpectrum();
+
+    TH1F* GetFluxHistogram(std::string fname, Double_t binSize);
     TCanvas* DrawFluxFile(std::string fname, Double_t binSize = 0.001);
 
     /// Tables might be loaded using a solar model description by TRestAxionSolarModel

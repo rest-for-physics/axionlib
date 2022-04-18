@@ -386,6 +386,17 @@ TH1F* TRestAxionSolarFlux::GetContinuumSpectrum() {
 }
 
 ///////////////////////////////////////////////
+/// \brief It builds a histogram with the monochromatic spectrum component
+///
+TH1F* TRestAxionSolarFlux::GetMonochromaticSpectrum() {
+    TH1F* monoHist = new TH1F("MonochromaticHist", "", 20000, 0, 20);
+    for (const auto& x : fFluxLines) {
+        monoHist->Fill(x.first, x.second->Integral() * 1000);  // cm-2 s-1 keV-1
+    }
+    return monoHist;
+}
+
+///////////////////////////////////////////////
 /// \brief It builds a histogram using the contents of the .flux file given
 /// in the argument.
 ///
