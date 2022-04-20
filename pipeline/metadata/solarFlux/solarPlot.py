@@ -60,7 +60,7 @@ if combinedFlux.GetError():
     print ( "\nSolar flux initialization failed! Exit code : 101" )
     exit(101)
 
-comb_spt = TH2D("comb_spt", "Energy versus solar radius", 200, 0, 20, 100, 0, 1 )
+comb_spt = TH2D("comb_spt", "Energy versus solar radius", 20000, 0, 20, 100, 0, 1 )
 for x in range(samples):
     x = combinedFlux.GetRandomEnergyAndRadius()
     comb_spt.Fill( x[0], x[1] )
@@ -85,7 +85,7 @@ comb_spt.GetXaxis().SetLabelSize(0.05);
 comb_spt.GetYaxis().SetTitle("Solar radius")
 comb_spt.GetYaxis().SetTitleSize(0.05);
 comb_spt.GetYaxis().SetLabelSize(0.05);
-comb_spt.Draw("box")
+comb_spt.Draw("colz")
 
 pad1.cd(2)
 pad1.cd(2).SetLogy()
@@ -96,6 +96,9 @@ enSpt = comb_spt.ProjectionX()
 enSpt.SetTitle("Energy spectrum")
 enSpt.GetYaxis().SetTitleSize(0.05);
 enSpt.SetStats(0)
+enSpt.SetFillStyle(4050)
+enSpt.SetFillColor(ROOT.kBlue-9)
+enSpt.SetLineColor(ROOT.kBlack)
 enSpt.Draw()
 
 if validation:
@@ -111,6 +114,9 @@ rSpt = comb_spt.ProjectionY()
 rSpt.SetTitle("Radial distribution")
 rSpt.GetYaxis().SetTitleSize(0.05);
 rSpt.SetStats(0)
+rSpt.SetFillStyle(4050)
+rSpt.SetFillColor(ROOT.kBlue-9)
+rSpt.SetLineColor(ROOT.kBlack)
 rSpt.Draw()
 
 if validation:
@@ -130,7 +136,7 @@ solarDisk.GetYaxis().SetTitle("Y")
 solarDisk.GetYaxis().SetTitleOffset(1)
 solarDisk.GetYaxis().SetTitleSize(0.05);
 solarDisk.GetYaxis().SetLabelSize(0.05);
-solarDisk.Draw()
+solarDisk.Draw("colz")
 
 c1.Print(outfname)
 print( "Generated file : " + outfname )
