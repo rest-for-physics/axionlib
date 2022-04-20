@@ -105,7 +105,8 @@ solarFlux:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/solarFlux/
-    - python solarFlux.py
+    - python solarTests.py
+    - python solarPlot.py
     - python compare.py
   except:
       variables:
