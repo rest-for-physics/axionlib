@@ -42,7 +42,8 @@
 /// given in the solar flux tables.
 /// - *fluxDataFile:* A table with 100 rows representing the solar ring flux from the
 /// center to the corona, and 200 columns representing the flux, measured in cm-2 s-1 keV-1,
-/// for the range (0,20)keV in steps of 100eV.
+/// for the range (0,20)keV in steps of 100eV. The table could be provided in ASCII format,
+/// using `.dat` extension, or it might be a binary table using `.N200f` extension.
 /// - *fluxSptFile:* A table where each column represents a monochromatic energy. The
 /// column contains 101 rows, the first element is the energy of the monochromatic line
 /// while the next 100 elements contain the flux, measured in cm-2 s-1, integrated to
@@ -51,16 +52,31 @@
 /// Additionally this class will be able to read `.flux` files that are the original files
 /// produced in 3-columns format (inner radius [solar units] / energy [keV] /
 /// flux [cm-2 s-1 keV-1]). The `.flux` files may contain the full information,
-/// continuum and spectral. Those components will be splited into two independent
+/// continuum and spectral components. Those components will be splited into two independent
 /// contributions by TRestAxionSolarFlux::ReadFluxFile to be managed internally. Two
 /// additional parameters *will be required* to translate the `.flux` files into the tables
 /// that are understood by this class.
 /// - *binSize:* The energy binning used on the `.flux` file.
-/// - *peakRatio:* The ratio between the flux provided at the `.flux` file and the
+/// - *peakSigma:* The ratio between the flux provided at the `.flux` file and the
 /// average flux calculated in the peak surroundings. If the flux ratio is higher than
 /// this value, the flux at that particular bin will be considered a peak.
 ///
-/// The following code shows how to define this class inside a RML file.
+/// Pre-generated solar axion flux tables will be available at the
+/// [axionlib-data](https://github.com/rest-for-physics/axionlib-data/tree/master)
+/// repository. The different RML flux definitions used to load those tables
+/// will be found at the
+/// [fluxes.rml](https://github.com/rest-for-physics/axionlib-data/blob/master/solarFlux/fluxes.rml)
+/// file found at the axionlib-data repository.
+///
+/// Inside a local REST installation, the `fluxes.rml` file will be found at the REST
+/// installation directory, and it will be located automatically by the
+/// TRestMetadata::SearchFile method.
+///
+/// ### A basic RML definition
+///
+/// The following definition integrates an axion-photon component with a continuum
+/// spectrum using a Primakoff production model, and a dummy spectrum file that
+/// includes two monocrhomatic lines at different solar disk radius positions.
 ///
 /// \code
 ///     <TRestAxionSolarFlux name="sunPrimakoff" verboseLevel="debug" >
@@ -71,16 +87,89 @@
 ///     </TRestAxionSolarFlux>
 /// \endcode
 ///
-/// When the flux is loaded manually inside the `restRoot` interface or inside a
-/// macro or script, after metadata initialization, it is necessary to call
-/// the method TRestAxionSolarFlux::LoadTables.
+/// \warning when the flux is loaded manually inside the `restRoot` interactive
+/// shell, or inside a macro or script, after metadata initialization, it is necessary
+/// to call the method TRestAxionSolarFlux::LoadTables to triger the tables
+/// initialization.
 ///
-/// The previous definition was used to generate the following figure using the script
-/// pipeline/solarFlux/solarFlux.py.
+/// ### Performing MonteCarlo tests using pre-loaded tables
 ///
-/// \htmlonly <style>div.image img[src="AxionSolarFlux.png"]{width:750px;}</style> \endhtmlonly
+/// In order to test the response of different solar flux definitions we may use the script
+/// `solarPlot.py` found at `pipeline/metadata/solarFlux/`. This script will generate a
+/// number of particles and it will assign to each particle an energy and solar disk
+/// location with the help of the method TRestAxionSolarFlux::GetRandomEnergyAndRadius.
 ///
-/// ![Solar flux distributions generated with TRestAxionSolarFlux.](AxionSolarFlux.png)
+/// \code
+/// python3 solarPlot.py --fluxname LennertHoofABC --N 1000000
+/// \endcode
+///
+/// By default, it will load the flux definition found at `fluxes.rml` from the
+/// `axionlib-data` repository, and generate a `png` image with the resuts from the
+/// Monte Carlo execution.
+///
+/// \htmlonly <style>div.image img[src="ABC_flux_MC.png"]{width:750px;}</style> \endhtmlonly
+///
+/// ![Solar flux distributions MC-generated with TRestAxionSolarFlux.](ABC_flux_MC.png)
+///
+/// ### Reading solar flux tables from `.flux` files
+///
+/// In a similar way we may initialize the class using a `.flux` file. The `.flux` described
+/// previously will contain a high definition flux table measured in `cm-2 s-1 keV-1` as a
+/// function of the energy (from 0 to 20keV) and the inner solar radius (from 0 to 1). The
+/// binning of this table will be typically between 1eV and 10eV.
+///
+/// The class TRestAxionSolarFlux will be initialized directly using the `.flux` file
+/// provided under the `fluxDataFile` parameter. During the initialization, the flux will be
+/// splitted into two independent flux components. One smooth continuum component integrated
+/// in 100 eV steps, and a monochromatic peak components.
+///
+/// In order to help with the identification of peaks we need to define the `binSize` used in
+/// the `.flux` table and the `peakSigma` defining the number of sigmas over the average for
+/// a bin to be considered a peak.
+///
+/// \code
+///    <TRestAxionSolarFlux name="LennertHoofABC_Flux" verboseLevel="warning" >
+///        <parameter name="couplingType" value="g_ae"/>
+///        <parameter name="couplingStrength" value="1.e-13"/>
+///        <parameter name="fluxDataFile" value="ABC_LennertHoof_202203.flux"/>
+///
+///        <parameter name="binSize" value="10eV" />
+///        <parameter name="peakSigma" value="10" />
+///
+///        <parameter name="seed" value="137" />
+///    </TRestAxionSolarFlux>
+/// \endcode
+///
+/// We will be able to load this file as usual, using the following recipe inside
+/// `restRoot`,
+///
+/// \code
+///    TRestAxionSolarFlux *sFlux = new TRestAxionSolarFlux("fluxes.rml", "LennertHoofABC")
+///    sFlux->LoadTables()
+///    TCanvas *c = sFlux->DrawSolarFluxes()
+///    c->Print("ABC_FluxTable.png" )
+/// \endcode
+///
+/// will generate the following figure.
+///
+/// \htmlonly <style>div.image img[src="ABC_FluxTable.png"]{width:750px;}</style> \endhtmlonly
+///
+/// ![Solar flux distributions generated with TRestAxionSolarFlux::DrawSolarFlux.](ABC_FluxTable.png)
+///
+/// On top of that, we will be able to export those tables to the TRestAxionSolarFlux standard
+/// format to be used in later occasions.
+///
+/// \code
+///    TRestAxionSolarFlux *sFlux = new TRestAxionSolarFlux("fluxes.rml", "LennertHoofABC")
+///    sFlux->LoadTables()
+///    sFlux->ExportTables()
+/// \endcode
+///
+/// which will produce two files, a binary table `.N200f` with the continuum flux, and an ASCII
+/// table containning the `.spt` monochromatic lines. The filename root will be extracted from
+/// the original `.flux` file. Optionally we may export the continuum flux to an ASCII file by
+/// indicating it at the TRestAxionSolarFlux::ExportTables method call. The files will be placed
+/// at the REST user space, at `$HOME/.rest/export/` directory.
 ///
 /// TODO Implement the method TRestAxionSolarFlux::InitializeSolarTable using
 /// a solar model description by TRestAxionSolarModel.
@@ -277,7 +366,7 @@ void TRestAxionSolarFlux::ReadFluxFile() {
         return;
     }
 
-    if (fPeakRatio <= 0) {
+    if (fPeakSigma <= 0) {
         warning << "TRestAxionSolarflux::ReadFluxFile. Peak ratio must be specified to generate "
                    "monochromatic spectrum."
                 << endl;
@@ -334,7 +423,7 @@ void TRestAxionSolarFlux::ReadFluxFile() {
             avgFlux /= n;
 
             Float_t targetBinFlux = continuumHist->GetBinContent(binR, binE);
-            Float_t thrFlux = avgFlux + fPeakRatio * TMath::Sqrt(avgFlux);
+            Float_t thrFlux = avgFlux + fPeakSigma * TMath::Sqrt(avgFlux);
             if (targetBinFlux > 0 && targetBinFlux > thrFlux) {
                 continuumHist->SetBinContent(binR, binE, avgFlux);
                 peaks++;
@@ -375,25 +464,91 @@ void TRestAxionSolarFlux::ReadFluxFile() {
 }
 
 ///////////////////////////////////////////////
-/// \brief It builds a histogram with the continuum spectrum component
+/// \brief It builds a histogram with the continuum spectrum component.
+/// The flux will be expressed in cm-2 s-1 keV-1. Binned in 100eV steps.
 ///
 TH1F* TRestAxionSolarFlux::GetContinuumSpectrum() {
-    TH1F* continuumHist = new TH1F("ContinuumHist", "", 200, 0, 20);
-    for (const auto& x : fFluxTable) {
-        continuumHist->Add(x);
+    if (fContinuumHist != nullptr) {
+        delete fContinuumHist;
+        fContinuumHist = nullptr;
     }
-    return continuumHist;
+
+    fContinuumHist = new TH1F("ContinuumHist", "", 200, 0, 20);
+    for (const auto& x : fFluxTable) {
+        fContinuumHist->Add(x);
+    }
+
+    fContinuumHist->SetStats(0);
+    fContinuumHist->GetXaxis()->SetTitle("Energy [keV]");
+    fContinuumHist->GetXaxis()->SetTitleSize(0.05);
+    fContinuumHist->GetXaxis()->SetLabelSize(0.05);
+    fContinuumHist->GetYaxis()->SetTitle("Flux [cm-2 s-1 keV-1]");
+    fContinuumHist->GetYaxis()->SetTitleSize(0.05);
+    fContinuumHist->GetYaxis()->SetLabelSize(0.05);
+
+    return fContinuumHist;
 }
 
 ///////////////////////////////////////////////
-/// \brief It builds a histogram with the monochromatic spectrum component
+/// \brief It builds a histogram with the monochromatic spectrum component.
+/// The flux will be expressed in cm-2 s-1 eV-1. Binned in 1eV steps.
 ///
 TH1F* TRestAxionSolarFlux::GetMonochromaticSpectrum() {
-    TH1F* monoHist = new TH1F("MonochromaticHist", "", 20000, 0, 20);
-    for (const auto& x : fFluxLines) {
-        monoHist->Fill(x.first, x.second->Integral() * 1000);  // cm-2 s-1 keV-1
+    if (fMonoHist != nullptr) {
+        delete fMonoHist;
+        fMonoHist = nullptr;
     }
-    return monoHist;
+
+    fMonoHist = new TH1F("MonochromaticHist", "", 20000, 0, 20);
+    for (const auto& x : fFluxLines) {
+        fMonoHist->Fill(x.first, x.second->Integral());  // cm-2 s-1 eV-1
+    }
+
+    fMonoHist->SetStats(0);
+    fMonoHist->GetXaxis()->SetTitle("Energy [keV]");
+    fMonoHist->GetXaxis()->SetTitleSize(0.05);
+    fMonoHist->GetXaxis()->SetLabelSize(0.05);
+    fMonoHist->GetYaxis()->SetTitle("Flux [cm-2 s-1 eV-1]");
+    fMonoHist->GetYaxis()->SetTitleSize(0.05);
+    fMonoHist->GetYaxis()->SetLabelSize(0.05);
+
+    return fMonoHist;
+}
+
+///////////////////////////////////////////////
+/// \brief It builds a histogram adding the continuum and the monochromatic
+/// spectrum component. The flux will be expressed in cm-2 s-1 keV-1.
+/// Binned in 1eV steps.
+///
+TH1F* TRestAxionSolarFlux::GetTotalSpectrum() {
+    TH1F* hm = GetMonochromaticSpectrum();
+    TH1F* hc = GetContinuumSpectrum();
+
+    if (fTotalHist != nullptr) {
+        delete fTotalHist;
+        fTotalHist = nullptr;
+    }
+
+    fTotalHist = new TH1F("fTotalHist", "", 20000, 0, 20);
+    for (int n = 0; n < hc->GetNbinsX(); n++) {
+        for (int m = 0; m < 100; m++) {
+            fTotalHist->SetBinContent(n * 100 + 1 + m, hc->GetBinContent(n + 1));
+        }
+    }
+
+    for (int n = 0; n < hm->GetNbinsX(); n++)
+        // 1e-2 is the renormalization from 20000 bins to 200 bins
+        fTotalHist->SetBinContent(n + 1, fTotalHist->GetBinContent(n + 1) + 100 * hm->GetBinContent(n + 1));
+
+    fTotalHist->SetStats(0);
+    fTotalHist->GetXaxis()->SetTitle("Energy [keV]");
+    fTotalHist->GetXaxis()->SetTitleSize(0.05);
+    fTotalHist->GetXaxis()->SetLabelSize(0.05);
+    fTotalHist->GetYaxis()->SetTitle("Flux [cm-2 s-1 keV-1]");
+    fTotalHist->GetYaxis()->SetTitleSize(0.05);
+    fTotalHist->GetYaxis()->SetLabelSize(0.05);
+
+    return fTotalHist;
 }
 
 ///////////////////////////////////////////////
@@ -439,6 +594,50 @@ TCanvas* TRestAxionSolarFlux::DrawFluxFile(string fname, Double_t binSize) {
     pad1->cd();
 
     GetFluxHistogram(fname, binSize)->Draw("hist");
+
+    return fCanvas;
+}
+
+///////////////////////////////////////////////
+/// \brief It draws the contents of a .flux file. This method just receives the
+///
+TCanvas* TRestAxionSolarFlux::DrawSolarFlux() {
+    if (fCanvas != nullptr) {
+        delete fCanvas;
+        fCanvas = nullptr;
+    }
+    fCanvas = new TCanvas("canv", "This is the canvas title", 1200, 500);
+    fCanvas->Draw();
+
+    TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
+    pad1->Divide(2, 1);
+    pad1->Draw();
+
+    pad1->cd(1);
+    pad1->cd(1)->SetLogy();
+    pad1->cd(1)->SetRightMargin(0.09);
+    pad1->cd(1)->SetLeftMargin(0.15);
+    pad1->cd(1)->SetBottomMargin(0.15);
+
+    TH1F* ht = GetTotalSpectrum();
+    ht->SetLineColor(kBlack);
+    ht->SetFillStyle(4050);
+    ht->SetFillColor(kBlue - 10);
+
+    TH1F* hm = GetMonochromaticSpectrum();
+    hm->SetLineColor(kBlack);
+    hm->Scale(100);  // renormalizing per 100eV-1
+
+    ht->Draw("hist");
+    hm->Draw("hist same");
+
+    pad1->cd(2);
+    pad1->cd(2)->SetRightMargin(0.09);
+    pad1->cd(2)->SetLeftMargin(0.15);
+    pad1->cd(2)->SetBottomMargin(0.15);
+
+    ht->Draw("hist");
+    hm->Draw("hist same");
 
     return fCanvas;
 }
@@ -562,7 +761,7 @@ void TRestAxionSolarFlux::PrintMetadata() {
     metadata << "--------" << endl;
     metadata << " - Random seed : " << fSeed << endl;
     if (fBinSize > 0) metadata << " - Energy bin size : " << fBinSize * units("eV") << " eV" << endl;
-    if (fPeakRatio > 0) metadata << " - Peak/continuum ratio  : " << fPeakRatio << endl;
+    if (fPeakSigma > 0) metadata << " - Peak/continuum ratio  : " << fPeakSigma << endl;
     metadata << "++++++++++++++++++" << endl;
 
     if (GetVerboseLevel() >= REST_Debug) {

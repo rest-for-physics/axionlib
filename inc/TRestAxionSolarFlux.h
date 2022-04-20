@@ -56,7 +56,7 @@ class TRestAxionSolarFlux : public TRestMetadata {
     Double_t fBinSize = 0;  //<
 
     /// It will be used when loading `.flux` files to define the threshold for peak identification
-    Double_t fPeakRatio = 0;  //<
+    Double_t fPeakSigma = 0;  //<
 
     /// The tabulated solar flux continuum spectra TH1F(100,0,20)keV in cm-2 s-1 keV-1 versus solar radius
     std::vector<TH1F*> fFluxTable;  //!
@@ -85,6 +85,15 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// A canvas pointer for drawing
     TCanvas* fCanvas = nullptr;  //!
 
+    /// A pointer to the continuum spectrum histogram
+    TH1F* fContinuumHist = nullptr;  //!
+
+    /// A pointer to the monochromatic spectrum histogram
+    TH1F* fMonoHist = nullptr;  //!
+
+    /// A pointer to the superposed monochromatic and continuum spectrum histogram
+    TH1F* fTotalHist = nullptr;  //!
+
     /// A metadata member to control if the tables have been loaded
     Bool_t fTablesLoaded = false;  //!
 
@@ -109,9 +118,11 @@ class TRestAxionSolarFlux : public TRestMetadata {
 
     TH1F* GetContinuumSpectrum();
     TH1F* GetMonochromaticSpectrum();
+    TH1F* GetTotalSpectrum();
 
-    TH1F* GetFluxHistogram(std::string fname, Double_t binSize);
-    TCanvas* DrawFluxFile(std::string fname, Double_t binSize = 0.001);
+    TH1F* GetFluxHistogram(std::string fname, Double_t binSize = 0.01);
+    TCanvas* DrawFluxFile(std::string fname, Double_t binSize = 0.01);
+    TCanvas* DrawSolarFlux();
 
     /// Tables might be loaded using a solar model description by TRestAxionSolarModel
     void InitializeSolarTable(TRestAxionSolarModel* model) {
