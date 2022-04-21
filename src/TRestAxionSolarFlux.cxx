@@ -87,9 +87,9 @@
 ///     </TRestAxionSolarFlux>
 /// \endcode
 ///
-/// \warning when the flux is loaded manually inside the `restRoot` interactive
+/// \warning When the flux is loaded manually inside the `restRoot` interactive
 /// shell, or inside a macro or script, after metadata initialization, it is necessary
-/// to call the method TRestAxionSolarFlux::LoadTables to triger the tables
+/// to call the method TRestAxionSolarFlux::LoadTables to trigger the tables
 /// initialization.
 ///
 /// ### Performing MonteCarlo tests using pre-loaded tables
@@ -155,6 +155,8 @@
 /// \htmlonly <style>div.image img[src="ABC_FluxTable.png"]{width:750px;}</style> \endhtmlonly
 ///
 /// ![Solar flux distributions generated with TRestAxionSolarFlux::DrawSolarFlux.](ABC_FluxTable.png)
+///
+/// ### Exporting the solar flux tables
 ///
 /// On top of that, we will be able to export those tables to the TRestAxionSolarFlux standard
 /// format to be used in later occasions.
@@ -367,7 +369,7 @@ void TRestAxionSolarFlux::ReadFluxFile() {
     }
 
     if (fPeakSigma <= 0) {
-        warning << "TRestAxionSolarflux::ReadFluxFile. Peak ratio must be specified to generate "
+        warning << "TRestAxionSolarflux::ReadFluxFile. Peak sigma must be specified to generate "
                    "monochromatic spectrum."
                 << endl;
         warning
@@ -761,7 +763,7 @@ void TRestAxionSolarFlux::PrintMetadata() {
     metadata << "--------" << endl;
     metadata << " - Random seed : " << fSeed << endl;
     if (fBinSize > 0) metadata << " - Energy bin size : " << fBinSize * units("eV") << " eV" << endl;
-    if (fPeakSigma > 0) metadata << " - Peak/continuum ratio  : " << fPeakSigma << endl;
+    if (fPeakSigma > 0) metadata << " - Peak signal-to-noise in sigmas  : " << fPeakSigma << endl;
     metadata << "++++++++++++++++++" << endl;
 
     if (GetVerboseLevel() >= REST_Debug) {
@@ -775,13 +777,43 @@ void TRestAxionSolarFlux::PrintMetadata() {
 /// \brief It will create files with the continuum and spectral flux components to be used
 /// in a later ocasion.
 ///
-void TRestAxionSolarFlux::ExportTables(string fname) {
-    // TODO if we have loaded the data through TRestAxionSolarModel we should
-    // create the filename on base to that
+void TRestAxionSolarFlux::ExportTables(Bool_t ascii) {
+    string rootFilename = TRestTools::GetFileNameRoot(fFluxDataFile);
 
-    // TOBE implemented. Creates fname.N200f and fname.spt
-    // If we have external methods to initialize solar flux tables this method
-    // might be used to generate the tables that can be used later on directly
+    string path = REST_USER_PATH + "/export/";
 
-    // Check data/solarFlux/README.md for data format and file naming conventions
+    if (!TRestTools::fileExists(path)) {
+        cout << "Creating path: " << path << endl;
+        system(("mkdir -p " + path).c_str());
+    }
+
+    if (fFluxTable.size() > 0) {
+        std::vector<std::vector<Float_t>> table;
+        for (const auto& x : fFluxTable) {
+            std::vector<Float_t> row;
+            for (int n = 0; n < x->GetNbinsX(); n++) row.push_back(x->GetBinContent(n + 1));
+
+            table.push_back(row);
+        }
+
+        if (!ascii)
+            TRestTools::ExportBinaryTable(path + "/" + rootFilename + ".N200f", table);
+        else
+            TRestTools::ExportASCIITable(path + "/" + rootFilename + ".dat", table);
+    }
+
+    if (fFluxLines.size() > 0) {
+        std::vector<std::vector<Float_t>> table;
+        for (const auto& x : fFluxLines) {
+            std::vector<Float_t> row;
+            row.push_back(x.first);
+            for (int n = 0; n < x.second->GetNbinsX(); n++) row.push_back(x.second->GetBinContent(n + 1));
+
+            table.push_back(row);
+        }
+
+        TRestTools::TransposeTable(table);
+
+        TRestTools::ExportASCIITable(path + "/" + rootFilename + ".spt", table);
+    }
 }

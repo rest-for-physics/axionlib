@@ -130,7 +130,7 @@ class TRestAxionSolarFlux : public TRestMetadata {
         // This method should initialize the tables fFluxTable and fFluxLines
     }
 
-    void ExportTables(std::string fname);
+    void ExportTables(Bool_t ascii = false);
 
     void PrintMetadata();
 
