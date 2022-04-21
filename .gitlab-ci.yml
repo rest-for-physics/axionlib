@@ -105,6 +105,10 @@ solarFlux:
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/solarFlux/
+    - wget https://sultan.unizar.es/axionlib-data/solarFlux/fluxes.rml
+    - wget https://sultan.unizar.es/axionlib-data/solarFlux/Dummy_Galan_202202.spt
+    - wget https://sultan.unizar.es/axionlib-data/solarFlux/Primakoff_Gianotti_201904.dat
+    - wget https://sultan.unizar.es/axionlib-data/solarFlux/Primakoff_LennertHoof_202203.dat
     - python solarTests.py
     - python solarPlot.py
     - python compare.py
