@@ -339,8 +339,6 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
         asciiTable.push_back(floatVec);
     }
 
-    TRestTools::PrintTable(asciiTable, 0, 10);
-
     fFluxLines.clear();
 
     if (asciiTable.size() != 101) {
@@ -351,7 +349,7 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
 
     for (int en = 0; en < asciiTable[0].size(); en++) {
         Float_t energy = asciiTable[0][en];
-        TH1F* h = new TH1F(Form("%s_MonochromeFluxAtEnergy%4.2lf", GetName(), energy), "", 100, 0, 1);
+        TH1F* h = new TH1F(Form("%s_MonochromeFluxAtEnergy%5.3lf", GetName(), energy), "", 100, 0, 1);
         for (int r = 1; r < asciiTable.size(); r++) h->SetBinContent(r, asciiTable[r][en]);
         fFluxLines[energy] = h;
     }
@@ -457,7 +455,7 @@ void TRestAxionSolarFlux::ReadFluxFile() {
         if (spectrumHist->ProjectionX("", n + 1, n + 1)->Integral() > 0) {
             Double_t energy = spectrumHist->ProjectionY()->GetBinCenter(n + 1);
             TH1F* hm = (TH1F*)spectrumHist->ProjectionX(
-                Form("%s_MonochromeFluxAtEnergy%4.2lf", GetName(), energy), n + 1, n + 1);
+                Form("%s_MonochromeFluxAtEnergy%5.3lf", GetName(), energy), n + 1, n + 1);
             fFluxLines[energy] = hm;
         }
     }
