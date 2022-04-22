@@ -92,6 +92,7 @@ optics:
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/optics/
     - wget https://sultan.unizar.es/axionlib-data/optics/mirrors.rml
     - wget https://sultan.unizar.es/axionlib-data/optics/Reflectivity_Single_C_30_SiO2_0.N901f
+    - wget https://sultan.unizar.es/axionlib-data/optics/Transmission_Single_C_30_SiO2_0.N901f
     - python mirrors.py
     - python optics.py
     - python basic.py
