@@ -101,11 +101,6 @@ enSpt.SetFillColor(ROOT.kBlue-9)
 enSpt.SetLineColor(ROOT.kBlack)
 enSpt.Draw()
 
-if validation:
-    if ( enSpt.GetMaximumBin() != 41 ):
-        print ( "\nMaximum Bin is not the expected one! Exit code : 1" )
-        exit(1)
-
 pad1.cd(3)
 pad1.cd(3).SetRightMargin(0.09);
 pad1.cd(3).SetLeftMargin(0.15);
@@ -118,11 +113,6 @@ rSpt.SetFillStyle(4050)
 rSpt.SetFillColor(ROOT.kBlue-9)
 rSpt.SetLineColor(ROOT.kBlack)
 rSpt.Draw()
-
-if validation:
-    if ( rSpt.GetMaximumBin() != 25 ):
-        print ( "\nMaximum Bin is not the expected one! Exit code : 2" )
-        exit(2)
 
 pad1.cd(4)
 pad1.cd(4).SetRightMargin(0.09);
@@ -140,5 +130,18 @@ solarDisk.Draw("colz")
 
 c1.Print(outfname)
 print( "Generated file : " + outfname )
+
+print ( "\nMaximum energy bin is " + str(enSpt.GetMaximumBin() ) )
+if validation:
+    if ( enSpt.GetMaximumBin() != 8001 ):
+        print ( "\nMaximum Bin is not the expected one! Exit code : 1" )
+        exit(1)
+
+print ( "\nMaximum radius bin is " + str(rSpt.GetMaximumBin() ) )
+
+if validation:
+    if ( rSpt.GetMaximumBin() != 25 ):
+        print ( "\nMaximum Bin is not the expected one! Exit code : 2" )
+        exit(2)
 
 exit(0)
