@@ -19,7 +19,7 @@ Once your PR is approved remember to **increase this library version** version f
 
 Reminder: Please, new features and upgrades should be sufficiently documented and a corresponding validation test at the pipeline should be implemented.
 
-Reminder: Adding this to your PR description will notify members at the library_dev team: @rest-for-physics/rawlib
+Reminder: Adding this to your PR description will notify members at the library_dev team: @rest-for-physics/axionlib
 
 Reminder: When writing your PR description remember to leave any necessary instructions to test the new implementation.
 

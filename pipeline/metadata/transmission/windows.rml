@@ -1,0 +1,32 @@
+<transmission>
+	<TRestAxionXrayWindow name="siliconFoil" verboseLevel="info">
+		<parameter name="center" value="(0,0,0)mm" />
+
+		<parameter name="type" value="foil" />
+		<parameter name="thickness" value="0.3um" />
+		<parameter name="material" value="Si3N4" />
+		<parameter name="radius" value="8mm" />
+	</TRestAxionXrayWindow>
+
+	<TRestAxionXrayWindow name="strongBack" verboseLevel="info">
+		<parameter name="center" value="(0,0,0)mm" />
+
+		<parameter name="windowType" value="grid" />
+		<parameter name="thickness" value="200um" />
+		<parameter name="material" value="Si" />
+		<parameter name="radius" value="8mm" />
+
+		<parameter name="patternWidth" value="0.5mm" />
+		<parameter name="patternGap" value="4mm" />
+		<parameter name="patternOffset" value="2mm" />
+	</TRestAxionXrayWindow>
+
+	<TRestAxionXrayWindow name="cathode" verboseLevel="info">
+		<parameter name="center" value="(0,0,0)mm" />
+
+		<parameter name="type" value="foil" />
+		<parameter name="thickness" value="0.02um" />
+		<parameter name="material" value="Al" />
+		<parameter name="radius" value="8mm" />
+	</TRestAxionXrayWindow>
+</transmission>
