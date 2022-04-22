@@ -1,0 +1,35 @@
+<mirrors>
+	<TRestAxionOpticsMirror name="default">
+		<parameter name="mirrorType" value="Single" />
+
+		<parameter name="layerTop" value="C" />
+		<parameter name="layerThicknessTop" value="30" />
+		<parameter name="sigmaTop" value="0" />
+
+		<parameter name="substrate" value="SiO2" />
+	</TRestAxionOpticsMirror>
+
+	<TRestAxionOpticsMirror name="XMM">
+		<parameter name="mirrorType" value="Single" />
+
+		<parameter name="layerTop" value="Au" />
+		<parameter name="layerThicknessTop" value="250" />
+		<parameter name="sigmaTop" value="0.4" />
+
+		<parameter name="substrate" value="Ni" />
+	</TRestAxionOpticsMirror>
+
+	<TRestAxionOpticsMirror name="XMM_C5H8O2_0.4nm">
+		<parameter name="mirrorType" value="Bilayer" />
+
+		<parameter name="layerTop" value="C5H8O2" />
+		<parameter name="layerThicknessTop" value="0.4" />
+		<parameter name="sigmaTop" value="0" />
+
+		<parameter name="layerBottom" value="Au" />
+		<parameter name="layerThicknessBottom" value="250" />
+		<parameter name="sigmaBottom" value="0.4" />
+
+		<parameter name="substrate" value="Ni" />
+	</TRestAxionOpticsMirror>
+</mirrors>
