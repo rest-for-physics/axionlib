@@ -383,12 +383,9 @@ void TRestAxionSolarFlux::ReadFluxFile() {
     std::vector<std::vector<Double_t>> fluxData;
     TRestTools::ReadASCIITable(fullPathName, fluxData, 3);
 
-    TH2F* originalHist =
-        new TH2F(Form("FullTable", GetName()), "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
-    TH2F* continuumHist =
-        new TH2F(Form("ContinuumTable", GetName()), "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
-    TH2F* spectrumHist =
-        new TH2F(Form("LinesTable", GetName()), "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
+    TH2F* originalHist = new TH2F("FullTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
+    TH2F* continuumHist = new TH2F("ContinuumTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
+    TH2F* spectrumHist = new TH2F("LinesTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
 
     for (const auto& data : fluxData) {
         Double_t r = 0.005 + data[0];
