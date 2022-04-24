@@ -30,7 +30,7 @@ validateLibrary:
             - $CRONJOB == "YES"
 
 build:
-  type: build
+  stage: build
   script:
     - echo "**${CI_PROJECT_DIR}**"
     - rm -rf ${CI_PROJECT_DIR}/install
@@ -59,7 +59,7 @@ build:
     expire_in: 1 day
 
 loadRESTLibs:
-  type: loadRESTLibs
+  stage: loadRESTLibs
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
       #    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
@@ -69,7 +69,7 @@ loadRESTLibs:
       - $CRONJOB
 
 magneticField:
-  type: metadata
+  stage: metadata
   script:
       #    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
@@ -87,7 +87,7 @@ magneticField:
         - $CRONJOB
 
 optics:
-  type: metadata
+  stage: metadata
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/optics/
@@ -105,7 +105,7 @@ optics:
         - $CRONJOB
 
 xRayTransmission:
-  type: metadata
+  stage: metadata
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/transmission/
@@ -117,7 +117,7 @@ xRayTransmission:
     - python windowPlot.py
 
 solarFlux:
-  type: metadata
+  stage: metadata
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/solarFlux/
