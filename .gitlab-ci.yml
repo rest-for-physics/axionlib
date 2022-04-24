@@ -78,6 +78,7 @@ magneticField:
     - wget https://sultan.unizar.es/axionlib-data/magneticField/Bykovskiy_201906.dat
     - python magneticField.py
     - cd trilinear
+    - wget https://sultan.unizar.es/axionlib-data/magneticField/fields.rml
     - restRoot -b -q GetMagneticField_test.C
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/magneticField/boundary/
     - restRoot -b -q Boundaries_test.C
