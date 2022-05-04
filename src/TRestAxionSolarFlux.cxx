@@ -56,10 +56,17 @@
 /// contributions by TRestAxionSolarFlux::ReadFluxFile to be managed internally. Two
 /// additional parameters *will be required* to translate the `.flux` files into the tables
 /// that are understood by this class.
-/// - *binSize:* The energy binning used on the `.flux` file.
+/// - *binSize:* The energy binning used on the `.flux` file and inside the histogram used
+/// for monochromatic lines identification.
 /// - *peakSigma:* The ratio between the flux provided at the `.flux` file and the
 /// average flux calculated in the peak surroundings. If the flux ratio is higher than
 /// this value, the flux at that particular bin will be considered a peak.
+///
+/// Optionally, if we want to consider a different binning on the monochromatic/continuum
+/// histogram used internally for the calculation we may specify optionally a new parameter.
+/// In that case, `fBinSize` will be the binning of the internal histogram, while the new
+/// parameter will be the binning given inside the `.flux` file.
+/// - *fluxBinSize:* The bin size used on the `.flux` table.
 ///
 /// Pre-generated solar axion flux tables will be available at the
 /// [axionlib-data](https://github.com/rest-for-physics/axionlib-data/tree/master)
@@ -383,18 +390,22 @@ void TRestAxionSolarFlux::ReadFluxFile() {
     std::vector<std::vector<Double_t>> fluxData;
     TRestTools::ReadASCIITable(fullPathName, fluxData, 3);
 
+    debug << "Table loaded" << endl;
     TH2F* originalHist = new TH2F("FullTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
     TH2F* continuumHist = new TH2F("ContinuumTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
     TH2F* spectrumHist = new TH2F("LinesTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
 
-    for (const auto& data : fluxData) {
-        Double_t r = 0.005 + data[0];
-        Double_t en = data[1] - 0.005;
-        Double_t flux = data[2] * fBinSize;  // flux in cm-2 s-1 bin-1
+    if (fFluxBinSize == 0) fFluxBinSize = fBinSize;
 
-        originalHist->Fill(r, en, flux);
-        continuumHist->Fill(r, en, flux);
+    for (const auto& data : fluxData) {
+        Float_t r = 0.005 + data[0];
+        Float_t en = data[1] - 0.005;
+        Float_t flux = data[2] * fBinSize;  // flux in cm-2 s-1 bin-1
+
+        originalHist->Fill(r, en, (Float_t)flux);
+        continuumHist->Fill(r, en, (Float_t)flux);
     }
+    debug << "Histograms filled" << endl;
 
     Int_t peaks = 0;
     do {
@@ -758,6 +769,9 @@ void TRestAxionSolarFlux::PrintMetadata() {
     metadata << "--------" << endl;
     metadata << " - Random seed : " << fSeed << endl;
     if (fBinSize > 0) metadata << " - Energy bin size : " << fBinSize * units("eV") << " eV" << endl;
+    if (fFluxBinSize > 0)
+        metadata << " - Original .flux file energy bin size : " << fFluxBinSize * units("eV") << " eV"
+                 << endl;
     if (fPeakSigma > 0) metadata << " - Peak signal-to-noise in sigmas  : " << fPeakSigma << endl;
     metadata << "++++++++++++++++++" << endl;
 
