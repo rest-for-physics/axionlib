@@ -356,7 +356,7 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
 
     for (int en = 0; en < asciiTable[0].size(); en++) {
         Float_t energy = asciiTable[0][en];
-        TH1F* h = new TH1F(Form("%s_MonochromeFluxAtEnergy%5.3lf", GetName(), energy), "", 100, 0, 1);
+        TH1F* h = new TH1F(Form("%s_MonochromeFluxAtEnergy%6.4lf", GetName(), energy), "", 100, 0, 1);
         for (int r = 1; r < asciiTable.size(); r++) h->SetBinContent(r, asciiTable[r][en]);
         fFluxLines[energy] = h;
     }
@@ -395,12 +395,12 @@ void TRestAxionSolarFlux::ReadFluxFile() {
     TH2F* continuumHist = new TH2F("ContinuumTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
     TH2F* spectrumHist = new TH2F("LinesTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
 
-    if (fFluxBinSize == 0) fFluxBinSize = fBinSize;
+    Double_t fluxBinSize = TRestTools::GetLowestIncreaseFromTable(fluxData, 1);
 
     for (const auto& data : fluxData) {
         Float_t r = 0.005 + data[0];
         Float_t en = data[1] - 0.005;
-        Float_t flux = data[2] * fBinSize;  // flux in cm-2 s-1 bin-1
+        Float_t flux = data[2] * fluxBinSize;  // flux in cm-2 s-1 bin-1
 
         originalHist->Fill(r, en, (Float_t)flux);
         continuumHist->Fill(r, en, (Float_t)flux);
@@ -769,9 +769,6 @@ void TRestAxionSolarFlux::PrintMetadata() {
     metadata << "--------" << endl;
     metadata << " - Random seed : " << fSeed << endl;
     if (fBinSize > 0) metadata << " - Energy bin size : " << fBinSize * units("eV") << " eV" << endl;
-    if (fFluxBinSize > 0)
-        metadata << " - Original .flux file energy bin size : " << fFluxBinSize * units("eV") << " eV"
-                 << endl;
     if (fPeakSigma > 0) metadata << " - Peak signal-to-noise in sigmas  : " << fPeakSigma << endl;
     metadata << "++++++++++++++++++" << endl;
 
