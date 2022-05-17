@@ -40,8 +40,8 @@ class TRestAxionAnalysisProcess : public TRestEventProcess {
 
    protected:
    public:
-    any GetInputEvent() { return fAxionEvent; }
-    any GetOutputEvent() { return fAxionEvent; }
+    virtual RESTValue GetInputEvent() { return fAxionEvent; }
+    virtual RESTValue GetOutputEvent() { return fAxionEvent; }
 
     TRestEvent* ProcessEvent(TRestEvent* evInput);
 
@@ -54,11 +54,8 @@ class TRestAxionAnalysisProcess : public TRestEventProcess {
         EndPrintProcess();
     }
 
-    /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestAxionAnalysisProcess; }
-
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "axionAnalysis"; }
+    virtual const char* GetProcessName() { return (TString) "axionAnalysis"; }
 
     // Constructor
     TRestAxionAnalysisProcess();
