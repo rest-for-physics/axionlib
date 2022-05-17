@@ -139,9 +139,9 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
 
     void PrintComplex(ComplexReal);
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
@@ -165,17 +165,17 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
 
    protected:
    public:
-    void InitProcess();
+    void InitProcess() override;
 
-    any GetInputEvent() { return fAxionEvent; }
-    any GetOutputEvent() { return fAxionEvent; }
+    any GetInputEvent() const override { return fAxionEvent; }
+    any GetOutputEvent() const override { return fAxionEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* evInput);
+    TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
         metadata << "mode: " << fMode << endl;
@@ -238,11 +238,8 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
                                 ComplexReal& orthogonalPhotonAmplitude, mpfr::mpreal axionMass,
                                 mpfr::mpreal photonMass, mpfr::mpreal Ea, TVector3 from, TVector3 to);
 
-    /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestAxionFieldPropagationProcess; }
-
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "axionFieldPropagation"; }
+    const char* GetProcessName() const override { return "axionFieldPropagation"; }
 
     // Constructor
     TRestAxionFieldPropagationProcess();
@@ -251,6 +248,6 @@ class TRestAxionFieldPropagationProcess : public TRestEventProcess {
     // Destructor
     ~TRestAxionFieldPropagationProcess();
 
-    ClassDef(TRestAxionFieldPropagationProcess, 1);
+    ClassDefOverride(TRestAxionFieldPropagationProcess, 1);
 };
 #endif

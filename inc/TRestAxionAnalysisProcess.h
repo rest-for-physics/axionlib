@@ -32,30 +32,30 @@ class TRestAxionAnalysisProcess : public TRestEventProcess {
     /// A pointer to the specific TRestAxionEvent
     TRestAxionEvent* fAxionEvent;  //!
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
    protected:
    public:
-    virtual RESTValue GetInputEvent() { return fAxionEvent; }
-    virtual RESTValue GetOutputEvent() { return fAxionEvent; }
+    RESTValue GetInputEvent() const override { return fAxionEvent; }
+    RESTValue GetOutputEvent() const override { return fAxionEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* evInput);
+    TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
         EndPrintProcess();
     }
 
     /// Returns the name of this process
-    virtual const char* GetProcessName() { return (TString) "axionAnalysis"; }
+    const char* GetProcessName() const override { return "axionAnalysis"; }
 
     // Constructor
     TRestAxionAnalysisProcess();
@@ -64,6 +64,6 @@ class TRestAxionAnalysisProcess : public TRestEventProcess {
     // Destructor
     ~TRestAxionAnalysisProcess();
 
-    ClassDef(TRestAxionAnalysisProcess, 1);
+    ClassDefOverride(TRestAxionAnalysisProcess, 1);
 };
 #endif

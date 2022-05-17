@@ -40,7 +40,7 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     Int_t fCounter = 0;  //!
 
     /// A pointer to the axion model stored in TRestRun
-    TRestAxionSpectrum *fAxionSpectrum; //!
+    TRestAxionSpectrum* fAxionSpectrum;  //!
 
     /// Random number generator
     TRandom3* fRandom;  //!
@@ -79,9 +79,9 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     /// Mode of rotated circle Wall construction
     TString fMode;  //->
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
@@ -93,15 +93,15 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
    public:
     void InitProcess();
 
-    any GetInputEvent() { return (TRestEvent*)NULL; }
-    any GetOutputEvent() { return fOutputAxionEvent; }
+    virtual RESTValue GetInputEvent() const override { return nullptr; }
+    virtual RESTValue GetOutputEvent() const override { return fOutputAxionEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
         metadata << "Energy distribution" << endl;
@@ -126,11 +126,8 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
         EndPrintProcess();
     }
 
-    /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestAxionGeneratorProcess; }
-
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "axionGenerator"; }
+    const char* GetProcessName() const override { return "axionGenerator"; }
 
     // Constructor
     TRestAxionGeneratorProcess();
@@ -139,6 +136,6 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     // Destructor
     ~TRestAxionGeneratorProcess();
 
-    ClassDef(TRestAxionGeneratorProcess, 1);
+    ClassDefOverride(TRestAxionGeneratorProcess, 1);
 };
 #endif
