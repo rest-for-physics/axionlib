@@ -113,7 +113,7 @@ TRestAxionSolarFlux::TRestAxionSolarFlux(const char* cfgFileName, string name) :
 
     LoadConfigFromFile(fConfigFileName, name);
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -149,23 +149,23 @@ void TRestAxionSolarFlux::Initialize() {
 ///
 void TRestAxionSolarFlux::LoadContinuumFluxTable() {
     if (fFluxDataFile == "") {
-        debug << "TRestAxionSolarflux::LoadContinuumFluxTable. No solar flux table was defined" << endl;
+        RESTDebug << "TRestAxionSolarflux::LoadContinuumFluxTable. No solar flux table was defined" << RESTendl;
         return;
     }
 
     string fullPathName = SearchFile((string)fFluxDataFile);
 
-    debug << "Loading table from file : " << endl;
-    debug << "File : " << fullPathName << endl;
+    RESTDebug << "Loading table from file : " << RESTendl;
+    RESTDebug << "File : " << fullPathName << RESTendl;
 
     std::vector<std::vector<Double_t>> fluxTable;
     TRestTools::ReadASCIITable(fullPathName, fluxTable);
 
     if (fluxTable.size() != 100 && fluxTable[0].size() != 200) {
         fluxTable.clear();
-        ferr << "LoadContinuumFluxTable. The table does not contain the right number of rows or columns"
-             << endl;
-        ferr << "Table will not be populated" << endl;
+        RESTFerr << "LoadContinuumFluxTable. The table does not contain the right number of rows or columns"
+             << RESTendl;
+        RESTFerr << "Table will not be populated" << RESTendl;
     }
 
     for (int n = 0; n < fluxTable.size(); n++) {
@@ -181,16 +181,16 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
 ///
 void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
     if (fFluxSptFile == "") {
-        debug << "TRestAxionSolarflux::LoadMonoChromaticFluxTable. No solar flux monochromatic table was "
+        RESTDebug << "TRestAxionSolarflux::LoadMonoChromaticFluxTable. No solar flux monochromatic table was "
                  "defined"
-              << endl;
+              << RESTendl;
         return;
     }
 
     string fullPathName = SearchFile((string)fFluxSptFile);
 
-    debug << "Loading monochromatic lines from file : " << endl;
-    debug << "File : " << fullPathName << endl;
+    RESTDebug << "Loading monochromatic lines from file : " << RESTendl;
+    RESTDebug << "File : " << fullPathName << RESTendl;
 
     std::vector<std::vector<Double_t>> asciiTable;
     TRestTools::ReadASCIITable(fullPathName, asciiTable);
@@ -198,8 +198,8 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
     fFluxLines.clear();
 
     if (asciiTable.size() != 101) {
-        ferr << "LoadMonoChromaticFluxTable. The table does not contain the right number of rows" << endl;
-        ferr << "Table will not be populated" << endl;
+        RESTFerr << "LoadMonoChromaticFluxTable. The table does not contain the right number of rows" << RESTendl;
+        RESTFerr << "Table will not be populated" << RESTendl;
         return;
     }
 
@@ -241,7 +241,7 @@ void TRestAxionSolarFlux::IntegrateSolarFluxes() {
 /// \brief Initialization of TRestAxionSolarFlux metadata members through a RML file
 ///
 void TRestAxionSolarFlux::InitFromConfigFile() {
-    debug << "Entering TRestAxionSolarFlux::InitFromConfigFile" << endl;
+    RESTDebug << "Entering TRestAxionSolarFlux::InitFromConfigFile" << RESTendl;
 
     fFluxDataFile = GetParameter("fluxDataFile", "");
     fFluxSptFile = GetParameter("fluxSptFile", "");
@@ -333,19 +333,19 @@ void TRestAxionSolarFlux::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     if (fFluxDataFile != "")
-        metadata << " - Solar axion flux datafile (continuum) : " << fFluxDataFile << endl;
+        RESTMetadata << " - Solar axion flux datafile (continuum) : " << fFluxDataFile << RESTendl;
     if (fFluxSptFile != "")
-        metadata << " - Solar axion flux datafile (monochromatic) : " << fFluxSptFile << endl;
-    metadata << " - Coupling type : " << fCouplingType << endl;
-    metadata << " - Coupling strength : " << fCouplingStrength << endl;
-    metadata << "-------" << endl;
-    metadata << " - Total monochromatic flux : " << fTotalMonochromaticFlux << " cm-2 s-1" << endl;
-    metadata << " - Total continuum flux : " << fTotalContinuumFlux << " cm-2 s-1" << endl;
-    metadata << "--------" << endl;
-    metadata << " - Random seed : " << fSeed << endl;
-    metadata << "++++++++++++++++++" << endl;
+        RESTMetadata << " - Solar axion flux datafile (monochromatic) : " << fFluxSptFile << RESTendl;
+    RESTMetadata << " - Coupling type : " << fCouplingType << RESTendl;
+    RESTMetadata << " - Coupling strength : " << fCouplingStrength << RESTendl;
+    RESTMetadata << "-------" << RESTendl;
+    RESTMetadata << " - Total monochromatic flux : " << fTotalMonochromaticFlux << " cm-2 s-1" << RESTendl;
+    RESTMetadata << " - Total continuum flux : " << fTotalContinuumFlux << " cm-2 s-1" << RESTendl;
+    RESTMetadata << "--------" << RESTendl;
+    RESTMetadata << " - Random seed : " << fSeed << RESTendl;
+    RESTMetadata << "++++++++++++++++++" << RESTendl;
 
-    if (GetVerboseLevel() >= REST_Debug) {
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         PrintContinuumSolarTable();
         PrintMonoChromaticFlux();
         PrintIntegratedRingFlux();

@@ -157,13 +157,13 @@ TRestAxionOpticsMirror::TRestAxionOpticsMirror() : TRestMetadata() { Initialize(
 ///
 TRestAxionOpticsMirror::TRestAxionOpticsMirror(const char* cfgFileName, string name)
     : TRestMetadata(cfgFileName) {
-    debug << "Entering TRestAxionOpticsMirror constructor( cfgFileName, name )" << endl;
+    RESTDebug << "Entering TRestAxionOpticsMirror constructor( cfgFileName, name )" << RESTendl;
 
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -314,7 +314,7 @@ std::string TRestAxionOpticsMirror::GetTransmissionFilename() {
 ///
 Int_t TRestAxionOpticsMirror::ExportTables() {
     if (fReflectivityTable.size() == 0) {
-        ferr << "Nothing to export!" << endl;
+        RESTFerr << "Nothing to export!" << RESTendl;
         return 1;
     }
 
@@ -327,11 +327,11 @@ Int_t TRestAxionOpticsMirror::ExportTables() {
 
     string fnameR = GetReflectivityFilename();
     TRestTools::ExportBinaryTable(path + fnameR, fReflectivityTable);
-    info << "Reflectivity table generated at: " << path + fnameR << endl;
+    RESTInfo << "Reflectivity table generated at: " << path + fnameR << RESTendl;
 
     string fnameT = GetTransmissionFilename();
     TRestTools::ExportBinaryTable(path + fnameT, fTransmissionTable);
-    info << "Transmission table generated at: " << path + fnameT << endl;
+    RESTInfo << "Transmission table generated at: " << path + fnameT << RESTendl;
 
     return 0;
 }
@@ -364,14 +364,14 @@ Double_t TRestAxionOpticsMirror::GetReflectivity(const Double_t angle, const Dou
 
     Double_t en = energy;
     if (en < 0.030) {
-        warning << "Energy is below 30eV! It should be between 30eV and 15keV" << endl;
-        warning << "Setting energy to 30eV" << endl;
+        RESTWarning << "Energy is below 30eV! It should be between 30eV and 15keV" << RESTendl;
+        RESTWarning << "Setting energy to 30eV" << RESTendl;
         en = 0.030;
     }
 
     if (en > 15) {
-        warning << "Energy is above 15keV! It should be between 30eV and 15keV" << endl;
-        warning << "Setting energy to 15keV" << endl;
+        RESTWarning << "Energy is above 15keV! It should be between 30eV and 15keV" << RESTendl;
+        RESTWarning << "Setting energy to 15keV" << RESTendl;
         en = 15;
     }
 
@@ -380,14 +380,14 @@ Double_t TRestAxionOpticsMirror::GetReflectivity(const Double_t angle, const Dou
 
     Double_t ang = angle;
     if (ang < 0.0) {
-        warning << "Angle is below 0 degrees! It should be between 0 and 9 degrees" << endl;
-        warning << "Setting angle to 0 degrees" << endl;
+        RESTWarning << "Angle is below 0 degrees! It should be between 0 and 9 degrees" << RESTendl;
+        RESTWarning << "Setting angle to 0 degrees" << RESTendl;
         ang = 0.0;
     }
 
     if (ang > 9) {
-        warning << "Angle is above 9 degrees! It should be between 0 and 9 degrees" << endl;
-        warning << "Setting angle to 9 degrees" << endl;
+        RESTWarning << "Angle is above 9 degrees! It should be between 0 and 9 degrees" << RESTendl;
+        RESTWarning << "Setting angle to 9 degrees" << RESTendl;
         ang = 9;
     }
 
@@ -416,14 +416,14 @@ Double_t TRestAxionOpticsMirror::GetTransmission(const Double_t angle, const Dou
 
     Double_t en = energy;
     if (en < 0.030) {
-        warning << "Energy is below 30eV! It should be between 30eV and 15keV" << endl;
-        warning << "Setting energy to 30eV" << endl;
+        RESTWarning << "Energy is below 30eV! It should be between 30eV and 15keV" << RESTendl;
+        RESTWarning << "Setting energy to 30eV" << RESTendl;
         en = 0.030;
     }
 
     if (en > 15) {
-        warning << "Energy is above 15keV! It should be between 30eV and 15keV" << endl;
-        warning << "Setting energy to 15keV" << endl;
+        RESTWarning << "Energy is above 15keV! It should be between 30eV and 15keV" << RESTendl;
+        RESTWarning << "Setting energy to 15keV" << RESTendl;
         en = 15;
     }
 
@@ -432,14 +432,14 @@ Double_t TRestAxionOpticsMirror::GetTransmission(const Double_t angle, const Dou
 
     Double_t ang = angle;
     if (ang < 0.0) {
-        warning << "Angle is below 0 degrees! It should be between 0 and 9 degrees" << endl;
-        warning << "Setting angle to 0 degrees" << endl;
+        RESTWarning << "Angle is below 0 degrees! It should be between 0 and 9 degrees" << RESTendl;
+        RESTWarning << "Setting angle to 0 degrees" << RESTendl;
         ang = 0.0;
     }
 
     if (ang > 9) {
-        warning << "Angle is above 9 degrees! It should be between 0 and 9 degrees" << endl;
-        warning << "Setting angle to 9 degrees" << endl;
+        RESTWarning << "Angle is above 9 degrees! It should be between 0 and 9 degrees" << RESTendl;
+        RESTWarning << "Setting angle to 9 degrees" << RESTendl;
         ang = 9;
     }
 
@@ -466,23 +466,23 @@ Double_t TRestAxionOpticsMirror::GetTransmission(const Double_t angle, const Dou
 void TRestAxionOpticsMirror::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << "Mirror type: " << fMirrorType << endl;
+    RESTMetadata << "Mirror type: " << fMirrorType << RESTendl;
     if (fMirrorType == "Single") {
-        metadata << "Layer material: " << fLayerTop << endl;
-        metadata << "Layer thickness: " << fLayerThicknessTop << " nm" << endl;
-        metadata << "Layer roughness: " << fSigmaTop << "nm" << endl;
+        RESTMetadata << "Layer material: " << fLayerTop << RESTendl;
+        RESTMetadata << "Layer thickness: " << fLayerThicknessTop << " nm" << RESTendl;
+        RESTMetadata << "Layer roughness: " << fSigmaTop << "nm" << RESTendl;
     }
 
     if (fMirrorType == "Bilayer") {
-        metadata << "Top layer material: " << fLayerTop << endl;
-        metadata << "Top layer thickness: " << fLayerThicknessTop << " nm" << endl;
-        metadata << "Top layer roughness: " << fSigmaTop << "nm" << endl;
-        metadata << "Bottom layer material: " << fLayerBottom << endl;
-        metadata << "Bottom layer thickness: " << fLayerThicknessBottom << " nm" << endl;
-        metadata << "Bottom layer roughness: " << fSigmaBottom << "nm" << endl;
+        RESTMetadata << "Top layer material: " << fLayerTop << RESTendl;
+        RESTMetadata << "Top layer thickness: " << fLayerThicknessTop << " nm" << RESTendl;
+        RESTMetadata << "Top layer roughness: " << fSigmaTop << "nm" << RESTendl;
+        RESTMetadata << "Bottom layer material: " << fLayerBottom << RESTendl;
+        RESTMetadata << "Bottom layer thickness: " << fLayerThicknessBottom << " nm" << RESTendl;
+        RESTMetadata << "Bottom layer roughness: " << fSigmaBottom << "nm" << RESTendl;
     }
-    metadata << "Substrate material: " << fSubstrate << endl;
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    RESTMetadata << "Substrate material: " << fSubstrate << RESTendl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -529,7 +529,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
             "[1,4,7,10](0,9){0.6,0.68,0.9,0.88}:[0.25,0.5,0.75,1](0,10){0.2,0.2,0.45,0.45}");
 
     if (optList.size() != 2) {
-        ferr << "TRestAxionOpticsMirror::DrawOpticsProperties. Wrong arguments!" << endl;
+        RESTFerr << "TRestAxionOpticsMirror::DrawOpticsProperties. Wrong arguments!" << RESTendl;
         return fCanvas;
     }
 

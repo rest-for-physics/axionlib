@@ -99,13 +99,13 @@ void TRestAxionLikelihood::GenerateMonteCarlo() {
     Double_t expTimeInSeconds = fTExpVacuum * 3600.;
     Double_t energyRange = fErange.Y() - fErange.X();
 
-    debug << "Energy range : " << energyRange << endl;
+    RESTDebug << "Energy range : " << energyRange << RESTendl;
 
     Double_t mean = fBackgroundLevel * fSpotArea * expTimeInSeconds * energyRange;
 
     fMeasuredCountsVacuum = fRandom->Poisson(mean);
-    debug << "Vacuum phase. Mean counts : " << mean << endl;
-    debug << "Vacuum phase. Measured counts : " << fMeasuredCountsVacuum << endl;
+    RESTDebug << "Vacuum phase. Mean counts : " << mean << RESTendl;
+    RESTDebug << "Vacuum phase. Measured counts : " << fMeasuredCountsVacuum << RESTendl;
 
     ////// Gas phase
 
@@ -177,12 +177,12 @@ void TRestAxionLikelihood::GenerateMonteCarlo() {
         Int_t counts = fRandom->Poisson(mean);
         fMeasuredCountsPerStep.push_back(counts);
 
-        debug << "Step : " << n << " measured : " << counts << " :: " << fMeasuredCountsPerStep.back()
-              << " counts" << endl;
-        debug << "Time : " << fExposureTimePerStep[n] / 12 << " days" << endl;
+        RESTDebug << "Step : " << n << " measured : " << counts << " :: " << fMeasuredCountsPerStep.back()
+              << " counts" << RESTendl;
+        RESTDebug << "Time : " << fExposureTimePerStep[n] / 12 << " days" << RESTendl;
     }
 
-    debug << "Number of steps : " << fNSteps << " :: " << fMeasuredCountsPerStep.size() << endl;
+    RESTDebug << "Number of steps : " << fNSteps << " :: " << fMeasuredCountsPerStep.size() << RESTendl;
 }
 
 void TRestAxionLikelihood::LikelihoodTest(const string& fname) {
@@ -388,21 +388,21 @@ void TRestAxionLikelihood::InitFromConfigFile() {
 void TRestAxionLikelihood::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << " Number of magnet bores : " << fNbores << endl;
+    RESTMetadata << " Number of magnet bores : " << fNbores << RESTendl;
 
-    metadata << " Magnetic field : " << fBmag << " T" << endl;
-    metadata << " Magnet length : " << fLmag << " mm" << endl;
+    RESTMetadata << " Magnetic field : " << fBmag << " T" << RESTendl;
+    RESTMetadata << " Magnet length : " << fLmag << " mm" << RESTendl;
 
-    metadata << " Magnet radius : " << fRmag << " mm" << endl;
-    metadata << " Signal overall efficiency : " << fEfficiency << endl;
+    RESTMetadata << " Magnet radius : " << fRmag << " mm" << RESTendl;
+    RESTMetadata << " Signal overall efficiency : " << fEfficiency << RESTendl;
 
-    metadata << " Background level : " << fBackgroundLevel << " cpd keV-1 s-1" << endl;
-    metadata << " Energy range : (" << fErange.X() << ", " << fErange.Y() << ")" << endl;
+    RESTMetadata << " Background level : " << fBackgroundLevel << " cpd keV-1 s-1" << RESTendl;
+    RESTMetadata << " Energy range : (" << fErange.X() << ", " << fErange.Y() << ")" << RESTendl;
 
-    metadata << " Vacuum phase exposure time : " << fTExpVacuum << " hours" << endl;
-    metadata << " Gas phase exposure time per step : " << fTExpPerStep << endl;
-    metadata << " Total number of steps : " << fNSteps << endl;
-    metadata << " Last step Helium density : " << fLastStepDensity << " g/cm3" << endl;
+    RESTMetadata << " Vacuum phase exposure time : " << fTExpVacuum << " hours" << RESTendl;
+    RESTMetadata << " Gas phase exposure time per step : " << fTExpPerStep << RESTendl;
+    RESTMetadata << " Total number of steps : " << fNSteps << RESTendl;
+    RESTMetadata << " Last step Helium density : " << fLastStepDensity << " g/cm3" << RESTendl;
 
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }

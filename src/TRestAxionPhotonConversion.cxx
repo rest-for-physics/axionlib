@@ -138,14 +138,14 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Bmag,
 
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
 
-    debug << "+--------------------------------------------------------------------------+" << endl;
-    debug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary" << endl;
-    debug << " Photon mass : " << photonMass << " eV" << endl;
-    debug << " Axion mass : " << ma << " eV" << endl;
-    debug << " Axion energy : " << Ea << " keV" << endl;
-    debug << " Lcoh : " << Lcoh << " mm" << endl;
-    debug << " Bmag : " << Bmag << " T" << endl;
-    debug << "+--------------------------------------------------------------------------+" << endl;
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+    RESTDebug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary" << RESTendl;
+    RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
+    RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
+    RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
+    RESTDebug << " Lcoh : " << Lcoh << " mm" << RESTendl;
+    RESTDebug << " Bmag : " << Bmag << " T" << RESTendl;
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
 
     if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(Bmag, Lcoh);
 
@@ -158,30 +158,30 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Bmag,
     mpfr::mpreal GammaL = Gamma * cohLength * 100;
 
     if (fDebug) {
-        debug << "+------------------------+" << endl;
-        debug << " Intermediate calculations" << endl;
-        debug << " q : " << q << " eV" << endl;
-        debug << " l : " << l << " eV-1" << endl;
-        debug << " phi : " << phi << endl;
-        debug << "Gamma : " << Gamma << endl;
-        debug << "GammaL : " << GammaL << endl;
-        debug << "+------------------------+" << endl;
+        RESTDebug << "+------------------------+" << RESTendl;
+        RESTDebug << " Intermediate calculations" << RESTendl;
+        RESTDebug << " q : " << q << " eV" << RESTendl;
+        RESTDebug << " l : " << l << " eV-1" << RESTendl;
+        RESTDebug << " phi : " << phi << RESTendl;
+        RESTDebug << "Gamma : " << Gamma << RESTendl;
+        RESTDebug << "GammaL : " << GammaL << RESTendl;
+        RESTDebug << "+------------------------+" << RESTendl;
     }
 
     mpfr::mpreal MFactor = phi * phi + GammaL * GammaL / 4.0;
     MFactor = 1.0 / MFactor;
 
     if (fDebug) {
-        debug << "Mfactor : " << MFactor << endl;
-        debug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << endl;
-        debug << "cos(phi) : " << cos(phi) << endl;
-        debug << "Exp(-GammaL) : " << exp(-GammaL) << endl;
+        RESTDebug << "Mfactor : " << MFactor << RESTendl;
+        RESTDebug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << RESTendl;
+        RESTDebug << "cos(phi) : " << cos(phi) << RESTendl;
+        RESTDebug << "Exp(-GammaL) : " << exp(-GammaL) << RESTendl;
     }
 
     double sol =
         (double)(MFactor * BLHalfSquared(Bmag, Lcoh) * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
 
-    debug << "Axion-photon transmission probability : " << sol << endl;
+    RESTDebug << "Axion-photon transmission probability : " << sol << RESTendl;
 
     return sol;
 }
@@ -209,14 +209,14 @@ Double_t TRestAxionPhotonConversion::AxionAbsorptionProbability(Double_t Bmag, D
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
 
     if (fDebug) {
-        debug << "+--------------------------------------------------------------------------+" << endl;
-        debug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary" << endl;
-        debug << " Photon mass : " << photonMass << " eV" << endl;
-        debug << " Axion mass : " << ma << " eV" << endl;
-        debug << " Axion energy : " << Ea << " keV" << endl;
-        debug << " Lcoh : " << Lcoh << " mm" << endl;
-        debug << " Bmag : " << Bmag << " T" << endl;
-        debug << "+--------------------------------------------------------------------------+" << endl;
+        RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+        RESTDebug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary" << RESTendl;
+        RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
+        RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
+        RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
+        RESTDebug << " Lcoh : " << Lcoh << " mm" << RESTendl;
+        RESTDebug << " Bmag : " << Bmag << " T" << RESTendl;
+        RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
     }
 
     if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(Bmag, Lcoh);
@@ -230,29 +230,29 @@ Double_t TRestAxionPhotonConversion::AxionAbsorptionProbability(Double_t Bmag, D
     mpfr::mpreal GammaL = Gamma * cohLength * 100;
 
     if (fDebug) {
-        debug << "+------------------------+" << endl;
-        debug << " Intermediate calculations" << endl;
-        debug << " q : " << q << " eV" << endl;
-        debug << " l : " << l << " eV-1" << endl;
-        debug << " phi : " << phi << endl;
-        debug << "Gamma : " << Gamma << endl;
-        debug << "GammaL : " << GammaL << endl;
-        debug << "+------------------------+" << endl;
+        RESTDebug << "+------------------------+" << RESTendl;
+        RESTDebug << " Intermediate calculations" << RESTendl;
+        RESTDebug << " q : " << q << " eV" << RESTendl;
+        RESTDebug << " l : " << l << " eV-1" << RESTendl;
+        RESTDebug << " phi : " << phi << RESTendl;
+        RESTDebug << "Gamma : " << Gamma << RESTendl;
+        RESTDebug << "GammaL : " << GammaL << RESTendl;
+        RESTDebug << "+------------------------+" << RESTendl;
     }
 
     mpfr::mpreal MFactor = phi * phi + GammaL * GammaL / 4.0;
     MFactor = 1.0 / MFactor;
 
     if (fDebug) {
-        debug << "Mfactor : " << MFactor << endl;
-        debug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << endl;
-        debug << "cos(phi) : " << cos(phi) << endl;
-        debug << "Exp(-GammaL) : " << exp(-GammaL) << endl;
+        RESTDebug << "Mfactor : " << MFactor << RESTendl;
+        RESTDebug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << RESTendl;
+        RESTDebug << "cos(phi) : " << cos(phi) << RESTendl;
+        RESTDebug << "Exp(-GammaL) : " << exp(-GammaL) << RESTendl;
     }
 
     double sol = (double)(MFactor * BLHalfSquared(Bmag, Lcoh) * GammaL);
 
-    if (fDebug) debug << "Axion-photon absorption probability : " << sol << endl;
+    if (fDebug) RESTDebug << "Axion-photon absorption probability : " << sol << RESTendl;
 
     return sol;
 }
@@ -268,14 +268,14 @@ void TRestAxionPhotonConversion::PropagateAxion(Double_t Bmag, Double_t Lcoh, Do
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
 
     if (fDebug) {
-        debug << "+--------------------------------------------------------------------------+" << endl;
-        debug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary" << endl;
-        debug << " Photon mass : " << photonMass << " eV" << endl;
-        debug << " Axion mass : " << ma << " eV" << endl;
-        debug << " Axion energy : " << Ea << " keV" << endl;
-        debug << " Lcoh : " << Lcoh << " mm" << endl;
-        debug << " Bmag : " << Bmag << " T" << endl;
-        debug << "+--------------------------------------------------------------------------+" << endl;
+        RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+        RESTDebug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary" << RESTendl;
+        RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
+        RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
+        RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
+        RESTDebug << " Lcoh : " << Lcoh << " mm" << RESTendl;
+        RESTDebug << " Bmag : " << Bmag << " T" << RESTendl;
+        RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
     }
 
     mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
@@ -287,14 +287,14 @@ void TRestAxionPhotonConversion::PropagateAxion(Double_t Bmag, Double_t Lcoh, Do
     mpfr::mpreal GammaL = Gamma * cohLength * 100;
 
     if (fDebug) {
-        debug << "+------------------------+" << endl;
-        debug << " Intermediate calculations" << endl;
-        debug << " q : " << q << " eV" << endl;
-        debug << " l : " << l << " eV-1" << endl;
-        debug << " phi : " << phi << endl;
-        debug << "Gamma : " << Gamma << endl;
-        debug << "GammaL : " << GammaL << endl;
-        debug << "+------------------------+" << endl;
+        RESTDebug << "+------------------------+" << RESTendl;
+        RESTDebug << " Intermediate calculations" << RESTendl;
+        RESTDebug << " q : " << q << " eV" << RESTendl;
+        RESTDebug << " l : " << l << " eV-1" << RESTendl;
+        RESTDebug << " phi : " << phi << RESTendl;
+        RESTDebug << "Gamma : " << Gamma << RESTendl;
+        RESTDebug << "GammaL : " << GammaL << RESTendl;
+        RESTDebug << "+------------------------+" << RESTendl;
     }
 
     mpfr::mpreal bl = BL(Bmag, Lcoh);
@@ -316,13 +316,13 @@ void TRestAxionPhotonConversion::PropagateAxion(Double_t Bmag, Double_t Lcoh, Do
     cout.precision(30);
 
     if (fDebug) {
-        cout << "ExpGamma : " << ExpGamma << endl;
-        cout << "ExpGammaDouble : " << ExpGammaDouble << endl;
-        debug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << endl;
-        debug << "cos(phi) : " << cos(phi) << endl;
-        debug << "Exp(-GammaL) : " << exp(-GammaL) << endl;
+        cout << "ExpGamma : " << ExpGamma << RESTendl;
+        cout << "ExpGammaDouble : " << ExpGammaDouble << RESTendl;
+        RESTDebug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << RESTendl;
+        RESTDebug << "cos(phi) : " << cos(phi) << RESTendl;
+        RESTDebug << "Exp(-GammaL) : " << exp(-GammaL) << RESTendl;
     }
 
-    // if (fDebug) debug << "Axion-photon absorption probability : " << sol << endl;
+    // if (fDebug) RESTDebug << "Axion-photon absorption probability : " << sol << RESTendl;
 }
 */
