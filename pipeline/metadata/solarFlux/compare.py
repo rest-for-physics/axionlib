@@ -25,7 +25,7 @@ pad1 = TPad("pad1","This is pad1",0.01,0.02,0.99,0.97);
 pad1.Divide(2,1)
 pad1.Draw()
 
-primakoffLH = ROOT.TRestAxionSolarFlux("fluxes.rml", "LennertHoof")
+primakoffLH = ROOT.TRestAxionSolarFlux("fluxes.rml", "LennertHoofPrimakoff")
 primakoffG = ROOT.TRestAxionSolarFlux("fluxes.rml", "Gianotti")
 
 if primakoffLH.GetError():

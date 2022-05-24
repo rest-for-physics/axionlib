@@ -285,7 +285,7 @@ void TRestAxionOpticsMirror::LoadTables() {
 /// members
 ///
 std::string TRestAxionOpticsMirror::GetReflectivityFilename() {
-    string fnameR = "Reflectivy_" + fMirrorType + "_" + fLayerTop + "_" + fLayerThicknessTop + "_" +
+    string fnameR = "Reflectivity_" + fMirrorType + "_" + fLayerTop + "_" + fLayerThicknessTop + "_" +
                     fSubstrate + "_" + fSigmaTop + ".N901f";
     if (fMirrorType == "Bilayer")
         fnameR = "Reflectivity_" + fMirrorType + "_" + fLayerTop + "_" + fLayerThicknessTop + "_" +
