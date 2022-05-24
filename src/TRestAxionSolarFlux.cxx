@@ -301,8 +301,8 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
         TRestTools::ReadBinaryTable(fullPathName, fluxTable);
     else {
         fluxTable.clear();
-        ferr << "Filename extension was not recognized!" << endl;
-        ferr << "Solar flux table will not be populated" << endl;
+        RESTError << "Filename extension was not recognized!" << endl;
+        RESTError << "Solar flux table will not be populated" << endl;
     }
 
     if (fluxTable.size() != 100 && fluxTable[0].size() != 200) {
@@ -368,8 +368,8 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
 ///
 void TRestAxionSolarFlux::ReadFluxFile() {
     if (fBinSize <= 0) {
-        ferr << "TRestAxionSolarflux::ReadFluxFile. Energy bin size of .flux file must be specified." << endl;
-        ferr << "Please, define binSize parameter in eV." << endl;
+        RESTError << "TRestAxionSolarflux::ReadFluxFile. Energy bin size of .flux file must be specified." << endl;
+        RESTError << "Please, define binSize parameter in eV." << endl;
         return;
     }
 

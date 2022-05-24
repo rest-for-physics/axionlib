@@ -183,8 +183,8 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
 /*
 TVector3 TRestAxionFieldPropagationProcess::MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a) {
     if (n * dir == 0) {
-        ferr << "The vector is parallel to the plane!!" << endl;
-        ferr << "Position will not be translated" << endl;
+        RESTError << "The vector is parallel to the plane!!" << endl;
+        RESTError << "Position will not be translated" << endl;
     } else {
         Double_t t = (n * a - n * pos) / (n * dir);
 
@@ -201,7 +201,7 @@ TVector3 TRestAxionFieldPropagationProcess::MoveToPlane(TVector3 pos, TVector3 d
 /// component and an impact factor.
 /*
 TVector3 TRestAxionFieldPropagationProcess::MoveToPlan(TVector3 pos, TVector3 dir, Double_t f, Int_t i) {
-    if (dir[i] == 0) ferr << "The component of the direction you chose is equal to 0 " << endl;
+    if (dir[i] == 0) RESTError << "The component of the direction you chose is equal to 0 " << endl;
 
     Double_t t = (f - pos[i]) / dir[i];
     pos[i] = f;
@@ -443,7 +443,7 @@ if (direction == TVector3(0, 0, 0))  // No moves
     return boundaryCollection;
 
 if ((fAxionMagneticField->GetXmin()).size() == 0)
-    ferr << " The magnetic field has not been loaded " << endl;
+    RESTError << " The magnetic field has not been loaded " << endl;
 
 // Find global boundaries volume
 
