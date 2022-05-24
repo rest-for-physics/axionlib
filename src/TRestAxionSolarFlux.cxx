@@ -307,9 +307,9 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
 
     if (fluxTable.size() != 100 && fluxTable[0].size() != 200) {
         fluxTable.clear();
-        RESTFerr << "LoadContinuumFluxTable. The table does not contain the right number of rows or columns"
+        RESTError << "LoadContinuumFluxTable. The table does not contain the right number of rows or columns"
                  << RESTendl;
-        RESTFerr << "Table will not be populated" << RESTendl;
+        RESTError << "Table will not be populated" << RESTendl;
     }
 
     for (int n = 0; n < fluxTable.size(); n++) {
@@ -348,9 +348,9 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
     fFluxLines.clear();
 
     if (asciiTable.size() != 101) {
-        RESTFerr << "LoadMonoChromaticFluxTable. The table does not contain the right number of rows"
+        RESTError << "LoadMonoChromaticFluxTable. The table does not contain the right number of rows"
                  << RESTendl;
-        RESTFerr << "Table will not be populated" << RESTendl;
+        RESTError << "Table will not be populated" << RESTendl;
         return;
     }
 

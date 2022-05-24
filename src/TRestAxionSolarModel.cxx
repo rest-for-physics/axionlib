@@ -70,7 +70,7 @@ void TRestAxionSolarModel::InitFromConfigFile() {
     sSolarModelFile = GetParameter("solarAxionModel", "SolarModel_B16-AGSS09.dat");
     std::string fullPathName = SearchFile((std::string)sSolarModelFile);
     if (fullPathName == "") {
-        RESTFerr << "File not found : " << sSolarModelFile << RESTendl;
+        RESTError << "File not found : " << sSolarModelFile << RESTendl;
     } else {
 #ifdef USE_SolaxFlux
         sol = SolarModel(fullPathName, OP, false);
@@ -82,7 +82,7 @@ void TRestAxionSolarModel::InitFromConfigFile() {
         if (bSolarModelInitialized) {
             RESTDebug << "Solar model file " << sSolarModelFile << " successfully loaded!" << RESTendl;
         } else {
-            RESTFerr << "Solar model initialization was not successful!" << RESTendl;
+            RESTError << "Solar model initialization was not successful!" << RESTendl;
         };
 #endif
     };
@@ -129,7 +129,7 @@ std::vector<double> TRestAxionSolarModel::GetSolarAxionFluxGAGamma(std::vector<d
         RESTWarning << "The result vector will be empty!" << RESTendl;
         // result = sol.calculate_spectral_flux_Primakoff(energies, r_max);
     } else {
-        RESTFerr << "TRestAxionSolarModel not properly initialised for "
+        RESTError << "TRestAxionSolarModel not properly initialised for "
                 "RestAxionSolarModel::GetSolarAxionFluxGAGamma(...)!"
              << RESTendl;
     };
@@ -153,7 +153,7 @@ std::vector<double> TRestAxionSolarModel::GetSolarAxionFluxGAE(std::vector<doubl
         RESTWarning << "The result vector will be empty!" << RESTendl;
         // result = sol.calculate_spectral_flux_all_electron(energies, r_max);
     } else {
-        RESTFerr << "TRestAxionSolarModel not properly initialised for "
+        RESTError << "TRestAxionSolarModel not properly initialised for "
                 "RestAxionSolarModel::GetSolarAxionFluxGAE(...)!"
              << RESTendl;
     };

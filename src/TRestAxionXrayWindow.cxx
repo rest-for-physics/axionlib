@@ -161,7 +161,7 @@ void TRestAxionXrayWindow::Initialize() {
     fTransmission.clear();
 
     if (fWindowType != "foil" && fPatternGap == 0) {
-        RESTFerr << "TRestAxionXrayWindow::Initialize. fPatternGap cannot be zero!" << RESTendl;
+        RESTError << "TRestAxionXrayWindow::Initialize. fPatternGap cannot be zero!" << RESTendl;
         fPatternGap = 1;
     }
 
@@ -179,8 +179,8 @@ void TRestAxionXrayWindow::ReadMaterial() {
     RESTDebug << "TRestAxionXrayWindow::ReadMaterial. Reading file : " << materialFileName << RESTendl;
 
     if (!TRestTools::fileExists(materialFileName)) {
-        RESTFerr << "TRestAxionXrayWindow::ReadMaterial( )" << RESTendl;
-        RESTFerr << "Material file not found : " << materialFileName << RESTendl;
+        RESTError << "TRestAxionXrayWindow::ReadMaterial( )" << RESTendl;
+        RESTError << "Material file not found : " << materialFileName << RESTendl;
         exit(1);
     }
 
@@ -235,7 +235,7 @@ Double_t TRestAxionXrayWindow::GetTransmission(Double_t energy, Double_t x, Doub
     double n = y1 - m * x1;
 
     if (m * energy + n < 0) {
-        RESTFerr << "TRestAxionXrayWindow::GetAbsorptionCoefficient. Negative coefficient!" << RESTendl;
+        RESTError << "TRestAxionXrayWindow::GetAbsorptionCoefficient. Negative coefficient!" << RESTendl;
         cout << "y2 : " << y2 << " y1 : " << y1 << endl;
         cout << "x2 : " << x2 << " x1 : " << x1 << endl;
         cout << "m : " << m << " n : " << n << endl;

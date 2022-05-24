@@ -116,7 +116,7 @@ void TRestAxionGeneratorProcess::InitProcess() {
     fAxionSpectrum = (TRestAxionSpectrum*)this->GetMetadata("TRestAxionSpectrum");
 
     if (!fAxionSpectrum) {
-        RESTFerr << "TRestAxionGeneratorProcess. Axion model was not defined!" << RESTendl;
+        RESTError << "TRestAxionGeneratorProcess. Axion model was not defined!" << RESTendl;
         exit(0);
     }
 }

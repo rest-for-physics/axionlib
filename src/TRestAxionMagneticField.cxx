@@ -336,9 +336,9 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
     if (volIndex < 0) volIndex = 0;
 
     if (volIndex >= GetNumberOfVolumes()) {
-        RESTFerr << volIndex << " corresponds to none volume index " << RESTendl;
-        RESTFerr << "Total number of volumes : " << GetNumberOfVolumes() << RESTendl;
-        RESTFerr << "Setting volIndex to the first volume" << RESTendl;
+        RESTError << volIndex << " corresponds to none volume index " << RESTendl;
+        RESTError << "Total number of volumes : " << GetNumberOfVolumes() << RESTendl;
+        RESTError << "Setting volIndex to the first volume" << RESTendl;
         volIndex = 0;
     }
 
@@ -353,7 +353,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
     if (!vol) return fCanvas;
 
     if (!(projection == "XY" || projection == "XZ" || projection == "YZ")) {
-        RESTFerr << "You entered : " << projection << " as a projection but you have to choose XY, XZ or YZ"
+        RESTError << "You entered : " << projection << " as a projection but you have to choose XY, XZ or YZ"
              << RESTendl;
         return fCanvas;
     }
@@ -391,7 +391,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         else if ((depth >= zMin) && (depth <= zMax))
             z = depth;
         else
-            RESTFerr << "You entered depth = " << depth << ", but you have to choose depth between " << zMin
+            RESTError << "You entered depth = " << depth << ", but you have to choose depth between " << zMin
                  << " and " << zMax << RESTendl;
         x = xMin;
 
@@ -408,7 +408,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                         if (Bcomp == "Z")
                             B = Bvec[2];
                         else
-                            RESTFerr << "You entered : " << Bcomp
+                            RESTError << "You entered : " << Bcomp
                                  << " as a B component but you have to choose X, Y or Z" << RESTendl;
                     }
                 }
@@ -452,7 +452,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         else if ((depth >= yMin) && (depth <= yMax))
             y = depth;
         else
-            RESTFerr << "You entered depth = " << depth << ", but you have to choose depth between " << yMin
+            RESTError << "You entered depth = " << depth << ", but you have to choose depth between " << yMin
                  << " and " << yMax << RESTendl;
         x = xMin;
 
@@ -469,7 +469,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                         if (Bcomp == "Z")
                             B = Bvec[2];
                         else
-                            RESTFerr << "You entered : " << Bcomp
+                            RESTError << "You entered : " << Bcomp
                                  << " as a B component but you have to choose X, Y or Z" << RESTendl;
                     }
                 }
@@ -513,7 +513,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
         else if ((depth >= xMin) && (depth <= xMax))
             x = depth;
         else
-            RESTFerr << "You entered depth = " << depth << ", but you have to choose depth between " << xMin
+            RESTError << "You entered depth = " << depth << ", but you have to choose depth between " << xMin
                  << " and " << xMax << RESTendl;
         y = yMin;
 
@@ -530,7 +530,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                         if (Bcomp == "Z")
                             B = Bvec[2];
                         else
-                            RESTFerr << "You entered : " << Bcomp
+                            RESTError << "You entered : " << Bcomp
                                  << " as a B component but you have to choose X, Y or Z" << RESTendl;
                     }
                 }
@@ -760,9 +760,9 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         RESTDebug << "Full path : " << fullPathName << RESTendl;
 
         if (fFileNames[n] != "none" && fullPathName == "") {
-            RESTFerr << "TRestAxionMagneticField::LoadMagneticVolumes. File " << fFileNames[n] << " not found!"
+            RESTError << "TRestAxionMagneticField::LoadMagneticVolumes. File " << fFileNames[n] << " not found!"
                  << RESTendl;
-            RESTFerr << "REST will look for this file at any path given by <searchPath at globals definitions"
+            RESTError << "REST will look for this file at any path given by <searchPath at globals definitions"
                  << RESTendl;
             exit(5);
         }
@@ -772,28 +772,28 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
             if (fullPathName.find(".dat") != string::npos) {
                 RESTDebug << "Reading ASCII format" << RESTendl;
                 if (!TRestTools::ReadASCIITable(fullPathName, fieldData)) {
-                    RESTFerr << "Problem reading file : " << fullPathName << RESTendl;
+                    RESTError << "Problem reading file : " << fullPathName << RESTendl;
                     exit(1);
                 }
             } else {
                 if (fullPathName.find(".bin") != string::npos) {
                     RESTDebug << "Reading binary format" << RESTendl;
                     if (!TRestTools::ReadBinaryTable(fullPathName, fieldData, 6)) {
-                        RESTFerr << "Problem reading file : " << fullPathName << RESTendl;
+                        RESTError << "Problem reading file : " << fullPathName << RESTendl;
                         exit(2);
                     }
                 }
             }
         else if (fFileNames[n] != "none") {
-            RESTFerr << "Filename : " << fullPathName << RESTendl;
-            RESTFerr << "File format not recognized!" << RESTendl;
+            RESTError << "Filename : " << fullPathName << RESTendl;
+            RESTError << "File format not recognized!" << RESTendl;
             exit(3);
         }
 
         if (fFileNames[n] != "none" && fieldData.size() < 2) {
-            RESTFerr << "Field data size is no more than 2 grid points!" << RESTendl;
-            RESTFerr << "Filename : " << fullPathName << RESTendl;
-            RESTFerr << "Probably something went wrong loading the file" << RESTendl;
+            RESTError << "Field data size is no more than 2 grid points!" << RESTendl;
+            RESTError << "Filename : " << fullPathName << RESTendl;
+            RESTError << "Probably something went wrong loading the file" << RESTendl;
             exit(4);
         }
 
@@ -898,19 +898,19 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         if (fieldData.size() > 0) LoadMagneticFieldData(mVolume, fieldData);
 
         if (fBoundMax[n] == TVector3(0, 0, 0)) {
-            RESTFerr << "The bounding box was not defined for volume " << n << "!" << RESTendl;
-            RESTFerr << "Please review RML configuration for TRestAxionMagneticField" << RESTendl;
+            RESTError << "The bounding box was not defined for volume " << n << "!" << RESTendl;
+            RESTError << "Please review RML configuration for TRestAxionMagneticField" << RESTendl;
             exit(22);
         } else if (fMeshSize[n] == TVector3(0, 0, 0)) {
-            RESTFerr << "The mesh grid size was not defined for volume " << n << "!" << RESTendl;
-            RESTFerr << "Please review RML configuration for TRestAxionMagneticField" << RESTendl;
+            RESTError << "The mesh grid size was not defined for volume " << n << "!" << RESTendl;
+            RESTError << "Please review RML configuration for TRestAxionMagneticField" << RESTendl;
             exit(22);
         }
         fMagneticFieldVolumes.push_back(mVolume);
     }
 
     if (CheckOverlaps()) {
-        RESTFerr << "TRestAxionMagneticField::LoadMagneticVolumes. Volumes overlap!" << RESTendl;
+        RESTError << "TRestAxionMagneticField::LoadMagneticVolumes. Volumes overlap!" << RESTendl;
         exit(1);
     }
     RESTDebug << "Finished loading magnetic volumes" << RESTendl;
@@ -1142,7 +1142,7 @@ Double_t TRestAxionMagneticField::GetTransversalFieldAverage(TVector3 from, TVec
 
     if (length > 0) return Bavg / length;
 
-    RESTFerr << "TRestAxionMagneticField::GetTransversalFieldAverage. Lenght is zero!" << RESTendl;
+    RESTError << "TRestAxionMagneticField::GetTransversalFieldAverage. Lenght is zero!" << RESTendl;
     return 0.;
 }
 
@@ -1191,7 +1191,7 @@ TVector3 TRestAxionMagneticField::GetFieldAverageTransverseVector(TVector3 from,
               << ")" << RESTendl;
         return BTavg;
     }
-    RESTFerr << "TRestAxionMagneticField::GetTransversalFieldAverage. Lenght is zero!" << RESTendl;
+    RESTError << "TRestAxionMagneticField::GetTransversalFieldAverage. Lenght is zero!" << RESTendl;
     return TVector3(0.0, 0.0, 0.0);
 }
 

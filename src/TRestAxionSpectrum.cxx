@@ -58,9 +58,9 @@ void TRestAxionSpectrum::InitFromConfigFile() {
         double g2ref = GetDblParameterWithUnits("g2ref", NAN);
         sTableFileName = SearchFile((std::string)sTableFileName);
         if (sTableFileName == "") {
-            RESTFerr << "File not found : " << sTableFileName << RESTendl;
+            RESTError << "File not found : " << sTableFileName << RESTendl;
         } else if (std::isnan(g1ref)) {
-            RESTFerr << "You need to supply at least one reference value 'g1ref' in 'table' mode of "
+            RESTError << "You need to supply at least one reference value 'g1ref' in 'table' mode of "
                     "TRestAxionSpectrum."
                  << RESTendl;
         } else {
@@ -115,7 +115,7 @@ void TRestAxionSpectrum::InitFromConfigFile() {
             for (auto el : avail_approximations) {
                 avail_approximation_names += " " + el.first;
             };
-            RESTFerr << "You want to use the 'analytical' mode of TRestAxionSpectrum but neither supplied a "
+            RESTError << "You want to use the 'analytical' mode of TRestAxionSpectrum but neither supplied a "
                     "known 'named_approx' OR the four required parameters 'a', 'b', 'norm', "
                     "and 'g1ref'.\n The available known approximations are:" +
                         avail_approximation_names
@@ -132,7 +132,7 @@ void TRestAxionSpectrum::InitFromConfigFile() {
         spectrum = AxionSpectrum(&sol);
 #endif
     } else {
-        RESTFerr << "Mode for TRestAxionSpectrum not known! Choose one of 'table', 'analytical', and "
+        RESTError << "Mode for TRestAxionSpectrum not known! Choose one of 'table', 'analytical', and "
                 "'solar_model'."
              << RESTendl;
         sMode = "none";

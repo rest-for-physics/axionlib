@@ -314,7 +314,7 @@ std::string TRestAxionOpticsMirror::GetTransmissionFilename() {
 ///
 Int_t TRestAxionOpticsMirror::ExportTables() {
     if (fReflectivityTable.size() == 0) {
-        RESTFerr << "Nothing to export!" << RESTendl;
+        RESTError << "Nothing to export!" << RESTendl;
         return 1;
     }
 
@@ -529,7 +529,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
             "[1,4,7,10](0,9){0.6,0.68,0.9,0.88}:[0.25,0.5,0.75,1](0,10){0.2,0.2,0.45,0.45}");
 
     if (optList.size() != 2) {
-        RESTFerr << "TRestAxionOpticsMirror::DrawOpticsProperties. Wrong arguments!" << RESTendl;
+        RESTError << "TRestAxionOpticsMirror::DrawOpticsProperties. Wrong arguments!" << RESTendl;
         return fCanvas;
     }
 

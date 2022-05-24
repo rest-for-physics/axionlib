@@ -160,14 +160,14 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
     fAxionMagneticField = (TRestAxionMagneticField*)this->GetMetadata("TRestAxionMagneticField");
 
     if (!fAxionMagneticField) {
-        RESTFerr << "TRestAxionFieldPropagationprocess. Magnetic Field was not defined!" << RESTendl;
+        RESTError << "TRestAxionFieldPropagationprocess. Magnetic Field was not defined!" << RESTendl;
         exit(0);
     }
 
     fAxionBufferGas = (TRestAxionBufferGas*)this->GetMetadata("TRestAxionBufferGas");
 
     if (!fAxionBufferGas) {
-        RESTFerr << "TRestAxionBufferGas. Cannot access the buffer gas" << RESTendl;
+        RESTError << "TRestAxionBufferGas. Cannot access the buffer gas" << RESTendl;
         exit(0);
     }
 
@@ -532,7 +532,7 @@ std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldB
         return boundaryFinalCollection;
 
     if (fAxionMagneticField->GetNumberOfVolumes() == 0)
-        RESTFerr << " The magnetic field has not been loaded " << RESTendl;
+        RESTError << " The magnetic field has not been loaded " << RESTendl;
 
     // Find field boundaries volume
 
