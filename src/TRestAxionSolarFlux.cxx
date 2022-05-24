@@ -301,14 +301,14 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
         TRestTools::ReadBinaryTable(fullPathName, fluxTable);
     else {
         fluxTable.clear();
-        RESTError << "Filename extension was not recognized!" << endl;
-        RESTError << "Solar flux table will not be populated" << endl;
+        RESTError << "Filename extension was not recognized!" << RESTendl;
+        RESTError << "Solar flux table will not be populated" << RESTendl;
     }
 
     if (fluxTable.size() != 100 && fluxTable[0].size() != 200) {
         fluxTable.clear();
         RESTError << "LoadContinuumFluxTable. The table does not contain the right number of rows or columns"
-                 << RESTendl;
+                  << RESTendl;
         RESTError << "Table will not be populated" << RESTendl;
     }
 
@@ -349,7 +349,7 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
 
     if (asciiTable.size() != 101) {
         RESTError << "LoadMonoChromaticFluxTable. The table does not contain the right number of rows"
-                 << RESTendl;
+                  << RESTendl;
         RESTError << "Table will not be populated" << RESTendl;
         return;
     }
@@ -368,29 +368,30 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
 ///
 void TRestAxionSolarFlux::ReadFluxFile() {
     if (fBinSize <= 0) {
-        RESTError << "TRestAxionSolarflux::ReadFluxFile. Energy bin size of .flux file must be specified." << endl;
-        RESTError << "Please, define binSize parameter in eV." << endl;
+        RESTError << "TRestAxionSolarflux::ReadFluxFile. Energy bin size of .flux file must be specified."
+                  << RESTendl;
+        RESTError << "Please, define binSize parameter in eV." << RESTendl;
         return;
     }
 
     if (fPeakSigma <= 0) {
-        warning << "TRestAxionSolarflux::ReadFluxFile. Peak sigma must be specified to generate "
-                   "monochromatic spectrum."
-                << endl;
-        warning
-            << "Only continuum table will be generated. If this was intentional, please, ignore this warning."
-            << endl;
+        RESTWarning << "TRestAxionSolarflux::ReadFluxFile. Peak sigma must be specified to generate "
+                       "monochromatic spectrum."
+                    << RESTendl;
+        RESTWarning << "Only continuum table will be generated. If this was intentional, please, ignore this "
+                       "RESTWarning."
+                    << RESTendl;
         return;
     }
 
     string fullPathName = SearchFile((string)fFluxDataFile);
 
-    debug << "Loading flux table ...  " << endl;
-    debug << "File : " << fullPathName << endl;
+    RESTDebug << "Loading flux table ...  " << RESTendl;
+    RESTDebug << "File : " << fullPathName << RESTendl;
     std::vector<std::vector<Double_t>> fluxData;
     TRestTools::ReadASCIITable(fullPathName, fluxData, 3);
 
-    debug << "Table loaded" << endl;
+    RESTDebug << "Table loaded" << RESTendl;
     TH2F* originalHist = new TH2F("FullTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
     TH2F* continuumHist = new TH2F("ContinuumTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
     TH2F* spectrumHist = new TH2F("LinesTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
@@ -405,7 +406,7 @@ void TRestAxionSolarFlux::ReadFluxFile() {
         originalHist->Fill(r, en, (Float_t)flux);
         continuumHist->Fill(r, en, (Float_t)flux);
     }
-    debug << "Histograms filled" << endl;
+    RESTDebug << "Histograms filled" << RESTendl;
 
     Int_t peaks = 0;
     do {
