@@ -1,5 +1,5 @@
 Please, REMOVE this text! This is just a template to serve as a reminder.
-  
+
 Please, give as much detail as possible at your PR and create the simplest possible PR to facilitate reviewing.
 
 If your PR fixes a given issue, please specify the number followed by #

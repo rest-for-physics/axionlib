@@ -5,7 +5,7 @@ import ROOT
 ROOT.gSystem.Load("libRestFramework.so")
 ROOT.gSystem.Load("libRestAxion.so")
 
-mcplOptics_1 = ROOT.TRestAxionMCPLOptics("setups.rml", "mcpl")
+mcplOptics_1 = ROOT.TRestAxionMCPLOptics("optics.rml", "mcpl")
 mcplOptics_1.PrintMetadata()
 
 rings  = mcplOptics_1.GetNumberOfRings()
