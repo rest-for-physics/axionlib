@@ -87,12 +87,12 @@ void TRestAxionTemplate::InitFromConfigFile() {
     // Initialize the metadata members from a configfile
     fDummyValue = StringToDouble(GetParameter("dummy", "317"));
 
-    if (GetVerboseLevel() >= REST_Debug) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) PrintMetadata();
 }
 
 void TRestAxionTemplate::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << " - Dummy metadata member : " << fDummyValue << endl;
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    RESTMetadata << " - Dummy metadata member : " << fDummyValue << RESTendl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }

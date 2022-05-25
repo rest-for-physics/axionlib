@@ -63,7 +63,7 @@ class TRestAxionDetectorResponseProcess : public TRestEventProcess {
     void PrintMetadata() override {
         BeginPrintProcess();
 
-        metadata << "Response filename : " << fResponseFileName << endl;
+        RESTMetadata << "Response filename : " << fResponseFileName << RESTendl;
 
         EndPrintProcess();
     }

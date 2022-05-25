@@ -138,7 +138,7 @@ TRestAxionXrayWindow::TRestAxionXrayWindow() : TRestMetadata() { Initialize(); }
 ///
 TRestAxionXrayWindow::TRestAxionXrayWindow(const char* cfgFileName, string name)
     : TRestMetadata(cfgFileName) {
-    debug << "Entering TRestAxionXrayWindow constructor( cfgFileName, name )" << endl;
+    RESTDebug << "Entering TRestAxionXrayWindow constructor( cfgFileName, name )" << RESTendl;
 
     Initialize();
 
@@ -161,7 +161,7 @@ void TRestAxionXrayWindow::Initialize() {
     fTransmission.clear();
 
     if (fWindowType != "foil" && fPatternGap == 0) {
-        ferr << "TRestAxionXrayWindow::Initialize. fPatternGap cannot be zero!" << endl;
+        RESTError << "TRestAxionXrayWindow::Initialize. fPatternGap cannot be zero!" << RESTendl;
         fPatternGap = 1;
     }
 
@@ -176,11 +176,11 @@ void TRestAxionXrayWindow::Initialize() {
 void TRestAxionXrayWindow::ReadMaterial() {
     std::string materialFileName = SearchFile(fMaterial + ".sol");
 
-    debug << "TRestAxionXrayWindow::ReadMaterial. Reading file : " << materialFileName << endl;
+    RESTDebug << "TRestAxionXrayWindow::ReadMaterial. Reading file : " << materialFileName << RESTendl;
 
     if (!TRestTools::fileExists(materialFileName)) {
-        ferr << "TRestAxionXrayWindow::ReadMaterial( )" << endl;
-        ferr << "Material file not found : " << materialFileName << endl;
+        RESTError << "TRestAxionXrayWindow::ReadMaterial( )" << RESTendl;
+        RESTError << "Material file not found : " << materialFileName << RESTendl;
         exit(1);
     }
 
@@ -190,13 +190,13 @@ void TRestAxionXrayWindow::ReadMaterial() {
     fTransmission.clear();
     double en, value;
     while (fscanf(fin, "%lf\t%lf\n", &en, &value) != EOF) {
-        debug << "Energy : " << en << "eV -- Abs : " << value << endl;
+        RESTDebug << "Energy : " << en << "eV -- Abs : " << value << RESTendl;
 
         fEnergy.push_back(en / 1000.);
         fTransmission.push_back(TMath::Power(value, fThickness * units("um")));
     }
 
-    debug << "Items read : " << fEnergy.size() << endl;
+    RESTDebug << "Items read : " << fEnergy.size() << RESTendl;
 
     fclose(fin);
 }
@@ -219,7 +219,7 @@ Double_t TRestAxionXrayWindow::GetTransmission(Double_t energy, Double_t x, Doub
     Double_t energyIndex = GetEnergyIndex(energy);
 
     if (energyIndex < 0) {
-        warning << "Energy : " << energy << " keV is out of range!" << endl;
+        RESTWarning << "Energy : " << energy << " keV is out of range!" << RESTendl;
         return 0;
     }
 
@@ -235,7 +235,7 @@ Double_t TRestAxionXrayWindow::GetTransmission(Double_t energy, Double_t x, Doub
     double n = y1 - m * x1;
 
     if (m * energy + n < 0) {
-        ferr << "TRestAxionXrayWindow::GetAbsorptionCoefficient. Negative coefficient!" << endl;
+        RESTError << "TRestAxionXrayWindow::GetAbsorptionCoefficient. Negative coefficient!" << RESTendl;
         cout << "y2 : " << y2 << " y1 : " << y1 << endl;
         cout << "x2 : " << x2 << " x1 : " << x1 << endl;
         cout << "m : " << m << " n : " << n << endl;
@@ -313,18 +313,18 @@ void TRestAxionXrayWindow::PrintTransmissionData() {
 void TRestAxionXrayWindow::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << "X-ray window type: " << fWindowType << endl;
-    metadata << "Window center: ( " << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ") mm"
-             << endl;
-    metadata << "Thickness: " << fThickness * units("um") << " um" << endl;
-    metadata << "Material: " << fMaterial << endl;
-    metadata << "Window radius: " << fRadius << " mm" << endl;
+    RESTMetadata << "X-ray window type: " << fWindowType << RESTendl;
+    RESTMetadata << "Window center: ( " << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ") mm"
+             << RESTendl;
+    RESTMetadata << "Thickness: " << fThickness * units("um") << " um" << RESTendl;
+    RESTMetadata << "Material: " << fMaterial << RESTendl;
+    RESTMetadata << "Window radius: " << fRadius << " mm" << RESTendl;
     if (fWindowType != "foil") {
-        metadata << "------" << endl;
-        metadata << "Pattern periodicity: " << fPatternGap << " mm" << endl;
-        metadata << "Pattern width: " << fPatternWidth << " mm" << endl;
-        metadata << "Pattern offset: " << fPatternOffset << " mm" << endl;
+        RESTMetadata << "------" << RESTendl;
+        RESTMetadata << "Pattern periodicity: " << fPatternGap << " mm" << RESTendl;
+        RESTMetadata << "Pattern width: " << fPatternWidth << " mm" << RESTendl;
+        RESTMetadata << "Pattern offset: " << fPatternOffset << " mm" << RESTendl;
     }
 
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }

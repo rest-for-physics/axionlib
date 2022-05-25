@@ -91,10 +91,10 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
 
    protected:
    public:
-    void InitProcess();
+    void InitProcess() override;
 
-    virtual RESTValue GetInputEvent() const override { return nullptr; }
-    virtual RESTValue GetOutputEvent() const override { return fOutputAxionEvent; }
+    RESTValue GetInputEvent() const override { return nullptr; }
+    RESTValue GetOutputEvent() const override { return fOutputAxionEvent; }
 
     TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
 
@@ -104,24 +104,24 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     void PrintMetadata() override {
         BeginPrintProcess();
 
-        metadata << "Energy distribution" << endl;
-        metadata << "---------------------" << endl;
-        metadata << "Energy range : (" << fEnergyRange.X() << ", " << fEnergyRange.Y() << ") keV" << endl;
-        metadata << "Energy step : " << fEnergyStep << " keV" << endl;
-        metadata << " " << endl;
+        RESTMetadata << "Energy distribution" << RESTendl;
+        RESTMetadata << "---------------------" << RESTendl;
+        RESTMetadata << "Energy range : (" << fEnergyRange.X() << ", " << fEnergyRange.Y() << ") keV" << RESTendl;
+        RESTMetadata << "Energy step : " << fEnergyStep << " keV" << RESTendl;
+        RESTMetadata << " " << RESTendl;
 
-        metadata << "Angular distribution" << endl;
-        metadata << "----------------------" << endl;
-        metadata << "Type : " << fAngularDistribution << endl;
-        metadata << "Main direction : (" << fAngularDirection.X() << "," << fAngularDirection.Y() << ","
-                 << fAngularDirection.Z() << ")" << endl;
-        metadata << " " << endl;
-        metadata << "Spatial distribution" << endl;
-        metadata << "----------------------" << endl;
-        metadata << "Type : " << fSpatialDistribution << endl;
-        metadata << "Radius : " << fSpatialRadius << " mm" << endl;
-        metadata << "Origin : (" << fSpatialOrigin.X() << "," << fSpatialOrigin.Y() << ","
-                 << fSpatialOrigin.Z() << ")" << endl;
+        RESTMetadata << "Angular distribution" << RESTendl;
+        RESTMetadata << "----------------------" << RESTendl;
+        RESTMetadata << "Type : " << fAngularDistribution << RESTendl;
+        RESTMetadata << "Main direction : (" << fAngularDirection.X() << "," << fAngularDirection.Y() << ","
+                 << fAngularDirection.Z() << ")" << RESTendl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << "Spatial distribution" << RESTendl;
+        RESTMetadata << "----------------------" << RESTendl;
+        RESTMetadata << "Type : " << fSpatialDistribution << RESTendl;
+        RESTMetadata << "Radius : " << fSpatialRadius << " mm" << RESTendl;
+        RESTMetadata << "Origin : (" << fSpatialOrigin.X() << "," << fSpatialOrigin.Y() << ","
+                 << fSpatialOrigin.Z() << ")" << RESTendl;
 
         EndPrintProcess();
     }

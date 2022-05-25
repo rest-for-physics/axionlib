@@ -104,7 +104,7 @@ TRestAxionBufferGas::TRestAxionBufferGas() : TRestMetadata() { Initialize(); }
 /// corresponding TRestGeant4Metadata section inside the RML.
 ///
 TRestAxionBufferGas::TRestAxionBufferGas(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
-    debug << "Entering TRestAxionBufferGas constructor( cfgFileName, name )" << endl;
+    RESTDebug << "Entering TRestAxionBufferGas constructor( cfgFileName, name )" << RESTendl;
 
     Initialize();
 
@@ -147,7 +147,7 @@ void TRestAxionBufferGas::InitFromConfigFile() {
         gasDefinition = GetNextElement(gasDefinition);
     }
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -190,7 +190,7 @@ Double_t TRestAxionBufferGas::GetGasDensity(TString gasName) {
     Int_t gasIndex = FindGasIndex(gasName);
 
     if (gasIndex < 0) {
-        ferr << "TRestAxionBufferGas::GetGasDensity. Gas name : " << gasName << " not found!" << endl;
+        RESTError << "TRestAxionBufferGas::GetGasDensity. Gas name : " << gasName << " not found!" << RESTendl;
         return 0;
     }
 
@@ -210,11 +210,11 @@ Double_t TRestAxionBufferGas::GetGasDensity(TString gasName) {
 void TRestAxionBufferGas::ReadGasData(TString gasName) {
     TString factorFileName = SearchFile((string)gasName + ".nff");
 
-    debug << "TRestAxionBufferGas::ReadGasData. Reading factor file : " << factorFileName << endl;
+    RESTDebug << "TRestAxionBufferGas::ReadGasData. Reading factor file : " << factorFileName << RESTendl;
 
     if (!TRestTools::fileExists((string)factorFileName)) {
-        ferr << "TRestAxionBufferGas::ReadGasData( " << gasName << " )" << endl;
-        ferr << "Gas factor file not found : " << factorFileName << endl;
+        RESTError << "TRestAxionBufferGas::ReadGasData( " << gasName << " )" << RESTendl;
+        RESTError << "Gas factor file not found : " << factorFileName << RESTendl;
         exit(1);
     }
 
@@ -228,24 +228,24 @@ void TRestAxionBufferGas::ReadGasData(TString gasName) {
 
     // keV -- e/atom
     while (fscanf(fin, "%lf\t%lf\n", &en, &value) != EOF) {
-        debug << "Energy : " << en << "keV -- Factor : " << value << endl;
+        RESTDebug << "Energy : " << en << "keV -- Factor : " << value << RESTendl;
 
         energyFactor.push_back(en);
         factor.push_back(value);
     }
 
-    debug << "Items read : " << energyFactor.size() << endl;
+    RESTDebug << "Items read : " << energyFactor.size() << RESTendl;
 
     fclose(fin);
     /* }}} */
 
     TString absFileName = SearchFile((string)gasName + ".abs");
 
-    debug << "TRestAxionBufferGas::ReadGasData. Reading factor file : " << absFileName << endl;
+    RESTDebug << "TRestAxionBufferGas::ReadGasData. Reading factor file : " << absFileName << RESTendl;
 
     if (!TRestTools::fileExists((string)absFileName)) {
-        ferr << "TRestAxionBufferGas::ReadGasData( " << gasName << " )" << endl;
-        ferr << "Gas absorption file not found : " << absFileName << endl;
+        RESTError << "TRestAxionBufferGas::ReadGasData( " << gasName << " )" << RESTendl;
+        RESTError << "Gas absorption file not found : " << absFileName << RESTendl;
         exit(1);
     }
 
@@ -257,13 +257,13 @@ void TRestAxionBufferGas::ReadGasData(TString gasName) {
 
     // keV -- e/atom
     while (fscanf(fin, "%lf\t%lf\n", &en, &value) != EOF) {
-        debug << "Energy : " << en << "keV -- Absorption : " << value << endl;
+        RESTDebug << "Energy : " << en << "keV -- Absorption : " << value << RESTendl;
 
         energyAbs.push_back(en);
         absorption.push_back(value);
     }
 
-    debug << "Items read : " << energyAbs.size() << endl;
+    RESTDebug << "Items read : " << energyAbs.size() << RESTendl;
 
     fclose(fin);
     /* }}} */
@@ -289,7 +289,7 @@ Double_t TRestAxionBufferGas::GetFormFactor(TString gasName, Double_t energy) {
     if (GetNumberOfGases() == 0) return 0;
 
     Int_t gasIndex = FindGasIndex(gasName);
-    debug << "TRestAxionBufferGas::GetFormFactor. Gas index = " << gasIndex << endl;
+    RESTDebug << "TRestAxionBufferGas::GetFormFactor. Gas index = " << gasIndex << RESTendl;
 
     if (gasIndex == -1) {
         ReadGasData(gasName);
@@ -297,15 +297,15 @@ Double_t TRestAxionBufferGas::GetFormFactor(TString gasName, Double_t energy) {
     }
 
     if (gasIndex == -1) {
-        ferr << "TRestAxionBufferGas::GetFormFactor. Gas: " << gasName << " Not Found!" << endl;
+        RESTError << "TRestAxionBufferGas::GetFormFactor. Gas: " << gasName << " Not Found!" << RESTendl;
         exit(1);
     }
 
     Int_t energyIndex = GetEnergyIndex(fFactorEnergy[gasIndex], energy);
-    debug << "Energy index : " << energyIndex << endl;
+    RESTDebug << "Energy index : " << energyIndex << RESTendl;
 
     if (energyIndex == -1) {
-        ferr << "TRestAxionBufferGas::GetFormFactor. Energy out of range" << endl;
+        RESTError << "TRestAxionBufferGas::GetFormFactor. Energy out of range" << RESTendl;
         exit(1);
     }
 
@@ -321,7 +321,7 @@ Double_t TRestAxionBufferGas::GetFormFactor(TString gasName, Double_t energy) {
     double n = y1 - m * x1;
 
     if (m * energy + n < 0) {
-        ferr << "TRestAxionBufferGas::GetAbsorptionCoefficient. Negative coefficient" << endl;
+        RESTError << "TRestAxionBufferGas::GetAbsorptionCoefficient. Negative coefficient" << RESTendl;
         cout << "y2 : " << y2 << " y1 : " << y1 << endl;
         cout << "x2 : " << x2 << " x1 : " << x1 << endl;
         cout << "m : " << m << " n : " << n << endl;
@@ -375,9 +375,9 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
         if (fBufferGasName[n] == "Xe") W_value = 131.293;  // g/mol
 
         if (W_value == 0) {
-            ferr << "Gas name : " << fBufferGasName[n] << " is not implemented in TRestBufferGas!!" << endl;
-            ferr << "W value must be defined in TRestAxionBufferGas::GetPhotonMass" << endl;
-            ferr << "This gas will not contribute to the calculation of the photon mass!" << endl;
+            RESTError << "Gas name : " << fBufferGasName[n] << " is not implemented in TRestBufferGas!!" << RESTendl;
+            RESTError << "W value must be defined in TRestAxionBufferGas::GetPhotonMass" << RESTendl;
+            RESTError << "This gas will not contribute to the calculation of the photon mass!" << RESTendl;
         } else {
             photonMass += fBufferGasDensity[n] * GetFormFactor(fBufferGasName[n], en) / W_value;
         }
@@ -392,7 +392,7 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
 ///
 Double_t TRestAxionBufferGas::GetAbsorptionCoefficient(TString gasName, Double_t energy) {
     Int_t gasIndex = FindGasIndex(gasName);
-    debug << "TRestAxionBufferGas::GetAbsorptionCoefficient. Gas index = " << gasIndex << endl;
+    RESTDebug << "TRestAxionBufferGas::GetAbsorptionCoefficient. Gas index = " << gasIndex << RESTendl;
 
     if (gasIndex == -1) {
         ReadGasData(gasName);
@@ -400,15 +400,15 @@ Double_t TRestAxionBufferGas::GetAbsorptionCoefficient(TString gasName, Double_t
     }
 
     if (gasIndex == -1) {
-        ferr << "TRestAxionBufferGas::GetAbsorptionCoefficient. Gas: " << gasName << " Not Found!" << endl;
+        RESTError << "TRestAxionBufferGas::GetAbsorptionCoefficient. Gas: " << gasName << " Not Found!" << RESTendl;
         exit(1);
     }
 
     Int_t energyIndex = GetEnergyIndex(fAbsEnergy[gasIndex], energy);
-    debug << "Energy index : " << energyIndex << endl;
+    RESTDebug << "Energy index : " << energyIndex << RESTendl;
 
     if (energyIndex == -1) {
-        ferr << "TRestAxionBufferGas::GetAbsorptionCoefficient. Energy out of range" << endl;
+        RESTError << "TRestAxionBufferGas::GetAbsorptionCoefficient. Energy out of range" << RESTendl;
         exit(1);
     }
 
@@ -424,7 +424,7 @@ Double_t TRestAxionBufferGas::GetAbsorptionCoefficient(TString gasName, Double_t
     double n = y1 - m * x1;
 
     if (m * energy + n < 0) {
-        ferr << "TRestAxionBufferGas::GetAbsorptionCoefficient. Negative coeffient" << endl;
+        RESTError << "TRestAxionBufferGas::GetAbsorptionCoefficient. Negative coeffient" << RESTendl;
         cout << "y2 : " << y2 << " y1 : " << y1 << endl;
         cout << "x2 : " << x2 << " x1 : " << x1 << endl;
         cout << "m : " << m << " n : " << n << endl;
@@ -490,22 +490,22 @@ void TRestAxionBufferGas::PrintFormFactorGasData(TString gasName) {
 void TRestAxionBufferGas::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << "Number of buffer gases defined : " << fBufferGasName.size() << endl;
+    RESTMetadata << "Number of buffer gases defined : " << fBufferGasName.size() << RESTendl;
     if (fBufferGasName.size() == 0) {
-        metadata << "Buffer medium is vacuum" << endl;
+        RESTMetadata << "Buffer medium is vacuum" << RESTendl;
     } else {
-        metadata << "Buffer gases defined : " << endl;
-        metadata << "---------------------------" << endl;
+        RESTMetadata << "Buffer gases defined : " << RESTendl;
+        RESTMetadata << "---------------------------" << RESTendl;
         for (unsigned int n = 0; n < fBufferGasName.size(); n++) {
-            metadata << " Gas name : " << fBufferGasName[n] << endl;
-            metadata << " Gas density : " << fBufferGasDensity[n] << " g/cm3" << endl;
-            metadata << " Form factor energy range : ( " << fFactorEnergy[n][0] << ", "
-                     << fFactorEnergy[n].back() << " ) keV" << endl;
-            metadata << " Absorption energy range : ( " << fAbsEnergy[n][0] << ", " << fAbsEnergy[n].back()
-                     << " ) keV" << endl;
-            metadata << " " << endl;
+            RESTMetadata << " Gas name : " << fBufferGasName[n] << RESTendl;
+            RESTMetadata << " Gas density : " << fBufferGasDensity[n] << " g/cm3" << RESTendl;
+            RESTMetadata << " Form factor energy range : ( " << fFactorEnergy[n][0] << ", "
+                     << fFactorEnergy[n].back() << " ) keV" << RESTendl;
+            RESTMetadata << " Absorption energy range : ( " << fAbsEnergy[n][0] << ", " << fAbsEnergy[n].back()
+                     << " ) keV" << RESTendl;
+            RESTMetadata << " " << RESTendl;
         }
     }
 
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }

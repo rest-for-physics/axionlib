@@ -111,12 +111,12 @@ void TRestAxionGeneratorProcess::Initialize() {
 /// should be initialized here.
 ///
 void TRestAxionGeneratorProcess::InitProcess() {
-    debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
+    RESTDebug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << RESTendl;
 
     fAxionSpectrum = (TRestAxionSpectrum*)this->GetMetadata("TRestAxionSpectrum");
 
     if (!fAxionSpectrum) {
-        ferr << "TRestAxionGeneratorProcess. Axion model was not defined!" << endl;
+        RESTError << "TRestAxionGeneratorProcess. Axion model was not defined!" << RESTendl;
         exit(0);
     }
 }
@@ -125,7 +125,7 @@ void TRestAxionGeneratorProcess::InitProcess() {
 /// \brief This method gets a random energy relying on the solar axion model defined in TRestAxionSolarModel
 ///
 Double_t TRestAxionGeneratorProcess::GenerateEnergy() {
-    debug << "Entering TRestAxionGeneratorProcess::GenerateEnergy() ..." << endl;
+    RESTDebug << "Entering TRestAxionGeneratorProcess::GenerateEnergy() ..." << RESTendl;
     Double_t solarFlux =
         fAxionSpectrum->GetSolarAxionFlux(fEnergyRange.X(), fEnergyRange.Y(), fEnergyStep);
 
@@ -136,7 +136,7 @@ Double_t TRestAxionGeneratorProcess::GenerateEnergy() {
         sum += fAxionSpectrum->GetDifferentialSolarAxionFlux(en) * fEnergyStep;
 
         if (random < sum) {
-            debug << "TRestAxionGeneratorProcess::GenerateEnergy. Energy = " << en << endl;
+            RESTDebug << "TRestAxionGeneratorProcess::GenerateEnergy. Energy = " << en << RESTendl;
             return en + fRandom->Uniform(0, fEnergyStep);
         }
     }
@@ -152,7 +152,7 @@ TVector3 TRestAxionGeneratorProcess::GenerateDirection() {
         return fAngularDirection;
     }
 
-    warning << "Angular distribution : " << fAngularDistribution << " is not defined!" << endl;
+    RESTWarning << "Angular distribution : " << fAngularDistribution << " is not defined!" << RESTendl;
 
     return fAngularDirection;
 }
@@ -248,7 +248,7 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
         return position;
     }
 
-    warning << "Spatial distribution : " << fSpatialDistribution << " is not defined!" << endl;
+    RESTWarning << "Spatial distribution : " << fSpatialDistribution << " is not defined!" << RESTendl;
 
     return position;
 }
@@ -257,7 +257,7 @@ TVector3 TRestAxionGeneratorProcess::GeneratePosition() {
 /// \brief The main processing event function
 ///
 TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
-    debug << "TRestAxionGeneratorProcess::ProcessEvent : " << fCounter << endl;
+    RESTDebug << "TRestAxionGeneratorProcess::ProcessEvent : " << fCounter << RESTendl;
     fOutputAxionEvent->SetID(fCounter);
     fCounter++;
 
@@ -270,7 +270,7 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     // fAnalysisTree->SetObservableValue( this, "energy", fOutputAxionEvent->GetEnergy() );
     // fAnalysisTree->PrintObservables();
 
-    if (GetVerboseLevel() >= REST_Debug) fOutputAxionEvent->PrintEvent();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) fOutputAxionEvent->PrintEvent();
 
     return fOutputAxionEvent;
 }

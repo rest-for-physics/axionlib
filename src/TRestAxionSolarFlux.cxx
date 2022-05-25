@@ -227,7 +227,7 @@ TRestAxionSolarFlux::TRestAxionSolarFlux() : TRestMetadata() {}
 TRestAxionSolarFlux::TRestAxionSolarFlux(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
     LoadConfigFromFile(fConfigFileName, name);
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -279,16 +279,15 @@ void TRestAxionSolarFlux::LoadTables() {
 ///
 void TRestAxionSolarFlux::LoadContinuumFluxTable() {
     if (fFluxDataFile == "") {
-        debug << "TRestAxionSolarflux::LoadContinuumFluxTable. No solar flux continuum table was "
-                 "defined"
-              << endl;
+        RESTDebug << "TRestAxionSolarflux::LoadContinuumFluxTable. No solar flux table was defined"
+                  << RESTendl;
         return;
     }
 
     string fullPathName = SearchFile((string)fFluxDataFile);
 
-    debug << "Loading table from file : " << endl;
-    debug << "File : " << fullPathName << endl;
+    RESTDebug << "Loading table from file : " << RESTendl;
+    RESTDebug << "File : " << fullPathName << RESTendl;
 
     std::vector<std::vector<Float_t>> fluxTable;
     if (TRestTools::GetFileNameExtension(fFluxDataFile) == "dat") {
@@ -302,15 +301,15 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
         TRestTools::ReadBinaryTable(fullPathName, fluxTable);
     else {
         fluxTable.clear();
-        ferr << "Filename extension was not recognized!" << endl;
-        ferr << "Solar flux table will not be populated" << endl;
+        RESTError << "Filename extension was not recognized!" << RESTendl;
+        RESTError << "Solar flux table will not be populated" << RESTendl;
     }
 
     if (fluxTable.size() != 100 && fluxTable[0].size() != 200) {
         fluxTable.clear();
-        ferr << "LoadContinuumFluxTable. The table does not contain the right number of rows or columns"
-             << endl;
-        ferr << "Solar flux table will not be populated" << endl;
+        RESTError << "LoadContinuumFluxTable. The table does not contain the right number of rows or columns"
+                  << RESTendl;
+        RESTError << "Table will not be populated" << RESTendl;
     }
 
     for (int n = 0; n < fluxTable.size(); n++) {
@@ -326,16 +325,16 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
 ///
 void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
     if (fFluxSptFile == "") {
-        debug << "TRestAxionSolarflux::LoadMonoChromaticFluxTable. No solar flux monochromatic table was "
-                 "defined"
-              << endl;
+        RESTDebug << "TRestAxionSolarflux::LoadMonoChromaticFluxTable. No solar flux monochromatic table was "
+                     "defined"
+                  << RESTendl;
         return;
     }
 
     string fullPathName = SearchFile((string)fFluxSptFile);
 
-    debug << "Loading monochromatic lines from file : " << endl;
-    debug << "File : " << fullPathName << endl;
+    RESTDebug << "Loading monochromatic lines from file : " << RESTendl;
+    RESTDebug << "File : " << fullPathName << RESTendl;
 
     std::vector<std::vector<Double_t>> doubleTable;
     TRestTools::ReadASCIITable(fullPathName, doubleTable);
@@ -349,8 +348,9 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
     fFluxLines.clear();
 
     if (asciiTable.size() != 101) {
-        ferr << "LoadMonoChromaticFluxTable. The table does not contain the right number of rows" << endl;
-        ferr << "Table will not be populated" << endl;
+        RESTError << "LoadMonoChromaticFluxTable. The table does not contain the right number of rows"
+                  << RESTendl;
+        RESTError << "Table will not be populated" << RESTendl;
         return;
     }
 
@@ -368,29 +368,30 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
 ///
 void TRestAxionSolarFlux::ReadFluxFile() {
     if (fBinSize <= 0) {
-        ferr << "TRestAxionSolarflux::ReadFluxFile. Energy bin size of .flux file must be specified." << endl;
-        ferr << "Please, define binSize parameter in eV." << endl;
+        RESTError << "TRestAxionSolarflux::ReadFluxFile. Energy bin size of .flux file must be specified."
+                  << RESTendl;
+        RESTError << "Please, define binSize parameter in eV." << RESTendl;
         return;
     }
 
     if (fPeakSigma <= 0) {
-        warning << "TRestAxionSolarflux::ReadFluxFile. Peak sigma must be specified to generate "
-                   "monochromatic spectrum."
-                << endl;
-        warning
-            << "Only continuum table will be generated. If this was intentional, please, ignore this warning."
-            << endl;
+        RESTWarning << "TRestAxionSolarflux::ReadFluxFile. Peak sigma must be specified to generate "
+                       "monochromatic spectrum."
+                    << RESTendl;
+        RESTWarning << "Only continuum table will be generated. If this was intentional, please, ignore this "
+                       "RESTWarning."
+                    << RESTendl;
         return;
     }
 
     string fullPathName = SearchFile((string)fFluxDataFile);
 
-    debug << "Loading flux table ...  " << endl;
-    debug << "File : " << fullPathName << endl;
+    RESTDebug << "Loading flux table ...  " << RESTendl;
+    RESTDebug << "File : " << fullPathName << RESTendl;
     std::vector<std::vector<Double_t>> fluxData;
     TRestTools::ReadASCIITable(fullPathName, fluxData, 3);
 
-    debug << "Table loaded" << endl;
+    RESTDebug << "Table loaded" << RESTendl;
     TH2F* originalHist = new TH2F("FullTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
     TH2F* continuumHist = new TH2F("ContinuumTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
     TH2F* spectrumHist = new TH2F("LinesTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
@@ -405,7 +406,7 @@ void TRestAxionSolarFlux::ReadFluxFile() {
         originalHist->Fill(r, en, (Float_t)flux);
         continuumHist->Fill(r, en, (Float_t)flux);
     }
-    debug << "Histograms filled" << endl;
+    RESTDebug << "Histograms filled" << RESTendl;
 
     Int_t peaks = 0;
     do {
@@ -758,21 +759,19 @@ void TRestAxionSolarFlux::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     if (fFluxDataFile != "")
-        metadata << " - Solar axion flux datafile (continuum) : " << fFluxDataFile << endl;
+        RESTMetadata << " - Solar axion flux datafile (continuum) : " << fFluxDataFile << RESTendl;
     if (fFluxSptFile != "")
-        metadata << " - Solar axion flux datafile (monochromatic) : " << fFluxSptFile << endl;
-    metadata << " - Coupling type : " << fCouplingType << endl;
-    metadata << " - Coupling strength : " << fCouplingStrength << endl;
-    metadata << "-------" << endl;
-    metadata << " - Total monochromatic flux : " << fTotalMonochromaticFlux << " cm-2 s-1" << endl;
-    metadata << " - Total continuum flux : " << fTotalContinuumFlux << " cm-2 s-1" << endl;
-    metadata << "--------" << endl;
-    metadata << " - Random seed : " << fSeed << endl;
-    if (fBinSize > 0) metadata << " - Energy bin size : " << fBinSize * units("eV") << " eV" << endl;
-    if (fPeakSigma > 0) metadata << " - Peak signal-to-noise in sigmas  : " << fPeakSigma << endl;
-    metadata << "++++++++++++++++++" << endl;
+        RESTMetadata << " - Solar axion flux datafile (monochromatic) : " << fFluxSptFile << RESTendl;
+    RESTMetadata << " - Coupling type : " << fCouplingType << RESTendl;
+    RESTMetadata << " - Coupling strength : " << fCouplingStrength << RESTendl;
+    RESTMetadata << "-------" << RESTendl;
+    RESTMetadata << " - Total monochromatic flux : " << fTotalMonochromaticFlux << " cm-2 s-1" << RESTendl;
+    RESTMetadata << " - Total continuum flux : " << fTotalContinuumFlux << " cm-2 s-1" << RESTendl;
+    RESTMetadata << "--------" << RESTendl;
+    RESTMetadata << " - Random seed : " << fSeed << RESTendl;
+    RESTMetadata << "++++++++++++++++++" << RESTendl;
 
-    if (GetVerboseLevel() >= REST_Debug) {
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         PrintContinuumSolarTable();
         PrintMonoChromaticFlux();
         PrintIntegratedRingFlux();

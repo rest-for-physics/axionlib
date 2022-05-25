@@ -100,13 +100,13 @@ TRestAxionGenericOptics::~TRestAxionGenericOptics() {}
 ///
 TRestAxionGenericOptics::TRestAxionGenericOptics(const char* cfgFileName, string name)
     : TRestAxionOptics(cfgFileName) {
-    debug << "Entering TRestAxionGenericOptics constructor( cfgFileName, name )" << endl;
+    RESTDebug << "Entering TRestAxionGenericOptics constructor( cfgFileName, name )" << RESTendl;
 
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -159,8 +159,8 @@ TVector3 TRestAxionGenericOptics::GetInteractionPoint(const TVector3& pos, const
 void TRestAxionGenericOptics::PrintMetadata() {
     TRestAxionOptics::PrintMetadata();
 
-    metadata << "---------" << endl;
+    RESTMetadata << "---------" << RESTendl;
     /// Print here metadata members
     /// metadata << "xxx : " < fXXX << endl;
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }
