@@ -27,8 +27,8 @@ pad1.Draw()
 totalSamples = 10000
 genSize = 80
 
-basicOptics = ROOT.TRestAxionOptics("basic.rml", "basic")
-spiderOptics = ROOT.TRestAxionOptics("basic.rml", "basic_spider")
+basicOptics = ROOT.TRestAxionOptics("optics.rml", "basic")
+spiderOptics = ROOT.TRestAxionOptics("optics.rml", "basic_spider")
 
 rings = basicOptics.GetNumberOfRings()
 print( "Number of rings (no-spider): " + str(rings) )

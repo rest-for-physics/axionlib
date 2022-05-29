@@ -137,13 +137,13 @@ TRestAxionOptics::TRestAxionOptics() : TRestMetadata() { Initialize(); }
 /// corresponding TRestAxionMagneticField section inside the RML.
 ///
 TRestAxionOptics::TRestAxionOptics(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
-    debug << "Entering TRestAxionOptics constructor( cfgFileName, name )" << endl;
+    RESTDebug << "Entering TRestAxionOptics constructor( cfgFileName, name )" << RESTendl;
 
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -215,18 +215,18 @@ void TRestAxionOptics::InitializeSpiderAngles() {
     if (additional_negative.first != -1 && additional_negative.second != -1)
         fSpiderNegativeRanges.push_back(additional_negative);
 
-    debug << "Printing positive spider angles" << endl;
-    debug << "-------------------------------" << endl;
+    RESTDebug << "Printing positive spider angles" << RESTendl;
+    RESTDebug << "-------------------------------" << RESTendl;
     for (int n = 0; n < fSpiderPositiveRanges.size(); n++) {
-        debug << "n : " << n << " from : " << 180 * fSpiderPositiveRanges[n].first / TMath::Pi() << " to "
-              << 180 * fSpiderPositiveRanges[n].second / TMath::Pi() << endl;
+        RESTDebug << "n : " << n << " from : " << 180 * fSpiderPositiveRanges[n].first / TMath::Pi() << " to "
+                  << 180 * fSpiderPositiveRanges[n].second / TMath::Pi() << RESTendl;
     }
 
-    debug << "Printing negative spider angles" << endl;
-    debug << "-------------------------------" << endl;
+    RESTDebug << "Printing negative spider angles" << RESTendl;
+    RESTDebug << "-------------------------------" << RESTendl;
     for (int n = 0; n < fSpiderNegativeRanges.size(); n++) {
-        debug << "n : " << n << " from : " << 180 * fSpiderNegativeRanges[n].first / TMath::Pi() << " to "
-              << 180 * fSpiderNegativeRanges[n].second / TMath::Pi() << endl;
+        RESTDebug << "n : " << n << " from : " << 180 * fSpiderNegativeRanges[n].first / TMath::Pi() << " to "
+                  << 180 * fSpiderNegativeRanges[n].second / TMath::Pi() << RESTendl;
     }
 
     for (int n = 0; n < fSpiderNegativeRanges.size(); n++) {
@@ -239,18 +239,18 @@ void TRestAxionOptics::InitializeSpiderAngles() {
         fSpiderPositiveRanges[n].second = TMath::Cos(fSpiderPositiveRanges[n].second);
     }
 
-    debug << "Printing positive spider angles" << endl;
-    debug << "-------------------------------" << endl;
+    RESTDebug << "Printing positive spider angles" << RESTendl;
+    RESTDebug << "-------------------------------" << RESTendl;
     for (int n = 0; n < fSpiderPositiveRanges.size(); n++) {
-        debug << "n : " << n << " from : " << fSpiderPositiveRanges[n].first << " to "
-              << fSpiderPositiveRanges[n].second << endl;
+        RESTDebug << "n : " << n << " from : " << fSpiderPositiveRanges[n].first << " to "
+                  << fSpiderPositiveRanges[n].second << RESTendl;
     }
 
-    debug << "Printing negative spider cosines" << endl;
-    debug << "--------------------------------" << endl;
+    RESTDebug << "Printing negative spider cosines" << RESTendl;
+    RESTDebug << "--------------------------------" << RESTendl;
     for (int n = 0; n < fSpiderNegativeRanges.size(); n++) {
-        debug << "n : " << n << " from : " << fSpiderNegativeRanges[n].first << " to "
-              << fSpiderNegativeRanges[n].second << endl;
+        RESTDebug << "n : " << n << " from : " << fSpiderNegativeRanges[n].first << " to "
+                  << fSpiderNegativeRanges[n].second << RESTendl;
     }
 }
 
@@ -355,32 +355,35 @@ void TRestAxionOptics::InitFromConfigFile() {
 void TRestAxionOptics::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << "Optics length: " << fLength << " mm" << endl;
-    metadata << "Optics entrance: (" << fEntrance.X() << ", " << fEntrance.Y() << ", " << fEntrance.Z()
-             << ") mm" << endl;
-    metadata << "Optics center: (" << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ") mm"
-             << endl;
-    metadata << "Optics exit: (" << fExit.X() << ", " << fExit.Y() << ", " << fExit.Z() << ") mm" << endl;
-    metadata << "Optics axis: (" << fAxis.X() << ", " << fAxis.Y() << ", " << fAxis.Z() << ")" << endl;
-    metadata << " " << endl;
-    metadata << "Relation of mirror rings integrated in the optics:" << endl;
-    metadata << "---------" << endl;
+    RESTMetadata << "Optics length: " << fLength << " mm" << RESTendl;
+    RESTMetadata << "Optics entrance: (" << fEntrance.X() << ", " << fEntrance.Y() << ", " << fEntrance.Z()
+                 << ") mm" << RESTendl;
+    RESTMetadata << "Optics center: (" << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ") mm"
+                 << RESTendl;
+    RESTMetadata << "Optics exit: (" << fExit.X() << ", " << fExit.Y() << ", " << fExit.Z() << ") mm"
+                 << RESTendl;
+    RESTMetadata << "Optics axis: (" << fAxis.X() << ", " << fAxis.Y() << ", " << fAxis.Z() << ")"
+                 << RESTendl;
+    RESTMetadata << " " << RESTendl;
+    RESTMetadata << "Relation of mirror rings integrated in the optics:" << RESTendl;
+    RESTMetadata << "---------" << RESTendl;
     int n = 0;
     for (const auto& ringRadius : fRingsRadii) {
-        metadata << "Ring " << n << ": Rmin = " << ringRadius.first << "mm , Rmax = " << ringRadius.second
-                 << "mm" << endl;
+        RESTMetadata << "Ring " << n << ": Rmin = " << ringRadius.first << "mm , Rmax = " << ringRadius.second
+                     << "mm" << RESTendl;
         n++;
     }
     if (fSpiderArmsSeparationAngle != 0) {
-        metadata << " " << endl;
-        metadata << "Spider net structure parameters:" << endl;
-        metadata << "--------------------------------" << endl;
-        metadata << " - Arms separation angle : " << 180. * fSpiderArmsSeparationAngle / TMath::Pi()
-                 << " degrees" << endl;
-        metadata << " - First arm offset angle : " << 180. * fSpiderOffsetAngle / TMath::Pi() << " degrees"
-                 << endl;
-        metadata << " - Arm angular width : " << 180. * fSpiderWidth / TMath::Pi() << " degrees" << endl;
-        metadata << " - Spider start radius : " << fSpiderStartRadius * units("cm") << " cm" << endl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << "Spider net structure parameters:" << RESTendl;
+        RESTMetadata << "--------------------------------" << RESTendl;
+        RESTMetadata << " - Arms separation angle : " << 180. * fSpiderArmsSeparationAngle / TMath::Pi()
+                     << " degrees" << RESTendl;
+        RESTMetadata << " - First arm offset angle : " << 180. * fSpiderOffsetAngle / TMath::Pi()
+                     << " degrees" << RESTendl;
+        RESTMetadata << " - Arm angular width : " << 180. * fSpiderWidth / TMath::Pi() << " degrees"
+                     << RESTendl;
+        RESTMetadata << " - Spider start radius : " << fSpiderStartRadius * units("cm") << " cm" << RESTendl;
     }
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }

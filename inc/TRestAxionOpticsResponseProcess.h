@@ -32,15 +32,15 @@ class TRestAxionOpticsResponseProcess : public TRestEventProcess {
     /// A pointer to the specific TRestAxionEvent
     TRestAxionEvent* fAxionEvent;  //!
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
    protected:
    public:
-    TRestEvent* ProcessEvent(TRestEvent* evInput);
+    TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
     any GetInputEvent() { return fAxionEvent; }
     any GetOutputEvent() { return fAxionEvent; }
@@ -48,17 +48,14 @@ class TRestAxionOpticsResponseProcess : public TRestEventProcess {
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
         EndPrintProcess();
     }
 
-    /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestAxionOpticsResponseProcess; }
-
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "axionOpticsResponse"; }
+    const char* GetProcessName() const override { return "axionOpticsResponse"; }
 
     // Constructor
     TRestAxionOpticsResponseProcess();
@@ -67,6 +64,6 @@ class TRestAxionOpticsResponseProcess : public TRestEventProcess {
     // Destructor
     ~TRestAxionOpticsResponseProcess();
 
-    ClassDef(TRestAxionOpticsResponseProcess, 1);
+    ClassDefOverride(TRestAxionOpticsResponseProcess, 1);
 };
 #endif

@@ -40,7 +40,7 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     Int_t fCounter = 0;  //!
 
     /// A pointer to the axion model stored in TRestRun
-    TRestAxionSpectrum *fAxionSpectrum; //!
+    TRestAxionSpectrum* fAxionSpectrum;  //!
 
     /// Random number generator
     TRandom3* fRandom;  //!
@@ -79,9 +79,9 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     /// Mode of rotated circle Wall construction
     TString fMode;  //->
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
@@ -91,46 +91,44 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
 
    protected:
    public:
-    void InitProcess();
+    void InitProcess() override;
 
-    any GetInputEvent() { return (TRestEvent*)NULL; }
-    any GetOutputEvent() { return fOutputAxionEvent; }
+    RESTValue GetInputEvent() const override { return nullptr; }
+    RESTValue GetOutputEvent() const override { return fOutputAxionEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
-        metadata << "Energy distribution" << endl;
-        metadata << "---------------------" << endl;
-        metadata << "Energy range : (" << fEnergyRange.X() << ", " << fEnergyRange.Y() << ") keV" << endl;
-        metadata << "Energy step : " << fEnergyStep << " keV" << endl;
-        metadata << " " << endl;
+        RESTMetadata << "Energy distribution" << RESTendl;
+        RESTMetadata << "---------------------" << RESTendl;
+        RESTMetadata << "Energy range : (" << fEnergyRange.X() << ", " << fEnergyRange.Y() << ") keV"
+                     << RESTendl;
+        RESTMetadata << "Energy step : " << fEnergyStep << " keV" << RESTendl;
+        RESTMetadata << " " << RESTendl;
 
-        metadata << "Angular distribution" << endl;
-        metadata << "----------------------" << endl;
-        metadata << "Type : " << fAngularDistribution << endl;
-        metadata << "Main direction : (" << fAngularDirection.X() << "," << fAngularDirection.Y() << ","
-                 << fAngularDirection.Z() << ")" << endl;
-        metadata << " " << endl;
-        metadata << "Spatial distribution" << endl;
-        metadata << "----------------------" << endl;
-        metadata << "Type : " << fSpatialDistribution << endl;
-        metadata << "Radius : " << fSpatialRadius << " mm" << endl;
-        metadata << "Origin : (" << fSpatialOrigin.X() << "," << fSpatialOrigin.Y() << ","
-                 << fSpatialOrigin.Z() << ")" << endl;
+        RESTMetadata << "Angular distribution" << RESTendl;
+        RESTMetadata << "----------------------" << RESTendl;
+        RESTMetadata << "Type : " << fAngularDistribution << RESTendl;
+        RESTMetadata << "Main direction : (" << fAngularDirection.X() << "," << fAngularDirection.Y() << ","
+                     << fAngularDirection.Z() << ")" << RESTendl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << "Spatial distribution" << RESTendl;
+        RESTMetadata << "----------------------" << RESTendl;
+        RESTMetadata << "Type : " << fSpatialDistribution << RESTendl;
+        RESTMetadata << "Radius : " << fSpatialRadius << " mm" << RESTendl;
+        RESTMetadata << "Origin : (" << fSpatialOrigin.X() << "," << fSpatialOrigin.Y() << ","
+                     << fSpatialOrigin.Z() << ")" << RESTendl;
 
         EndPrintProcess();
     }
 
-    /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestAxionGeneratorProcess; }
-
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "axionGenerator"; }
+    const char* GetProcessName() const override { return "axionGenerator"; }
 
     // Constructor
     TRestAxionGeneratorProcess();
@@ -139,6 +137,6 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     // Destructor
     ~TRestAxionGeneratorProcess();
 
-    ClassDef(TRestAxionGeneratorProcess, 1);
+    ClassDefOverride(TRestAxionGeneratorProcess, 1);
 };
 #endif

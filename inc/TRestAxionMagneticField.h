@@ -94,7 +94,7 @@ class TRestAxionMagneticField : public TRestMetadata {
         if (fMagneticFieldVolumes.size() > id)
             return &fMagneticFieldVolumes[id];
         else {
-            ferr << "TRestAxionMagneticField::GetMagneticVolume. Id outside limits!" << endl;
+            RESTError << "TRestAxionMagneticField::GetMagneticVolume. Id outside limits!" << RESTendl;
             return NULL;
         }
     }

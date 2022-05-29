@@ -10,9 +10,9 @@
 import sys, os
 import ROOT
 
+from array import array
 from ROOT import TH1D, TH2D
 import pandas as pd 
-
 
 import argparse
 
@@ -41,11 +41,13 @@ print (args.fname)
 print (args.fname.find("."))
 
 outfname = os.path.basename(args.fname)
-outfname = outfname[0:outfname.find(".")] + ".dat"
+outfname = outfname[0:outfname.find(".")] + ".Nxxf"
 if args.outfname != None:
-    outfname = args.outfname + ".dat"
+    outfname = args.outfname + "Nxxf"
 print (outfname)
 
+extension = outfname[outfname.find(".")+1:]
+print (extension)
 
 data = pd.read_csv(args.fname, sep=" ", skiprows=skiprows, header=None)
 
@@ -65,13 +67,24 @@ for n in range(len(data)):
     #print( "R: " + str(r) + " En: " + str(en) + " Flux: " + str(flux) + "\n" )
 
 print (outfname)
-outf = open( outfname, "w")
-print( str(fluxTable.GetNbinsX()) + " " + str(fluxTable.GetNbinsY()) )
-for n in range(0,fluxTable.GetNbinsX()):
-    for m in range(0,fluxTable.GetNbinsY()):
-        outf.write( str(fluxTable.GetBinContent( n+1, m+1 )) )
-        if m == fluxTable.GetNbinsY() - 1:
-            outf.write("\n")
-        else:
-            outf.write("\t")
-outf.close()
+
+if extension == "Nxxf":
+    print("Writting binary" )
+    output_file = open(outfname, 'wb')
+    for n in range(0,fluxTable.GetNbinsX()):
+        float_array = array('f', [])
+        for m in range(0,fluxTable.GetNbinsY()):
+            float_array.append(float(fluxTable.GetBinContent( n+1, m+1 ))) 
+        float_array.tofile(output_file)
+    output_file.close()
+else:
+    outf = open( outfname, "w")
+    print( str(fluxTable.GetNbinsX()) + " " + str(fluxTable.GetNbinsY()) )
+    for n in range(0,fluxTable.GetNbinsX()):
+        for m in range(0,fluxTable.GetNbinsY()):
+            outf.write( str(fluxTable.GetBinContent( n+1, m+1 )) )
+            if m == fluxTable.GetNbinsY() - 1:
+                outf.write("\n")
+            else:
+                outf.write("\t")
+    outf.close()

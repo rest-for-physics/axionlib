@@ -155,19 +155,19 @@ void TRestAxionFieldPropagationProcess::Initialize() {
 /// should be initialized here.
 ///
 void TRestAxionFieldPropagationProcess::InitProcess() {
-    debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
+    RESTDebug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << RESTendl;
 
     fAxionMagneticField = (TRestAxionMagneticField*)this->GetMetadata("TRestAxionMagneticField");
 
     if (!fAxionMagneticField) {
-        ferr << "TRestAxionFieldPropagationprocess. Magnetic Field was not defined!" << endl;
+        RESTError << "TRestAxionFieldPropagationprocess. Magnetic Field was not defined!" << RESTendl;
         exit(0);
     }
 
     fAxionBufferGas = (TRestAxionBufferGas*)this->GetMetadata("TRestAxionBufferGas");
 
     if (!fAxionBufferGas) {
-        ferr << "TRestAxionBufferGas. Cannot access the buffer gas" << endl;
+        RESTError << "TRestAxionBufferGas. Cannot access the buffer gas" << RESTendl;
         exit(0);
     }
 
@@ -183,8 +183,8 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
 /*
 TVector3 TRestAxionFieldPropagationProcess::MoveToPlane(TVector3 pos, TVector3 dir, TVector3 n, TVector3 a) {
     if (n * dir == 0) {
-        ferr << "The vector is parallel to the plane!!" << endl;
-        ferr << "Position will not be translated" << endl;
+        RESTError << "The vector is parallel to the plane!!" << endl;
+        RESTError << "Position will not be translated" << endl;
     } else {
         Double_t t = (n * a - n * pos) / (n * dir);
 
@@ -201,7 +201,7 @@ TVector3 TRestAxionFieldPropagationProcess::MoveToPlane(TVector3 pos, TVector3 d
 /// component and an impact factor.
 /*
 TVector3 TRestAxionFieldPropagationProcess::MoveToPlan(TVector3 pos, TVector3 dir, Double_t f, Int_t i) {
-    if (dir[i] == 0) ferr << "The component of the direction you chose is equal to 0 " << endl;
+    if (dir[i] == 0) RESTError << "The component of the direction you chose is equal to 0 " << endl;
 
     Double_t t = (f - pos[i]) / dir[i];
     pos[i] = f;
@@ -443,7 +443,7 @@ if (direction == TVector3(0, 0, 0))  // No moves
     return boundaryCollection;
 
 if ((fAxionMagneticField->GetXmin()).size() == 0)
-    ferr << " The magnetic field has not been loaded " << endl;
+    RESTError << " The magnetic field has not been loaded " << endl;
 
 // Find global boundaries volume
 
@@ -532,7 +532,7 @@ std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldB
         return boundaryFinalCollection;
 
     if (fAxionMagneticField->GetNumberOfVolumes() == 0)
-        ferr << " The magnetic field has not been loaded " << endl;
+        RESTError << " The magnetic field has not been loaded " << RESTendl;
 
     // Find field boundaries volume
 
@@ -546,18 +546,20 @@ std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldB
         }
     }
 
-    debug << "+------------------------+" << endl;
-    debug << " Number of field boundaries : " << 2 * boundaryFinalCollection.size() << endl;
-    debug << "+------------------------+" << endl;
+    RESTDebug << "+------------------------+" << RESTendl;
+    RESTDebug << " Number of field boundaries : " << 2 * boundaryFinalCollection.size() << RESTendl;
+    RESTDebug << "+------------------------+" << RESTendl;
 
-    debug << "+------------------------+" << endl;
+    RESTDebug << "+------------------------+" << RESTendl;
     for (Int_t p = 0; p < boundaryFinalCollection.size(); p++) {
-        debug << "for volume " << p << " in : (" << boundaryFinalCollection[p][0].X() << ","
-              << boundaryFinalCollection[p][0].Y() << "," << boundaryFinalCollection[p][0].Z() << ")" << endl;
-        debug << "for volume " << p << " out : (" << boundaryFinalCollection[p][1].X() << ","
-              << boundaryFinalCollection[p][1].Y() << "," << boundaryFinalCollection[p][1].Z() << ")" << endl;
+        RESTDebug << "for volume " << p << " in : (" << boundaryFinalCollection[p][0].X() << ","
+                  << boundaryFinalCollection[p][0].Y() << "," << boundaryFinalCollection[p][0].Z() << ")"
+                  << RESTendl;
+        RESTDebug << "for volume " << p << " out : (" << boundaryFinalCollection[p][1].X() << ","
+                  << boundaryFinalCollection[p][1].Y() << "," << boundaryFinalCollection[p][1].Z() << ")"
+                  << RESTendl;
     }
-    debug << "+------------------------+" << endl;
+    RESTDebug << "+------------------------+" << RESTendl;
 
     return boundaryFinalCollection;
 }
@@ -594,7 +596,7 @@ TVectorD TRestAxionFieldPropagationProcess::GetFieldVector(TVector3 in, TVector3
 /// \brief Prints variables of the ComplexReal type, i.e, complex numbers
 ///
 void TRestAxionFieldPropagationProcess::PrintComplex(ComplexReal p) {
-    debug << p.real << " + " << p.img << "i" << endl;
+    RESTDebug << p.real << " + " << p.img << "i" << RESTendl;
 }
 
 /// \brief Calculates amplitudes of the axion field, parallel component of the photon field and orthogonal
@@ -688,35 +690,38 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSegment(
         mpfr::mpreal theta = 0.5 * atan(term_1 / term_2);
         mpfr::mpreal lambda = sqrt(term_1 * term_1 + term_2 * term_2) / (4. * Ea * 1000.0);  // in eV
 
-        debug << "+--------------------------------------------------------------------------+" << endl;
-        debug << " CalculateAmplitudesInSegment method: Parameter summary" << endl;
-        debug << endl << "segment length = " << segment_length << " mm" << endl;
-        debug << endl
-              << "subsegment_start: (" << subsegment_start.x() << ", " << subsegment_start.y() << ", "
-              << subsegment_start.z() << ") "
-              << " mm" << endl;
-        debug << "subsegment_end: ( " << subsegment_end.x() << ", " << subsegment_end.y() << ", "
-              << subsegment_end.z() << ") "
-              << " mm" << endl;
-        debug << "subsegment length = " << subsegment_length << " m" << endl << endl;
+        RESTDebug << "+--------------------------------------------------------------------------+"
+                  << RESTendl;
+        RESTDebug << " CalculateAmplitudesInSegment method: Parameter summary" << RESTendl;
+        RESTDebug << RESTendl << "segment length = " << segment_length << " mm" << RESTendl;
+        RESTDebug << RESTendl << "subsegment_start: (" << subsegment_start.x() << ", " << subsegment_start.y()
+                  << ", " << subsegment_start.z() << ") "
+                  << " mm" << RESTendl;
+        RESTDebug << "subsegment_end: ( " << subsegment_end.x() << ", " << subsegment_end.y() << ", "
+                  << subsegment_end.z() << ") "
+                  << " mm" << RESTendl;
+        RESTDebug << "subsegment length = " << subsegment_length << " m" << RESTendl << RESTendl;
 
-        debug << " average magnitude of the transverse component of the magnetic field in the subsegment : "
-              << BTmag << " T" << endl;
-        debug << " angle of the transverse component of the average magnetic field in the subsegment with "
-                 "respect to the previous subsegment : "
-              << BTangle << " rad" << endl;
-        debug << " g_agg : " << g_agg << " GeV-1" << endl;
-        debug << " Theta : " << theta << endl;
-        debug << " lambda : " << lambda << " eV" << endl;
-        debug << " subsegment_A0_par : ";
+        RESTDebug
+            << " average magnitude of the transverse component of the magnetic field in the subsegment : "
+            << BTmag << " T" << RESTendl;
+        RESTDebug
+            << " angle of the transverse component of the average magnetic field in the subsegment with "
+               "respect to the previous subsegment : "
+            << BTangle << " rad" << RESTendl;
+        RESTDebug << " g_agg : " << g_agg << " GeV-1" << RESTendl;
+        RESTDebug << " Theta : " << theta << RESTendl;
+        RESTDebug << " lambda : " << lambda << " eV" << RESTendl;
+        RESTDebug << " subsegment_A0_par : ";
         PrintComplex(subsegment_A0_par);
-        debug << " subsegment_A0_ort : ";
+        RESTDebug << " subsegment_A0_ort : ";
         PrintComplex(subsegment_A0_ort);
-        debug << " BEFORE calculating in subsegment: paralell photon component amplitude : ";
+        RESTDebug << " BEFORE calculating in subsegment: paralell photon component amplitude : ";
         PrintComplex(fparallelPhotonAmplitude);
-        debug << " BEFORE calculating in subsegment: orthogonal photon component amplitude : ";
+        RESTDebug << " BEFORE calculating in subsegment: orthogonal photon component amplitude : ";
         PrintComplex(forthogonalPhotonAmplitude);
-        debug << "+--------------------------------------------------------------------------+" << endl;
+        RESTDebug << "+--------------------------------------------------------------------------+"
+                  << RESTendl;
 
         CalculateAmplitudesInSubsegment(faxionAmplitude, fparallelPhotonAmplitude, forthogonalPhotonAmplitude,
                                         theta, lambda, subsegment_length, CommonPhase, OrthogonalPhase);
@@ -724,13 +729,13 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSegment(
                                                          // subsegment, i.e. at the point `subsegment_end`
         subsegment_A0_ort = forthogonalPhotonAmplitude;  // orthogonal photon amplitude at the end of the
                                                          // subsegment, i.e. at the point `subsegment_end`
-        debug << endl << " AFTER calculating in subsegment: subsegment_A0_par : ";
+        RESTDebug << RESTendl << " AFTER calculating in subsegment: subsegment_A0_par : ";
         PrintComplex(subsegment_A0_par);
-        debug << " AFTER calculating in subsegment: subsegment_A0_ort : ";
+        RESTDebug << " AFTER calculating in subsegment: subsegment_A0_ort : ";
         PrintComplex(subsegment_A0_ort);
-        debug << " AFTER calculating in subsegment: paralell photon component amplitude : ";
+        RESTDebug << " AFTER calculating in subsegment: paralell photon component amplitude : ";
         PrintComplex(fparallelPhotonAmplitude);
-        debug << " AFTER calculating in subsegment: orthogonal photon component amplitude : ";
+        RESTDebug << " AFTER calculating in subsegment: orthogonal photon component amplitude : ";
         PrintComplex(forthogonalPhotonAmplitude);
         subsegment_start = subsegment_end;
     }
@@ -764,20 +769,20 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSubsegment(
                                                     // at the beginning of the subsegment
     ComplexReal A0_ort = forthogonalPhotonAmplitude;  // photon field orthogonal component amplitude initial
                                                       // value at the beginning of the subsegment
-    debug << "+--------------------------------------------------------------------------+" << endl;
-    debug << " CalculateAmplitudesInSubsegment method: Parameter summary" << endl;
-    debug << " Theta : " << theta << endl;
-    debug << " lambda : " << lambda << " eV" << endl;
-    debug << " subsegment length : " << length << " m" << endl;
-    debug << " Common phase : " << CommonPhase << " eV" << endl;
-    debug << " orthogonal photon component phase : " << OrthogonalPhase << " eV" << endl;
-    debug << " a0 : ";
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+    RESTDebug << " CalculateAmplitudesInSubsegment method: Parameter summary" << RESTendl;
+    RESTDebug << " Theta : " << theta << RESTendl;
+    RESTDebug << " lambda : " << lambda << " eV" << RESTendl;
+    RESTDebug << " subsegment length : " << length << " m" << RESTendl;
+    RESTDebug << " Common phase : " << CommonPhase << " eV" << RESTendl;
+    RESTDebug << " orthogonal photon component phase : " << OrthogonalPhase << " eV" << RESTendl;
+    RESTDebug << " a0 : ";
     PrintComplex(a0);
-    debug << " A0_par : ";
+    RESTDebug << " A0_par : ";
     PrintComplex(A0_par);
-    debug << " A0_ort : ";
+    RESTDebug << " A0_ort : ";
     PrintComplex(A0_ort);
-    debug << "+--------------------------------------------------------------------------+" << endl;
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
 
     // setting auxillary parameters used in calculations
     mpfr::mpreal cos2_theta = cos(theta) * cos(theta);
@@ -793,22 +798,22 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSubsegment(
     mpfr::mpreal phi1 = CommonPhase * l;
     ComplexReal exp_CommonPhase = SetComplexReal(cos(phi1), sin(phi1));
 
-    debug << "+--------------------------------------------------------------------------+" << endl;
-    debug << " Intermediate calculations" << endl;
-    debug << " cos^(2)_theta : " << cos2_theta << endl;
-    debug << " sin^(2)_theta : " << sin2_theta << endl;
-    debug << " sin(2*theta) : " << sin_2theta << endl;
-    debug << " subsegment length : " << length << " m" << endl;
-    debug << " l : " << l << " eV-1" << endl;
-    debug << " phi : " << phi << endl;
-    debug << " exp_lambdaPlusZ : ";
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+    RESTDebug << " Intermediate calculations" << RESTendl;
+    RESTDebug << " cos^(2)_theta : " << cos2_theta << RESTendl;
+    RESTDebug << " sin^(2)_theta : " << sin2_theta << RESTendl;
+    RESTDebug << " sin(2*theta) : " << sin_2theta << RESTendl;
+    RESTDebug << " subsegment length : " << length << " m" << RESTendl;
+    RESTDebug << " l : " << l << " eV-1" << RESTendl;
+    RESTDebug << " phi : " << phi << RESTendl;
+    RESTDebug << " exp_lambdaPlusZ : ";
     PrintComplex(exp_lambdaPlusZ);
-    debug << " exp_lambdaMinusZ : ";
+    RESTDebug << " exp_lambdaMinusZ : ";
     PrintComplex(exp_lambdaMinusZ);
-    debug << " phi1 : " << phi1 << endl;
-    debug << " exp_CommonPhase : ";
+    RESTDebug << " phi1 : " << phi1 << RESTendl;
+    RESTDebug << " exp_CommonPhase : ";
     PrintComplex(exp_CommonPhase);
-    debug << "+--------------------------------------------------------------------------+" << endl;
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
 
     // calculation of the photon parallel component amplitude
     ComplexReal A_term_1_1 = ComplexProduct(cos2_theta, exp_lambdaPlusZ);
@@ -820,25 +825,25 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSubsegment(
     ComplexReal A_term_2 = ComplexProduct(temp, A_sum_2);
     ComplexReal A_sum = ComplexAddition(A_term_1, A_term_2);
     fparallelPhotonAmplitude = ComplexProduct(exp_CommonPhase, A_sum);
-    debug << "+--------------------------------------------------------------------------+" << endl;
-    debug << " Intermediate calculations for the photon parallel component amplitude" << endl;
-    debug << " A_term_1_1 : ";
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+    RESTDebug << " Intermediate calculations for the photon parallel component amplitude" << RESTendl;
+    RESTDebug << " A_term_1_1 : ";
     PrintComplex(A_term_1_1);
-    debug << " A_term_1_2 : ";
+    RESTDebug << " A_term_1_2 : ";
     PrintComplex(A_term_1_2);
-    debug << " A_sum_1 : ";
+    RESTDebug << " A_sum_1 : ";
     PrintComplex(A_sum_1);
-    debug << " A_term_1 : ";
+    RESTDebug << " A_term_1 : ";
     PrintComplex(A_term_1);
-    debug << " A_sum_2 : ";
+    RESTDebug << " A_sum_2 : ";
     PrintComplex(A_sum_2);
-    debug << " A_term_2 : ";
+    RESTDebug << " A_term_2 : ";
     PrintComplex(A_term_2);
-    debug << " A_sum : ";
+    RESTDebug << " A_sum : ";
     PrintComplex(A_sum);
-    debug << " parallelPhotonAmplitude : ";
+    RESTDebug << " parallelPhotonAmplitude : ";
     PrintComplex(fparallelPhotonAmplitude);
-    debug << "+--------------------------------------------------------------------------+" << endl;
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
 
     // calculation of the axion amplitude
     ComplexReal a_sum_1 = A_sum_2;
@@ -850,38 +855,38 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSubsegment(
     ComplexReal a_term_2 = ComplexProduct(a0, a_sum_2);
     ComplexReal a_sum = ComplexAddition(a_term_1, a_term_2);
     faxionAmplitude = ComplexProduct(exp_CommonPhase, a_sum);
-    debug << "+--------------------------------------------------------------------------+" << endl;
-    debug << " Intermediate calculations for the axion amplitude" << endl;
-    debug << " a_sum_1 : ";
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+    RESTDebug << " Intermediate calculations for the axion amplitude" << RESTendl;
+    RESTDebug << " a_sum_1 : ";
     PrintComplex(a_sum_1);
-    debug << " a_term_1 : ";
+    RESTDebug << " a_term_1 : ";
     PrintComplex(a_term_1);
-    debug << " a_term_2_1 : ";
+    RESTDebug << " a_term_2_1 : ";
     PrintComplex(a_term_2_1);
-    debug << " a_term_2_2 : ";
+    RESTDebug << " a_term_2_2 : ";
     PrintComplex(a_term_2_2);
-    debug << " a_sum_2 : ";
+    RESTDebug << " a_sum_2 : ";
     PrintComplex(a_sum_2);
-    debug << " a_term_2 : ";
+    RESTDebug << " a_term_2 : ";
     PrintComplex(a_term_2);
-    debug << " a_sum : ";
+    RESTDebug << " a_sum : ";
     PrintComplex(a_sum);
-    debug << " axionAmplitude : ";
+    RESTDebug << " axionAmplitude : ";
     PrintComplex(faxionAmplitude);
-    debug << "+--------------------------------------------------------------------------+" << endl;
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
 
     // calculation of the photon orthogonal component amplitude
     mpfr::mpreal phi2 = OrthogonalPhase * l;
     ComplexReal exp_OrthogonalPhase = SetComplexReal(cos(phi2), sin(phi2));
     forthogonalPhotonAmplitude = ComplexProduct(A0_ort, exp_OrthogonalPhase);
-    debug << "+--------------------------------------------------------------------------+" << endl;
-    debug << " Intermediate calculations for the photon orthogonal component amplitude" << endl;
-    debug << " phi2 : " << phi2 << endl;
-    debug << " exp_OrthogonalPhase : ";
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+    RESTDebug << " Intermediate calculations for the photon orthogonal component amplitude" << RESTendl;
+    RESTDebug << " phi2 : " << phi2 << RESTendl;
+    RESTDebug << " exp_OrthogonalPhase : ";
     PrintComplex(exp_OrthogonalPhase);
-    debug << " orthogonalPhotonAmplitude : ";
+    RESTDebug << " orthogonalPhotonAmplitude : ";
     PrintComplex(forthogonalPhotonAmplitude);
-    debug << "+--------------------------------------------------------------------------+" << endl;
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
 }
 
 /// \brief Calculates amplitudes of the axion field, parallel component of the photon field and orthogonal
@@ -910,16 +915,16 @@ void TRestAxionFieldPropagationProcess::PropagateWithoutBField(ComplexReal& faxi
     length = length / 1000.0;               // default REST units are mm
     mpfr::mpreal l = length * PhMeterIneV;  // length in eV-1
 
-    debug << "+--------------------------------------------------------------------------+" << endl;
-    debug << " Propagation without B field: " << endl;
-    debug << " INITIAL VALUES " << endl;
-    debug << " axionAmplitude : ";
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+    RESTDebug << " Propagation without B field: " << RESTendl;
+    RESTDebug << " INITIAL VALUES " << RESTendl;
+    RESTDebug << " axionAmplitude : ";
     PrintComplex(faxionAmplitude);
-    debug << " parallelPhotonAmplitude : ";
+    RESTDebug << " parallelPhotonAmplitude : ";
     PrintComplex(fparallelPhotonAmplitude);
-    debug << " orthogonalPhotonAmplitude : ";
+    RESTDebug << " orthogonalPhotonAmplitude : ";
     PrintComplex(forthogonalPhotonAmplitude);
-    debug << "+--------------------------------------------------------------------------+" << endl;
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
 
     mpfr::mpreal axionphi = axionPhase * l;
     ComplexReal exp_axionPhase = SetComplexReal(cos(axionphi), sin(axionphi));
@@ -929,29 +934,29 @@ void TRestAxionFieldPropagationProcess::PropagateWithoutBField(ComplexReal& faxi
     ComplexReal exp_photonPhase = SetComplexReal(cos(photonphi), sin(photonphi));
     fparallelPhotonAmplitude = ComplexProduct(fparallelPhotonAmplitude, exp_photonPhase);
     forthogonalPhotonAmplitude = ComplexProduct(forthogonalPhotonAmplitude, exp_photonPhase);
-    debug << "+--------------------------------------------------------------------------+" << endl;
-    debug << " Intermediate calculations" << endl;
-    debug << " axionPhase : " << axionPhase << endl;
-    debug << " axionphi : " << axionphi << endl;
-    debug << " exp_axionPhase : ";
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+    RESTDebug << " Intermediate calculations" << RESTendl;
+    RESTDebug << " axionPhase : " << axionPhase << RESTendl;
+    RESTDebug << " axionphi : " << axionphi << RESTendl;
+    RESTDebug << " exp_axionPhase : ";
     PrintComplex(exp_axionPhase);
-    debug << "Norm2(exp_axionPhase) = " << Norm2(exp_axionPhase) << endl;
-    debug << " photonPhase : " << photonPhase << endl;
-    debug << " photonphi : " << photonphi << endl;
-    debug << " exp_photonPhase : ";
+    RESTDebug << "Norm2(exp_axionPhase) = " << Norm2(exp_axionPhase) << RESTendl;
+    RESTDebug << " photonPhase : " << photonPhase << RESTendl;
+    RESTDebug << " photonphi : " << photonphi << RESTendl;
+    RESTDebug << " exp_photonPhase : ";
     PrintComplex(exp_photonPhase);
-    debug << "Norm2(exp_photonPhase) = " << Norm2(exp_photonPhase) << endl;
-    debug << "+--------------------------------------------------------------------------+" << endl;
-    debug << "+--------------------------------------------------------------------------+" << endl;
-    debug << " Propagation without B field: " << endl;
-    debug << " FINAL VALUES " << endl;
-    debug << " axionAmplitude : ";
+    RESTDebug << "Norm2(exp_photonPhase) = " << Norm2(exp_photonPhase) << RESTendl;
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+    RESTDebug << " Propagation without B field: " << RESTendl;
+    RESTDebug << " FINAL VALUES " << RESTendl;
+    RESTDebug << " axionAmplitude : ";
     PrintComplex(faxionAmplitude);
-    debug << " parallelPhotonAmplitude : ";
+    RESTDebug << " parallelPhotonAmplitude : ";
     PrintComplex(fparallelPhotonAmplitude);
-    debug << " orthogonalPhotonAmplitude : ";
+    RESTDebug << " orthogonalPhotonAmplitude : ";
     PrintComplex(forthogonalPhotonAmplitude);
-    debug << "+--------------------------------------------------------------------------+" << endl;
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
 }
 
 TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput) {
@@ -970,27 +975,29 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     TVector3 averageBT = TVector3(0.0, 0.0, 0.0);  // initial value of the transverse component of the average
                                                    // magnetic field before entering the magnetic field region
 
-    debug << "+------------------------+" << endl;
-    debug << "Initial position of the axion input : " << endl;
-    debug << "(" << position.X() << "," << position.Y() << "," << position.Z() << ")" << endl;
-    debug << "Direction of the axion input : " << endl;
-    debug << "(" << direction.X() << "," << direction.Y() << "," << direction.Z() << ")" << endl;
-    debug << "Axion energy : " << Ea << endl;
-    debug << "Axion mass : " << ma << endl;
-    debug << "axion amplitude = " << faxionAmplitude.real << " + " << faxionAmplitude.img << "i" << endl;
-    debug << "parallel photon amplitude = " << fparallelPhotonAmplitude.real << " + "
-          << fparallelPhotonAmplitude.img << "i" << endl;
-    debug << "orthogonal photon amplitude = " << forthogonalPhotonAmplitude.real << " + "
-          << forthogonalPhotonAmplitude.img << "i" << endl;
-    debug << "+------------------------+" << endl;
+    RESTDebug << "+------------------------+" << RESTendl;
+    RESTDebug << "Initial position of the axion input : " << RESTendl;
+    RESTDebug << "(" << position.X() << "," << position.Y() << "," << position.Z() << ")" << RESTendl;
+    RESTDebug << "Direction of the axion input : " << RESTendl;
+    RESTDebug << "(" << direction.X() << "," << direction.Y() << "," << direction.Z() << ")" << RESTendl;
+    RESTDebug << "Axion energy : " << Ea << RESTendl;
+    RESTDebug << "Axion mass : " << ma << RESTendl;
+    RESTDebug << "axion amplitude = " << faxionAmplitude.real << " + " << faxionAmplitude.img << "i"
+              << RESTendl;
+    RESTDebug << "parallel photon amplitude = " << fparallelPhotonAmplitude.real << " + "
+              << fparallelPhotonAmplitude.img << "i" << RESTendl;
+    RESTDebug << "orthogonal photon amplitude = " << forthogonalPhotonAmplitude.real << " + "
+              << forthogonalPhotonAmplitude.img << "i" << RESTendl;
+    RESTDebug << "+------------------------+" << RESTendl;
 
     std::vector<std::vector<TVector3>> boundaries;
     boundaries = FindFieldBoundaries();
     Int_t NofVolumes = boundaries.size();
 
-    debug << "+------------------------+" << endl;
-    debug << "Number of magnetic field regions through which the axion passes : " << NofVolumes << endl;
-    debug << "+------------------------+" << endl;
+    RESTDebug << "+------------------------+" << RESTendl;
+    RESTDebug << "Number of magnetic field regions through which the axion passes : " << NofVolumes
+              << RESTendl;
+    RESTDebug << "+------------------------+" << RESTendl;
 
     Double_t probability = 0.;    // initial value of the axion to photon conversion probability
     mpfr::mpreal axionMass = ma;  // in eV
@@ -999,9 +1006,9 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     for (Int_t i = 0; i < NofVolumes; i++) {  // loop over segments of trajectory where B is not equal to zero
         Int_t id = fAxionMagneticField->GetVolumeIndex(boundaries[i][0]);
         if (id < 0) {
-            warning << "TRestAxionFieldPropagationProcess::ProcessEvent position is outside any volume. "
-                       "Setting photon mass to 0."
-                    << endl;
+            RESTWarning << "TRestAxionFieldPropagationProcess::ProcessEvent position is outside any volume. "
+                           "Setting photon mass to 0."
+                        << RESTendl;
             photonMass = 0.0;  // in eV
         } else {
             Double_t mphoton = fAxionMagneticField->GetPhotonMass(
@@ -1009,9 +1016,9 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
                 Ea);  // It returns the effective photon mass in eV at the corresponding magnetic volume id.
             photonMass = mphoton;
         }
-        debug << "Volume ID = " << id << "   photon mass = " << photonMass << endl;
-        debug << "Volume ID = " << id << "   axion mass = " << axionMass << endl;
-        debug << "Volume ID = " << id << "   axion energy = " << Ea << endl;
+        RESTDebug << "Volume ID = " << id << "   photon mass = " << photonMass << RESTendl;
+        RESTDebug << "Volume ID = " << id << "   axion mass = " << axionMass << RESTendl;
+        RESTDebug << "Volume ID = " << id << "   axion energy = " << Ea << RESTendl;
 
         // calculating common phase for the axion field and parallel component of the photon field (eqs. (4.1)
         // and (4.2))
@@ -1022,68 +1029,68 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
             Ea * 1000.0 - (axionMass * axionMass + photonMass * photonMass) / (4. * Ea * 1000.0);     // in eV
         mpfr::mpreal OrthogonalPhase = Ea * 1000.0 - (photonMass * photonMass) / (2. * Ea * 1000.0);  // in eV
 
-        debug << "Calculating amplitudes for one segment of trajectory where B is not zero. Segment "
-                 "boundaries are : ("
-              << boundaries[i][0].X() << "," << boundaries[i][0].Y() << "," << boundaries[i][0].Z()
-              << ") to (" << boundaries[i][1].X() << "," << boundaries[i][1].Y() << ","
-              << boundaries[i][1].Z() << ")" << endl;
+        RESTDebug << "Calculating amplitudes for one segment of trajectory where B is not zero. Segment "
+                     "boundaries are : ("
+                  << boundaries[i][0].X() << "," << boundaries[i][0].Y() << "," << boundaries[i][0].Z()
+                  << ") to (" << boundaries[i][1].X() << "," << boundaries[i][1].Y() << ","
+                  << boundaries[i][1].Z() << ")" << RESTendl;
         CalculateAmplitudesInSegment(faxionAmplitude, fparallelPhotonAmplitude, forthogonalPhotonAmplitude,
                                      averageBT, axionMass, photonMass, Ea, boundaries[i][0], boundaries[i][1],
                                      CommonPhase, OrthogonalPhase);
 
-        debug << endl << endl << endl << endl;
-        debug << "----------------------------------------------------------------" << endl;
-        debug << " Amplitude values after calculations in one segment: " << endl;
-        debug << " axion amplitude : ";
+        RESTDebug << RESTendl << RESTendl << RESTendl << RESTendl;
+        RESTDebug << "----------------------------------------------------------------" << RESTendl;
+        RESTDebug << " Amplitude values after calculations in one segment: " << RESTendl;
+        RESTDebug << " axion amplitude : ";
         PrintComplex(faxionAmplitude);
-        debug << " parallel photon component amplitude : ";
+        RESTDebug << " parallel photon component amplitude : ";
         PrintComplex(fparallelPhotonAmplitude);
-        debug << " orthogonal photon component amplitude : ";
+        RESTDebug << " orthogonal photon component amplitude : ";
         PrintComplex(forthogonalPhotonAmplitude);
-        debug << "+--------------------------------------------------------------------------+" << endl
-              << endl;
+        RESTDebug << "+--------------------------------------------------------------------------+"
+                  << RESTendl << RESTendl;
         if ((i + 1) < NofVolumes) {
             cout << "Calculating amplitudes along the part of trajectory where B = 0 between the two "
                     "segments. Boundaries are : ("
                  << boundaries[i][1].X() << "," << boundaries[i][1].Y() << "," << boundaries[i][1].Z()
                  << ") to (" << boundaries[i + 1][0].X() << "," << boundaries[i + 1][0].Y() << ","
-                 << boundaries[i + 1][0].Z() << ")" << endl;
+                 << boundaries[i + 1][0].Z() << ")" << RESTendl;
             PropagateWithoutBField(faxionAmplitude, fparallelPhotonAmplitude, forthogonalPhotonAmplitude,
                                    axionMass, photonMass, Ea, boundaries[i][1], boundaries[i + 1][0]);
         }
     }
-    debug << endl << endl << endl << endl;
-    debug << "----------------------------------------------------------------" << endl;
-    debug << " FINAL AMPLITUDES: " << endl;
-    debug << " axion amplitude : ";
+    RESTDebug << RESTendl << RESTendl << RESTendl << RESTendl;
+    RESTDebug << "----------------------------------------------------------------" << RESTendl;
+    RESTDebug << " FINAL AMPLITUDES: " << RESTendl;
+    RESTDebug << " axion amplitude : ";
     PrintComplex(faxionAmplitude);
-    debug << " paralell photon component amplitude : ";
+    RESTDebug << " paralell photon component amplitude : ";
     PrintComplex(fparallelPhotonAmplitude);
-    debug << " orthogonal photon component amplitude : ";
+    RESTDebug << " orthogonal photon component amplitude : ";
     PrintComplex(forthogonalPhotonAmplitude);
-    debug << " PROBABILITY for axion to photon conversion (1-|a|^2): " << 1.0 - Norm2(faxionAmplitude)
-          << endl;
-    debug << "+--------------------------------------------------------------------------+" << endl;
+    RESTDebug << " PROBABILITY for axion to photon conversion (1-|a|^2): " << 1.0 - Norm2(faxionAmplitude)
+              << RESTendl;
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
 
     mpfr::mpreal probabilityHighPrecision = 1.0 - Norm2(faxionAmplitude);
     probability = probabilityHighPrecision.toDouble();
     fAxionEvent->SetGammaProbability(probability);
-    debug << "+------------------------+" << endl;
-    debug << "Conversion probability : " << endl;
-    debug << "fAxionEvent->GetGammaProbability() = " << fAxionEvent->GetGammaProbability() << endl;
-    debug << "+------------------------+" << endl;
+    RESTDebug << "+------------------------+" << RESTendl;
+    RESTDebug << "Conversion probability : " << RESTendl;
+    RESTDebug << "fAxionEvent->GetGammaProbability() = " << fAxionEvent->GetGammaProbability() << RESTendl;
+    RESTDebug << "+------------------------+" << RESTendl;
 
     // if (fMode == "plan")
     //    fAxionEvent->SetPosition(MoveToPlane(position, direction, fFinalNormalPlan, fFinalPositionPlan));
     // if (fMode == "distance") fAxionEvent->SetPosition(MoveByDistance(position, direction, fDistance));
 
-    debug << "+------------------------+" << endl;
-    debug << "Final position of the axion : " << endl;
-    debug << "(" << fAxionEvent->GetPositionX() << "," << fAxionEvent->GetPositionY() << ","
-          << fAxionEvent->GetPositionZ() << ")" << endl;
-    debug << "+------------------------+" << endl;
+    RESTDebug << "+------------------------+" << RESTendl;
+    RESTDebug << "Final position of the axion : " << RESTendl;
+    RESTDebug << "(" << fAxionEvent->GetPositionX() << "," << fAxionEvent->GetPositionY() << ","
+              << fAxionEvent->GetPositionZ() << ")" << RESTendl;
+    RESTDebug << "+------------------------+" << RESTendl;
 
-    if (GetVerboseLevel() >= REST_Debug) fAxionEvent->PrintEvent();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) fAxionEvent->PrintEvent();
 
     boundaries.clear();
 

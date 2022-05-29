@@ -58,11 +58,11 @@ void TRestAxionSpectrum::InitFromConfigFile() {
         double g2ref = GetDblParameterWithUnits("g2ref", NAN);
         sTableFileName = SearchFile((std::string)sTableFileName);
         if (sTableFileName == "") {
-            ferr << "File not found : " << sTableFileName << endl;
+            RESTError << "File not found : " << sTableFileName << RESTendl;
         } else if (std::isnan(g1ref)) {
-            ferr << "You need to supply at least one reference value 'g1ref' in 'table' mode of "
-                    "TRestAxionSpectrum."
-                 << endl;
+            RESTError << "You need to supply at least one reference value 'g1ref' in 'table' mode of "
+                         "TRestAxionSpectrum."
+                      << RESTendl;
         } else {
             fDefaultG1 = g1ref;
             if (not(std::isnan(g2ref))) {
@@ -115,11 +115,11 @@ void TRestAxionSpectrum::InitFromConfigFile() {
             for (auto el : avail_approximations) {
                 avail_approximation_names += " " + el.first;
             };
-            ferr << "You want to use the 'analytical' mode of TRestAxionSpectrum but neither supplied a "
-                    "known 'named_approx' OR the four required parameters 'a', 'b', 'norm', "
-                    "and 'g1ref'.\n The available known approximations are:" +
-                        avail_approximation_names
-                 << endl;
+            RESTError << "You want to use the 'analytical' mode of TRestAxionSpectrum but neither supplied a "
+                         "known 'named_approx' OR the four required parameters 'a', 'b', 'norm', "
+                         "and 'g1ref'.\n The available known approximations are:" +
+                             avail_approximation_names
+                      << RESTendl;
         }
     } else if (sMode == "solar_model") {
         // TODO: Ideally use TRestAxionSolarModel here...
@@ -132,9 +132,9 @@ void TRestAxionSpectrum::InitFromConfigFile() {
         spectrum = AxionSpectrum(&sol);
 #endif
     } else {
-        ferr << "Mode for TRestAxionSpectrum not known! Choose one of 'table', 'analytical', and "
-                "'solar_model'."
-             << endl;
+        RESTError << "Mode for TRestAxionSpectrum not known! Choose one of 'table', 'analytical', and "
+                     "'solar_model'."
+                  << RESTendl;
         sMode = "none";
     };
 }
@@ -143,7 +143,7 @@ TRestAxionSpectrum::TRestAxionSpectrum() : TRestMetadata() { Initialize(); }
 
 TRestAxionSpectrum::TRestAxionSpectrum(const char* cfgFileName, std::string name)
     : TRestMetadata(cfgFileName) {
-    debug << "Creating instance of TRestAxionSpectrum from file " + fConfigFileName + "..." << endl;
+    RESTDebug << "Creating instance of TRestAxionSpectrum from file " + fConfigFileName + "..." << RESTendl;
     Initialize();
     LoadConfigFromFile(fConfigFileName, name);
     PrintMetadata();
@@ -154,33 +154,35 @@ TRestAxionSpectrum::~TRestAxionSpectrum() {}
 void TRestAxionSpectrum::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
     if (sMode != "none") {
-        metadata << " Solar spectrum created in mode '" << sMode << "'." << endl;
+        RESTMetadata << " Solar spectrum created in mode '" << sMode << "'." << RESTendl;
     } else {
-        metadata << " Solar spectrum has not yet been initialised, yet!" << endl;
+        RESTMetadata << " Solar spectrum has not yet been initialised, yet!" << RESTendl;
     };
     if (sMode == "solar_model") {
 #ifdef USE_SolaxFlux
-        metadata << " - Opacity code used : " << sol.get_solaxlib_name_and_version() << endl;
-        metadata << " - Solar model file : " << sol.get_solar_model_name() << endl;
-        metadata << " - Opacity code used : " << sol.get_opacitycode_name() << endl;
+        RESTMetadata << " - Opacity code used : " << sol.get_solaxlib_name_and_version() << RESTendl;
+        RESTMetadata << " - Solar model file : " << sol.get_solar_model_name() << RESTendl;
+        RESTMetadata << " - Opacity code used : " << sol.get_opacitycode_name() << RESTendl;
 #endif
     } else if (sMode == "table") {
-        metadata << " - Tabulated spectrum file used : "
-                 << TRestTools::SeparatePathAndName(sTableFileName).second << endl;
+        RESTMetadata << " - Tabulated spectrum file used : "
+                     << TRestTools::SeparatePathAndName(sTableFileName).second << RESTendl;
     };
-    metadata << "-------------------------------------------------" << endl;
-    metadata << " - Units of the solar axion flux from this class : axions / cm^2 s keV" << endl;
+    RESTMetadata << "-------------------------------------------------" << RESTendl;
+    RESTMetadata << " - Units of the solar axion flux from this class : axions / cm^2 s keV" << RESTendl;
     if (not(std::isnan(fDefaultG1))) {
-        metadata << " - Numerical value of coupling g1 (in appropriate units): " << fDefaultG1 << endl;
+        RESTMetadata << " - Numerical value of coupling g1 (in appropriate units): " << fDefaultG1
+                     << RESTendl;
     };
     if (fDefaultG2 > 0) {
-        metadata << " - Numerical value of coupling g2 (in appropriate units): " << fDefaultG2 << endl;
+        RESTMetadata << " - Numerical value of coupling g2 (in appropriate units): " << fDefaultG2
+                     << RESTendl;
     } else {
-        metadata << " - A second coupling, g2, is not available in this class instance." << endl;
+        RESTMetadata << " - A second coupling, g2, is not available in this class instance." << RESTendl;
     };
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }
 
 double TRestAxionSpectrum::GetSolarAxionFlux(double erg_lo, double erg_hi, double erg_step_size) { return 0; }
