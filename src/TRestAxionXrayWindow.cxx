@@ -315,25 +315,34 @@ void TRestAxionXrayWindow::PrintTransmissionData() {
 }
 
 ///////////////////////////////////////////////
+/// \brief
+///
+void TRestAxionXrayWindow::InitFromConfigFile() {
+    TRestMetadata::InitFromConfigFile();
+
+    if (fMask) {
+        delete fMask;
+        fMask = nullptr;
+    }
+    fMask = (TRestPatternMask*)this->GetChildMetadata("Mask", "mask");
+}
+
+///////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionXrayWindow
 ///
 void TRestAxionXrayWindow::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    /*
-RESTMetadata << "X-ray window type: " << fWindowType << RESTendl;
-RESTMetadata << "Window center: ( " << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ") mm"
-             << RESTendl;
-RESTMetadata << "Thickness: " << fThickness * units("um") << " um" << RESTendl;
-RESTMetadata << "Material: " << fMaterial << RESTendl;
-RESTMetadata << "Window radius: " << fRadius << " mm" << RESTendl;
-if (fWindowType != "foil") {
-    RESTMetadata << "------" << RESTendl;
-    RESTMetadata << "Pattern periodicity: " << fPatternGap << " mm" << RESTendl;
-    RESTMetadata << "Pattern width: " << fPatternWidth << " mm" << RESTendl;
-    RESTMetadata << "Pattern offset: " << fPatternOffset << " mm" << RESTendl;
-}
-    */
+    RESTMetadata << "Window center: ( " << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ") mm"
+                 << RESTendl;
+    RESTMetadata << "Thickness: " << fThickness * units("um") << " um" << RESTendl;
+    RESTMetadata << "Material: " << fMaterial << RESTendl;
+    if (fMask) {
+        RESTMetadata << "----" << RESTendl;
+        fMask->Print();
+    } else {
+        RESTMetadata << " - Pattern type: foil" << RESTendl;
+    }
 
     RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }

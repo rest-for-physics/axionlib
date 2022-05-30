@@ -39,7 +39,7 @@ class TRestAxionXrayWindow : public TRestMetadata {
     std::string fMaterial = "Si";  //<
 
     /// A mask defining a pattern where the transmission will be effective
-    TRestPatternMask* fMask;  //<
+    TRestPatternMask* fMask = nullptr;  //<
 
     /// A vector with the energies loaded from the material file. Not stored in disk.
     std::vector<Double_t> fEnergy;  //!
@@ -64,6 +64,7 @@ class TRestAxionXrayWindow : public TRestMetadata {
 
     void PrintTransmissionData();
 
+    void InitFromConfigFile();
     void PrintMetadata();
 
     TRestAxionXrayWindow();
