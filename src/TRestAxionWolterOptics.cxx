@@ -38,7 +38,7 @@
 ///		<!-- We build mirror shells with 0.1mm thickness -->
 ///		<parameter name="shellMinRadii" value="5,10,15,20,25" />
 ///		<parameter name="shellMaxRadii" value="9.9,14.9,19.9,24.9,29.9" />
-/// <TRestAxionOptics/>
+/// <TRestAxionWolterOptics/>
 /// \endcode
 ///
 /// Example 2:
@@ -51,6 +51,10 @@
 /// <TRestAxionWolterOptics center="(0,0,95)" units="cm" />
 /// \endcode
 ///
+/// \htmlonly <style>div.image img[src="Wolter.png"]{width:800px;}</style> \endhtmlonly
+///
+/// ![Wolter optics schematic figure](Wolter.png)
+///
 ///--------------------------------------------------------------------------
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
@@ -60,8 +64,12 @@
 /// 2022-February: First concept and implementation of TRestAxionWolterOptics class.
 ///            	  Johanna von Oy
 ///
+/// 2022-May: Final integration
+///            	  Javier Galan
+///
 /// \class      TRestAxionWolterOptics
 /// \author     Johanna von Oy <vonoy@physik.uni-bonn.de>
+/// \author     Javier Galan <javier.galan@unizar.es>
 ///
 /// <hr>
 ///
