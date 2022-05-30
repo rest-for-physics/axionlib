@@ -21,7 +21,7 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionGenericOptics is a class that inherits from TRestAxionOptics.
+/// TRestAxionWolterOptics is a class that inherits from TRestAxionOptics.
 ///
 /// ToDO: Write what happens here
 ///
@@ -30,7 +30,7 @@
 ///
 /// Example 1:
 /// \code
-/// <TRestAxionGenericOptics name="dummy">
+/// <TRestAxionWolterOptics name="dummy">
 ///   	<parameter name="center" value="(0,0,200)mm" />
 ///		<parameter name="axis" value="(0,0.02,0.98)" />
 ///		<parameter name="length" value="22cm" />
@@ -43,12 +43,12 @@
 ///
 /// Example 2:
 /// \code
-/// <TRestAxionGenericOptics center="(0,0,950)mm" axis="(0,0,1)" />
+/// <TRestAxionWolterOptics center="(0,0,950)mm" axis="(0,0,1)" />
 /// \endcode
 ///
 /// Example 3:
 /// \code
-/// <TRestAxionGenericOptics center="(0,0,95)" units="cm" />
+/// <TRestAxionWolterOptics center="(0,0,95)" units="cm" />
 /// \endcode
 ///
 ///--------------------------------------------------------------------------
@@ -57,32 +57,32 @@
 ///
 /// History of developments:
 ///
-/// 2022-February: First concept and implementation of TRestAxionGenericOptics class.
+/// 2022-February: First concept and implementation of TRestAxionWolterOptics class.
 ///            	  Johanna von Oy
 ///
-/// \class      TRestAxionGenericOptics
+/// \class      TRestAxionWolterOptics
 /// \author     Johanna von Oy <vonoy@physik.uni-bonn.de>
 ///
 /// <hr>
 ///
 
-#include "TRestAxionGenericOptics.h"
+#include "TRestAxionWolterOptics.h"
 
 using namespace std;
 #include <cmath>
 #include "TRestPhysics.h"
 using namespace REST_Physics;
-ClassImp(TRestAxionGenericOptics);
+ClassImp(TRestAxionWolterOptics);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestAxionGenericOptics::TRestAxionGenericOptics() : TRestAxionOptics() { Initialize(); }
+TRestAxionWolterOptics::TRestAxionWolterOptics() : TRestAxionOptics() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionGenericOptics::~TRestAxionGenericOptics() {}
+TRestAxionWolterOptics::~TRestAxionWolterOptics() {}
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -98,9 +98,9 @@ TRestAxionGenericOptics::~TRestAxionGenericOptics() {}
 /// \param name The name of the specific metadata. It will be used to find the
 /// corresponding TRestAxionMagneticField section inside the RML.
 ///
-TRestAxionGenericOptics::TRestAxionGenericOptics(const char* cfgFileName, string name)
+TRestAxionWolterOptics::TRestAxionWolterOptics(const char* cfgFileName, string name)
     : TRestAxionOptics(cfgFileName) {
-    RESTDebug << "Entering TRestAxionGenericOptics constructor( cfgFileName, name )" << RESTendl;
+    RESTDebug << "Entering TRestAxionWolterOptics constructor( cfgFileName, name )" << RESTendl;
 
     Initialize();
 
@@ -110,9 +110,9 @@ TRestAxionGenericOptics::TRestAxionGenericOptics(const char* cfgFileName, string
 }
 
 ///////////////////////////////////////////////
-/// \brief Initialization of TRestAxionGenericOptics members
+/// \brief Initialization of TRestAxionWolterOptics members
 ///
-void TRestAxionGenericOptics::Initialize() {
+void TRestAxionWolterOptics::Initialize() {
     TRestAxionOptics::Initialize();
 
     SetSectionName(this->ClassName());
@@ -122,9 +122,9 @@ void TRestAxionGenericOptics::Initialize() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Initialization of TRestAxionGenericOptics field members through a RML file
+/// \brief Initialization of TRestAxionWolterOptics field members through a RML file
 ///
-void TRestAxionGenericOptics::InitFromConfigFile() {
+void TRestAxionWolterOptics::InitFromConfigFile() {
     TRestAxionOptics::InitFromConfigFile();
 
     /// TODO Initialize metadata members of this class here
@@ -137,7 +137,7 @@ void TRestAxionGenericOptics::InitFromConfigFile() {
 /// \brief This calculates the interaction Point between the X-Ray photons path and a mirror in the
 /// predetermined layer
 ///
-TVector3 TRestAxionGenericOptics::GetInteractionPoint(const TVector3& pos, const TVector3& dir) {
+TVector3 TRestAxionWolterOptics::GetInteractionPoint(const TVector3& pos, const TVector3& dir) {
     Int_t layer = GetEntranceRing(pos, dir);
     Double_t r1 = fRingsRadii[layer].second;
     Double_t angle = fShellsAngle[layer];
@@ -154,9 +154,9 @@ TVector3 TRestAxionGenericOptics::GetInteractionPoint(const TVector3& pos, const
 }
 
 ///////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionGenericOptics
+/// \brief Prints on screen the information about the metadata members of TRestAxionWolterOptics
 ///
-void TRestAxionGenericOptics::PrintMetadata() {
+void TRestAxionWolterOptics::PrintMetadata() {
     TRestAxionOptics::PrintMetadata();
 
     RESTMetadata << "---------" << RESTendl;

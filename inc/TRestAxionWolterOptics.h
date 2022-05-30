@@ -20,12 +20,13 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef _TRestAxionGenericOptics
-#define _TRestAxionGenericOptics
+#ifndef _TRestAxionWolterOptics
+#define _TRestAxionWolterOptics
 #include <TRestAxionOptics.h>
 #include <iostream>
+
 /// A class calculate the reflection path and probability of X-rays through a Wolter 1 telescope
-class TRestAxionGenericOptics : public TRestAxionOptics {
+class TRestAxionWolterOptics : public TRestAxionOptics {
    private:
     /// A vector containing the shells seperations between the two stacks. First element is the lowest radius.
     std::vector<Double_t> fShellsSep;  //<
@@ -52,12 +53,12 @@ class TRestAxionGenericOptics : public TRestAxionOptics {
     /// It returns the efficiency for particle with position `pos` and direction `dir`.
     Double_t GetEfficiency(const TVector3& pos, const TVector3& dir) { return 0.0; }
 
-    TRestAxionGenericOptics();
-    TRestAxionGenericOptics(const char* cfgFileName, std::string name = "");
-    ~TRestAxionGenericOptics();
+    TRestAxionWolterOptics();
+    TRestAxionWolterOptics(const char* cfgFileName, std::string name = "");
+    ~TRestAxionWolterOptics();
 
     /// get the interaction point of the photon with the mirror
     TVector3 GetInteractionPoint(const TVector3& pos, const TVector3& dir);
-    ClassDef(TRestAxionGenericOptics, 1);
+    ClassDef(TRestAxionWolterOptics, 1);
 };
 #endif
