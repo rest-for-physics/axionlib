@@ -24,6 +24,7 @@
 #define _TRestAxionXrayWindow
 
 #include <TRestMetadata.h>
+#include <TRestPatternMask.h>
 
 //! A metadata class to create x-ray transmission window definitions
 class TRestAxionXrayWindow : public TRestMetadata {
@@ -31,26 +32,14 @@ class TRestAxionXrayWindow : public TRestMetadata {
     /// Position of the center of the window in mm
     TVector3 fCenter = TVector3(0, 0, 0);  //<
 
-    /// Type of window (foil, stripped, grid)
-    std::string fWindowType = "foil";  //<
-
     /// Thicknesss of window material in mm
     Double_t fThickness = 0.0;  //<
 
     /// Window material name
     std::string fMaterial = "Si";  //<
 
-    /// Window radius in mm. For the moment the window is always a circle
-    Double_t fRadius = 8;  //<
-
-    /// The periodity of the pattern structure in mm
-    Double_t fPatternGap = 1;  //<
-
-    /// The width of the pattern structure mm
-    Double_t fPatternWidth = 0.5;  //<
-
-    /// The offset in mm for the first pattern structure. If 0, the first masking structure will be at origin.
-    Double_t fPatternOffset = 2;  //<
+    /// A mask defining a pattern where the transmission will be effective
+    TRestPatternMask* fMask;  //<
 
     /// A vector with the energies loaded from the material file. Not stored in disk.
     std::vector<Double_t> fEnergy;  //!
@@ -67,7 +56,9 @@ class TRestAxionXrayWindow : public TRestMetadata {
     Int_t GetEnergyIndex(Double_t energy);
 
    public:
-    Double_t GetWindowRadius() { return fRadius; }
+    Double_t GetWindowRadius() { return fMask->GetMaskRadius(); }
+
+    TRestPatternMask* GetMask() const { return fMask; }
 
     Double_t GetTransmission(Double_t energy, Double_t x, Double_t y);
 

@@ -160,12 +160,14 @@ void TRestAxionXrayWindow::Initialize() {
     fEnergy.clear();
     fTransmission.clear();
 
-    if (fWindowType != "foil" && fPatternGap == 0) {
-        RESTError << "TRestAxionXrayWindow::Initialize. fPatternGap cannot be zero!" << RESTendl;
-        fPatternGap = 1;
-    }
+    /*
+if (fWindowType != "foil" && fPatternGap == 0) {
+    RESTError << "TRestAxionXrayWindow::Initialize. fPatternGap cannot be zero!" << RESTendl;
+    fPatternGap = 1;
+}
 
-    if (fPatternGap < 0) fPatternGap = -fPatternGap;
+if (fPatternGap < 0) fPatternGap = -fPatternGap;
+    */
 }
 
 ///////////////////////////////////////////////
@@ -211,8 +213,11 @@ void TRestAxionXrayWindow::ReadMaterial() {
 Double_t TRestAxionXrayWindow::GetTransmission(Double_t energy, Double_t x, Double_t y) {
     if (fEnergy.size() == 0) ReadMaterial();
 
-    if ((x - fCenter.X()) * (x - fCenter.X()) + (y - fCenter.Y()) * (y - fCenter.Y()) > fRadius * fRadius)
-        return 0;
+    /*
+if ((x - fCenter.X()) * (x - fCenter.X()) + (y - fCenter.Y()) * (y - fCenter.Y()) > fRadius * fRadius)
+    return 0;
+            */
+    return 0;
 
     if (!HitsPattern(x, y)) return 1.;
 
@@ -250,40 +255,42 @@ Double_t TRestAxionXrayWindow::GetTransmission(Double_t energy, Double_t x, Doub
 /// \brief It returns true if the window pattern is hitted. False otherwise.
 ///
 Bool_t TRestAxionXrayWindow::HitsPattern(Double_t x, Double_t y) {
-    if (fWindowType == "stripped") {
-        Double_t xEval = fPatternWidth / 2. + x - fPatternOffset;
+    /*
+if (fWindowType == "stripped") {
+    Double_t xEval = fPatternWidth / 2. + x - fPatternOffset;
 
-        if (xEval > 0) {
-            while (xEval > fPatternGap) xEval -= fPatternGap;
-        } else {
-            while (xEval < 0) xEval += fPatternGap;
-        }
+    if (xEval > 0) {
+        while (xEval > fPatternGap) xEval -= fPatternGap;
+    } else {
+        while (xEval < 0) xEval += fPatternGap;
+    }
 
-        if (xEval > fPatternWidth) {
-            return false;
-        }
-    } else if (fWindowType == "grid") {
-        Double_t xEval = fPatternWidth / 2. + x - fPatternOffset;
-
-        if (xEval > 0) {
-            while (xEval > fPatternGap) xEval -= fPatternGap;
-        } else {
-            while (xEval < 0) xEval += fPatternGap;
-        }
-
-        if (xEval < fPatternWidth) return true;
-
-        Double_t yEval = fPatternWidth / 2. + y - fPatternOffset;
-
-        if (yEval > 0) {
-            while (yEval > fPatternGap) yEval -= fPatternGap;
-        } else {
-            while (yEval < 0) yEval += fPatternGap;
-        }
-
-        if (yEval < fPatternWidth) return true;
+    if (xEval > fPatternWidth) {
         return false;
     }
+} else if (fWindowType == "grid") {
+    Double_t xEval = fPatternWidth / 2. + x - fPatternOffset;
+
+    if (xEval > 0) {
+        while (xEval > fPatternGap) xEval -= fPatternGap;
+    } else {
+        while (xEval < 0) xEval += fPatternGap;
+    }
+
+    if (xEval < fPatternWidth) return true;
+
+    Double_t yEval = fPatternWidth / 2. + y - fPatternOffset;
+
+    if (yEval > 0) {
+        while (yEval > fPatternGap) yEval -= fPatternGap;
+    } else {
+        while (yEval < 0) yEval += fPatternGap;
+    }
+
+    if (yEval < fPatternWidth) return true;
+    return false;
+}
+    */
 
     return true;
 }
@@ -313,18 +320,20 @@ void TRestAxionXrayWindow::PrintTransmissionData() {
 void TRestAxionXrayWindow::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    RESTMetadata << "X-ray window type: " << fWindowType << RESTendl;
-    RESTMetadata << "Window center: ( " << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ") mm"
+    /*
+RESTMetadata << "X-ray window type: " << fWindowType << RESTendl;
+RESTMetadata << "Window center: ( " << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ") mm"
              << RESTendl;
-    RESTMetadata << "Thickness: " << fThickness * units("um") << " um" << RESTendl;
-    RESTMetadata << "Material: " << fMaterial << RESTendl;
-    RESTMetadata << "Window radius: " << fRadius << " mm" << RESTendl;
-    if (fWindowType != "foil") {
-        RESTMetadata << "------" << RESTendl;
-        RESTMetadata << "Pattern periodicity: " << fPatternGap << " mm" << RESTendl;
-        RESTMetadata << "Pattern width: " << fPatternWidth << " mm" << RESTendl;
-        RESTMetadata << "Pattern offset: " << fPatternOffset << " mm" << RESTendl;
-    }
+RESTMetadata << "Thickness: " << fThickness * units("um") << " um" << RESTendl;
+RESTMetadata << "Material: " << fMaterial << RESTendl;
+RESTMetadata << "Window radius: " << fRadius << " mm" << RESTendl;
+if (fWindowType != "foil") {
+    RESTMetadata << "------" << RESTendl;
+    RESTMetadata << "Pattern periodicity: " << fPatternGap << " mm" << RESTendl;
+    RESTMetadata << "Pattern width: " << fPatternWidth << " mm" << RESTendl;
+    RESTMetadata << "Pattern offset: " << fPatternOffset << " mm" << RESTendl;
+}
+    */
 
     RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }
