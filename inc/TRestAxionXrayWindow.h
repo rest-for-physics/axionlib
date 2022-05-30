@@ -56,7 +56,10 @@ class TRestAxionXrayWindow : public TRestMetadata {
     Int_t GetEnergyIndex(Double_t energy);
 
    public:
-    Double_t GetWindowRadius() { return fMask->GetMaskRadius(); }
+    Double_t GetWindowRadius() {
+        if (!fMask) return 0;
+        return fMask->GetMaskRadius();
+    }
 
     TRestPatternMask* GetMask() const { return fMask; }
 
