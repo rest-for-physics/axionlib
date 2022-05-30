@@ -213,13 +213,12 @@ void TRestAxionXrayWindow::ReadMaterial() {
 Double_t TRestAxionXrayWindow::GetTransmission(Double_t energy, Double_t x, Double_t y) {
     if (fEnergy.size() == 0) ReadMaterial();
 
-    /*
-if ((x - fCenter.X()) * (x - fCenter.X()) + (y - fCenter.Y()) * (y - fCenter.Y()) > fRadius * fRadius)
-    return 0;
-            */
-    return 0;
+    Double_t xNew = x - fCenter.X();
+    Double_t yNew = y - fCenter.Y();
 
-    if (!HitsPattern(x, y)) return 1.;
+    if (fMask && xNew * xNew + yNew * yNew > fMask->GetMaskRadius() * fMask->GetMaskRadius()) return 0;
+
+    if (fMask && !fMask->HitsPattern(xNew, yNew)) return 1.;
 
     Double_t energyIndex = GetEnergyIndex(energy);
 
@@ -255,6 +254,8 @@ if ((x - fCenter.X()) * (x - fCenter.X()) + (y - fCenter.Y()) * (y - fCenter.Y()
 /// \brief It returns true if the window pattern is hitted. False otherwise.
 ///
 Bool_t TRestAxionXrayWindow::HitsPattern(Double_t x, Double_t y) {
+    if (fMask) return fMask->HitsPattern(x, y);
+
     /*
 if (fWindowType == "stripped") {
     Double_t xEval = fPatternWidth / 2. + x - fPatternOffset;
@@ -337,8 +338,8 @@ void TRestAxionXrayWindow::PrintMetadata() {
                  << RESTendl;
     RESTMetadata << "Thickness: " << fThickness * units("um") << " um" << RESTendl;
     RESTMetadata << "Material: " << fMaterial << RESTendl;
+    RESTMetadata << "----" << RESTendl;
     if (fMask) {
-        RESTMetadata << "----" << RESTendl;
         fMask->Print();
     } else {
         RESTMetadata << " - Pattern type: foil" << RESTendl;
