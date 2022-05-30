@@ -25,49 +25,33 @@
 /// properties, such as material and thickness. This class will load the
 /// transmission data to calculate the transmission for a photon of a
 /// given energy and position. The window might be defined as a uniform
-/// foil or using a particular structure.
+/// `foil` or using a particular pattern using a TRestPatternMask definition.
 ///
-/// For the moment, the window geometry is fixed to be a circular window.
-/// Therefore, the following are the most basic parameters of any window
-/// construction:
+/// If we include the pattern definition using TRestPatternMask, then, the
+/// limits for the window will be imposed by TRestPatternMask. In the
+/// contrary, if no TRestPatternMask definition is included in the
+/// TRestAxionXrayWindow definition, then the window will have no limits,
+/// it will be just an infinite foil with a given material transmission.
 ///
+/// The following parameters are used to define the window transmission:
+///
+/// * **center**: It will emplace the window definition at a given position.
 /// * **material**: The material used by the window. The name must match
 /// the name of one of the files found at `data/transmission/` removing
 /// the extension.
 /// * **thickness**: The depth of the window that defines finally the total
 /// x-ray photon absorption.
-/// * **radius**: The radius of the window where photons will be accepted.
 ///
-/// On top of that, we might define different types of windows that will
-/// allow us to create different structures, such as a strong back where
-/// photon opacity is only defined at a regular grid or stripped pattern.
-/// We may define the window type using:
+/// Then, as it was mentioned before, we might define different types of
+/// window patterns, such as a strong back where photon opacity is only
+/// defined at a regular grid or stripped pattern. The window transmission
+/// will only be applied in the regions where the particle hits the
+/// pattern. Otherwise, the particle will just go through the empty regions
+/// and the transmission/efficiency will be equal to 1.
 ///
-/// - **type**: We may define different options that define the regions
-/// of space where the window material will be effective.
-///   -# **foil**: It defines a homogeneous region of material, all the
-///    region inside the window radius will present the same efficiency.
-///   -# **stripped**: It defines a stripped pattern where the absorption
-///   will be effective, otherwise, if the photon is inside the window
-///   but it doesn't hit the stripped pattern, the transmission will be
-///   equal to 1.
-///   -# **grid**: It defines a grid pattern where the absorption
-///   will be effective, otherwise, if the photon is inside the window
-///   but it doesn't hit the grid pattern, the transmission will be
-///   equal to 1.
-///
-/// In the case that the window type is defined to be *stripped* or
-/// *grid*. Then, few additional parameters are necessary to define the
-/// pattern structure, made of masking strips on one direction (stripped),
-/// or masking strips on both directions (grid).
-///
-/// * **patternGap**: The distance between 2 masking structures, or
-/// periodicity.
-/// * **patternWidth**: The width of the masking structure.
-/// * **patternOffset**: If this parameter is 0, the first strip will
-/// centered at the origin. If not, the pattern will be shifted. In the
-/// case of the grid, it will be used to displace the grid on both
-/// directions, X and Y.
+/// We may define the window pattern using any of the classes inheriting
+/// from TRestPatternMask, such as TRestGridMask, TRestStrippedMask, or
+/// event TRestSpiderMask and TRestRingsMask.
 ///
 /// Once all the parameters have been defined inside an instance of this
 /// class, we will be able to recover the transmission at any given point
@@ -77,14 +61,15 @@
 /// file would be as follows.
 ///
 /// \code
-///	<TRestAxionXrayWindow name="windowTest" verboseLevel="warning" >
-///		<parameter name="center" value="(0,0,0)mm" />
+///		<TRestAxionXrayWindow name="strongBack" verboseLevel="warning">
+///			<parameter name="center" value="(0,0,0)mm" />
+/// 		<parameter name="thickness" value="200um" />
+///			<parameter name="material" value="Si" />
 ///
-///		<parameter name="type" value="foil" />
-///		<parameter name="thickness" value="0.3um" />
-///		<parameter name="material" value="Si3N4" />
-///		<parameter name="radius" value="8mm" />
-///	</TRestAxionXrayWindow>
+///			<TRestGridMask name="mask" verboseLevel="warning"
+///             maskRadius="8mm" offset="(2,2)mm"
+///				rotationAngle="0.5" gridGap="4mm" gridThickness="0.5mm" />
+///		</TRestAxionXrayWindow>
 /// \endcode
 ///
 /// The pipeline example found at `pipeline/transmission/windowPlot.py` will
