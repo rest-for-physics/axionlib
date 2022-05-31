@@ -121,12 +121,10 @@ TRestAxionWolterOptics::TRestAxionWolterOptics(const char* cfgFileName, string n
 /// \brief Initialization of TRestAxionWolterOptics members
 ///
 void TRestAxionWolterOptics::Initialize() {
-    TRestAxionOptics::Initialize();
+    // TRestAxionOptics::Initialize();
 
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
-
-    // Call any initialization methods here
 }
 
 ///////////////////////////////////////////////
@@ -135,7 +133,26 @@ void TRestAxionWolterOptics::Initialize() {
 void TRestAxionWolterOptics::InitFromConfigFile() {
     TRestAxionOptics::InitFromConfigFile();
 
-    /// TODO Initialize metadata members of this class here
+    if (fOpticsFile != "") {
+        std::string fullPathFileName = SearchFile(fOpticsFile);
+
+        std::vector<std::vector<Double_t>> opticsData;
+        TRestTools::ReadASCIITable(fullPathFileName, opticsData, 3);
+
+        TRestTools::PrintTable(opticsData);
+
+        fR1 = TRestTools::GetColumnFromTable(opticsData, 0);
+        fR2 = TRestTools::GetColumnFromTable(opticsData, 1);
+        fR3 = TRestTools::GetColumnFromTable(opticsData, 2);
+        fR4 = TRestTools::GetColumnFromTable(opticsData, 3);
+        fR5 = TRestTools::GetColumnFromTable(opticsData, 4);
+
+        fAlpha = TRestTools::GetColumnFromTable(opticsData, 5);
+        for (auto& x : fAlpha) x = x * units("rad") / units("deg");
+
+        fLength = TRestTools::GetColumnFromTable(opticsData, 6);
+        fThickness = TRestTools::GetColumnFromTable(opticsData, 7);
+    }
 
     // If we recover the metadata class from ROOT file we will need to call Initialize ourselves
     this->Initialize();
@@ -146,18 +163,20 @@ void TRestAxionWolterOptics::InitFromConfigFile() {
 /// predetermined layer
 ///
 TVector3 TRestAxionWolterOptics::GetInteractionPoint(const TVector3& pos, const TVector3& dir) {
-    Int_t layer = GetEntranceRing(pos, dir);
-    Double_t r1 = fRingsRadii[layer].second;
-    Double_t angle = fShellsAngle[layer];
-    Double_t xSep = fShellsSep[layer];
-    Double_t fLength = GetMirrLength();
-    // Double_t distMirrors = 0 for first stack and (fLength + xSep) * cos(angle) for the second // distance
-    // of the mirror should be added in for second stack
-    Double_t r2 = r1 - fLength * sin(angle);
-    // r1 = sqrt((pos[0] + s * dir[0]) * (pos[0] + s * dir[0]) +
-    //    (pos[1] + s * dir[1]) * (pos[1] + s * dir[1])) -
-    //  ((r2 - r1) * (pos[2] + s * dir[2] - distMirrors) / (cos(angle) * fLength))  //needs to be solved for
-    //  s, maybe by incresing s for some value and comparing this to r1
+    /*
+Int_t layer = GetEntranceRing(pos, dir);
+Double_t r1 = fRingsRadii[layer].second;
+Double_t angle = fShellsAngle[layer];
+Double_t xSep = fShellsSep[layer];
+Double_t fLength = GetMirrLength();
+// Double_t distMirrors = 0 for first stack and (fLength + xSep) * cos(angle) for the second // distance
+// of the mirror should be added in for second stack
+Double_t r2 = r1 - fLength * sin(angle);
+// r1 = sqrt((pos[0] + s * dir[0]) * (pos[0] + s * dir[0]) +
+//    (pos[1] + s * dir[1]) * (pos[1] + s * dir[1])) -
+//  ((r2 - r1) * (pos[2] + s * dir[2] - distMirrors) / (cos(angle) * fLength))  //needs to be solved for
+//  s, maybe by incresing s for some value and comparing this to r1
+    */
     return TVector3(0, 0, 0);
 }
 

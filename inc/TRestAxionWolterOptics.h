@@ -28,30 +28,51 @@
 /// A class calculate the reflection path and probability of X-rays through a Wolter 1 telescope
 class TRestAxionWolterOptics : public TRestAxionOptics {
    private:
-    /// A vector containing the shells seperations between the two stacks. First element is the lowest radius.
-    std::vector<Double_t> fShellsSep;  //<
+    /// An optics file that contains all the specific Wolter optics parameters
+    std::string fOpticsFile = "";
 
-    /// A vector containing the shells angles. First element is the lowest radius. Note that the second stack
-    /// has the tripple of this angle.
-    std::vector<Double_t> fShellsAngle;  //<
+    /// Entrance radius R1 in mm. See schematic figure.
+    std::vector<Double_t> fR1;  //<
 
-    /// coating materials and surface roughness or better yet: direction to a file that gives the reflectivity
-    std::string fReflectivityFileName;  //<
+    /// Radius R2 in mm. See schematic figure.
+    std::vector<Double_t> fR2;  //<
 
-    void Initialize();
+    /// Radius R3 in mm. See schematic figure.
+    std::vector<Double_t> fR3;  //<
+
+    /// Radius R4 in mm. See schematic figure.
+    std::vector<Double_t> fR4;  //<
+
+    /// Radius R5 in mm. See schematic figure.
+    std::vector<Double_t> fR5;  //<
+
+    /// Mirror angle (alpha) in radians. See schematic figure.
+    std::vector<Double_t> fAlpha;  //<
+
+    /// Mirror length in mm. See schematic figure.
+    std::vector<Double_t> fLength;  //<
+
+    /// Mirror thickness in mm. See schematic figure.
+    std::vector<Double_t> fThickness;  //<
 
    public:
-    void PrintMetadata();
-    void InitFromConfigFile();
+    void Initialize() override;
+
+    void PrintMetadata() override;
+    void InitFromConfigFile() override;
 
     /// It returns the position at the optics exit plane for the incoming particle
-    TVector3 GetPositionAtExit(const TVector3& pos, const TVector3& dir) { return TVector3(0, 0, 0); }
+    TVector3 GetPositionAtExit(const TVector3& pos, const TVector3& dir) override {
+        return TVector3(0, 0, 0);
+    }
 
     /// It returns the direction at the optics exit plane for the incoming particle
-    TVector3 GetDirectionAtExit(const TVector3& pos, const TVector3& dir) { return TVector3(0, 0, 0); }
+    TVector3 GetDirectionAtExit(const TVector3& pos, const TVector3& dir) override {
+        return TVector3(0, 0, 0);
+    }
 
     /// It returns the efficiency for particle with position `pos` and direction `dir`.
-    Double_t GetEfficiency(const TVector3& pos, const TVector3& dir) { return 0.0; }
+    Double_t GetEfficiency(const TVector3& pos, const TVector3& dir) override { return 0.0; }
 
     TRestAxionWolterOptics();
     TRestAxionWolterOptics(const char* cfgFileName, std::string name = "");
@@ -59,6 +80,6 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
 
     /// get the interaction point of the photon with the mirror
     TVector3 GetInteractionPoint(const TVector3& pos, const TVector3& dir);
-    ClassDef(TRestAxionWolterOptics, 1);
+    ClassDefOverride(TRestAxionWolterOptics, 1);
 };
 #endif
