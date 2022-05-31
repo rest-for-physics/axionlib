@@ -29,15 +29,6 @@
 /// An abstract class to define common optics parameters and methods
 class TRestAxionOptics : public TRestMetadata {
    private:
-    /// It is the position of the center of the optics system.
-    TVector3 fCenter = TVector3(0, 0, 0);  //<
-
-    /// The axis of the optics system
-    TVector3 fAxis = TVector3(0, 0, 1);  //<
-
-    /// Optics physical mirror length in mm
-    Double_t fLength = 300;  //<
-
     /// The angle between two consecutive spider arms measured in radians.
     Double_t fSpiderArmsSeparationAngle = 0;  //<
 
@@ -81,22 +72,19 @@ class TRestAxionOptics : public TRestMetadata {
     /// A vector containing the shells ring radius definitions. First element is the lower radius.
     std::vector<std::pair<Double_t, Double_t>> fRingsRadii;  //<
 
+    TRestAxionOptics();
+    TRestAxionOptics(const char* cfgFileName, std::string name = "");
+
    public:
-    void Initialize();
-
-    /// It returns the center of the optics system
-    TVector3 GetCenter() { return fCenter; }
-
-    /// It returns the axis vector of the optics system
-    TVector3 GetAxis() { return fAxis; }
+    virtual void Initialize();
 
     /// It returns the physical length of one mirror stack; the whole optical system would be L=(fLength + 1/2
     /// * xSep) * (cos(angleRing) + cos(angleRing)) which doesn't work here because the angele hasn't been
     /// defined
-    Double_t GetMirrLength() { return fLength; }
+    //   Double_t GetMirrLength() { return fLength; }
 
     /// It returns the physical length of the whole optics approximated
-    Double_t GetLength() { return fLength * 2; }
+    // Double_t GetLength() { return fLength * 2; }
 
     /// It returns the number of shells implemented in the optics system
     Int_t GetNumberOfRings() { return fRingsRadii.size(); }
@@ -129,8 +117,6 @@ class TRestAxionOptics : public TRestMetadata {
 
     void InitFromConfigFile();
 
-    TRestAxionOptics();
-    TRestAxionOptics(const char* cfgFileName, std::string name = "");
     ~TRestAxionOptics();
 
     ClassDef(TRestAxionOptics, 1);

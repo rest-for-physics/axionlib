@@ -138,12 +138,7 @@ TRestAxionOptics::TRestAxionOptics() : TRestMetadata() { Initialize(); }
 ///
 TRestAxionOptics::TRestAxionOptics(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
     RESTDebug << "Entering TRestAxionOptics constructor( cfgFileName, name )" << RESTendl;
-
-    Initialize();
-
-    LoadConfigFromFile(fConfigFileName, name);
-
-    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
+    RESTDebug << "File: " << cfgFileName << " Name: " << name << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -155,20 +150,22 @@ TRestAxionOptics::~TRestAxionOptics() {}
 /// \brief Initialization of TRestAxionOptics members
 ///
 void TRestAxionOptics::Initialize() {
-    SetSectionName(this->ClassName());
+    RESTDebug << "Entering TRestAxionOptics::Initialize" << RESTendl;
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fEntrance = fCenter - 0.5 * fLength * fAxis;
-    fExit = fCenter + 0.5 * fLength * fAxis;
+    /*
+fEntrance = fCenter - 0.5 * fLength * fAxis;
+fExit = fCenter + 0.5 * fLength * fAxis;
 
-    SetMaxAndMinRingRadius();
+SetMaxAndMinRingRadius();
 
-    if (fSpiderOffsetAngle < 0) fSpiderOffsetAngle = 0;
-    if (fSpiderArmsSeparationAngle > 0) InitializeSpiderAngles();
+if (fSpiderOffsetAngle < 0) fSpiderOffsetAngle = 0;
+if (fSpiderArmsSeparationAngle > 0) InitializeSpiderAngles();
 
-    // A vector orthogonal to the axis, thus parallel to the optics plane
-    // and to be used as reference for spider structure. It defines angle = 0
-    fReference = TVector3(0, fAxis.Z(), -fAxis.Y()).Unit();
+// A vector orthogonal to the axis, thus parallel to the optics plane
+// and to be used as reference for spider structure. It defines angle = 0
+fReference = TVector3(0, fAxis.Z(), -fAxis.Y()).Unit();
+    */
 }
 
 ///////////////////////////////////////////////
@@ -258,7 +255,8 @@ void TRestAxionOptics::InitializeSpiderAngles() {
 /// \brief It moves a given particle with position `pos` and direction `dir` to the entrance of the optics
 ///
 TVector3 TRestAxionOptics::GetPositionAtEntrance(const TVector3& pos, const TVector3& dir) {
-    return REST_Physics::MoveToPlane(pos, dir, fAxis, fEntrance);
+    //   return REST_Physics::MoveToPlane(pos, dir, fAxis, fEntrance);
+    return TVector3(0, 0, 0);
 }
 
 ///////////////////////////////////////////////
@@ -269,7 +267,7 @@ TVector3 TRestAxionOptics::GetPositionAtEntrance(const TVector3& pos, const TVec
 /// work under the assumption that the particle position is already at the entrance optics plane.
 ///
 Bool_t TRestAxionOptics::IsInsideRing(const TVector3& pos, Double_t Rout, Double_t Rin) {
-    Double_t d = REST_Physics::DistanceToAxis(fEntrance, fAxis, pos);
+    Double_t d = REST_Physics::DistanceToAxis(fEntrance, TVector3(0, 0, 1), pos);
 
     if (d < Rout && d >= Rin) return true;
 
@@ -305,7 +303,7 @@ Int_t TRestAxionOptics::GetEntranceRing(const TVector3& pos, const TVector3& dir
 /// work under the assumption that the particle position is already at the entrance optics plane.
 ///
 Bool_t TRestAxionOptics::HitsSpider(const TVector3& pos) {
-    Double_t d = REST_Physics::DistanceToAxis(fEntrance, fAxis, pos);
+    Double_t d = REST_Physics::DistanceToAxis(fEntrance, TVector3(0, 0, 1), pos);
     if (fSpiderArmsSeparationAngle == 0 || d < fSpiderStartRadius) return false;
 
     TVector3 posUnit = (pos - fEntrance).Unit();
@@ -355,14 +353,9 @@ void TRestAxionOptics::InitFromConfigFile() {
 void TRestAxionOptics::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    RESTMetadata << "Optics length: " << fLength << " mm" << RESTendl;
     RESTMetadata << "Optics entrance: (" << fEntrance.X() << ", " << fEntrance.Y() << ", " << fEntrance.Z()
                  << ") mm" << RESTendl;
-    RESTMetadata << "Optics center: (" << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ") mm"
-                 << RESTendl;
     RESTMetadata << "Optics exit: (" << fExit.X() << ", " << fExit.Y() << ", " << fExit.Z() << ") mm"
-                 << RESTendl;
-    RESTMetadata << "Optics axis: (" << fAxis.X() << ", " << fAxis.Y() << ", " << fAxis.Z() << ")"
                  << RESTendl;
     RESTMetadata << " " << RESTendl;
     RESTMetadata << "Relation of mirror rings integrated in the optics:" << RESTendl;
