@@ -169,109 +169,11 @@ fReference = TVector3(0, fAxis.Z(), -fAxis.Y()).Unit();
 }
 
 ///////////////////////////////////////////////
-/// \brief It initializes the fMaxRingRadius and fMinRingRadius using the ring ring definitions
-///
-void TRestAxionOptics::SetMaxAndMinRingRadius() {
-    if (fMinRingRadius == -1 && fRingsRadii.size() > 0) fMinRingRadius = fRingsRadii[0].first;
-    if (fMaxRingRadius == -1 && fRingsRadii.size() > 0) fMaxRingRadius = fRingsRadii[0].second;
-
-    for (const auto& ringRadius : fRingsRadii) {
-        if (ringRadius.first < fMinRingRadius) fMinRingRadius = ringRadius.first;
-        if (ringRadius.second > fMaxRingRadius) fMaxRingRadius = ringRadius.second;
-    }
-}
-
-///////////////////////////////////////////////
-/// \brief It initializes the fMaxRingRadius and fMinRingRadius using the ring ring definitions
-///
-void TRestAxionOptics::InitializeSpiderAngles() {
-    std::pair<Double_t, Double_t> additional_negative = {-1, -1};
-
-    Double_t angle = fSpiderOffsetAngle;
-    do {
-        Double_t angle_down = angle - fSpiderWidth / 2.;
-        Double_t angle_up = angle + fSpiderWidth / 2.;
-
-        if (angle_down < 0) {
-            additional_negative = {2 * TMath::Pi() + angle_down, 2 * TMath::Pi()};
-            fSpiderPositiveRanges.push_back({0, angle_up});
-
-        } else if (angle_up > TMath::Pi() && angle_down < TMath::Pi()) {
-            fSpiderPositiveRanges.push_back({angle_down, TMath::Pi()});
-            fSpiderNegativeRanges.push_back({TMath::Pi(), angle_up});
-        } else if (angle_up < TMath::Pi()) {
-            fSpiderPositiveRanges.push_back({angle_down, angle_up});
-        } else if (angle_down >= TMath::Pi()) {
-            fSpiderNegativeRanges.push_back({angle_down, angle_up});
-        }
-
-        angle += fSpiderArmsSeparationAngle;
-
-    } while (angle + 1.e-3 < 2 * TMath::Pi());
-
-    if (additional_negative.first != -1 && additional_negative.second != -1)
-        fSpiderNegativeRanges.push_back(additional_negative);
-
-    RESTDebug << "Printing positive spider angles" << RESTendl;
-    RESTDebug << "-------------------------------" << RESTendl;
-    for (int n = 0; n < fSpiderPositiveRanges.size(); n++) {
-        RESTDebug << "n : " << n << " from : " << 180 * fSpiderPositiveRanges[n].first / TMath::Pi() << " to "
-                  << 180 * fSpiderPositiveRanges[n].second / TMath::Pi() << RESTendl;
-    }
-
-    RESTDebug << "Printing negative spider angles" << RESTendl;
-    RESTDebug << "-------------------------------" << RESTendl;
-    for (int n = 0; n < fSpiderNegativeRanges.size(); n++) {
-        RESTDebug << "n : " << n << " from : " << 180 * fSpiderNegativeRanges[n].first / TMath::Pi() << " to "
-                  << 180 * fSpiderNegativeRanges[n].second / TMath::Pi() << RESTendl;
-    }
-
-    for (int n = 0; n < fSpiderNegativeRanges.size(); n++) {
-        fSpiderNegativeRanges[n].first = TMath::Cos(fSpiderNegativeRanges[n].first);
-        fSpiderNegativeRanges[n].second = TMath::Cos(fSpiderNegativeRanges[n].second);
-    }
-
-    for (int n = 0; n < fSpiderPositiveRanges.size(); n++) {
-        fSpiderPositiveRanges[n].first = TMath::Cos(fSpiderPositiveRanges[n].first);
-        fSpiderPositiveRanges[n].second = TMath::Cos(fSpiderPositiveRanges[n].second);
-    }
-
-    RESTDebug << "Printing positive spider angles" << RESTendl;
-    RESTDebug << "-------------------------------" << RESTendl;
-    for (int n = 0; n < fSpiderPositiveRanges.size(); n++) {
-        RESTDebug << "n : " << n << " from : " << fSpiderPositiveRanges[n].first << " to "
-                  << fSpiderPositiveRanges[n].second << RESTendl;
-    }
-
-    RESTDebug << "Printing negative spider cosines" << RESTendl;
-    RESTDebug << "--------------------------------" << RESTendl;
-    for (int n = 0; n < fSpiderNegativeRanges.size(); n++) {
-        RESTDebug << "n : " << n << " from : " << fSpiderNegativeRanges[n].first << " to "
-                  << fSpiderNegativeRanges[n].second << RESTendl;
-    }
-}
-
-///////////////////////////////////////////////
 /// \brief It moves a given particle with position `pos` and direction `dir` to the entrance of the optics
 ///
 TVector3 TRestAxionOptics::GetPositionAtEntrance(const TVector3& pos, const TVector3& dir) {
     //   return REST_Physics::MoveToPlane(pos, dir, fAxis, fEntrance);
     return TVector3(0, 0, 0);
-}
-
-///////////////////////////////////////////////
-/// \brief It determines if a given particle with position `pos` (that **should be** already placed
-/// at the entrance plane of the optics) will be inside a ring with radius between `Rin` and `Rout`.
-///
-/// This method is private since it is just a helper method used by GetRing, and it will only
-/// work under the assumption that the particle position is already at the entrance optics plane.
-///
-Bool_t TRestAxionOptics::IsInsideRing(const TVector3& pos, Double_t Rout, Double_t Rin) {
-    Double_t d = REST_Physics::DistanceToAxis(fEntrance, TVector3(0, 0, 1), pos);
-
-    if (d < Rout && d >= Rin) return true;
-
-    return false;
 }
 
 ///////////////////////////////////////////////
@@ -283,43 +185,18 @@ Bool_t TRestAxionOptics::IsInsideRing(const TVector3& pos, Double_t Rout, Double
 ///
 Int_t TRestAxionOptics::GetEntranceRing(const TVector3& pos, const TVector3& dir) {
     TVector3 posEntrance = GetPositionAtEntrance(pos, dir);
-    if (HitsSpider(posEntrance)) return -1;
-    if (!IsInsideRing(posEntrance, fMaxRingRadius, fMinRingRadius)) return -1;
+    /*
+if (HitsSpider(posEntrance)) return -1;
+if (!IsInsideRing(posEntrance, fMaxRingRadius, fMinRingRadius)) return -1;
 
-    int n = 0;
-    for (const auto& ringRadius : fRingsRadii) {
-        if (IsInsideRing(posEntrance, ringRadius.second, ringRadius.first)) return n;
-        n++;
-    }
+int n = 0;
+for (const auto& ringRadius : fRingsRadii) {
+    if (IsInsideRing(posEntrance, ringRadius.second, ringRadius.first)) return n;
+    n++;
+}
+    */
 
     return -1;
-}
-
-///////////////////////////////////////////////
-/// \brief It returns `true` if the particle with position `pos` and direction `dir`
-/// encounters the spider net.
-///
-/// This method is private since it is just a helper method used by GetEntranceRing, and it will only
-/// work under the assumption that the particle position is already at the entrance optics plane.
-///
-Bool_t TRestAxionOptics::HitsSpider(const TVector3& pos) {
-    Double_t d = REST_Physics::DistanceToAxis(fEntrance, TVector3(0, 0, 1), pos);
-    if (fSpiderArmsSeparationAngle == 0 || d < fSpiderStartRadius) return false;
-
-    TVector3 posUnit = (pos - fEntrance).Unit();
-    Double_t cos_angle = posUnit.Dot(fReference);
-
-    if (posUnit.X() >= 0) {
-        for (const auto& ang : fSpiderPositiveRanges) {
-            if (cos_angle < ang.first && cos_angle > ang.second) return true;
-        }
-    } else {
-        for (const auto& ang : fSpiderNegativeRanges) {
-            if (cos_angle > ang.first && cos_angle < ang.second) return true;
-        }
-    }
-
-    return false;
 }
 
 ///////////////////////////////////////////////
@@ -328,20 +205,22 @@ Bool_t TRestAxionOptics::HitsSpider(const TVector3& pos) {
 void TRestAxionOptics::InitFromConfigFile() {
     TRestMetadata::InitFromConfigFile();
 
-    std::vector<Double_t> rMax = StringToElements(GetParameter("ringMaxRadii", "-1"), ",");
-    std::vector<Double_t> rMin = StringToElements(GetParameter("ringMinRadii", "-1"), ",");
+    /*
+std::vector<Double_t> rMax = StringToElements(GetParameter("ringMaxRadii", "-1"), ",");
+std::vector<Double_t> rMin = StringToElements(GetParameter("ringMinRadii", "-1"), ",");
 
-    if (rMax.size() != rMin.size())
-        SetError(
-            "TRestAxionOptics. The number of ring radii definitions do not match! Rings will not be "
-            "initialized!");
-    else {
-        fRingsRadii.clear();
-        for (unsigned int n = 0; n < rMax.size(); n++) {
-            std::pair<Double_t, Double_t> p(rMin[n], rMax[n]);
-            fRingsRadii.push_back(p);
-        }
+if (rMax.size() != rMin.size())
+    SetError(
+        "TRestAxionOptics. The number of ring radii definitions do not match! Rings will not be "
+        "initialized!");
+else {
+    fRingsRadii.clear();
+    for (unsigned int n = 0; n < rMax.size(); n++) {
+        std::pair<Double_t, Double_t> p(rMin[n], rMax[n]);
+        fRingsRadii.push_back(p);
     }
+}
+    */
 
     // If we recover the metadata class from ROOT file we will need to call Initialize ourselves
     this->Initialize();
@@ -358,25 +237,5 @@ void TRestAxionOptics::PrintMetadata() {
     RESTMetadata << "Optics exit: (" << fExit.X() << ", " << fExit.Y() << ", " << fExit.Z() << ") mm"
                  << RESTendl;
     RESTMetadata << " " << RESTendl;
-    RESTMetadata << "Relation of mirror rings integrated in the optics:" << RESTendl;
-    RESTMetadata << "---------" << RESTendl;
-    int n = 0;
-    for (const auto& ringRadius : fRingsRadii) {
-        RESTMetadata << "Ring " << n << ": Rmin = " << ringRadius.first << "mm , Rmax = " << ringRadius.second
-                     << "mm" << RESTendl;
-        n++;
-    }
-    if (fSpiderArmsSeparationAngle != 0) {
-        RESTMetadata << " " << RESTendl;
-        RESTMetadata << "Spider net structure parameters:" << RESTendl;
-        RESTMetadata << "--------------------------------" << RESTendl;
-        RESTMetadata << " - Arms separation angle : " << 180. * fSpiderArmsSeparationAngle / TMath::Pi()
-                     << " degrees" << RESTendl;
-        RESTMetadata << " - First arm offset angle : " << 180. * fSpiderOffsetAngle / TMath::Pi()
-                     << " degrees" << RESTendl;
-        RESTMetadata << " - Arm angular width : " << 180. * fSpiderWidth / TMath::Pi() << " degrees"
-                     << RESTendl;
-        RESTMetadata << " - Spider start radius : " << fSpiderStartRadius * units("cm") << " cm" << RESTendl;
-    }
     RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }

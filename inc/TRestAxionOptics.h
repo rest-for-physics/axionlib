@@ -29,24 +29,6 @@
 /// An abstract class to define common optics parameters and methods
 class TRestAxionOptics : public TRestMetadata {
    private:
-    /// The angle between two consecutive spider arms measured in radians.
-    Double_t fSpiderArmsSeparationAngle = 0;  //<
-
-    /// The position angle at which the spider arm will start
-    Double_t fSpiderOffsetAngle = 0;  //<
-
-    /// The width of each specific spider arm. Measured in radians. Default is 2.5 degrees.
-    Double_t fSpiderWidth = TMath::Pi() / 18. / 4.;  //<
-
-    /// The spider structure will be effective from this radius, in mm. Default is from 20 mm.
-    Double_t fSpiderStartRadius = 20.;  //<
-
-    /// An internal variable to register the maximum shell radius
-    Double_t fMaxRingRadius = -1;  //!
-
-    /// An internal variable to register the minimum shell radius
-    Double_t fMinRingRadius = -1;  //!
-
     /// It is the calculated axis position at the entrance of the optics plane.
     TVector3 fEntrance = TVector3(0, 0, 0);  //!
 
@@ -56,22 +38,7 @@ class TRestAxionOptics : public TRestMetadata {
     /// A vector used to define a reference vector at the optics plane
     TVector3 fReference = TVector3(0, 0, 0);  //!
 
-    /// It defines the forbidden (cosine) angular ranges imposed by the spider structure (0,Pi)
-    std::vector<std::pair<Double_t, Double_t>> fSpiderPositiveRanges;  //!
-
-    /// It defines the forbidden (cosine) angular ranges imposed by the spider structure (Pi,2Pi)
-    std::vector<std::pair<Double_t, Double_t>> fSpiderNegativeRanges;  //!
-
-    void SetMaxAndMinRingRadius();
-    void InitializeSpiderAngles();
-
-    Bool_t IsInsideRing(const TVector3& pos, Double_t Rout, Double_t Rin = 0);
-    Bool_t HitsSpider(const TVector3& pos);
-
    protected:
-    /// A vector containing the shells ring radius definitions. First element is the lower radius.
-    std::vector<std::pair<Double_t, Double_t>> fRingsRadii;  //<
-
     TRestAxionOptics();
     TRestAxionOptics(const char* cfgFileName, std::string name = "");
 
@@ -86,17 +53,11 @@ class TRestAxionOptics : public TRestMetadata {
     /// It returns the physical length of the whole optics approximated
     // Double_t GetLength() { return fLength * 2; }
 
-    /// It returns the number of shells implemented in the optics system
-    Int_t GetNumberOfRings() { return fRingsRadii.size(); }
-
     /// It returns the entrance position defined by the optical axis
     TVector3 GetEntrance() { return fEntrance; }
 
     /// It returns the exit position defined by the optical axis
     TVector3 GetExit() { return fExit; }
-
-    /// It returns the maximum entrance radius
-    Double_t GetMaxRingRadius() { return fMaxRingRadius; }
 
     TVector3 GetPositionAtEntrance(const TVector3& pos, const TVector3& dir);
 
