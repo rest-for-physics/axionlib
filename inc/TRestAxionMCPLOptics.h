@@ -29,7 +29,7 @@
 /// A class to load optics response using MCPL files
 class TRestAxionMCPLOptics : public TRestAxionOptics {
    private:
-    void Initialize();
+    void Initialize() override;
 
     /// The file containing the input particle list
     std::string fInputMCPLFilename;
@@ -38,16 +38,23 @@ class TRestAxionMCPLOptics : public TRestAxionOptics {
     std::string fOutputMCPLFilename;
 
    public:
-    void PrintMetadata();
+    void PrintMetadata() override;
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    TVector3 PropagatePhoton(const TVector3& in) { return TVector3(1, 1, 1); }
+    /// It returns the entrance Z-position defined by the optical axis.
+    Double_t GetEntranceZPosition() override { return 0; }
+
+    /// It returns the exit Z-position defined by the optical axis
+    Double_t GetExitZPosition() override { return 0; }
+
+    /// It updates the internal TRestAxionOptics particle positions/directions and returns effieciency
+    Double_t PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy) override { return 0; }
 
     TRestAxionMCPLOptics();
     TRestAxionMCPLOptics(const char* cfgFileName, std::string name = "");
     ~TRestAxionMCPLOptics();
 
-    ClassDef(TRestAxionMCPLOptics, 1);
+    ClassDefOverride(TRestAxionMCPLOptics, 1);
 };
 #endif
