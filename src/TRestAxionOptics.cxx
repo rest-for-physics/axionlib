@@ -134,7 +134,7 @@ TRestAxionOptics::TRestAxionOptics() : TRestMetadata() { Initialize(); }
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// corresponding TRestAxionMagneticField section inside the RML.
+/// corresponding TRestAxionOptics section inside the RML.
 ///
 TRestAxionOptics::TRestAxionOptics(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
     RESTDebug << "Entering TRestAxionOptics constructor( cfgFileName, name )" << RESTendl;
@@ -144,59 +144,42 @@ TRestAxionOptics::TRestAxionOptics(const char* cfgFileName, string name) : TRest
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionOptics::~TRestAxionOptics() {}
+TRestAxionOptics::~TRestAxionOptics() {
+    if (fEntranceMask) delete fEntranceMask;
+    if (fExitMask) delete fExitMask;
+    if (fMiddleMask) delete fMiddleMask;
+}
 
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestAxionOptics members
 ///
 void TRestAxionOptics::Initialize() {
-    RESTDebug << "Entering TRestAxionOptics::Initialize" << RESTendl;
+    std::cout << "Entering TRestAxionOptics::Initialize" << std::endl;
     SetLibraryVersion(LIBRARY_VERSION);
 
-    /*
-fEntrance = fCenter - 0.5 * fLength * fAxis;
-fExit = fCenter + 0.5 * fLength * fAxis;
+    if (fEntranceMask != nullptr) {
+        delete fEntranceMask;
+        fEntranceMask = nullptr;
+    }
+    fEntranceMask = new TRestCombinedMask();
+    fEntranceMask->SetName("Entrance");
+    fEntranceMask->SetTitle("Optics entrance mask");
 
-SetMaxAndMinRingRadius();
+    if (fExitMask != nullptr) {
+        delete fExitMask;
+        fExitMask = nullptr;
+    }
+    fExitMask = new TRestCombinedMask();
+    fExitMask->SetName("Exit");
+    fExitMask->SetTitle("Optics exit mask");
 
-if (fSpiderOffsetAngle < 0) fSpiderOffsetAngle = 0;
-if (fSpiderArmsSeparationAngle > 0) InitializeSpiderAngles();
-
-// A vector orthogonal to the axis, thus parallel to the optics plane
-// and to be used as reference for spider structure. It defines angle = 0
-fReference = TVector3(0, fAxis.Z(), -fAxis.Y()).Unit();
-    */
-}
-
-///////////////////////////////////////////////
-/// \brief It moves a given particle with position `pos` and direction `dir` to the entrance of the optics
-///
-TVector3 TRestAxionOptics::GetPositionAtEntrance(const TVector3& pos, const TVector3& dir) {
-    //   return REST_Physics::MoveToPlane(pos, dir, fAxis, fEntrance);
-    return TVector3(0, 0, 0);
-}
-
-///////////////////////////////////////////////
-/// \brief It returns the optics ring index for a given particle with position `pos` and direction `dir`.
-///
-/// If the particle is not inside any ring it will return -1
-///
-/// This method is protected since it should be used only by derived classes
-///
-Int_t TRestAxionOptics::GetEntranceRing(const TVector3& pos, const TVector3& dir) {
-    TVector3 posEntrance = GetPositionAtEntrance(pos, dir);
-    /*
-if (HitsSpider(posEntrance)) return -1;
-if (!IsInsideRing(posEntrance, fMaxRingRadius, fMinRingRadius)) return -1;
-
-int n = 0;
-for (const auto& ringRadius : fRingsRadii) {
-    if (IsInsideRing(posEntrance, ringRadius.second, ringRadius.first)) return n;
-    n++;
-}
-    */
-
-    return -1;
+    if (fMiddleMask != nullptr) {
+        delete fMiddleMask;
+        fMiddleMask = nullptr;
+    }
+    fMiddleMask = new TRestCombinedMask();
+    fMiddleMask->SetName("Middle");
+    fMiddleMask->SetTitle("Optics middle mask");
 }
 
 ///////////////////////////////////////////////
@@ -232,10 +215,12 @@ else {
 void TRestAxionOptics::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    RESTMetadata << "Optics entrance: (" << fEntrance.X() << ", " << fEntrance.Y() << ", " << fEntrance.Z()
-                 << ") mm" << RESTendl;
-    RESTMetadata << "Optics exit: (" << fExit.X() << ", " << fExit.Y() << ", " << fExit.Z() << ") mm"
-                 << RESTendl;
-    RESTMetadata << " " << RESTendl;
-    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
+    RESTMetadata << "Entrance position in Z : " << GetEntranceZPosition() << " mm" << RESTendl;
+    RESTMetadata << "Exit position in Z : " << GetExitZPosition() << " mm" << RESTendl;
+}
+
+void TRestAxionOptics::PrintMasks() {
+    if (fEntranceMask) fEntranceMask->PrintMetadata();
+    if (fMiddleMask) fMiddleMask->PrintMetadata();
+    if (fExitMask) fExitMask->PrintMetadata();
 }

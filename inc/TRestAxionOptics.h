@@ -23,43 +23,76 @@
 #ifndef _TRestAxionOptics
 #define _TRestAxionOptics
 
+#include <TRestCombinedMask.h>
 #include <TRestMetadata.h>
 #include <iostream>
 
 /// An abstract class to define common optics parameters and methods
 class TRestAxionOptics : public TRestMetadata {
    private:
-    /// It is the calculated axis position at the entrance of the optics plane.
-    TVector3 fEntrance = TVector3(0, 0, 0);  //!
-
-    /// It is the calculated axis position at the exit of the optics plane.
-    TVector3 fExit = TVector3(0, 0, 0);  //!
-
-    /// A vector used to define a reference vector at the optics plane
-    TVector3 fReference = TVector3(0, 0, 0);  //!
-
    protected:
+    /// The mirror length. If all mirrors got the same length. Otherwise will be zero.
+    Double_t fMirrorLength = 0;  //<
+
+    /// The particle position at the optics plane entrance
+    TVector3 fEntrancePosition;  //!
+
+    /// The particle position at the optics plane middle
+    TVector3 fMiddlePosition;  //!
+
+    /// The particle position at the optics plane exit
+    TVector3 fExitPosition;  //!
+
+    /// The particle position at the optics plane entrance
+    TVector3 fEntranceDirection;  //!
+
+    /// The particle position at the optics plane middle
+    TVector3 fMiddleDirection;  //!
+
+    /// The particle position at the optics plane exit
+    TVector3 fExitDirection;  //!
+
+    /// The entrance optical mask that defines a pattern with regions identified with a number
+    TRestCombinedMask* fEntranceMask = nullptr;  //!
+
+    /// The middle optical mask that defines a pattern with regions identified with a number
+    TRestCombinedMask* fMiddleMask = nullptr;  //!
+
+    /// The exit optical mask that defines a pattern with regions identified with a number
+    TRestCombinedMask* fExitMask = nullptr;  //!
+
     TRestAxionOptics();
     TRestAxionOptics(const char* cfgFileName, std::string name = "");
 
    public:
     virtual void Initialize();
 
-    /// It returns the physical length of one mirror stack; the whole optical system would be L=(fLength + 1/2
-    /// * xSep) * (cos(angleRing) + cos(angleRing)) which doesn't work here because the angele hasn't been
-    /// defined
-    //   Double_t GetMirrLength() { return fLength; }
+    /// It returns the entrance Z-position defined by the optical axis.
+    virtual Double_t GetEntranceZPosition() = 0;
 
-    /// It returns the physical length of the whole optics approximated
-    // Double_t GetLength() { return fLength * 2; }
+    /// It returns the exit Z-position defined by the optical axis
+    virtual Double_t GetExitZPosition() = 0;
 
-    /// It returns the entrance position defined by the optical axis
-    TVector3 GetEntrance() { return fEntrance; }
+    /// It updates the internal TRestAxionOptics particle positions/directions and returns efficiency
+    virtual Double_t PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy) = 0;
 
-    /// It returns the exit position defined by the optical axis
-    TVector3 GetExit() { return fExit; }
+    /// Returns the entrance position from the latest propagated photon
+    TVector3 GetEntrancePosition() { return fEntrancePosition; }
 
-    TVector3 GetPositionAtEntrance(const TVector3& pos, const TVector3& dir);
+    /// Returns the middle position from the latest propagated photon
+    TVector3 GetMiddlePosition() { return fEntrancePosition; }
+
+    /// Returns the exit position from the latest propagated photon
+    TVector3 GetExitPosition() { return fEntrancePosition; }
+
+    /// Returns the entrance position from the latest propagated photon
+    TVector3 GetEntranceDirection() { return fEntranceDirection; }
+
+    /// Returns the middle position from the latest propagated photon
+    TVector3 GetMiddleDirection() { return fMiddleDirection; }
+
+    /// Returns the exit position from the latest propagated photon
+    TVector3 GetExitDirection() { return fExitDirection; }
 
     /// Pure abstract method to be implemented at inherited class
     virtual TVector3 GetPositionAtExit(const TVector3& pos, const TVector3& dir) { return TVector3(0, 0, 0); }
@@ -74,7 +107,16 @@ class TRestAxionOptics : public TRestMetadata {
 
     Int_t GetEntranceRing(const TVector3& pos, const TVector3& dir);
 
+    void PrintEntranceMask() {
+        if (fEntranceMask)
+            fEntranceMask->PrintMetadata();
+        else
+            RESTWarning << "TRestAxionOptics::PrintEntranceMask. Not available" << RESTendl;
+    }
+
     void PrintMetadata();
+
+    void PrintMasks();
 
     void InitFromConfigFile();
 
