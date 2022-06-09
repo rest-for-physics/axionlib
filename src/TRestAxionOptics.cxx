@@ -183,6 +183,88 @@ void TRestAxionOptics::Initialize() {
 }
 
 ///////////////////////////////////////////////
+/// \brief It moves the incoming particle at the entrance of the optics plane and
+/// returns the region number where the particle is entering.
+///
+/// It updates the value of fEntrancePosition and fEntranceDirection.
+///
+/// If the region is 0, the particle has hit an opaque region and the photon will
+/// be lost.
+///
+Int_t TRestAxionOptics::TransportToEntrance(const TVector3& pos, const TVector3& dir) {
+    if (pos.Z() > GetEntranceZPosition()) {
+        RESTWarning << "TRestAxionOptics::TransportToMiddle" << RESTendl;
+        RESTWarning << "The particle should be placed before the entrance!" << RESTendl;
+        return 0;
+    }
+    if (dir.Z() <= 0) {
+        RESTWarning << "TRestAxionOptics::TransportToMiddle" << RESTendl;
+        RESTWarning << "Photon is not moving on the positive Z-direction!" << RESTendl;
+        return 0;
+    }
+    fEntrancePosition =
+        REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), TVector3(0, 0, GetEntranceZPosition()));
+    fEntranceDirection = dir;
+
+    return fEntranceMask->GetRegion(fEntrancePosition.X(), fEntrancePosition.Y());
+}
+
+///////////////////////////////////////////////
+/// \brief It moves the incoming particle to the middle of the optics plane and
+/// returns the region number where the particle is entering.
+///
+/// It updates the value of fMiddlePosition and fMiddleDirection.
+///
+/// If the region is 0, the particle has hit an opaque region and the photon will
+/// be lost.
+///
+Int_t TRestAxionOptics::TransportToMiddle(const TVector3& pos, const TVector3& dir) {
+    if (pos.Z() > 0 || pos.Z() < GetEntranceZPosition()) {
+        RESTWarning << "TRestAxionOptics::TransportToMiddle" << RESTendl;
+        RESTWarning << "The particle should be placed between entrance and middle!" << RESTendl;
+        return 0;
+    }
+    if (dir.Z() <= 0) {
+        RESTWarning << "TRestAxionOptics::TransportToMiddle" << RESTendl;
+        RESTWarning << "Photon is not moving on the positive Z-direction!" << RESTendl;
+        return 0;
+    }
+
+    fMiddlePosition = REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), TVector3(0, 0, 0));
+    fMiddleDirection = dir;
+
+    return fMiddleMask->GetRegion(fMiddlePosition.X(), fMiddlePosition.Y());
+}
+
+///////////////////////////////////////////////
+/// \brief It moves the incoming particle to the exit of the optics plane and
+/// returns the region number where the particle is entering.
+///
+/// It updates the value of fExitPosition and fExitDirection.
+///
+/// If the region is 0, the particle has hit an opaque region and the photon will
+/// be lost.
+///
+Int_t TRestAxionOptics::TransportToExit(const TVector3& pos, const TVector3& dir) {
+    if (pos.Z() < 0 || pos.Z() > GetExitZPosition()) {
+        RESTWarning << "TRestAxionOptics::TransportToExit" << RESTendl;
+        RESTWarning << "The particle should be placed between middle and exit!" << RESTendl;
+        return 0;
+    }
+    if (dir.Z() <= 0) {
+        RESTWarning << "TRestAxionOptics::TransportToExit" << RESTendl;
+        RESTWarning << "Photon is not moving on the positive Z-direction!" << RESTendl;
+        return 0;
+    }
+
+    fExitPosition =
+        REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), TVector3(0, 0, GetExitZPosition()));
+    fExitDirection = dir;
+
+    return fExitMask->GetRegion(fExitPosition.X(), fExitPosition.Y());
+}
+
+///////////////////////////////////////////////
 /// \brief Initialization of TRestAxionOptics field members through a RML file
 ///
 void TRestAxionOptics::InitFromConfigFile() {

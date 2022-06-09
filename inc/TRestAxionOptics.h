@@ -64,6 +64,11 @@ class TRestAxionOptics : public TRestMetadata {
     TRestAxionOptics();
     TRestAxionOptics(const char* cfgFileName, std::string name = "");
 
+   protected:
+    Int_t TransportToEntrance(const TVector3& pos, const TVector3& dir);
+    Int_t TransportToMiddle(const TVector3& pos, const TVector3& dir);
+    Int_t TransportToExit(const TVector3& pos, const TVector3& dir);
+
    public:
     virtual void Initialize();
 
