@@ -104,7 +104,7 @@ TRestAxionWolterOptics::~TRestAxionWolterOptics() {}
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 /// \param name The name of the specific metadata. It will be used to find the
-/// corresponding TRestAxionMagneticField section inside the RML.
+/// corresponding TRestAxionWolterOptics section inside the RML.
 ///
 TRestAxionWolterOptics::TRestAxionWolterOptics(const char* cfgFileName, string name)
     : TRestAxionOptics(cfgFileName) {
@@ -121,10 +121,116 @@ TRestAxionWolterOptics::TRestAxionWolterOptics(const char* cfgFileName, string n
 /// \brief Initialization of TRestAxionWolterOptics members
 ///
 void TRestAxionWolterOptics::Initialize() {
-    // TRestAxionOptics::Initialize();
+    TRestAxionOptics::Initialize();
 
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
+
+    if (fAlpha.size() == 0) return;
+
+    fCosAlpha.clear();
+    for (const auto& a : fAlpha) fCosAlpha.push_back(TMath::Cos(a));
+
+    fCosAlpha_3.clear();
+    for (const auto& a : fAlpha) fCosAlpha_3.push_back(TMath::Cos(3 * a));
+
+    fFrontVertex.clear();
+    for (unsigned int n = 0; n < fAlpha.size(); n++) fFrontVertex.push_back(fR3[n] / TMath::Tan(fAlpha[n]));
+
+    fBackVertex.clear();
+    for (unsigned int n = 0; n < fAlpha.size(); n++)
+        fBackVertex.push_back(fR3[n] / TMath::Tan(3. * fAlpha[n]));
+
+    /// Initializing Entrance mask
+    if (fEntranceRingsMask) {
+        std::cout << "A.1" << std::endl;
+        delete fEntranceRingsMask;
+        fEntranceRingsMask = nullptr;
+    }
+    fEntranceRingsMask = new TRestRingsMask();
+
+    std::vector<Double_t> inner, outer;
+    for (unsigned int n = 0; n < fR1.size() - 1; n++) {
+        std::cout << "n : " << n << " R1: " << fR1[n] << " Thickness : " << fThickness[n] << std::endl;
+        inner.push_back(fR1[n] + fThickness[n]);
+        outer.push_back(fR1[n + 1]);
+    }
+    fEntranceRingsMask->SetRadii(inner, outer);
+
+    fEntranceMask->AddMask(fSpiderMask);
+    fEntranceMask->AddMask(fEntranceRingsMask);
+
+    /// Initializing Middle mask
+    if (fMiddleRingsMask) {
+        delete fMiddleRingsMask;
+        fMiddleRingsMask = nullptr;
+    }
+    fMiddleRingsMask = new TRestRingsMask();
+
+    inner.clear();
+    outer.clear();
+    for (unsigned int n = 0; n < fR3.size() - 1; n++) {
+        inner.push_back(fR3[n] + fThickness[n]);
+        outer.push_back(fR3[n + 1]);
+    }
+    fMiddleRingsMask->SetRadii(inner, outer);
+
+    fMiddleMask->AddMask(fSpiderMask);
+    fMiddleMask->AddMask(fMiddleRingsMask);
+
+    /// Initializing Exit mask
+    if (fExitRingsMask) {
+        delete fExitRingsMask;
+        fExitRingsMask = nullptr;
+    }
+    fExitRingsMask = new TRestRingsMask();
+
+    inner.clear();
+    outer.clear();
+    for (unsigned int n = 0; n < fR5.size() - 1; n++) {
+        inner.push_back(fR5[n] + fThickness[n]);
+        outer.push_back(fR5[n + 1]);
+    }
+    fExitRingsMask->SetRadii(inner, outer);
+
+    fExitMask->AddMask(fSpiderMask);
+    fExitMask->AddMask(fExitRingsMask);
+
+    fEntranceMask->Print();
+    fMiddleMask->Print();
+    fExitMask->Print();
+}
+
+///////////////////////////////////////////////
+/// \brief Initialization of TRestAxionWolterOptics members
+///
+Double_t TRestAxionWolterOptics::PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy) {
+    Double_t reflectivity = 1;
+
+    Int_t mirror = TransportToEntrance(pos, dir);
+
+    TVector3 vertex(0, 0, fFrontVertex[mirror]);
+    Double_t cosA = fCosAlpha[mirror];
+
+    //// Reflection on first mirror
+    TVector3 frontInteraction =
+        fEntrancePosition +
+        fEntranceDirection * REST_Physics::GetConeVectorIntersection(fEntrancePosition, fEntranceDirection,
+                                                                     TVector3(0, 0, 1), vertex, cosA);
+
+    TVector3 coneNormal = REST_Physics::GetConeNormal(frontInteraction, fAlpha[mirror]);
+
+    TVector3 fMiddleDirection = GetVectorReflection(fEntranceDirection, coneNormal);
+
+    /// Get incidence angle and reflectivity
+
+    //// Transport through the middle optics interface
+    fMiddlePosition =
+        REST_Physics::MoveToPlane(frontInteraction, fMiddleDirection, TVector3(0, 0, 1), TVector3(0, 0, 0));
+
+    if (mirror != fMiddleRingsMask->GetRegion(fMiddlePosition.X(), fMiddlePosition.Y())) return 0.0;
+
+    return reflectivity;
 }
 
 ///////////////////////////////////////////////
@@ -141,6 +247,8 @@ void TRestAxionWolterOptics::InitFromConfigFile() {
 
         TRestTools::PrintTable(opticsData);
 
+        // The relevant parameters will be fR3 and fAlpha
+        // TODO We should check that the rings have been defined in increasing order
         fR1 = TRestTools::GetColumnFromTable(opticsData, 0);
         fR2 = TRestTools::GetColumnFromTable(opticsData, 1);
         fR3 = TRestTools::GetColumnFromTable(opticsData, 2);
@@ -150,34 +258,45 @@ void TRestAxionWolterOptics::InitFromConfigFile() {
         fAlpha = TRestTools::GetColumnFromTable(opticsData, 5);
         for (auto& x : fAlpha) x = x * units("rad") / units("deg");
 
-        fLength = TRestTools::GetColumnFromTable(opticsData, 6);
+        // For the moment we will only consider fixed length mirrors
+        // fLength = TRestTools::GetColumnFromTable(opticsData, 6);
+
         fThickness = TRestTools::GetColumnFromTable(opticsData, 7);
+    }
+
+    if (fSpiderMask) {
+        delete fSpiderMask;
+        fSpiderMask = nullptr;
+    }
+    fSpiderMask = (TRestSpiderMask*)this->InstantiateChildMetadata("TRestSpiderMask");
+
+    if (fSpiderMask == nullptr) {
+        RESTWarning << "TRestAxionWolterOptics requires usually a TRestSpiderMask definition" << RESTendl;
+    } else {
     }
 
     // If we recover the metadata class from ROOT file we will need to call Initialize ourselves
     this->Initialize();
 }
 
-///////////////////////////////////////////////
-/// \brief This calculates the interaction Point between the X-Ray photons path and a mirror in the
-/// predetermined layer
-///
-TVector3 TRestAxionWolterOptics::GetInteractionPoint(const TVector3& pos, const TVector3& dir) {
-    /*
-Int_t layer = GetEntranceRing(pos, dir);
-Double_t r1 = fRingsRadii[layer].second;
-Double_t angle = fShellsAngle[layer];
-Double_t xSep = fShellsSep[layer];
-Double_t fLength = GetMirrLength();
-// Double_t distMirrors = 0 for first stack and (fLength + xSep) * cos(angle) for the second // distance
-// of the mirror should be added in for second stack
-Double_t r2 = r1 - fLength * sin(angle);
-// r1 = sqrt((pos[0] + s * dir[0]) * (pos[0] + s * dir[0]) +
-//    (pos[1] + s * dir[1]) * (pos[1] + s * dir[1])) -
-//  ((r2 - r1) * (pos[2] + s * dir[2] - distMirrors) / (cos(angle) * fLength))  //needs to be solved for
-//  s, maybe by incresing s for some value and comparing this to r1
-    */
-    return TVector3(0, 0, 0);
+void TRestAxionWolterOptics::PrintParameters() {
+    if (fR3.size() > 0) {
+        for (unsigned int n = 0; n < fR3.size(); n++) {
+            Double_t dR1 = fR1[n] - fR3[n] - fMirrorLength * TMath::Sin(fAlpha[n]);
+            Double_t dR5 = fR5[n] - fR3[n] + fMirrorLength * TMath::Sin(3 * fAlpha[n]);
+            if (n % 10 == 0)
+                std::cout << "## R1\tdelta R1\tR3\tR5\tdelta R5\talpha\tCosAlpha\tFrontVertex\tBackVertex"
+                          << std::endl;
+
+            std::cout << fR1[n] << "\t" << dR1 << "\t" << fR3[n] << "\t" << fR5[n] << "\t" << dR5 << "\t"
+                      << fAlpha[n] << "\t" << fCosAlpha[n] << "\t" << fFrontVertex[n] << "\t"
+                      << fBackVertex[n] << std::endl;
+        }
+    }
+}
+
+void TRestAxionWolterOptics::PrintSpider() {
+    if (fSpiderMask) fSpiderMask->PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -187,7 +306,8 @@ void TRestAxionWolterOptics::PrintMetadata() {
     TRestAxionOptics::PrintMetadata();
 
     RESTMetadata << "---------" << RESTendl;
-    /// Print here metadata members
-    /// metadata << "xxx : " < fXXX << endl;
+    RESTMetadata << " - Optics file : " << fOpticsFile << RESTendl;
+    RESTMetadata << " " << RESTendl;
+    RESTMetadata << " Use \"this->PrintMasks()\" to get masks info" << RESTendl;
     RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }
