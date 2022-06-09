@@ -310,7 +310,7 @@ void TRestAxionXrayWindow::InitFromConfigFile() {
         delete fMask;
         fMask = nullptr;
     }
-    fMask = (TRestPatternMask*)this->GetChildMetadata("Mask", "mask");
+    fMask = (TRestPatternMask*)this->InstantiateChildMetadata("Mask", "mask");
 }
 
 ///////////////////////////////////////////////
