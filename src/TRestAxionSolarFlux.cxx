@@ -290,7 +290,7 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
     RESTDebug << "File : " << fullPathName << RESTendl;
 
     std::vector<std::vector<Float_t>> fluxTable;
-    if (TRestTools::GetFileNameExtension(fFluxDataFile) == "dat") {
+    if (TRestTools::GetFileNameExtension(fFluxDataFile) == ".dat") {
         std::vector<std::vector<Double_t>> doubleTable;
         TRestTools::ReadASCIITable(fullPathName, doubleTable);
         for (const auto& row : doubleTable) {
@@ -303,6 +303,7 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
         fluxTable.clear();
         RESTError << "Filename extension was not recognized!" << RESTendl;
         RESTError << "Solar flux table will not be populated" << RESTendl;
+        RESTError << "Filename extension: " << TRestTools::GetFileNameExtension(fFluxDataFile) << RESTendl;
     }
 
     if (fluxTable.size() != 100 && fluxTable[0].size() != 200) {

@@ -3,6 +3,7 @@
 import ROOT, math
 
 outfname = "windowsTransmission.png"
+patternType = "strongBack"
 
 from ROOT import (
      TChain, TFile, TTree, TCanvas, TPad, TRandom3,
@@ -27,10 +28,10 @@ pad1.Draw()
 totalSamples = 100000
 
 cathode = ROOT.TRestAxionXrayWindow("windows.rml", "cathode")
-strongBack = ROOT.TRestAxionXrayWindow("windows.rml", "strongBack")
+strongBack = ROOT.TRestAxionXrayWindow("windows.rml", patternType)
 siFoil = ROOT.TRestAxionXrayWindow("windows.rml", "siliconFoil")
 
-radius = cathode.GetWindowRadius()
+radius = strongBack.GetWindowRadius()
 print ( "\nGetting window radius" )
 if radius != 8:
     print ("\nThe window radius is not as expected! Exit code : 102")
@@ -62,13 +63,13 @@ rnd = TRandom3(0)
 for n in range(totalSamples):
      x = (radius+2) * (rnd.Rndm() - 0.5) * 2
      y = (radius+2) * (rnd.Rndm() - 0.5) * 2
-     en = 15. * rnd.Rndm()
+     en = 0.01 + 14.9 * rnd.Rndm()
  
      cth = cathode.GetTransmission( en, x, y)
      stb = strongBack.GetTransmission( en, x, y)
      sil = siFoil.GetTransmission( en, x, y)
 
-     if( cth == 0 ):
+     if( stb == 0 ):
          continue
      #print ("x: " + str(x) + " y: " + str(y) + " en: " + str(en) )
      #print ("cathode: " + str(cth) + " sBack: " + str(stb) + " siFoil: " + str(sil) )
@@ -132,14 +133,24 @@ histM.Draw("colz")
 pad1.cd(3)
 histH.SetStats(0)
 histH.Draw("colz")
-#graphsOP[0].GetXaxis().SetLimits(-maxRingRadius-20,maxRingRadius+20);
-#graphsOP[0].GetHistogram().SetMaximum(maxRingRadius+20);
-#graphsOP[0].GetHistogram().SetMinimum(-maxRingRadius-20);
-#graphsOP[0].Draw("AP")
-#for n in range(1,rings):
-#    graphsOP[n].Draw("P")
 
 c1.Print(outfname)
+
+if( histL.Integral() < 10000 ):
+    print( "Effective counts at low energy below 10000!!")
+    print ( "Low: " + str( histL.Integral() ) )
+    exit(103)
+
+if( histM.Integral() < 12000 ):
+    print( "Effective counts at low energy below 12000!!")
+    print ( "Mid: " + str( histM.Integral() ) )
+    exit(104)
+
+if( histH.Integral() < 14000 ):
+    print( "Effective counts at low energy below 14000!!")
+    print ( "High: " + str( histH.Integral() ) )
+    exit(105)
+
 
 print ("All tests passed!  [\033[92m OK \x1b[0m]")
 
