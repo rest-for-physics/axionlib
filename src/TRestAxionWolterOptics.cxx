@@ -143,7 +143,6 @@ void TRestAxionWolterOptics::Initialize() {
 
     /// Initializing Entrance mask
     if (fEntranceRingsMask) {
-        std::cout << "A.1" << std::endl;
         delete fEntranceRingsMask;
         fEntranceRingsMask = nullptr;
     }
@@ -201,36 +200,58 @@ void TRestAxionWolterOptics::Initialize() {
     fExitMask->Print();
 }
 
-///////////////////////////////////////////////
-/// \brief Initialization of TRestAxionWolterOptics members
-///
-Double_t TRestAxionWolterOptics::PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy) {
-    Double_t reflectivity = 1;
+void TRestAxionWolterOptics::FirstMirrorReflection(TVector3& pos, TVector3& dir) {
+    Int_t mirror = GetMirror();
+    if (mirror < 0) {
+        RESTError << "TRestAxionWolterOptics::FirstMirrorReflection. Mirror index cannot be negative!"
+                  << RESTendl;
+        return 0;
+    }
 
-    Int_t mirror = TransportToEntrance(pos, dir);
+    if (mirror >= fFrontVertex.size()) {
+        RESTError << "TRestAxionWolterOptics::FirstMirrorReflection. Mirror index above number of mirrors!"
+                  << RESTendl;
+        return 0;
+    }
 
     TVector3 vertex(0, 0, fFrontVertex[mirror]);
     Double_t cosA = fCosAlpha[mirror];
 
     //// Reflection on first mirror
-    TVector3 frontInteraction =
-        fEntrancePosition +
-        fEntranceDirection * REST_Physics::GetConeVectorIntersection(fEntrancePosition, fEntranceDirection,
+    pos = fEntrancePosition +
+          fEntranceDirection * REST_Physics::GetConeVectorIntersection(fEntrancePosition, fEntranceDirection,
+                                                                       TVector3(0, 0, 1), vertex, cosA);
+
+    TVector3 coneNormal = REST_Physics::GetConeNormal(pos, fAlpha[mirror]);
+
+    dir = GetVectorReflection(fEntranceDirection, coneNormal);
+}
+
+void TRestAxionWolterOptics::SecondMirrorReflection(TVector3& pos, TVector3& dir) {
+    Int_t mirror = GetMirror();
+    if (mirror < 0) {
+        RESTError << "TRestAxionWolterOptics::FirstMirrorReflection. Mirror index cannot be negative!"
+                  << RESTendl;
+        return 0;
+    }
+
+    if (mirror >= fFrontVertex.size()) {
+        RESTError << "TRestAxionWolterOptics::FirstMirrorReflection. Mirror index above number of mirrors!"
+                  << RESTendl;
+        return 0;
+    }
+
+    TVector3 vertex(0, 0, fBackVertex[mirror]);
+    Double_t cosA = fCosAlpha_3[mirror];
+
+    //// Reflection on first mirror
+    pos = fMiddlePosition +
+          fMiddleDirection * REST_Physics::GetConeVectorIntersection(fMiddlePosition, fMiddleDirection,
                                                                      TVector3(0, 0, 1), vertex, cosA);
 
-    TVector3 coneNormal = REST_Physics::GetConeNormal(frontInteraction, fAlpha[mirror]);
+    TVector3 coneNormal = REST_Physics::GetConeNormal(pos, 3 * fAlpha[mirror]);
 
-    TVector3 fMiddleDirection = GetVectorReflection(fEntranceDirection, coneNormal);
-
-    /// Get incidence angle and reflectivity
-
-    //// Transport through the middle optics interface
-    fMiddlePosition =
-        REST_Physics::MoveToPlane(frontInteraction, fMiddleDirection, TVector3(0, 0, 1), TVector3(0, 0, 0));
-
-    if (mirror != fMiddleRingsMask->GetRegion(fMiddlePosition.X(), fMiddlePosition.Y())) return 0.0;
-
-    return reflectivity;
+    dir = GetVectorReflection(fMiddleDirection, coneNormal);
 }
 
 ///////////////////////////////////////////////
