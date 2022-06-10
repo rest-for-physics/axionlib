@@ -157,6 +157,15 @@ void TRestAxionOptics::Initialize() {
     std::cout << "Entering TRestAxionOptics::Initialize" << std::endl;
     SetLibraryVersion(LIBRARY_VERSION);
 
+    if (fOpticsFile != "") {
+        std::string fullPathFileName = SearchFile(fOpticsFile);
+
+        std::vector<std::vector<Double_t>> opticsData;
+        TRestTools::ReadASCIITable(fullPathFileName, opticsData, 3);
+
+        // TRestTools::PrintTable(opticsData);
+    }
+
     if (fEntranceMask != nullptr) {
         delete fEntranceMask;
         fEntranceMask = nullptr;

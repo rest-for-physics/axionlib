@@ -25,34 +25,26 @@
 #include <TRestAxionOptics.h>
 #include <TRestRingsMask.h>
 #include <TRestSpiderMask.h>
+#include <TRestTools.h>
 #include <iostream>
 
 /// A class calculate the reflection path and probability of X-rays through a Wolter 1 telescope
 class TRestAxionWolterOptics : public TRestAxionOptics {
    private:
-    /// An optics file that contains all the specific Wolter optics parameters
-    std::string fOpticsFile = "";
-
     /// Entrance radius R1 in mm. See schematic figure.
-    std::vector<Double_t> fR1;  //<
-
-    /// Radius R2 in mm. See schematic figure.
-    std::vector<Double_t> fR2;  //<
+    std::vector<Double_t> fR1;  //!
 
     /// Radius R3 in mm. See schematic figure.
-    std::vector<Double_t> fR3;  //<
-
-    /// Radius R4 in mm. See schematic figure.
-    std::vector<Double_t> fR4;  //<
+    std::vector<Double_t> fR3;  //!
 
     /// Radius R5 in mm. See schematic figure.
-    std::vector<Double_t> fR5;  //<
+    std::vector<Double_t> fR5;  //!
 
     /// Mirror angle (alpha) in radians. See schematic figure.
-    std::vector<Double_t> fAlpha;  //<
+    std::vector<Double_t> fAlpha;  //!
 
     /// Mirror thickness in mm. See schematic figure.
-    std::vector<Double_t> fThickness;  //<
+    std::vector<Double_t> fThickness;  //!
 
     /// The spider structure to be used as an optical opaque mask (common to all planes)
     TRestSpiderMask* fSpiderMask = nullptr;  //<
@@ -83,6 +75,37 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
 
    public:
     void Initialize() override;
+
+    /// It returns a vector with the values of R1
+    std::vector<Double_t> GetR1() {
+        std::vector<Double_t> r = TRestTools::GetColumnFromTable(fOpticsData, 0);
+        return r;
+    }
+
+    /// It returns a vector with the values of R3
+    std::vector<Double_t> GetR3() {
+        std::vector<Double_t> r = TRestTools::GetColumnFromTable(fOpticsData, 2);
+        return r;
+    }
+
+    /// It returns a vector with the values of R5
+    std::vector<Double_t> GetR5() {
+        std::vector<Double_t> r = TRestTools::GetColumnFromTable(fOpticsData, 4);
+        return r;
+    }
+
+    /// It returns a vector with the values of alpha
+    std::vector<Double_t> GetAlpha() {
+        std::vector<Double_t> alpha = TRestTools::GetColumnFromTable(fOpticsData, 5);
+        for (auto& x : alpha) x = x * units("rad") / units("deg");
+        return alpha;
+    }
+
+    /// It returns a vector with the values of mirror thickness
+    std::vector<Double_t> GetThickness() {
+        std::vector<Double_t> t = TRestTools::GetColumnFromTable(fOpticsData, 7);
+        return t;
+    }
 
     /// It returns the entrance Z-position defined by the optical axis.
     Double_t GetEntranceZPosition() override {

@@ -30,8 +30,14 @@
 /// An abstract class to define common optics parameters and methods
 class TRestAxionOptics : public TRestMetadata {
    protected:
+    /// An optics file that contains all the specific optics parameters
+    std::string fOpticsFile = "";
+
     /// The mirror length. If all mirrors got the same length. Otherwise will be zero.
     Double_t fMirrorLength = 0;  //<
+
+    /// The optics data table extracted from fOpticsFile
+    std::vector<std::vector<Double_t>> fOpticsData;
 
     /// The particle position at the origin
     TVector3 fOriginPosition;  //!

@@ -126,6 +126,12 @@ void TRestAxionWolterOptics::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
+    fR1 = GetR1();
+    fR3 = GetR3();
+    fR5 = GetR5();
+    fAlpha = GetAlpha();
+    fThickness = GetThickness();
+
     if (fAlpha.size() == 0) return;
 
     fCosAlpha.clear();
@@ -283,31 +289,6 @@ Int_t TRestAxionWolterOptics::SecondMirrorReflection(const TVector3& pos, const 
 ///
 void TRestAxionWolterOptics::InitFromConfigFile() {
     TRestAxionOptics::InitFromConfigFile();
-
-    if (fOpticsFile != "") {
-        std::string fullPathFileName = SearchFile(fOpticsFile);
-
-        std::vector<std::vector<Double_t>> opticsData;
-        TRestTools::ReadASCIITable(fullPathFileName, opticsData, 3);
-
-        TRestTools::PrintTable(opticsData);
-
-        // The relevant parameters will be fR3 and fAlpha
-        // TODO We should check that the rings have been defined in increasing order
-        fR1 = TRestTools::GetColumnFromTable(opticsData, 0);
-        fR2 = TRestTools::GetColumnFromTable(opticsData, 1);
-        fR3 = TRestTools::GetColumnFromTable(opticsData, 2);
-        fR4 = TRestTools::GetColumnFromTable(opticsData, 3);
-        fR5 = TRestTools::GetColumnFromTable(opticsData, 4);
-
-        fAlpha = TRestTools::GetColumnFromTable(opticsData, 5);
-        for (auto& x : fAlpha) x = x * units("rad") / units("deg");
-
-        // For the moment we will only consider fixed length mirrors
-        // fLength = TRestTools::GetColumnFromTable(opticsData, 6);
-
-        fThickness = TRestTools::GetColumnFromTable(opticsData, 7);
-    }
 
     if (fSpiderMask) {
         delete fSpiderMask;
