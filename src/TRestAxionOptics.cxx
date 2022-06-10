@@ -265,15 +265,39 @@ Int_t TRestAxionOptics::TransportToExit(const TVector3& pos, const TVector3& dir
 }
 
 ///////////////////////////////////////////////
+/// \brief It reinitializes particle positions and directions at the different optical regions
+///
+void TRestAxionOptics::ResetPositions() {
+    fOriginDirection = TVector3(0, 0, 0);
+    fOriginPosition = TVector3(0, 0, 0);
+
+    fEntrancePosition = TVector3(0, 0, 0);
+    fEntranceDirection = TVector3(0, 0, 0);
+
+    fMiddlePosition = TVector3(0, 0, 0);
+    fMiddleDirection = TVector3(0, 0, 0);
+
+    fExitPosition = TVector3(0, 0, 0);
+    fExitDirection = TVector3(0, 0, 0);
+}
+
+///////////////////////////////////////////////
 /// \brief Propagating photon
 ///
 Double_t TRestAxionOptics::PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy) {
     Double_t reflectivity = 1;
 
+    ResetPositions();
+
+    fOriginPosition = pos;
+    fOriginDirection = dir;
+
     TVector3 posNow = pos, dirNow = dir;
 
     /// We move the particle to the entrance optics plane
     Int_t opticsRegion = TransportToEntrance(posNow, dirNow);
+
+    if (opticsRegion == 0) return 0.0;
 
     /// It defines the current active mirror (same index for front and back)
     SetMirror();

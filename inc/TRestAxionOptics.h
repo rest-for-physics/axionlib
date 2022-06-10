@@ -29,10 +29,12 @@
 
 /// An abstract class to define common optics parameters and methods
 class TRestAxionOptics : public TRestMetadata {
-   private:
    protected:
     /// The mirror length. If all mirrors got the same length. Otherwise will be zero.
     Double_t fMirrorLength = 0;  //<
+
+    /// The particle position at the origin
+    TVector3 fOriginPosition;  //!
 
     /// The particle position at the optics plane entrance
     TVector3 fEntrancePosition;  //!
@@ -42,6 +44,9 @@ class TRestAxionOptics : public TRestMetadata {
 
     /// The particle position at the optics plane exit
     TVector3 fExitPosition;  //!
+
+    /// The particle direction at the origin
+    TVector3 fOriginDirection;  //!
 
     /// The particle position at the optics plane entrance
     TVector3 fEntranceDirection;  //!
@@ -67,7 +72,13 @@ class TRestAxionOptics : public TRestMetadata {
     TRestAxionOptics();
     TRestAxionOptics(const char* cfgFileName, std::string name = "");
 
+   private:
+    void ResetPositions();
+
    protected:
+    /// A pad pointer to be used by the drawing methods
+    TPad* fPad = nullptr;
+
     Int_t TransportToEntrance(const TVector3& pos, const TVector3& dir);
     Int_t TransportToMiddle(const TVector3& pos, const TVector3& dir);
     Int_t TransportToExit(const TVector3& pos, const TVector3& dir);
@@ -92,6 +103,9 @@ class TRestAxionOptics : public TRestMetadata {
 
     /// It updates the values pos,dir with the interaction point and new direction. Returns reflectivity.
     virtual void SecondMirrorReflection(TVector3& pos, TVector3& dir) = 0;
+
+    /// It draws the mirrors using a TGraph
+    virtual TPad* DrawMirrors() = 0;
 
     /// It updates the internal TRestAxionOptics particle positions/directions and returns efficiency
     Double_t PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy);
