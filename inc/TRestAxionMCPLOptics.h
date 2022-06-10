@@ -37,6 +37,9 @@ class TRestAxionMCPLOptics : public TRestAxionOptics {
     /// The file containing the output particle list
     std::string fOutputMCPLFilename;
 
+    Double_t FirstMirrorReflection(TVector3& pos, TVector3& dir) { return 0; }
+    Double_t SecondMirrorReflection(TVector3& pos, TVector3& dir) { return 0; }
+
    public:
     void PrintMetadata() override;
 
@@ -47,9 +50,6 @@ class TRestAxionMCPLOptics : public TRestAxionOptics {
 
     /// It returns the exit Z-position defined by the optical axis
     Double_t GetExitZPosition() override { return 0; }
-
-    /// It updates the internal TRestAxionOptics particle positions/directions and returns effieciency
-    Double_t PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy) override { return 0; }
 
     TRestAxionMCPLOptics();
     TRestAxionMCPLOptics(const char* cfgFileName, std::string name = "");
