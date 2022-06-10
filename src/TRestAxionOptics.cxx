@@ -265,6 +265,33 @@ Int_t TRestAxionOptics::TransportToExit(const TVector3& pos, const TVector3& dir
 }
 
 ///////////////////////////////////////////////
+/// \brief Propagating photon
+///
+Double_t TRestAxionOptics::PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy) {
+    Double_t reflectivity = 1;
+
+    TVector3 posNow = pos, dirNow = dir;
+
+    /// We move the particle to the entrance optics plane
+    Int_t opticsRegion = TransportToEntrance(posNow, dirNow);
+
+    /// It defines the current active mirror (same index for front and back)
+    SetMirror();
+
+    /// We update the position and direction at the first mirror
+    FirstMirrorReflection(posNow, dirNow);
+
+    Int_t middleMirror = TransportToMiddle(posNow, dirNow);
+
+    /// We update the position and direction at the second mirror
+    SecondMirrorReflection(posNow, dirNow);
+
+    Int_t exitMirror = TransportToExit(posNow, dirNow);
+
+    return reflectivity;
+}
+
+///////////////////////////////////////////////
 /// \brief Initialization of TRestAxionOptics field members through a RML file
 ///
 void TRestAxionOptics::InitFromConfigFile() {

@@ -61,6 +61,9 @@ class TRestAxionOptics : public TRestMetadata {
     /// The exit optical mask that defines a pattern with regions identified with a number
     TRestCombinedMask* fExitMask = nullptr;  //!
 
+    /// During the photon propagation it keeps track of the active mirror shell.
+    Int_t fCurrentMirror = -1;  //!
+
     TRestAxionOptics();
     TRestAxionOptics(const char* cfgFileName, std::string name = "");
 
@@ -68,6 +71,12 @@ class TRestAxionOptics : public TRestMetadata {
     Int_t TransportToEntrance(const TVector3& pos, const TVector3& dir);
     Int_t TransportToMiddle(const TVector3& pos, const TVector3& dir);
     Int_t TransportToExit(const TVector3& pos, const TVector3& dir);
+
+    /// It returns the mirror index to be used in the photon reflection.
+    Int_t GetMirror() { return fCurrentMirror; }
+
+    /// It must be implemented at the inherited optics, making use of fEntrancePosition
+    virtual void SetMirror() = 0;
 
    public:
     virtual void Initialize();
@@ -78,8 +87,14 @@ class TRestAxionOptics : public TRestMetadata {
     /// It returns the exit Z-position defined by the optical axis
     virtual Double_t GetExitZPosition() = 0;
 
+    /// It updates the values pos,dir with the interaction point and new direction. Returns reflectivity.
+    virtual void FirstMirrorReflection(TVector3& pos, TVector3& dir) = 0;
+
+    /// It updates the values pos,dir with the interaction point and new direction. Returns reflectivity.
+    virtual void SecondMirrorReflection(TVector3& pos, TVector3& dir) = 0;
+
     /// It updates the internal TRestAxionOptics particle positions/directions and returns efficiency
-    virtual Double_t PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy) = 0;
+    Double_t PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy);
 
     /// Returns the entrance position from the latest propagated photon
     TVector3 GetEntrancePosition() { return fEntrancePosition; }
