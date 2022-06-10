@@ -204,7 +204,6 @@ Int_t TRestAxionOptics::TransportToEntrance(const TVector3& pos, const TVector3&
     }
     fEntrancePosition =
         REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), TVector3(0, 0, GetEntranceZPosition()));
-    fEntranceDirection = dir;
 
     return fEntranceMask->GetRegion(fEntrancePosition.X(), fEntrancePosition.Y());
 }
@@ -268,14 +267,17 @@ Int_t TRestAxionOptics::TransportToExit(const TVector3& pos, const TVector3& dir
 /// \brief It reinitializes particle positions and directions at the different optical regions
 ///
 void TRestAxionOptics::ResetPositions() {
-    fOriginDirection = TVector3(0, 0, 0);
     fOriginPosition = TVector3(0, 0, 0);
 
     fEntrancePosition = TVector3(0, 0, 0);
     fEntranceDirection = TVector3(0, 0, 0);
 
+    fFirstInteractionPosition = TVector3(0, 0, 0);
+
     fMiddlePosition = TVector3(0, 0, 0);
     fMiddleDirection = TVector3(0, 0, 0);
+
+    fSecondInteractionPosition = TVector3(0, 0, 0);
 
     fExitPosition = TVector3(0, 0, 0);
     fExitDirection = TVector3(0, 0, 0);
@@ -290,27 +292,34 @@ Double_t TRestAxionOptics::PropagatePhoton(const TVector3& pos, const TVector3& 
     ResetPositions();
 
     fOriginPosition = pos;
-    fOriginDirection = dir;
+    fEntranceDirection = dir;
 
-    TVector3 posNow = pos, dirNow = dir;
-
-    /// We move the particle to the entrance optics plane
-    Int_t opticsRegion = TransportToEntrance(posNow, dirNow);
+    /// We move the particle to the entrance optics plane. We update fEntrancePosition
+    Int_t opticsRegion = TransportToEntrance(fOriginPosition, fEntranceDirection);
 
     if (opticsRegion == 0) return 0.0;
 
-    /// It defines the current active mirror (same index for front and back)
+    /// Now that we are placed at the optics entrance plane.
+    /// We define the current active mirror (same array index for front and back)
     SetMirror();
 
-    /// We update the position and direction at the first mirror
-    FirstMirrorReflection(posNow, dirNow);
+    /// We update the position and direction at the first mirror. We update
+    /// fFirstInteractionPosition and fMiddleDirection
+    FirstMirrorReflection(fEntrancePosition, fEntranceDirection);
 
-    Int_t middleMirror = TransportToMiddle(posNow, dirNow);
+    //// TODO obtain incidence angle and reflectivity
+
+    /// We move the particle to the entrance optics plane. We update fEntrancePosition
+    Int_t middleMirror = TransportToMiddle(fFirstInteractionPosition, fMiddleDirection);
 
     /// We update the position and direction at the second mirror
-    SecondMirrorReflection(posNow, dirNow);
+    /// We update the position and direction at the second mirror. We update
+    /// fSecondInteractionPosition and fExitDirection
+    SecondMirrorReflection(fMiddlePosition, fMiddleDirection);
 
-    Int_t exitMirror = TransportToExit(posNow, dirNow);
+    //// TODO obtain incidence angle and reflectivity
+
+    Int_t exitMirror = TransportToExit(fSecondInteractionPosition, fExitDirection);
 
     return reflectivity;
 }

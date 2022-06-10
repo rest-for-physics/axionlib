@@ -200,7 +200,11 @@ void TRestAxionWolterOptics::Initialize() {
     fExitMask->Print();
 }
 
-void TRestAxionWolterOptics::FirstMirrorReflection(TVector3& pos, TVector3& dir) {
+///////////////////////////////////////////////
+/// \brief Implementation of first mirror interaction. It updates fFirstInteractionPosition and
+/// fMiddleDirection making use of fEntrancePosition and fEntranceDirection
+///
+Int_t TRestAxionWolterOptics::FirstMirrorReflection(const TVector3& pos, const TVector3& dir) {
     Int_t mirror = GetMirror();
     if (mirror < 0) {
         RESTError << "TRestAxionWolterOptics::FirstMirrorReflection. Mirror index cannot be negative!"
@@ -218,16 +222,28 @@ void TRestAxionWolterOptics::FirstMirrorReflection(TVector3& pos, TVector3& dir)
     Double_t cosA = fCosAlpha[mirror];
 
     //// Reflection on first mirror
-    pos = fEntrancePosition +
-          fEntranceDirection * REST_Physics::GetConeVectorIntersection(fEntrancePosition, fEntranceDirection,
-                                                                       TVector3(0, 0, 1), vertex, cosA);
+    fFirstInteractionPosition =
+        pos + dir * REST_Physics::GetConeVectorIntersection(pos, dir, TVector3(0, 0, 1), vertex, cosA);
 
-    TVector3 coneNormal = REST_Physics::GetConeNormal(pos, fAlpha[mirror]);
+    if (fFirstInteractionPosition.Z() < GetEntranceZPosition() || fFirstInteractionPosition.Z() > 0) {
+        RESTWarning << "FirstMirrorReflection. No interaction! TOBE done. Include a counter for "
+                       "reflection/no reflection"
+                    << RESTendl;
+        return 0;
+    }
 
-    dir = GetVectorReflection(fEntranceDirection, coneNormal);
+    TVector3 coneNormal = REST_Physics::GetConeNormal(fFirstInteractionPosition, fAlpha[mirror]);
+
+    fMiddleDirection = GetVectorReflection(fEntranceDirection, coneNormal);
+
+    return 1;
 }
 
-void TRestAxionWolterOptics::SecondMirrorReflection(TVector3& pos, TVector3& dir) {
+///////////////////////////////////////////////
+/// \brief Implementation of first mirror interaction. It updates fSecondInteractionPosition and
+/// fExitDirection making use of fMiddlePosition and fMiddleDirection
+///
+Int_t TRestAxionWolterOptics::SecondMirrorReflection(const TVector3& pos, const TVector3& dir) {
     Int_t mirror = GetMirror();
     if (mirror < 0) {
         RESTError << "TRestAxionWolterOptics::FirstMirrorReflection. Mirror index cannot be negative!"
@@ -245,13 +261,21 @@ void TRestAxionWolterOptics::SecondMirrorReflection(TVector3& pos, TVector3& dir
     Double_t cosA = fCosAlpha_3[mirror];
 
     //// Reflection on first mirror
-    pos = fMiddlePosition +
-          fMiddleDirection * REST_Physics::GetConeVectorIntersection(fMiddlePosition, fMiddleDirection,
-                                                                     TVector3(0, 0, 1), vertex, cosA);
+    fSecondInteractionPosition =
+        pos + dir * REST_Physics::GetConeVectorIntersection(pos, dir, TVector3(0, 0, 1), vertex, cosA);
 
-    TVector3 coneNormal = REST_Physics::GetConeNormal(pos, 3 * fAlpha[mirror]);
+    if (fSecondInteractionPosition.Z() > GetExitZPosition() || fSecondInteractionPosition.Z() < 0) {
+        RESTWarning << "TRestAxionWolterOptics. No interaction! TOBE done. Include a counter for "
+                       "reflection/no reflection"
+                    << RESTendl;
+        return 0;
+    }
 
-    dir = GetVectorReflection(fMiddleDirection, coneNormal);
+    TVector3 coneNormal = REST_Physics::GetConeNormal(fSecondInteractionPosition, 3 * fAlpha[mirror]);
+
+    fExitDirection = GetVectorReflection(fMiddleDirection, coneNormal);
+
+    return 1;
 }
 
 ///////////////////////////////////////////////

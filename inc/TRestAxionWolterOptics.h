@@ -78,8 +78,8 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
     /// The Z-position of the cone vertex defined by the back mirrors
     std::vector<Double_t> fBackVertex;  //!
 
-    void FirstMirrorReflection(TVector3& pos, TVector3& dir);
-    void SecondMirrorReflection(TVector3& pos, TVector3& dir);
+    Int_t FirstMirrorReflection(const TVector3& pos, const TVector3& dir) override;
+    Int_t SecondMirrorReflection(const TVector3& pos, const TVector3& dir) override;
 
    public:
     void Initialize() override;
@@ -106,19 +106,6 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
     void PrintSpider();
     void PrintMetadata() override;
     void InitFromConfigFile() override;
-
-    /// It returns the position at the optics exit plane for the incoming particle
-    TVector3 GetPositionAtExit(const TVector3& pos, const TVector3& dir) override {
-        return TVector3(0, 0, 0);
-    }
-
-    /// It returns the direction at the optics exit plane for the incoming particle
-    TVector3 GetDirectionAtExit(const TVector3& pos, const TVector3& dir) override {
-        return TVector3(0, 0, 0);
-    }
-
-    /// It returns the efficiency for particle with position `pos` and direction `dir`.
-    Double_t GetEfficiency(const TVector3& pos, const TVector3& dir) override { return 0.0; }
 
     TRestAxionWolterOptics();
     TRestAxionWolterOptics(const char* cfgFileName, std::string name = "");
