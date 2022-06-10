@@ -100,6 +100,8 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
         fCurrentMirror = fEntranceRingsMask->GetRegion(fEntrancePosition.X(), fEntrancePosition.Y());
     }
 
+    TPad* DrawMirrors() override { return fPad; }
+
     void PrintParameters();
     void PrintSpider();
     void PrintMetadata() override;
