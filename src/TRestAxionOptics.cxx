@@ -154,16 +154,15 @@ TRestAxionOptics::~TRestAxionOptics() {
 /// \brief Initialization of TRestAxionOptics members
 ///
 void TRestAxionOptics::Initialize() {
-    std::cout << "Entering TRestAxionOptics::Initialize" << std::endl;
     SetLibraryVersion(LIBRARY_VERSION);
 
     if (fOpticsFile != "") {
         std::string fullPathFileName = SearchFile(fOpticsFile);
 
-        std::vector<std::vector<Double_t>> opticsData;
-        TRestTools::ReadASCIITable(fullPathFileName, opticsData, 3);
+        TRestTools::ReadASCIITable(fullPathFileName, fOpticsData, 3);
 
-        // TRestTools::PrintTable(opticsData);
+        // std::cout << "Reading table" << std::endl;
+        // TRestTools::PrintTable(fOpticsData, 6, 9);
     }
 
     if (fEntranceMask != nullptr) {
@@ -370,8 +369,60 @@ void TRestAxionOptics::PrintMetadata() {
     RESTMetadata << "Exit position in Z : " << GetExitZPosition() << " mm" << RESTendl;
 }
 
+///////////////////////////////////////////////
+/// \brief Prints on screen the 3-optical masks used on the optics planes
+///
 void TRestAxionOptics::PrintMasks() {
     if (fEntranceMask) fEntranceMask->PrintMetadata();
     if (fMiddleMask) fMiddleMask->PrintMetadata();
     if (fExitMask) fExitMask->PrintMetadata();
+}
+
+///////////////////////////////////////////////
+/// \brief Prints on screen the mask used on the entrance optics plane
+///
+void TRestAxionOptics::PrintEntranceMask() {
+    if (fEntranceMask)
+        fEntranceMask->PrintMetadata();
+    else
+        RESTWarning << "TRestAxionOptics::PrintEntranceMask. Not available" << RESTendl;
+}
+
+///////////////////////////////////////////////
+/// \brief Prints on screen the mask used on the middle optics plane
+///
+void TRestAxionOptics::PrintMiddleMask() {
+    if (fMiddleMask)
+        fMiddleMask->PrintMetadata();
+    else
+        RESTWarning << "TRestAxionOptics::PrintEntranceMask. Not available" << RESTendl;
+}
+
+///////////////////////////////////////////////
+/// \brief Prints on screen the mask used on the exit optics plane
+///
+void TRestAxionOptics::PrintExitMask() {
+    if (fExitMask)
+        fExitMask->PrintMetadata();
+    else
+        RESTWarning << "TRestAxionOptics::PrintEntranceMask. Not available" << RESTendl;
+}
+
+///////////////////////////////////////////////
+/// \brief A prototype method to be implemented by specific optics to draw an schematic
+/// including the mirrors geometry.
+///
+TPad* TRestAxionOptics::DrawMirrors() {
+    if (fPad != nullptr) {
+        delete fPad;
+        fPad = nullptr;
+    }
+
+    fPad = new TPad("optics_pad", "This is the optics drawing pad", 0.01, 0.02, 0.99, 0.97);
+    fPad->Draw();
+    fPad->SetRightMargin(0.09);
+    fPad->SetLeftMargin(0.2);
+    fPad->SetBottomMargin(0.15);
+
+    return fPad;
 }

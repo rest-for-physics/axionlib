@@ -77,6 +77,9 @@
 #include "TRestAxionWolterOptics.h"
 
 using namespace std;
+#include <TAxis.h>
+#include <TGraph.h>
+#include <TH1F.h>
 #include <cmath>
 #include "TRestPhysics.h"
 using namespace REST_Physics;
@@ -156,7 +159,6 @@ void TRestAxionWolterOptics::Initialize() {
 
     std::vector<Double_t> inner, outer;
     for (unsigned int n = 0; n < fR1.size() - 1; n++) {
-        std::cout << "n : " << n << " R1: " << fR1[n] << " Thickness : " << fThickness[n] << std::endl;
         inner.push_back(fR1[n] + fThickness[n]);
         outer.push_back(fR1[n + 1]);
     }
@@ -288,12 +290,11 @@ Int_t TRestAxionWolterOptics::SecondMirrorReflection(const TVector3& pos, const 
 /// \brief Initialization of TRestAxionWolterOptics field members through a RML file
 ///
 void TRestAxionWolterOptics::InitFromConfigFile() {
-    TRestAxionOptics::InitFromConfigFile();
-
     if (fSpiderMask) {
         delete fSpiderMask;
         fSpiderMask = nullptr;
     }
+
     fSpiderMask = (TRestSpiderMask*)this->InstantiateChildMetadata("TRestSpiderMask");
 
     if (fSpiderMask == nullptr) {
@@ -301,10 +302,18 @@ void TRestAxionWolterOptics::InitFromConfigFile() {
     } else {
     }
 
+    TRestAxionOptics::InitFromConfigFile();
+
     // If we recover the metadata class from ROOT file we will need to call Initialize ourselves
     this->Initialize();
 }
 
+///////////////////////////////////////////////
+/// \brief It prints out the Wolter (relevant) parameters extracted from the optics data file,
+/// and other parameters calculated after those input parameters, such as the vertex and angles.
+///
+/// It will also evaluate the precision loss due to angle to mirror raddius transformation.
+///
 void TRestAxionWolterOptics::PrintParameters() {
     if (fR3.size() > 0) {
         for (unsigned int n = 0; n < fR3.size(); n++) {
@@ -321,6 +330,9 @@ void TRestAxionWolterOptics::PrintParameters() {
     }
 }
 
+///////////////////////////////////////////////
+/// \brief It prints out the spider mask common to all the optical planes
+///
 void TRestAxionWolterOptics::PrintSpider() {
     if (fSpiderMask) fSpiderMask->PrintMetadata();
 }
@@ -336,4 +348,43 @@ void TRestAxionWolterOptics::PrintMetadata() {
     RESTMetadata << " " << RESTendl;
     RESTMetadata << " Use \"this->PrintMasks()\" to get masks info" << RESTendl;
     RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
+}
+
+///////////////////////////////////////////////
+/// \brief A method to to draw an optics schematic including the mirrors geometry.
+///
+TPad* TRestAxionWolterOptics::DrawMirrors() {
+    TRestAxionOptics::DrawMirrors();
+
+    fPad->cd();
+    std::vector<TGraph*> graphCollection;
+    for (unsigned int mirror = 0; mirror < fR3.size(); mirror++) {
+        TGraph* gr = new TGraph();  //"Mirror" + IntegerToString(mirror + 1));
+
+        Double_t lX = fMirrorLength * fCosAlpha[mirror];
+
+        gr->SetPoint(0, -lX, fR1[mirror]);
+        gr->SetPoint(1, 0, fR3[mirror]);
+        gr->SetPoint(2, lX, fR5[mirror]);
+
+        gr->GetXaxis()->SetLimits(-3.5 * lX, 3.5 * lX);
+        gr->GetHistogram()->SetMaximum(fR1.back() * 1.15);
+        gr->GetHistogram()->SetMinimum(fR1.front() * 0.8);
+
+        gr->GetXaxis()->SetTitle("Z [mm]");
+        gr->GetXaxis()->SetTitleSize(0.04);
+        gr->GetXaxis()->SetLabelSize(0.04);
+        gr->GetXaxis()->SetNdivisions(5);
+        gr->GetYaxis()->SetTitle("R [mm]");
+        gr->GetYaxis()->SetTitleOffset(1.4);
+        gr->GetYaxis()->SetTitleSize(0.04);
+        gr->GetYaxis()->SetLabelSize(0.04);
+        gr->SetLineWidth(1);
+        if (mirror == 0)
+            gr->Draw("AL");
+        else
+            gr->Draw("L");
+    }
+
+    return fPad;
 }

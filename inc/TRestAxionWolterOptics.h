@@ -50,13 +50,13 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
     TRestSpiderMask* fSpiderMask = nullptr;  //<
 
     /// The rings structure to be used at entrance as an optical opaque mask
-    TRestRingsMask* fEntranceRingsMask = nullptr;
+    TRestRingsMask* fEntranceRingsMask = nullptr;  //<
 
     /// The rings structure to be used at entrance as an optical opaque mask
-    TRestRingsMask* fMiddleRingsMask = nullptr;
+    TRestRingsMask* fMiddleRingsMask = nullptr;  //<
 
     /// The rings structure to be used at entrance as an optical opaque mask
-    TRestRingsMask* fExitRingsMask = nullptr;
+    TRestRingsMask* fExitRingsMask = nullptr;  //<
 
     /// Mirror pre-calculated cosine angle (alpha). See schematic figure.
     std::vector<Double_t> fCosAlpha;  //!
@@ -123,7 +123,7 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
         fCurrentMirror = fEntranceRingsMask->GetRegion(fEntrancePosition.X(), fEntrancePosition.Y());
     }
 
-    TPad* DrawMirrors() override { return fPad; }
+    TPad* DrawMirrors() override;
 
     void PrintParameters();
     void PrintSpider();

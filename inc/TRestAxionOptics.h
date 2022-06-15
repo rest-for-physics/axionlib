@@ -114,7 +114,7 @@ class TRestAxionOptics : public TRestMetadata {
     virtual Int_t SecondMirrorReflection(const TVector3& pos, const TVector3& dir) = 0;
 
     /// It draws the mirrors using a TGraph
-    virtual TPad* DrawMirrors() = 0;
+    virtual TPad* DrawMirrors();
 
     /// It updates the internal TRestAxionOptics particle positions/directions and returns efficiency
     Double_t PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy);
@@ -137,16 +137,13 @@ class TRestAxionOptics : public TRestMetadata {
     /// Returns the exit position from the latest propagated photon
     TVector3 GetExitDirection() { return fExitDirection; }
 
-    void PrintEntranceMask() {
-        if (fEntranceMask)
-            fEntranceMask->PrintMetadata();
-        else
-            RESTWarning << "TRestAxionOptics::PrintEntranceMask. Not available" << RESTendl;
-    }
-
     void PrintMetadata();
 
     void PrintMasks();
+
+    void PrintEntranceMask();
+    void PrintMiddleMask();
+    void PrintExitMask();
 
     void InitFromConfigFile();
 
