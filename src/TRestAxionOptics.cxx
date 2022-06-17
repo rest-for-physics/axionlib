@@ -172,6 +172,7 @@ void TRestAxionOptics::Initialize() {
     fEntranceMask = new TRestCombinedMask();
     fEntranceMask->SetName("Entrance");
     fEntranceMask->SetTitle("Optics entrance mask");
+    fEntranceMask->SetVerboseLevel(this->GetVerboseLevel());
 
     if (fExitMask != nullptr) {
         delete fExitMask;
@@ -180,6 +181,7 @@ void TRestAxionOptics::Initialize() {
     fExitMask = new TRestCombinedMask();
     fExitMask->SetName("Exit");
     fExitMask->SetTitle("Optics exit mask");
+    fExitMask->SetVerboseLevel(this->GetVerboseLevel());
 
     if (fMiddleMask != nullptr) {
         delete fMiddleMask;
@@ -188,6 +190,18 @@ void TRestAxionOptics::Initialize() {
     fMiddleMask = new TRestCombinedMask();
     fMiddleMask->SetName("Middle");
     fMiddleMask->SetTitle("Optics middle mask");
+    fMiddleMask->SetVerboseLevel(this->GetVerboseLevel());
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the total number of reflections. Considering maximum
+/// 1-reflection per mirror.
+///
+Int_t TRestAxionOptics::GetNumberOfReflections() {
+    if (fFirstInteraction && fSecondInteraction) return 2;
+    if (fFirstInteraction) return 1;
+    if (fSecondInteraction) return 1;
+    return 0;
 }
 
 ///////////////////////////////////////////////
@@ -200,13 +214,14 @@ void TRestAxionOptics::Initialize() {
 /// be lost.
 ///
 Int_t TRestAxionOptics::TransportToEntrance(const TVector3& pos, const TVector3& dir) {
+    RESTDebug << "TRestAxionOptics::TransportToEntrance" << RESTendl;
     if (pos.Z() > GetEntranceZPosition()) {
-        RESTWarning << "TRestAxionOptics::TransportToMiddle" << RESTendl;
+        RESTWarning << "TRestAxionOptics::TransportToEntrance" << RESTendl;
         RESTWarning << "The particle should be placed before the entrance!" << RESTendl;
         return 0;
     }
     if (dir.Z() <= 0) {
-        RESTWarning << "TRestAxionOptics::TransportToMiddle" << RESTendl;
+        RESTWarning << "TRestAxionOptics::TransportToEntrance" << RESTendl;
         RESTWarning << "Photon is not moving on the positive Z-direction!" << RESTendl;
         return 0;
     }
@@ -226,6 +241,7 @@ Int_t TRestAxionOptics::TransportToEntrance(const TVector3& pos, const TVector3&
 /// be lost.
 ///
 Int_t TRestAxionOptics::TransportToMiddle(const TVector3& pos, const TVector3& dir) {
+    RESTDebug << "TRestAxionOptics::TransportToMiddle" << RESTendl;
     if (pos.Z() > 0 || pos.Z() < GetEntranceZPosition()) {
         RESTWarning << "TRestAxionOptics::TransportToMiddle" << RESTendl;
         RESTWarning << "The particle should be placed between entrance and middle!" << RESTendl;
@@ -253,6 +269,7 @@ Int_t TRestAxionOptics::TransportToMiddle(const TVector3& pos, const TVector3& d
 /// be lost.
 ///
 Int_t TRestAxionOptics::TransportToExit(const TVector3& pos, const TVector3& dir) {
+    RESTDebug << "TRestAxionOptics::TransportToExit" << RESTendl;
     if (pos.Z() < 0 || pos.Z() > GetExitZPosition()) {
         RESTWarning << "TRestAxionOptics::TransportToExit" << RESTendl;
         RESTWarning << "The particle should be placed between middle and exit!" << RESTendl;
@@ -295,17 +312,20 @@ void TRestAxionOptics::ResetPositions() {
 /// \brief Propagating photon
 ///
 Double_t TRestAxionOptics::PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy) {
+    RESTDebug << " --> Entering TRestAxionOptics::PropagatePhoton" << RESTendl;
     Double_t reflectivity = 1;
 
+    RESTDebug << "Reseting positions" << RESTendl;
     ResetPositions();
 
     fOriginPosition = pos;
     fEntranceDirection = dir;
 
     /// We move the particle to the entrance optics plane. We update fEntrancePosition
-    Int_t opticsRegion = TransportToEntrance(fOriginPosition, fEntranceDirection);
+    Int_t entranceRegion = TransportToEntrance(fOriginPosition, fEntranceDirection);
+    RESTDebug << "Entrance region : " << entranceRegion << RESTendl;
 
-    if (opticsRegion == 0) return 0.0;
+    if (entranceRegion == 0) return 0.0;
 
     /// Now that we are placed at the optics entrance plane.
     /// We define the current active mirror (same array index for front and back)
@@ -318,7 +338,9 @@ Double_t TRestAxionOptics::PropagatePhoton(const TVector3& pos, const TVector3& 
     //// TODO obtain incidence angle and reflectivity
 
     /// We move the particle to the entrance optics plane. We update fEntrancePosition
-    Int_t middleMirror = TransportToMiddle(fFirstInteractionPosition, fMiddleDirection);
+    Int_t middleRegion = TransportToMiddle(fFirstInteractionPosition, fMiddleDirection);
+    RESTDebug << "Middle region : " << middleRegion << RESTendl;
+    if (middleRegion != entranceRegion) return 0.0;
 
     /// We update the position and direction at the second mirror
     /// We update the position and direction at the second mirror. We update
@@ -327,7 +349,9 @@ Double_t TRestAxionOptics::PropagatePhoton(const TVector3& pos, const TVector3& 
 
     //// TODO obtain incidence angle and reflectivity
 
-    Int_t exitMirror = TransportToExit(fSecondInteractionPosition, fExitDirection);
+    Int_t exitRegion = TransportToExit(fSecondInteractionPosition, fExitDirection);
+    RESTDebug << "Exit region : " << exitRegion << RESTendl;
+    if (exitRegion != middleRegion) return 0.0;
 
     return reflectivity;
 }
@@ -406,6 +430,56 @@ void TRestAxionOptics::PrintExitMask() {
         fExitMask->PrintMetadata();
     else
         RESTWarning << "TRestAxionOptics::PrintEntranceMask. Not available" << RESTendl;
+}
+
+///////////////////////////////////////////////
+/// \brief Prints the positions taken by the photon after ray-tracing
+/// that should have been updated using the method PropagatePhoton
+///
+void TRestAxionOptics::PrintPhotonTrackingSummary() {
+    std::cout << "Photon tracking summary" << std::endl;
+    std::cout << "-----------------------" << std::endl;
+    std::cout << "Origin : ( " << fOriginPosition.X() << ", " << fOriginPosition.Y() << ", "
+              << fOriginPosition.Z() << ")" << std::endl;
+
+    std::cout << "Entrance Direction : ( " << fEntranceDirection.X() << ", " << fEntranceDirection.Y() << ", "
+              << fEntranceDirection.Z() << ")" << std::endl;
+
+    std::cout << "Entrance : ( " << fEntrancePosition.X() << ", " << fEntrancePosition.Y() << ", "
+              << fEntrancePosition.Z() << ")" << std::endl;
+
+    std::cout << "Entrance radius : "
+              << TMath::Sqrt(fEntrancePosition.X() * fEntrancePosition.X() +
+                             fEntrancePosition.Y() * fEntrancePosition.Y())
+              << std::endl;
+
+    std::cout << "FirstInteraction : ( " << fFirstInteractionPosition.X() << ", "
+              << fFirstInteractionPosition.Y() << ", " << fFirstInteractionPosition.Z() << ")" << std::endl;
+
+    std::cout << "Middle Direction : ( " << fMiddleDirection.X() << ", " << fMiddleDirection.Y() << ", "
+              << fMiddleDirection.Z() << ")" << std::endl;
+
+    std::cout << "Middle : ( " << fMiddlePosition.X() << ", " << fMiddlePosition.Y() << ", "
+              << fMiddlePosition.Z() << ")" << std::endl;
+
+    std::cout << "Middle radius : "
+              << TMath::Sqrt(fMiddlePosition.X() * fMiddlePosition.X() +
+                             fMiddlePosition.Y() * fMiddlePosition.Y())
+              << std::endl;
+
+    std::cout << "SecondInteraction : ( " << fSecondInteractionPosition.X() << ", "
+              << fSecondInteractionPosition.Y() << ", " << fSecondInteractionPosition.Z() << ")" << std::endl;
+
+    std::cout << "Exit Direction : ( " << fExitDirection.X() << ", " << fExitDirection.Y() << ", "
+              << fExitDirection.Z() << ")" << std::endl;
+
+    std::cout << "Exit : ( " << fExitPosition.X() << ", " << fExitPosition.Y() << ", " << fExitPosition.Z()
+              << ")" << std::endl;
+
+    std::cout << "Exit radius : "
+              << TMath::Sqrt(fExitPosition.X() * fExitPosition.X() + fExitPosition.Y() * fExitPosition.Y())
+              << std::endl;
+    std::cout << "-----------------------" << std::endl;
 }
 
 ///////////////////////////////////////////////

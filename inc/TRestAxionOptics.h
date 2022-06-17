@@ -78,6 +78,12 @@ class TRestAxionOptics : public TRestMetadata {
     /// During the photon propagation it keeps track of the active mirror shell.
     Int_t fCurrentMirror = -1;  //!
 
+    /// During the photon propagation it tells us if the photon interacted in the first mirror
+    Bool_t fFirstInteraction = false;
+
+    /// During the photon propagation it tells us if the photon interacted in the second mirror
+    Bool_t fSecondInteraction = false;
+
     TRestAxionOptics();
     TRestAxionOptics(const char* cfgFileName, std::string name = "");
 
@@ -137,6 +143,23 @@ class TRestAxionOptics : public TRestMetadata {
     /// Returns the exit position from the latest propagated photon
     TVector3 GetExitDirection() { return fExitDirection; }
 
+    /// It returns true if the photon got reflected in the first mirror
+    Bool_t IsFirstMirrorReflection() { return fFirstInteraction; }
+
+    /// It returns true if the photon got reflected in the second mirror
+    Bool_t IsSecondMirrorReflection() { return fSecondInteraction; }
+
+    Int_t GetNumberOfReflections();
+
+    /// Returns a pointer to access directly the entrance mask information
+    TRestCombinedMask* const& GetEntranceMask() const { return fEntranceMask; }
+
+    /// Returns a pointer to access directly the middle mask information
+    TRestCombinedMask* const& GetMiddleMask() const { return fMiddleMask; }
+
+    /// Returns a pointer to access directly the exit mask information
+    TRestCombinedMask* const& GetExitMask() const { return fExitMask; }
+
     void PrintMetadata();
 
     void PrintMasks();
@@ -144,6 +167,8 @@ class TRestAxionOptics : public TRestMetadata {
     void PrintEntranceMask();
     void PrintMiddleMask();
     void PrintExitMask();
+
+    void PrintPhotonTrackingSummary();
 
     void InitFromConfigFile();
 
