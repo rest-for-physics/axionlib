@@ -23,9 +23,12 @@
 #ifndef _TRestAxionOptics
 #define _TRestAxionOptics
 
+#include <TGraph.h>
 #include <TRestCombinedMask.h>
 #include <TRestMetadata.h>
 #include <iostream>
+
+#include "TRandom3.h"
 
 /// An abstract class to define common optics parameters and methods
 class TRestAxionOptics : public TRestMetadata {
@@ -84,6 +87,9 @@ class TRestAxionOptics : public TRestMetadata {
     /// During the photon propagation it tells us if the photon interacted in the second mirror
     Bool_t fSecondInteraction = false;
 
+    /// Random number generator
+    TRandom3* fRandom = nullptr;  //!
+
     TRestAxionOptics();
     TRestAxionOptics(const char* cfgFileName, std::string name = "");
 
@@ -107,6 +113,9 @@ class TRestAxionOptics : public TRestMetadata {
    public:
     virtual void Initialize();
 
+    /// It returns the lower/higher radius range where photons are allowed
+    virtual std::pair<Double_t, Double_t> GetRadialLimits() = 0;
+
     /// It returns the entrance Z-position defined by the optical axis.
     virtual Double_t GetEntranceZPosition() = 0;
 
@@ -124,6 +133,9 @@ class TRestAxionOptics : public TRestMetadata {
 
     /// It draws the mirrors using a TGraph. To be implemented at the inherited class.
     virtual TPad* DrawMirrors() = 0;
+
+    /// It draws a given number of particles
+    TPad* DrawParticles(Double_t deviation = 0, Int_t particles = 10);
 
     /// It updates the internal TRestAxionOptics particle positions/directions and returns efficiency
     Double_t PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy);

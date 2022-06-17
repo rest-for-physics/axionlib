@@ -250,6 +250,7 @@ Int_t TRestAxionOptics::TransportToMiddle(const TVector3& pos, const TVector3& d
     if (dir.Z() <= 0) {
         RESTWarning << "TRestAxionOptics::TransportToMiddle" << RESTendl;
         RESTWarning << "Photon is not moving on the positive Z-direction!" << RESTendl;
+        RESTWarning << "Direction : ( " << dir.X() << ", " << dir.Y() << ", " << dir.Z() << ")" << RESTendl;
         return 0;
     }
 
@@ -306,6 +307,8 @@ void TRestAxionOptics::ResetPositions() {
 
     fExitPosition = TVector3(0, 0, 0);
     fExitDirection = TVector3(0, 0, 0);
+
+    fCurrentMirror = -1;
 }
 
 ///////////////////////////////////////////////
@@ -498,5 +501,82 @@ TPad* TRestAxionOptics::CreatePad() {
     fPad->SetLeftMargin(0.2);
     fPad->SetBottomMargin(0.15);
 
+    return fPad;
+}
+
+///////////////////////////////////////////////
+/// \brief A method to to draw an optics schematic including the mirrors geometry.
+///
+TPad* TRestAxionOptics::DrawParticles(Double_t deviation, Int_t particles) {
+    DrawMirrors();
+
+    for (unsigned int n = 0; n < particles; n++) {
+        Double_t r = fRandom->Uniform(GetRadialLimits().first, GetRadialLimits().second);
+        Double_t angle = fRandom->Uniform(0, 2 * TMath::Pi());
+        TVector3 origin(r * TMath::Cos(angle), r * TMath::Sin(angle), -3 * fMirrorLength);
+        TVector3 direction(fRandom->Uniform(-deviation, deviation), fRandom->Uniform(-deviation, deviation),
+                           1);
+        direction = direction.Unit();
+
+        Int_t status = PropagatePhoton(origin, direction, 1);
+
+        PrintPhotonTrackingSummary();
+
+        TGraph* gr = new TGraph();
+
+        Double_t rO = TMath::Sqrt(origin.X() * origin.X() + origin.Y() * origin.Y());
+        gr->SetPoint(gr->GetN(), origin.Z(), rO);
+
+        ////
+
+        Double_t rEntrance = TMath::Sqrt(fEntrancePosition.X() * fEntrancePosition.X() +
+                                         fEntrancePosition.Y() * fEntrancePosition.Y());
+        if (rEntrance > 0) gr->SetPoint(gr->GetN(), fEntrancePosition.Z(), rEntrance);
+
+        ////
+
+        Double_t rFirst = TMath::Sqrt(fFirstInteractionPosition.X() * fFirstInteractionPosition.X() +
+                                      fFirstInteractionPosition.Y() * fFirstInteractionPosition.Y());
+
+        if (rFirst > 0) gr->SetPoint(gr->GetN(), fFirstInteractionPosition.Z(), rFirst);
+
+        ////
+
+        Double_t rMiddle = TMath::Sqrt(fMiddlePosition.X() * fMiddlePosition.X() +
+                                       fMiddlePosition.Y() * fMiddlePosition.Y());
+        if (rMiddle > 0) gr->SetPoint(gr->GetN(), fMiddlePosition.Z(), rMiddle);
+
+        ////
+
+        Double_t rSecond = TMath::Sqrt(fSecondInteractionPosition.X() * fSecondInteractionPosition.X() +
+                                       fSecondInteractionPosition.Y() * fSecondInteractionPosition.Y());
+
+        if (rSecond > 0) gr->SetPoint(gr->GetN(), fSecondInteractionPosition.Z(), rSecond);
+
+        ////
+
+        Double_t rExit =
+            TMath::Sqrt(fExitPosition.X() * fExitPosition.X() + fExitPosition.Y() * fExitPosition.Y());
+        if (rExit > 0) gr->SetPoint(gr->GetN(), fExitPosition.Z(), rExit);
+
+        ////
+
+        if (status > 0) {
+            TVector3 end = REST_Physics::MoveToPlane(fExitPosition, fExitDirection, TVector3(0, 0, 1),
+                                                     TVector3(0, 0, 3 * fMirrorLength));
+            Double_t rEnd = TMath::Sqrt(end.X() * end.X() + end.Y() * end.Y());
+            if (rEnd > 0) gr->SetPoint(gr->GetN(), end.Z(), rEnd);
+        }
+
+        ////
+
+        gr->SetLineWidth(1);
+        if (GetMirror() < 0)
+            gr->SetLineColor(kBlack);
+        else
+            gr->SetLineColor(20 + GetMirror() % 20);
+
+        gr->Draw("L");
+    }
     return fPad;
 }
