@@ -119,8 +119,11 @@ class TRestAxionOptics : public TRestMetadata {
     /// It updates the values fSecondInteractionPosition and fExitDirection. Returns 0 if is not in region.
     virtual Int_t SecondMirrorReflection(const TVector3& pos, const TVector3& dir) = 0;
 
-    /// It draws the mirrors using a TGraph
-    virtual TPad* DrawMirrors();
+    /// It reinitializes the drawing pad
+    TPad* CreatePad();
+
+    /// It draws the mirrors using a TGraph. To be implemented at the inherited class.
+    virtual TPad* DrawMirrors() = 0;
 
     /// It updates the internal TRestAxionOptics particle positions/directions and returns efficiency
     Double_t PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy);

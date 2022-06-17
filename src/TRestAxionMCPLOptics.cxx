@@ -140,3 +140,12 @@ void TRestAxionMCPLOptics::PrintMetadata() {
     RESTMetadata << "Output MCPL file: " << fOutputMCPLFilename << RESTendl;
     RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }
+
+///////////////////////////////////////////////
+/// \brief A method to draw the mirrors
+///
+TPad* TRestAxionMCPLOptics::DrawMirrors() {
+    // TO BE implemented. If not, it just creates an empty drawing pad
+
+    return TRestAxionOptics::CreatePad();
+}

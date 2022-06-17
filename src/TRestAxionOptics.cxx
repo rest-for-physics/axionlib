@@ -486,7 +486,7 @@ void TRestAxionOptics::PrintPhotonTrackingSummary() {
 /// \brief A prototype method to be implemented by specific optics to draw an schematic
 /// including the mirrors geometry.
 ///
-TPad* TRestAxionOptics::DrawMirrors() {
+TPad* TRestAxionOptics::CreatePad() {
     if (fPad != nullptr) {
         delete fPad;
         fPad = nullptr;

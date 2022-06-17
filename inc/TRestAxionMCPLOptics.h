@@ -51,7 +51,7 @@ class TRestAxionMCPLOptics : public TRestAxionOptics {
     /// It returns the exit Z-position defined by the optical axis
     Double_t GetExitZPosition() override { return 0; }
 
-    TPad* DrawMirrors() override { return fPad; }
+    TPad* DrawMirrors() override;
 
     TRestAxionMCPLOptics();
     TRestAxionMCPLOptics(const char* cfgFileName, std::string name = "");
