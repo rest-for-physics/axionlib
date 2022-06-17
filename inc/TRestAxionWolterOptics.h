@@ -119,6 +119,14 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
         return 0;
     }
 
+    std::pair<Double_t, Double_t> GetRadialLimits() override {
+        std::pair<Double_t, Double_t> result(0, 0);
+        if (!fR1.empty()) {
+            result = {fR1.front(), fR1.back()};
+        }
+        return result;
+    }
+
     void SetMirror() override {
         fCurrentMirror = fEntranceRingsMask->GetRegion(fEntrancePosition.X(), fEntrancePosition.Y());
     }

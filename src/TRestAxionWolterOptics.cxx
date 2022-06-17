@@ -206,6 +206,12 @@ void TRestAxionWolterOptics::Initialize() {
     fEntranceMask->Print();
     fMiddleMask->Print();
     fExitMask->Print();
+
+    if (fRandom != nullptr) {
+        delete fRandom;
+        fRandom = nullptr;
+    }
+    fRandom = new TRandom3(0);
 }
 
 ///////////////////////////////////////////////
@@ -214,36 +220,46 @@ void TRestAxionWolterOptics::Initialize() {
 ///
 Int_t TRestAxionWolterOptics::FirstMirrorReflection(const TVector3& pos, const TVector3& dir) {
     Int_t mirror = GetMirror();
+    RESTDebug << "--> Entering TRestAxionWolterOptics::FirstMirrorReflection" << RESTendl;
+    RESTDebug << "Mirror: " << mirror << RESTendl;
     if (mirror < 0) {
         RESTError << "TRestAxionWolterOptics::FirstMirrorReflection. Mirror index cannot be negative!"
                   << RESTendl;
-        return 0;
+        return -1;
     }
 
     if (mirror >= fFrontVertex.size()) {
         RESTError << "TRestAxionWolterOptics::FirstMirrorReflection. Mirror index above number of mirrors!"
                   << RESTendl;
-        return 0;
+        return -1;
     }
 
+    RESTDebug << "Vertex Z: " << fFrontVertex[mirror] << RESTendl;
+    RESTDebug << "Cos Alpha: " << fCosAlpha[mirror] << RESTendl;
     TVector3 vertex(0, 0, fFrontVertex[mirror]);
     Double_t cosA = fCosAlpha[mirror];
 
     //// Reflection on first mirror
     fFirstInteractionPosition =
-        pos + dir * REST_Physics::GetConeVectorIntersection(pos, dir, TVector3(0, 0, 1), vertex, cosA);
+        pos + dir * REST_Physics::GetConeVectorIntersection(pos, dir, TVector3(0, 0, -1), vertex, cosA);
 
     if (fFirstInteractionPosition.Z() < GetEntranceZPosition() || fFirstInteractionPosition.Z() > 0) {
-        RESTWarning << "FirstMirrorReflection. No interaction! TOBE done. Include a counter for "
-                       "reflection/no reflection"
-                    << RESTendl;
+        RESTDebug << "TRestAxionWolterOptics::FirstMirrorReflection. No interaction!" << RESTendl;
+        fFirstInteractionPosition = REST_Physics::MoveByDistance(pos, dir, fMirrorLength / 2.);
+        fMiddleDirection = fEntranceDirection;
+        fFirstInteraction = false;
         return 0;
     }
 
     TVector3 coneNormal = REST_Physics::GetConeNormal(fFirstInteractionPosition, fAlpha[mirror]);
+    RESTDebug << "Cone normal: (" << coneNormal.X() << ", " << coneNormal.Y() << ", " << coneNormal.Z() << ")"
+              << RESTendl;
 
     fMiddleDirection = GetVectorReflection(fEntranceDirection, coneNormal);
 
+    RESTDebug << "<-- Exiting TRestAxionWolterOptics::FirstMirrorReflection" << RESTendl;
+
+    fFirstInteraction = true;
     return 1;
 }
 
@@ -270,12 +286,13 @@ Int_t TRestAxionWolterOptics::SecondMirrorReflection(const TVector3& pos, const 
 
     //// Reflection on first mirror
     fSecondInteractionPosition =
-        pos + dir * REST_Physics::GetConeVectorIntersection(pos, dir, TVector3(0, 0, 1), vertex, cosA);
+        pos + dir * REST_Physics::GetConeVectorIntersection(pos, dir, TVector3(0, 0, -1), vertex, cosA);
 
     if (fSecondInteractionPosition.Z() > GetExitZPosition() || fSecondInteractionPosition.Z() < 0) {
-        RESTWarning << "TRestAxionWolterOptics. No interaction! TOBE done. Include a counter for "
-                       "reflection/no reflection"
-                    << RESTendl;
+        RESTDebug << "TRestAxionWolterOptics::SecondMirrorReflection. No interaction!" << RESTendl;
+        fSecondInteractionPosition = REST_Physics::MoveByDistance(pos, dir, fMirrorLength / 2.);
+        fExitDirection = fMiddleDirection;
+        fSecondInteraction = false;
         return 0;
     }
 
@@ -283,6 +300,7 @@ Int_t TRestAxionWolterOptics::SecondMirrorReflection(const TVector3& pos, const 
 
     fExitDirection = GetVectorReflection(fMiddleDirection, coneNormal);
 
+    fSecondInteraction = true;
     return 1;
 }
 
@@ -354,7 +372,7 @@ void TRestAxionWolterOptics::PrintMetadata() {
 /// \brief A method to to draw an optics schematic including the mirrors geometry.
 ///
 TPad* TRestAxionWolterOptics::DrawMirrors() {
-    TRestAxionOptics::DrawMirrors();
+    TRestAxionOptics::CreatePad();
 
     fPad->cd();
     std::vector<TGraph*> graphCollection;
@@ -379,7 +397,8 @@ TPad* TRestAxionWolterOptics::DrawMirrors() {
         gr->GetYaxis()->SetTitleOffset(1.4);
         gr->GetYaxis()->SetTitleSize(0.04);
         gr->GetYaxis()->SetLabelSize(0.04);
-        gr->SetLineWidth(1);
+        gr->SetLineWidth(6 * fThickness[mirror]);
+        gr->SetLineColor(20 + mirror % 20);
         if (mirror == 0)
             gr->Draw("AL");
         else

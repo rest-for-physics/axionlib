@@ -51,6 +51,12 @@ class TRestAxionMCPLOptics : public TRestAxionOptics {
     /// It returns the exit Z-position defined by the optical axis
     Double_t GetExitZPosition() override { return 0; }
 
+    /// It returns the radial limits at the entrance of the optics
+    std::pair<Double_t, Double_t> GetRadialLimits() override {
+        std::pair<Double_t, Double_t> result(0, 0);
+        return result;
+    }
+
     TPad* DrawMirrors() override;
 
     TRestAxionMCPLOptics();
