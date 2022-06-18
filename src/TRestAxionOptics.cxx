@@ -110,6 +110,10 @@
 
 #include "TRestAxionOptics.h"
 
+#include <TAxis.h>
+#include <TGraph.h>
+#include <TH1F.h>
+
 using namespace std;
 
 #include "TRestPhysics.h"
@@ -489,13 +493,14 @@ void TRestAxionOptics::PrintPhotonTrackingSummary() {
 /// \brief A prototype method to be implemented by specific optics to draw an schematic
 /// including the mirrors geometry.
 ///
-TPad* TRestAxionOptics::CreatePad() {
+TPad* TRestAxionOptics::CreatePad(Int_t nx, Int_t ny) {
     if (fPad != nullptr) {
         delete fPad;
         fPad = nullptr;
     }
 
     fPad = new TPad("optics_pad", "This is the optics drawing pad", 0.01, 0.02, 0.99, 0.97);
+    if (nx > 1 || ny > 1) fPad->Divide(nx, ny);
     fPad->Draw();
     fPad->SetRightMargin(0.09);
     fPad->SetLeftMargin(0.2);
@@ -505,9 +510,14 @@ TPad* TRestAxionOptics::CreatePad() {
 }
 
 ///////////////////////////////////////////////
-/// \brief A method to to draw an optics schematic including the mirrors geometry.
+/// \brief A method to draw an optics schematic including the mirrors geometry, and few photon
+/// tracks. This method is intended for debugging the photon tracking implementation.
 ///
-TPad* TRestAxionOptics::DrawParticles(Double_t deviation, Int_t particles) {
+/// Two optional parameters are allowed:
+/// - **deviation**: It controls the maximum random X and Y direction. 0 by default.
+/// - **particles**: The number of particles to be launched. 10 by default.
+///
+TPad* TRestAxionOptics::DrawParticleTracks(Double_t deviation, Int_t particles) {
     DrawMirrors();
 
     for (unsigned int n = 0; n < particles; n++) {
@@ -578,5 +588,149 @@ TPad* TRestAxionOptics::DrawParticles(Double_t deviation, Int_t particles) {
 
         gr->Draw("L");
     }
+    return fPad;
+}
+
+///////////////////////////////////////////////
+/// \brief It implements a generic method to identify the optimum focal point. It can
+/// be reimplemented at each specific optics class.
+///
+Double_t TRestAxionOptics::FindFocal(Double_t from, Double_t to, Double_t precision) { return 7500.; }
+
+///////////////////////////////////////////////
+/// \brief It ...
+///
+Double_t CalculateSpotSize(Double_t z = 0) { return 0; }
+
+///////////////////////////////////////////////
+/// \brief It implements a generic method to identify the optimum focal point. It can
+/// be reimplemented at each specific optics class.
+///
+TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t eMax, Double_t deviation, Int_t particles) {
+    TRestAxionOptics::CreatePad(2, 2);
+
+    fPad->cd();
+
+    TGraph* grEntrance = new TGraph();
+    TGraph* grExit = new TGraph();
+    TGraph* grZ = new TGraph();
+    TGraph* grFocal = new TGraph();
+
+    Double_t focal = FindFocal(0, 0, 0);
+
+    for (unsigned int n = 0; n < particles; n++) {
+        Double_t r = fRandom->Uniform(GetRadialLimits().first, GetRadialLimits().second);
+        Double_t en = fRandom->Uniform(0, eMax);
+        Double_t angle = fRandom->Uniform(0, 2 * TMath::Pi());
+        TVector3 origin(r * TMath::Cos(angle), r * TMath::Sin(angle), -3 * fMirrorLength);
+
+        Double_t devX = fRandom->Uniform(-deviation, deviation);
+        Double_t devY = fRandom->Uniform(-deviation, deviation);
+        while (devX * devX + devY * devY > deviation * deviation) {
+            devX = fRandom->Uniform(-deviation, deviation);
+            devY = fRandom->Uniform(-deviation, deviation);
+        }
+
+        TVector3 direction(devX, devY, 1);
+        direction = direction.Unit();
+
+        Int_t status = PropagatePhoton(origin, direction, 1);
+
+        if (fFirstInteractionPosition.Z() == 0) continue;  // The photon hits the entrance mask
+        grEntrance->SetPoint(grEntrance->GetN(), fEntrancePosition.X(), fEntrancePosition.Y());
+
+        if (status == 0) continue;  // The photon hits any mask
+        grExit->SetPoint(grExit->GetN(), fExitPosition.X(), fExitPosition.Y());
+
+        TVector3 posZ =
+            REST_Physics::MoveToPlane(fExitPosition, fExitDirection, TVector3(0, 0, 1), TVector3(0, 0, z));
+        grZ->SetPoint(grZ->GetN(), posZ.X(), posZ.Y());
+
+        TVector3 posFocal = REST_Physics::MoveToPlane(fExitPosition, fExitDirection, TVector3(0, 0, 1),
+                                                      TVector3(0, 0, focal));
+        grFocal->SetPoint(grFocal->GetN(), posFocal.X(), posFocal.Y());
+    }
+
+    fPad->cd(1);
+
+    grEntrance->GetXaxis()->SetLimits(-GetRadialLimits().second * 1.15, GetRadialLimits().second * 1.15);
+    grEntrance->GetHistogram()->SetMaximum(GetRadialLimits().second * 1.15);
+    grEntrance->GetHistogram()->SetMinimum(-GetRadialLimits().second * 1.15);
+
+    grEntrance->GetXaxis()->SetTitle("X [mm]");
+    grEntrance->GetXaxis()->SetTitleSize(0.04);
+    grEntrance->GetXaxis()->SetLabelSize(0.04);
+    grEntrance->GetXaxis()->SetNdivisions(5);
+    grEntrance->GetYaxis()->SetTitle("Y [mm]");
+    grEntrance->GetYaxis()->SetTitleOffset(1.4);
+    grEntrance->GetYaxis()->SetTitleSize(0.04);
+    grEntrance->GetYaxis()->SetLabelSize(0.04);
+
+    grEntrance->SetMarkerStyle(1);
+    grEntrance->Draw("AP");
+
+    fPad->cd(2);
+
+    grExit->GetXaxis()->SetTitle("X [mm]");
+    grExit->GetXaxis()->SetTitleSize(0.04);
+    grExit->GetXaxis()->SetLabelSize(0.04);
+    grExit->GetXaxis()->SetNdivisions(5);
+    grExit->GetYaxis()->SetTitle("Y [mm]");
+    grExit->GetYaxis()->SetTitleOffset(1.4);
+    grExit->GetYaxis()->SetTitleSize(0.04);
+    grExit->GetYaxis()->SetLabelSize(0.04);
+
+    grExit->SetMarkerStyle(1);
+    grExit->Draw("AP");
+
+    fPad->cd(3);
+
+    Double_t xMin = TMath::MinElement(grZ->GetN(), grZ->GetX());
+    Double_t xMax = TMath::MaxElement(grZ->GetN(), grZ->GetX());
+    Double_t yMin = TMath::MinElement(grZ->GetN(), grZ->GetY());
+    Double_t yMax = TMath::MaxElement(grZ->GetN(), grZ->GetY());
+
+    grZ->GetXaxis()->SetLimits(1.5 * xMin, 1.5 * xMax);
+    grZ->GetHistogram()->SetMaximum(1.5 * yMax);
+    grZ->GetHistogram()->SetMinimum(1.5 * yMin);
+
+    grZ->GetXaxis()->SetTitle("X [mm]");
+    grZ->GetXaxis()->SetTitleSize(0.04);
+    grZ->GetXaxis()->SetLabelSize(0.04);
+    grZ->GetXaxis()->SetNdivisions(5);
+    grZ->GetYaxis()->SetTitle("Y [mm]");
+    grZ->GetYaxis()->SetTitleOffset(1.4);
+    grZ->GetYaxis()->SetTitleSize(0.04);
+    grZ->GetYaxis()->SetLabelSize(0.04);
+
+    grZ->SetMarkerStyle(1);
+    grZ->Draw("AP");
+
+    fPad->cd(4);
+
+    grFocal->GetXaxis()->SetLimits(-20, 20);
+    grFocal->GetHistogram()->SetMaximum(20);
+    grFocal->GetHistogram()->SetMinimum(-20);
+
+    grFocal->GetXaxis()->SetTitle("X [mm]");
+    grFocal->GetXaxis()->SetTitleSize(0.04);
+    grFocal->GetXaxis()->SetLabelSize(0.04);
+    grFocal->GetXaxis()->SetNdivisions(5);
+    grFocal->GetYaxis()->SetTitle("Y [mm]");
+    grFocal->GetYaxis()->SetTitleOffset(1.4);
+    grFocal->GetYaxis()->SetTitleSize(0.04);
+    grFocal->GetYaxis()->SetLabelSize(0.04);
+
+    grFocal->SetMarkerStyle(1);
+    grFocal->Draw("AP");
+
+    return fPad;
+}
+
+TPad* TRestAxionOptics::DrawDensityMaps(Double_t z, Double_t eMax, Double_t deviation, Int_t particles) {
+    TRestAxionOptics::CreatePad(2, 2);
+
+    fPad->cd();
+
     return fPad;
 }
