@@ -603,6 +603,40 @@ Double_t TRestAxionOptics::FindFocal(Double_t from, Double_t to, Double_t precis
 Double_t CalculateSpotSize(Double_t z = 0) { return 0; }
 
 ///////////////////////////////////////////////
+/// \brief It will produce a MonteCarlo photon spatially distributed as defined by
+/// the GetRadialLimits method (extended by 50%), and with direction along the Z-axis
+/// with a maximum deviation angle fixed by the `deviation` input parameter. If
+/// `deviation=0` the photons will always be parallel to the z-axis.
+///
+Int_t TRestAxionOptics::PropagateMonteCarloPhoton(Double_t eMax, Double_t deviation) {
+    Double_t x = fRandom->Uniform(0, 1.5 * GetRadialLimits().second);
+    Double_t y = fRandom->Uniform(0, 1.5 * GetRadialLimits().second);
+    Double_t r2 = x * x + y * y;
+    while (r2 > 1.5 * GetRadialLimits().second || r2 < 0.5 * GetRadialLimits().second) {
+        x = fRandom->Uniform(0, 1.5 * GetRadialLimits().second);
+        y = fRandom->Uniform(0, 1.5 * GetRadialLimits().second);
+        r2 = x * x + y * y;
+    }
+
+    Double_t r = fRandom->Uniform(0.5 * GetRadialLimits().first, 1.5 * GetRadialLimits().second);
+    Double_t en = fRandom->Uniform(0, eMax);
+    Double_t angle = fRandom->Uniform(0, 2 * TMath::Pi());
+    TVector3 origin(r * TMath::Cos(angle), r * TMath::Sin(angle), -3 * fMirrorLength);
+
+    Double_t devX = fRandom->Uniform(-deviation, deviation);
+    Double_t devY = fRandom->Uniform(-deviation, deviation);
+    while (devX * devX + devY * devY > deviation * deviation) {
+        devX = fRandom->Uniform(-deviation, deviation);
+        devY = fRandom->Uniform(-deviation, deviation);
+    }
+
+    TVector3 direction(devX, devY, 1);
+    direction = direction.Unit();
+
+    return PropagatePhoton(origin, direction, en);
+}
+
+///////////////////////////////////////////////
 /// \brief It implements a generic method to identify the optimum focal point. It can
 /// be reimplemented at each specific optics class.
 ///
@@ -619,22 +653,7 @@ TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t eMax, Double_t devi
     Double_t focal = FindFocal(0, 0, 0);
 
     for (unsigned int n = 0; n < particles; n++) {
-        Double_t r = fRandom->Uniform(GetRadialLimits().first, GetRadialLimits().second);
-        Double_t en = fRandom->Uniform(0, eMax);
-        Double_t angle = fRandom->Uniform(0, 2 * TMath::Pi());
-        TVector3 origin(r * TMath::Cos(angle), r * TMath::Sin(angle), -3 * fMirrorLength);
-
-        Double_t devX = fRandom->Uniform(-deviation, deviation);
-        Double_t devY = fRandom->Uniform(-deviation, deviation);
-        while (devX * devX + devY * devY > deviation * deviation) {
-            devX = fRandom->Uniform(-deviation, deviation);
-            devY = fRandom->Uniform(-deviation, deviation);
-        }
-
-        TVector3 direction(devX, devY, 1);
-        direction = direction.Unit();
-
-        Int_t status = PropagatePhoton(origin, direction, 1);
+        Int_t status = PropagateMonteCarloPhoton(eMax, deviation);
 
         if (fFirstInteractionPosition.Z() == 0) continue;  // The photon hits the entrance mask
         grEntrance->SetPoint(grEntrance->GetN(), fEntrancePosition.X(), fEntrancePosition.Y());

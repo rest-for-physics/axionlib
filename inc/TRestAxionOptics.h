@@ -142,6 +142,7 @@ class TRestAxionOptics : public TRestMetadata {
     TPad* DrawDensityMaps(Double_t z, Double_t eMax = 0, Double_t deviation = 0, Int_t particles = 1000);
 
     Double_t PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy);
+    Int_t PropagateMonteCarloPhoton(Double_t eMax, Double_t deviation);
 
     /// Returns the entrance position from the latest propagated photon
     TVector3 GetEntrancePosition() { return fEntrancePosition; }
