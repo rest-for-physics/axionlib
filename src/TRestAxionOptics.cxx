@@ -113,6 +113,7 @@
 #include <TAxis.h>
 #include <TGraph.h>
 #include <TH1F.h>
+#include <TH2F.h>
 
 using namespace std;
 
@@ -603,10 +604,11 @@ Double_t TRestAxionOptics::FindFocal(Double_t from, Double_t to, Double_t precis
 Double_t CalculateSpotSize(Double_t z = 0) { return 0; }
 
 ///////////////////////////////////////////////
-/// \brief It will produce a MonteCarlo photon spatially distributed as defined by
+/// \brief It will produce a MonteCarlo photon spatially distributed in XY as defined by
 /// the GetRadialLimits method (extended by 50%), and with direction along the Z-axis
 /// with a maximum deviation angle fixed by the `deviation` input parameter. If
-/// `deviation=0` the photons will always be parallel to the z-axis.
+/// `deviation=0` the photons will always be parallel to the z-axis. The photons will
+/// be launched from z=-3*fMirrorLength.
 ///
 Int_t TRestAxionOptics::PropagateMonteCarloPhoton(Double_t eMax, Double_t deviation) {
     Double_t x = fRandom->Uniform(0, 1.5 * GetRadialLimits().second);
@@ -750,6 +752,85 @@ TPad* TRestAxionOptics::DrawDensityMaps(Double_t z, Double_t eMax, Double_t devi
     TRestAxionOptics::CreatePad(2, 2);
 
     fPad->cd();
+
+    Double_t lowL = -1.15 * GetRadialLimits().second;
+    Double_t highL = 1.15 * GetRadialLimits().second;
+    TH2F* hEntrance = new TH2F("entranceH", "Entrance plane", 500, lowL, highL, 500, lowL, highL);
+    TH2F* hExit = new TH2F("exitH", "Exit plane", 500, lowL, highL, 500, lowL, highL);
+    TH2F* hZ = new TH2F("zH", "Z plane", 500, lowL, highL, 500, lowL, highL);
+    TH2F* hFocal = new TH2F("focalH", "Focal plane", 500, -10, 10, 500, -10, 10);
+
+    Double_t focal = FindFocal(0, 0, 0);
+
+    for (unsigned int n = 0; n < particles; n++) {
+        Int_t status = PropagateMonteCarloPhoton(eMax, deviation);
+
+        if (fFirstInteractionPosition.Z() == 0) continue;  // The photon hits the entrance mask
+        hEntrance->Fill(fEntrancePosition.X(), fEntrancePosition.Y());
+
+        if (status == 0) continue;  // The photon hits any mask
+        hExit->Fill(fExitPosition.X(), fExitPosition.Y());
+
+        TVector3 posZ =
+            REST_Physics::MoveToPlane(fExitPosition, fExitDirection, TVector3(0, 0, 1), TVector3(0, 0, z));
+        hZ->Fill(posZ.X(), posZ.Y());
+
+        TVector3 posFocal = REST_Physics::MoveToPlane(fExitPosition, fExitDirection, TVector3(0, 0, 1),
+                                                      TVector3(0, 0, focal));
+        hFocal->Fill(posFocal.X(), posFocal.Y());
+    }
+
+    fPad->cd(1);
+
+    hEntrance->GetXaxis()->SetTitle("X [mm]");
+    hEntrance->GetXaxis()->SetTitleSize(0.04);
+    hEntrance->GetXaxis()->SetLabelSize(0.04);
+    hEntrance->GetXaxis()->SetNdivisions(5);
+    hEntrance->GetYaxis()->SetTitle("Y [mm]");
+    hEntrance->GetYaxis()->SetTitleOffset(1.4);
+    hEntrance->GetYaxis()->SetTitleSize(0.04);
+    hEntrance->GetYaxis()->SetLabelSize(0.04);
+
+    hEntrance->Draw("colz");
+
+    fPad->cd(2);
+
+    hExit->GetXaxis()->SetTitle("X [mm]");
+    hExit->GetXaxis()->SetTitleSize(0.04);
+    hExit->GetXaxis()->SetLabelSize(0.04);
+    hExit->GetXaxis()->SetNdivisions(5);
+    hExit->GetYaxis()->SetTitle("Y [mm]");
+    hExit->GetYaxis()->SetTitleOffset(1.4);
+    hExit->GetYaxis()->SetTitleSize(0.04);
+    hExit->GetYaxis()->SetLabelSize(0.04);
+
+    hExit->Draw("colz");
+
+    fPad->cd(3);
+
+    hZ->GetXaxis()->SetTitle("X [mm]");
+    hZ->GetXaxis()->SetTitleSize(0.04);
+    hZ->GetXaxis()->SetLabelSize(0.04);
+    hZ->GetXaxis()->SetNdivisions(5);
+    hZ->GetYaxis()->SetTitle("Y [mm]");
+    hZ->GetYaxis()->SetTitleOffset(1.4);
+    hZ->GetYaxis()->SetTitleSize(0.04);
+    hZ->GetYaxis()->SetLabelSize(0.04);
+
+    hZ->Draw("colz");
+
+    fPad->cd(4);
+
+    hFocal->GetXaxis()->SetTitle("X [mm]");
+    hFocal->GetXaxis()->SetTitleSize(0.04);
+    hFocal->GetXaxis()->SetLabelSize(0.04);
+    hFocal->GetXaxis()->SetNdivisions(5);
+    hFocal->GetYaxis()->SetTitle("Y [mm]");
+    hFocal->GetYaxis()->SetTitleOffset(1.4);
+    hFocal->GetYaxis()->SetTitleSize(0.04);
+    hFocal->GetYaxis()->SetLabelSize(0.04);
+
+    hFocal->Draw("colz");
 
     return fPad;
 }
