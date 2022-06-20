@@ -13,7 +13,7 @@
 //***
 //*******************************************************************************************************
 Int_t REST_Axion_XMMPlots(Double_t z = 7000, Double_t eMax = 0, Double_t deviation = 0.0005) {
-    Int_t nPhotons = 10000;
+    Int_t nPhotons = 50000;
 
     TCanvas c("", "", 1200, 1200);
 
@@ -29,8 +29,14 @@ texxt->Draw("same");
     */
 
     std::string fname =
-        "/tmp/XMM_Maps_dev_" + DoubleToString(deviation, "%6.4lf") + "_z_" + DoubleToString(z) + ".png";
+        "/tmp/XMM_SMaps_dev_" + DoubleToString(deviation, "%6.4lf") + "_z_" + DoubleToString(z) + ".png";
     c.Print(fname.c_str());
+
+    TCanvas c2("", "", 1200, 1200);
+    opt.DrawDensityMaps(z, eMax, deviation, nPhotons);
+
+    fname = "/tmp/XMM_DMaps_dev_" + DoubleToString(deviation, "%6.4lf") + "_z_" + DoubleToString(z) + ".png";
+    c2.Print(fname.c_str());
 
     TCanvas c1("", "", 1000, 1600);
     opt.DrawParticleTracks(deviation, 30);
