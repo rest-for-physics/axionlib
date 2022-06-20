@@ -101,7 +101,7 @@ jobs:
         wget https://sultan.unizar.es/axionlib-data/transmission/Al.sol
         wget https://sultan.unizar.es/axionlib-data/transmission/Si.sol
         wget https://sultan.unizar.es/axionlib-data/transmission/Si3N4.sol
-        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.REST_PATH }}//mpfr-4.0.2/install/lib
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.REST_PATH }}/mpfr-4.0.2/install/lib
         python windowPlot.py
     - name: Solar flux
       run: |
@@ -113,4 +113,4 @@ jobs:
         wget https://sultan.unizar.es/axionlib-data/solarFlux/Primakoff_LennertHoof_202203.dat
         python solarTests.py
         python solarPlot.py
-        /pieppython compare.py
+        python compare.py
