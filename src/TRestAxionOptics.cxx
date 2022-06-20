@@ -186,7 +186,6 @@ void TRestAxionOptics::Initialize() {
     fExitMask = new TRestCombinedMask();
     fExitMask->SetName("Exit");
     fExitMask->SetTitle("Optics exit mask");
-    std::cout << "Exit v: " << (Int_t)this->GetVerboseLevel() << std::endl;
     fExitMask->SetVerboseLevel(this->GetVerboseLevel());
 
     if (fMiddleMask != nullptr) {
