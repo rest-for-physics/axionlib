@@ -137,6 +137,8 @@ class TRestAxionOptics : public TRestMetadata {
     /// It draws the mirrors using a TGraph. To be implemented at the inherited class.
     virtual TPad* DrawMirrors() = 0;
 
+    Double_t GetPhotonReflectivity(Double_t energy);
+
     virtual Double_t FindFocal(Double_t from, Double_t to, Double_t energy, Double_t precision = 1,
                                Bool_t recalculate = false, Int_t particles = 5000);
 
@@ -154,7 +156,7 @@ class TRestAxionOptics : public TRestMetadata {
 
     Double_t PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy);
 
-    Int_t PropagateMonteCarloPhoton(Double_t energy, Double_t deviation);
+    Double_t PropagateMonteCarloPhoton(Double_t energy, Double_t deviation);
 
     /// Returns the entrance position from the latest propagated photon
     TVector3 GetEntrancePosition() { return fEntrancePosition; }
