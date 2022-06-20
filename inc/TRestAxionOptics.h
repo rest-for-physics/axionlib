@@ -191,6 +191,9 @@ class TRestAxionOptics : public TRestMetadata {
     /// Returns a pointer to access directly the exit mask information
     TRestCombinedMask* const& GetExitMask() const { return fExitMask; }
 
+    /// Returns a pointer to access directly the exit mask information
+    TRestAxionOpticsMirror* const& GetMirrorProperties() const { return fMirror; }
+
     void PrintMetadata();
 
     void PrintMirror();
