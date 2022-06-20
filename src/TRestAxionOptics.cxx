@@ -749,6 +749,7 @@ TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t energy, Double_t de
     grEntrance->GetHistogram()->SetMaximum(GetRadialLimits().second * 1.15);
     grEntrance->GetHistogram()->SetMinimum(-GetRadialLimits().second * 1.15);
 
+    grEntrance->SetTitle("Entrance plane");
     grEntrance->GetXaxis()->SetTitle("X [mm]");
     grEntrance->GetXaxis()->SetTitleSize(0.04);
     grEntrance->GetXaxis()->SetLabelSize(0.04);
@@ -763,6 +764,7 @@ TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t energy, Double_t de
 
     fPad->cd(2);
 
+    grExit->SetTitle("Exit plane");
     grExit->GetXaxis()->SetTitle("X [mm]");
     grExit->GetXaxis()->SetTitleSize(0.04);
     grExit->GetXaxis()->SetLabelSize(0.04);
@@ -782,6 +784,8 @@ TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t energy, Double_t de
     Double_t yMin = TMath::MinElement(grZ->GetN(), grZ->GetY());
     Double_t yMax = TMath::MaxElement(grZ->GetN(), grZ->GetY());
 
+    std::string zTitle = "User plane. Z = " + DoubleToString(z) + "mm";
+    grZ->SetTitle(zTitle.c_str());
     grZ->GetXaxis()->SetLimits(1.5 * xMin, 1.5 * xMax);
     grZ->GetHistogram()->SetMaximum(1.5 * yMax);
     grZ->GetHistogram()->SetMinimum(1.5 * yMin);
@@ -800,9 +804,11 @@ TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t energy, Double_t de
 
     fPad->cd(4);
 
-    grFocal->GetXaxis()->SetLimits(-20, 20);
-    grFocal->GetHistogram()->SetMaximum(20);
-    grFocal->GetHistogram()->SetMinimum(-20);
+    std::string focalTitle = "Focal plane. Z = " + DoubleToString(focal) + "mm";
+    grFocal->SetTitle(focalTitle.c_str());
+    grFocal->GetXaxis()->SetLimits(-10, 10);
+    grFocal->GetHistogram()->SetMaximum(10);
+    grFocal->GetHistogram()->SetMinimum(-10);
 
     grFocal->GetXaxis()->SetTitle("X [mm]");
     grFocal->GetXaxis()->SetTitleSize(0.04);
@@ -827,6 +833,8 @@ TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t energy, Double_t de
 ///
 TPad* TRestAxionOptics::DrawDensityMaps(Double_t z, Double_t energy, Double_t deviation, Int_t particles,
                                         Double_t focalHint) {
+    Double_t focal = FindFocal(focalHint - 500, focalHint + 500, energy, 1);
+
     TRestAxionOptics::CreatePad(2, 2);
 
     fPad->cd();
@@ -835,10 +843,12 @@ TPad* TRestAxionOptics::DrawDensityMaps(Double_t z, Double_t energy, Double_t de
     Double_t highL = 1.15 * GetRadialLimits().second;
     TH2F* hEntrance = new TH2F("entranceH", "Entrance plane", 500, lowL, highL, 500, lowL, highL);
     TH2F* hExit = new TH2F("exitH", "Exit plane", 500, lowL, highL, 500, lowL, highL);
-    TH2F* hZ = new TH2F("zH", "Z plane", 500, lowL, highL, 500, lowL, highL);
-    TH2F* hFocal = new TH2F("focalH", "Focal plane", 500, -10, 10, 500, -10, 10);
 
-    Double_t focal = FindFocal(focalHint - 500, focalHint + 500, energy, 1);
+    std::string zTitle = "User plane. Z = " + DoubleToString(z) + "mm";
+    TH2F* hZ = new TH2F("zH", zTitle.c_str(), 500, lowL, highL, 500, lowL, highL);
+
+    std::string focalTitle = "Focal plane. Z = " + DoubleToString(focal) + "mm";
+    TH2F* hFocal = new TH2F("focalH", focalTitle.c_str(), 500, -10, 10, 500, -10, 10);
 
     for (unsigned int n = 0; n < particles; n++) {
         Double_t reflectivity = PropagateMonteCarloPhoton(energy, deviation);
