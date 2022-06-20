@@ -596,15 +596,46 @@ TPad* TRestAxionOptics::DrawParticleTracks(Double_t deviation, Int_t particles) 
 /// \brief It implements a generic method to identify the optimum focal point. It can
 /// be reimplemented at each specific optics class.
 ///
+/// It is a statistical method, thus the result contains an implicit statistical error.
+///
 /// It receives 4 arguments.
 /// - **from** and **to**: They define the range where the focal will be searched for.
 /// - **precision**: It defines the accuracy required
 /// - **recalculate**: If `false` it will reuse a previous focal point calculation. If `true`
 /// it will force to recalculate the focal point.
+/// - **particles**: Number of particles to be launched in order to calculate the spot size.
 ///
 Double_t TRestAxionOptics::FindFocal(Double_t from, Double_t to, Double_t energy, Double_t precision,
-                                     Bool_t recalculate) {
-    return 7500.;
+                                     Bool_t recalculate, Int_t particles) {
+    RESTDebug << "Entering TRestAxionOptics::FindFocal" << RESTendl;
+
+    if (fFocal > 0 && recalculate == false) return fFocal;
+
+    Double_t focal = (from + to) / 2.;
+    Double_t spotSize = CalculateSpotSize(energy, focal);
+
+    Double_t step = (to - from) / 10.;
+
+    if (step < 0) {
+        step = from;
+        from = to;
+        to = step;
+        step = (to - from) / 10.;
+    }
+
+    RESTInfo << "Calculating focal : " << focal << RESTendl;
+    for (Double_t f = from; f < to; f += step) {
+        Double_t size = CalculateSpotSize(energy, f);
+        if (size < spotSize) {
+            spotSize = size;
+            focal = f;
+        }
+    }
+
+    if (step > precision) return FindFocal(focal - step, focal + step, energy, precision, recalculate);
+
+    fFocal = focal;
+    return fFocal;
 }
 
 ///////////////////////////////////////////////
@@ -679,7 +710,10 @@ Int_t TRestAxionOptics::PropagateMonteCarloPhoton(Double_t energy, Double_t devi
 /// \brief It implements a generic method to identify the optimum focal point. It can
 /// be reimplemented at each specific optics class.
 ///
-TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t energy, Double_t deviation, Int_t particles) {
+/// Focal position will be searched around focalHint within half a meter range.
+///
+TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t energy, Double_t deviation, Int_t particles,
+                                        Double_t focalHint) {
     TRestAxionOptics::CreatePad(2, 2);
 
     fPad->cd();
@@ -689,7 +723,7 @@ TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t energy, Double_t de
     TGraph* grZ = new TGraph();
     TGraph* grFocal = new TGraph();
 
-    Double_t focal = FindFocal(0, 0, 0);
+    Double_t focal = FindFocal(focalHint - 500, focalHint + 500, energy, 1);
 
     for (unsigned int n = 0; n < particles; n++) {
         Double_t reflectivity = PropagateMonteCarloPhoton(energy, deviation);
@@ -785,7 +819,14 @@ TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t energy, Double_t de
     return fPad;
 }
 
-TPad* TRestAxionOptics::DrawDensityMaps(Double_t z, Double_t energy, Double_t deviation, Int_t particles) {
+///////////////////////////////////////////////
+/// \brief It implements a generic method to identify the optimum focal point. It can
+/// be reimplemented at each specific optics class.
+///
+/// Focal position will be searched around focalHint within half a meter range.
+///
+TPad* TRestAxionOptics::DrawDensityMaps(Double_t z, Double_t energy, Double_t deviation, Int_t particles,
+                                        Double_t focalHint) {
     TRestAxionOptics::CreatePad(2, 2);
 
     fPad->cd();
@@ -797,7 +838,7 @@ TPad* TRestAxionOptics::DrawDensityMaps(Double_t z, Double_t energy, Double_t de
     TH2F* hZ = new TH2F("zH", "Z plane", 500, lowL, highL, 500, lowL, highL);
     TH2F* hFocal = new TH2F("focalH", "Focal plane", 500, -10, 10, 500, -10, 10);
 
-    Double_t focal = FindFocal(0, 0, 0);
+    Double_t focal = FindFocal(focalHint - 500, focalHint + 500, energy, 1);
 
     for (unsigned int n = 0; n < particles; n++) {
         Double_t reflectivity = PropagateMonteCarloPhoton(energy, deviation);
