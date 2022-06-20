@@ -186,6 +186,7 @@ void TRestAxionOptics::Initialize() {
     fExitMask = new TRestCombinedMask();
     fExitMask->SetName("Exit");
     fExitMask->SetTitle("Optics exit mask");
+    std::cout << "Exit v: " << (Int_t)this->GetVerboseLevel() << std::endl;
     fExitMask->SetVerboseLevel(this->GetVerboseLevel());
 
     if (fMiddleMask != nullptr) {
@@ -368,26 +369,16 @@ Double_t TRestAxionOptics::PropagatePhoton(const TVector3& pos, const TVector3& 
 /// \brief Initialization of TRestAxionOptics field members through a RML file
 ///
 void TRestAxionOptics::InitFromConfigFile() {
+    if (fMirror) {
+        delete fMirror;
+        fMirror = nullptr;
+    }
+
+    fMirror = (TRestAxionOpticsMirror*)this->InstantiateChildMetadata("TRestAxionOpticsMirror");
+
     TRestMetadata::InitFromConfigFile();
 
-    /*
-std::vector<Double_t> rMax = StringToElements(GetParameter("ringMaxRadii", "-1"), ",");
-std::vector<Double_t> rMin = StringToElements(GetParameter("ringMinRadii", "-1"), ",");
-
-if (rMax.size() != rMin.size())
-    SetError(
-        "TRestAxionOptics. The number of ring radii definitions do not match! Rings will not be "
-        "initialized!");
-else {
-    fRingsRadii.clear();
-    for (unsigned int n = 0; n < rMax.size(); n++) {
-        std::pair<Double_t, Double_t> p(rMin[n], rMax[n]);
-        fRingsRadii.push_back(p);
-    }
-}
-    */
-
-    // If we recover the metadata class from ROOT file we will need to call Initialize ourselves
+    // If we recover the metadata class from a ROOT file we will need to call Initialize ourselves
     this->Initialize();
 }
 
@@ -397,8 +388,15 @@ else {
 void TRestAxionOptics::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
+    RESTMetadata << " - Optics file : " << fOpticsFile << RESTendl;
+    RESTMetadata << "---------" << RESTendl;
     RESTMetadata << "Entrance position in Z : " << GetEntranceZPosition() << " mm" << RESTendl;
     RESTMetadata << "Exit position in Z : " << GetExitZPosition() << " mm" << RESTendl;
+    RESTMetadata << "---------" << RESTendl;
+    RESTMetadata << " " << RESTendl;
+    RESTMetadata << " Use \"this->PrintMasks()\" to get masks info" << RESTendl;
+    RESTMetadata << " Use \"this->PrintMirror()\" to get mirror info" << RESTendl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -408,6 +406,13 @@ void TRestAxionOptics::PrintMasks() {
     if (fEntranceMask) fEntranceMask->PrintMetadata();
     if (fMiddleMask) fMiddleMask->PrintMetadata();
     if (fExitMask) fExitMask->PrintMetadata();
+}
+
+///////////////////////////////////////////////
+/// \brief Prints on screen the 3-optical masks used on the optics planes
+///
+void TRestAxionOptics::PrintMirror() {
+    if (fMirror) fMirror->PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -427,7 +432,7 @@ void TRestAxionOptics::PrintMiddleMask() {
     if (fMiddleMask)
         fMiddleMask->PrintMetadata();
     else
-        RESTWarning << "TRestAxionOptics::PrintEntranceMask. Not available" << RESTendl;
+        RESTWarning << "TRestAxionOptics::PrintMiddleMask. Not available" << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -437,7 +442,7 @@ void TRestAxionOptics::PrintExitMask() {
     if (fExitMask)
         fExitMask->PrintMetadata();
     else
-        RESTWarning << "TRestAxionOptics::PrintEntranceMask. Not available" << RESTendl;
+        RESTWarning << "TRestAxionOptics::PrintExitMask. Not available" << RESTendl;
 }
 
 ///////////////////////////////////////////////

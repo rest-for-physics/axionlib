@@ -203,10 +203,6 @@ void TRestAxionWolterOptics::Initialize() {
     fExitMask->AddMask(fSpiderMask);
     fExitMask->AddMask(fExitRingsMask);
 
-    fEntranceMask->Print();
-    fMiddleMask->Print();
-    fExitMask->Print();
-
     if (fRandom != nullptr) {
         delete fRandom;
         fRandom = nullptr;
@@ -358,15 +354,7 @@ void TRestAxionWolterOptics::PrintSpider() {
 ///////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionWolterOptics
 ///
-void TRestAxionWolterOptics::PrintMetadata() {
-    TRestAxionOptics::PrintMetadata();
-
-    RESTMetadata << "---------" << RESTendl;
-    RESTMetadata << " - Optics file : " << fOpticsFile << RESTendl;
-    RESTMetadata << " " << RESTendl;
-    RESTMetadata << " Use \"this->PrintMasks()\" to get masks info" << RESTendl;
-    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
-}
+void TRestAxionWolterOptics::PrintMetadata() { TRestAxionOptics::PrintMetadata(); }
 
 ///////////////////////////////////////////////
 /// \brief A method to to draw an optics schematic including the mirrors geometry.

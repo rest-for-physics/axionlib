@@ -23,6 +23,7 @@
 #ifndef _TRestAxionOptics
 #define _TRestAxionOptics
 
+#include <TRestAxionOpticsMirror.h>
 #include <TRestCombinedMask.h>
 #include <TRestMetadata.h>
 #include <iostream>
@@ -39,7 +40,10 @@ class TRestAxionOptics : public TRestMetadata {
     Double_t fMirrorLength = 0;  //<
 
     /// The optics data table extracted from fOpticsFile
-    std::vector<std::vector<Double_t>> fOpticsData;
+    std::vector<std::vector<Double_t>> fOpticsData;  //<
+
+    /// The mirror properties
+    TRestAxionOpticsMirror* fMirror = nullptr;  //<
 
     /// The particle position at the origin
     TVector3 fOriginPosition;  //!
@@ -84,10 +88,10 @@ class TRestAxionOptics : public TRestMetadata {
     Int_t fCurrentMirror = -1;  //!
 
     /// During the photon propagation it tells us if the photon interacted in the first mirror
-    Bool_t fFirstInteraction = false;
+    Bool_t fFirstInteraction = false;  //!
 
     /// During the photon propagation it tells us if the photon interacted in the second mirror
-    Bool_t fSecondInteraction = false;
+    Bool_t fSecondInteraction = false;  //!
 
     /// Random number generator
     TRandom3* fRandom = nullptr;  //!
@@ -135,17 +139,21 @@ class TRestAxionOptics : public TRestMetadata {
 
     virtual Double_t FindFocal(Double_t from, Double_t to, Double_t energy, Double_t precision = 1,
                                Bool_t recalculate = false, Int_t particles = 5000);
+
     Double_t CalculateSpotSize(Double_t energy, Double_t z, Int_t particles = 15000);
 
     TPad* CreatePad(Int_t nx = 1, Int_t ny = 1);
 
     TPad* DrawParticleTracks(Double_t deviation = 0, Int_t particles = 10);
+
     TPad* DrawScatterMaps(Double_t z, Double_t energy = 0, Double_t deviation = 0, Int_t particles = 1000,
                           Double_t focalHint = 7500);
+
     TPad* DrawDensityMaps(Double_t z, Double_t energy = 0, Double_t deviation = 0, Int_t particles = 1000,
                           Double_t focalHint = 7500);
 
     Double_t PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy);
+
     Int_t PropagateMonteCarloPhoton(Double_t energy, Double_t deviation);
 
     /// Returns the entrance position from the latest propagated photon
@@ -185,6 +193,7 @@ class TRestAxionOptics : public TRestMetadata {
 
     void PrintMetadata();
 
+    void PrintMirror();
     void PrintMasks();
 
     void PrintEntranceMask();
