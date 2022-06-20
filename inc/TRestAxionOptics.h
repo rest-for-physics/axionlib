@@ -68,6 +68,9 @@ class TRestAxionOptics : public TRestMetadata {
     /// The particle position at the optics plane exit
     TVector3 fExitDirection;  //!
 
+    /// The calculated focal in mm. It is updated by the method TRestAxionOptics::FindFocal.
+    Double_t fFocal = -1;  //!
+
     /// The entrance optical mask that defines a pattern with regions identified with a number
     TRestCombinedMask* fEntranceMask = nullptr;  //!
 
@@ -130,17 +133,18 @@ class TRestAxionOptics : public TRestMetadata {
     /// It draws the mirrors using a TGraph. To be implemented at the inherited class.
     virtual TPad* DrawMirrors() = 0;
 
-    virtual Double_t FindFocal(Double_t from, Double_t to, Double_t precision);
-    Double_t GetSpotSize(Double_t z = 0);
+    virtual Double_t FindFocal(Double_t from, Double_t to, Double_t energy, Double_t precision = 1,
+                               Bool_t recalculate = false);
+    Double_t CalculateSpotSize(Double_t energy, Double_t z, Int_t particles = 5000);
 
     TPad* CreatePad(Int_t nx = 1, Int_t ny = 1);
 
     TPad* DrawParticleTracks(Double_t deviation = 0, Int_t particles = 10);
-    TPad* DrawScatterMaps(Double_t z, Double_t eMax = 0, Double_t deviation = 0, Int_t particles = 1000);
-    TPad* DrawDensityMaps(Double_t z, Double_t eMax = 0, Double_t deviation = 0, Int_t particles = 1000);
+    TPad* DrawScatterMaps(Double_t z, Double_t energy = 0, Double_t deviation = 0, Int_t particles = 1000);
+    TPad* DrawDensityMaps(Double_t z, Double_t energy = 0, Double_t deviation = 0, Int_t particles = 1000);
 
     Double_t PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy);
-    Int_t PropagateMonteCarloPhoton(Double_t eMax, Double_t deviation);
+    Int_t PropagateMonteCarloPhoton(Double_t energy, Double_t deviation);
 
     /// Returns the entrance position from the latest propagated photon
     TVector3 GetEntrancePosition() { return fEntrancePosition; }

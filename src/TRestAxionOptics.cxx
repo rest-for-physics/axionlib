@@ -529,7 +529,7 @@ TPad* TRestAxionOptics::DrawParticleTracks(Double_t deviation, Int_t particles) 
                            1);
         direction = direction.Unit();
 
-        Int_t status = PropagatePhoton(origin, direction, 1);
+        Double_t reflectivity = PropagatePhoton(origin, direction, 1);
 
         PrintPhotonTrackingSummary();
 
@@ -572,7 +572,7 @@ TPad* TRestAxionOptics::DrawParticleTracks(Double_t deviation, Int_t particles) 
 
         ////
 
-        if (status > 0) {
+        if (reflectivity > 0) {
             TVector3 end = REST_Physics::MoveToPlane(fExitPosition, fExitDirection, TVector3(0, 0, 1),
                                                      TVector3(0, 0, 3 * fMirrorLength));
             Double_t rEnd = TMath::Sqrt(end.X() * end.X() + end.Y() * end.Y());
@@ -596,12 +596,50 @@ TPad* TRestAxionOptics::DrawParticleTracks(Double_t deviation, Int_t particles) 
 /// \brief It implements a generic method to identify the optimum focal point. It can
 /// be reimplemented at each specific optics class.
 ///
-Double_t TRestAxionOptics::FindFocal(Double_t from, Double_t to, Double_t precision) { return 7500.; }
+/// It receives 4 arguments.
+/// - **from** and **to**: They define the range where the focal will be searched for.
+/// - **precision**: It defines the accuracy required
+/// - **recalculate**: If `false` it will reuse a previous focal point calculation. If `true`
+/// it will force to recalculate the focal point.
+///
+Double_t TRestAxionOptics::FindFocal(Double_t from, Double_t to, Double_t energy, Double_t precision,
+                                     Bool_t recalculate) {
+    return 7500.;
+}
 
 ///////////////////////////////////////////////
-/// \brief It ...
+/// \brief It measures the spot size through Monte Carlo at a given plane given by z.
+/// If z=0 this method will check for the spot size at the focal point, which is the
+/// default behaviour.
 ///
-Double_t CalculateSpotSize(Double_t z = 0) { return 0; }
+/// The spot is assumed to be centered at (0,0). We are describing a perfectly aligned
+/// optics device.
+///
+/// The Monte Carlo generated photons are also considered to be perfectly aligned
+/// with the z-axis.
+///
+Double_t TRestAxionOptics::CalculateSpotSize(Double_t energy, Double_t z, Int_t particles) {
+    Double_t sum = 0;
+    Int_t nSum = 0;
+    Double_t deviation = 0;
+    for (unsigned int n = 0; n < particles; n++) {
+        Double_t reflectivity = PropagateMonteCarloPhoton(energy, deviation);
+
+        if (reflectivity == 0) continue;
+
+        TVector3 posZ =
+            REST_Physics::MoveToPlane(fExitPosition, fExitDirection, TVector3(0, 0, 1), TVector3(0, 0, z));
+        Double_t x = posZ.X();
+        Double_t y = posZ.Y();
+
+        sum += reflectivity * x * x + y * y;
+        nSum++;
+    }
+
+    if (nSum > 0) sum = TMath::Sqrt(sum / nSum);
+
+    return sum;
+}
 
 ///////////////////////////////////////////////
 /// \brief It will produce a MonteCarlo photon spatially distributed in XY as defined by
@@ -610,7 +648,7 @@ Double_t CalculateSpotSize(Double_t z = 0) { return 0; }
 /// `deviation=0` the photons will always be parallel to the z-axis. The photons will
 /// be launched from z=-3*fMirrorLength.
 ///
-Int_t TRestAxionOptics::PropagateMonteCarloPhoton(Double_t eMax, Double_t deviation) {
+Int_t TRestAxionOptics::PropagateMonteCarloPhoton(Double_t energy, Double_t deviation) {
     Double_t x = fRandom->Uniform(0, 1.5 * GetRadialLimits().second);
     Double_t y = fRandom->Uniform(0, 1.5 * GetRadialLimits().second);
     Double_t r2 = x * x + y * y;
@@ -621,7 +659,6 @@ Int_t TRestAxionOptics::PropagateMonteCarloPhoton(Double_t eMax, Double_t deviat
     }
 
     Double_t r = fRandom->Uniform(0.5 * GetRadialLimits().first, 1.5 * GetRadialLimits().second);
-    Double_t en = fRandom->Uniform(0, eMax);
     Double_t angle = fRandom->Uniform(0, 2 * TMath::Pi());
     TVector3 origin(r * TMath::Cos(angle), r * TMath::Sin(angle), -3 * fMirrorLength);
 
@@ -635,14 +672,14 @@ Int_t TRestAxionOptics::PropagateMonteCarloPhoton(Double_t eMax, Double_t deviat
     TVector3 direction(devX, devY, 1);
     direction = direction.Unit();
 
-    return PropagatePhoton(origin, direction, en);
+    return PropagatePhoton(origin, direction, energy);
 }
 
 ///////////////////////////////////////////////
 /// \brief It implements a generic method to identify the optimum focal point. It can
 /// be reimplemented at each specific optics class.
 ///
-TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t eMax, Double_t deviation, Int_t particles) {
+TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t energy, Double_t deviation, Int_t particles) {
     TRestAxionOptics::CreatePad(2, 2);
 
     fPad->cd();
@@ -655,12 +692,12 @@ TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t eMax, Double_t devi
     Double_t focal = FindFocal(0, 0, 0);
 
     for (unsigned int n = 0; n < particles; n++) {
-        Int_t status = PropagateMonteCarloPhoton(eMax, deviation);
+        Double_t reflectivity = PropagateMonteCarloPhoton(energy, deviation);
 
         if (fFirstInteractionPosition.Z() == 0) continue;  // The photon hits the entrance mask
         grEntrance->SetPoint(grEntrance->GetN(), fEntrancePosition.X(), fEntrancePosition.Y());
 
-        if (status == 0) continue;  // The photon hits any mask
+        if (reflectivity == 0) continue;  // The photon hits any mask
         grExit->SetPoint(grExit->GetN(), fExitPosition.X(), fExitPosition.Y());
 
         TVector3 posZ =
@@ -748,7 +785,7 @@ TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t eMax, Double_t devi
     return fPad;
 }
 
-TPad* TRestAxionOptics::DrawDensityMaps(Double_t z, Double_t eMax, Double_t deviation, Int_t particles) {
+TPad* TRestAxionOptics::DrawDensityMaps(Double_t z, Double_t energy, Double_t deviation, Int_t particles) {
     TRestAxionOptics::CreatePad(2, 2);
 
     fPad->cd();
@@ -763,12 +800,12 @@ TPad* TRestAxionOptics::DrawDensityMaps(Double_t z, Double_t eMax, Double_t devi
     Double_t focal = FindFocal(0, 0, 0);
 
     for (unsigned int n = 0; n < particles; n++) {
-        Int_t status = PropagateMonteCarloPhoton(eMax, deviation);
+        Double_t reflectivity = PropagateMonteCarloPhoton(energy, deviation);
 
         if (fFirstInteractionPosition.Z() == 0) continue;  // The photon hits the entrance mask
         hEntrance->Fill(fEntrancePosition.X(), fEntrancePosition.Y());
 
-        if (status == 0) continue;  // The photon hits any mask
+        if (reflectivity == 0) continue;  // The photon hits any mask
         hExit->Fill(fExitPosition.X(), fExitPosition.Y());
 
         TVector3 posZ =
