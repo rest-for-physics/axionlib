@@ -1,0 +1,116 @@
+name: Validation
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  release:
+
+  workflow_dispatch:
+
+env:
+  CMAKE_BUILD_TYPE: Release
+  REST_PATH: /rest/axionlib/install
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  framework-validation:
+    uses: rest-for-physics/framework/.github/workflows/validation.yml@master
+  
+  libCheck:
+    name: Validate library
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-dev
+    steps:
+      - uses: actions/checkout@v3
+      - run:  python3 pipeline/validateLibrary.py .
+
+  build-axionlib:
+    name: Build only axionlib
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-dev
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build and install
+        uses: rest-for-physics/framework/.github/actions/build@master
+        with:
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DREST_WELCOME=ON -DRESTLIB_AXION=ON"
+          branch: ${{ env.BRANCH_NAME }}
+      - name: Load REST libraries
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          restRoot -b -q
+      - name: Cache axionlib installation
+        id: axionlib-install-cache
+        uses: actions/cache@v3
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+
+  Metadata:
+    name: Check metadata
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics-dev
+    needs: [ build-axionlib ]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Restore cache
+      uses: actions/cache@v3
+      id: axionlib-install-cache
+      with:
+        key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+        path: ${{ env.REST_PATH }}
+    - name: Magnetic field
+      run: |
+        source ${{ env.REST_PATH }}/thisREST.sh
+        cd pipeline/metadata/magneticField/
+        wget https://sultan.unizar.es/axionlib-data/magneticField/fields.rml
+        wget https://sultan.unizar.es/axionlib-data/magneticField/Bykovskiy_201906.dat
+        python magneticField.py
+        cd trilinear
+        wget https://sultan.unizar.es/axionlib-data/magneticField/fields.rml
+        restRoot -b -q GetMagneticField_test.C
+        cd ../boundary/
+        restRoot -b -q Boundaries_test.C
+    - name: Optics
+      run: |
+        source ${{ env.REST_PATH }}/thisREST.sh
+        cd pipeline/metadata/optics/
+        wget https://sultan.unizar.es/axionlib-data/optics/optics.rml
+        wget https://sultan.unizar.es/axionlib-data/opticsMirror/mirrors.rml
+        wget https://sultan.unizar.es/axionlib-data/opticsMirror/Reflectivity_Single_C_30_SiO2_0.N901f
+        wget https://sultan.unizar.es/axionlib-data/opticsMirror/Transmission_Single_C_30_SiO2_0.N901f
+        wget https://sultan.unizar.es/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
+        wget https://sultan.unizar.es/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
+        python mirrors.py
+        python optics.py
+        python basic.py
+    - name: X-ray transmission
+      run: |
+        source ${{ env.REST_PATH }}/thisREST.sh
+        cd pipeline/metadata/transmission/
+        wget https://sultan.unizar.es/axionlib-data/transmission/windows.rml
+        wget https://sultan.unizar.es/axionlib-data/transmission/Al.sol
+        wget https://sultan.unizar.es/axionlib-data/transmission/Si.sol
+        wget https://sultan.unizar.es/axionlib-data/transmission/Si3N4.sol
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.REST_PATH }}/mpfr-4.0.2/install/lib
+        python windowPlot.py
+    - name: Solar flux
+      run: |
+        source ${{ env.REST_PATH }}/thisREST.sh
+        cd pipeline/metadata/solarFlux/
+        wget https://sultan.unizar.es/axionlib-data/solarFlux/fluxes.rml
+        wget https://sultan.unizar.es/axionlib-data/solarFlux/Dummy_Galan_202202.spt
+        wget https://sultan.unizar.es/axionlib-data/solarFlux/Primakoff_Gianotti_201904.dat
+        wget https://sultan.unizar.es/axionlib-data/solarFlux/Primakoff_LennertHoof_202203.dat
+        python solarTests.py
+        python solarPlot.py
+        python compare.py
