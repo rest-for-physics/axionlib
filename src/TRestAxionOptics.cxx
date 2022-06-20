@@ -361,7 +361,7 @@ Double_t TRestAxionOptics::PropagatePhoton(const TVector3& pos, const TVector3& 
     RESTDebug << "Exit region : " << exitRegion << RESTendl;
     if (exitRegion != middleRegion) return 0.0;
 
-    return reflectivity;
+    return GetPhotonReflectivity(energy);
 }
 
 ///////////////////////////////////////////////
@@ -512,6 +512,31 @@ TPad* TRestAxionOptics::CreatePad(Int_t nx, Int_t ny) {
     fPad->SetBottomMargin(0.15);
 
     return fPad;
+}
+
+///////////////////////////////////////////////
+/// \brief A prototype method to be implemented by specific optics to draw an schematic
+/// including the mirrors geometry.
+///
+Double_t TRestAxionOptics::GetPhotonReflectivity(Double_t energy) {
+    if (!fMirror) return 0;
+
+    Double_t reflectivity = 1.;
+    if (IsFirstMirrorReflection()) {
+        Double_t angle = REST_Physics::GetVectorsAngle(fEntranceDirection, fMiddleDirection);
+
+        angle = angle * units("deg") / units("rad") / 2.;  // Incidence angle in degrees. We divide by 2
+
+        reflectivity *= fMirror->GetReflectivity(angle, energy);
+    }
+    if (IsSecondMirrorReflection()) {
+        Double_t angle = REST_Physics::GetVectorsAngle(fMiddleDirection, fExitDirection);
+
+        angle = angle * units("deg") / units("rad") / 2.;  // Incidence angle in degrees. We divide by 2
+
+        reflectivity *= fMirror->GetReflectivity(angle, energy);
+    }
+    return reflectivity;
 }
 
 ///////////////////////////////////////////////
@@ -683,7 +708,7 @@ Double_t TRestAxionOptics::CalculateSpotSize(Double_t energy, Double_t z, Int_t 
 /// `deviation=0` the photons will always be parallel to the z-axis. The photons will
 /// be launched from z=-3*fMirrorLength.
 ///
-Int_t TRestAxionOptics::PropagateMonteCarloPhoton(Double_t energy, Double_t deviation) {
+Double_t TRestAxionOptics::PropagateMonteCarloPhoton(Double_t energy, Double_t deviation) {
     Double_t x = fRandom->Uniform(0, 1.5 * GetRadialLimits().second);
     Double_t y = fRandom->Uniform(0, 1.5 * GetRadialLimits().second);
     Double_t r2 = x * x + y * y;
