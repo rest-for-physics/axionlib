@@ -23,37 +23,74 @@
 //////////////////////////////////////////////////////////////////////////
 /// TRestAxionWolterOptics is a class that inherits from TRestAxionOptics.
 ///
-/// ToDO: Write what happens here
-///
-///
-/// ### RML definition
-///
-/// Example 1:
-/// \code
-/// <TRestAxionWolterOptics name="dummy">
-///   	<parameter name="center" value="(0,0,200)mm" />
-///		<parameter name="axis" value="(0,0.02,0.98)" />
-///		<parameter name="length" value="22cm" />
-///
-///		<!-- We build mirror shells with 0.1mm thickness -->
-///		<parameter name="shellMinRadii" value="5,10,15,20,25" />
-///		<parameter name="shellMaxRadii" value="9.9,14.9,19.9,24.9,29.9" />
-/// <TRestAxionWolterOptics/>
-/// \endcode
-///
-/// Example 2:
-/// \code
-/// <TRestAxionWolterOptics center="(0,0,950)mm" axis="(0,0,1)" />
-/// \endcode
-///
-/// Example 3:
-/// \code
-/// <TRestAxionWolterOptics center="(0,0,95)" units="cm" />
-/// \endcode
+/// This class defines an optics device using conical aproximation as it is
+/// ilustrated in the following figure.
 ///
 /// \htmlonly <style>div.image img[src="Wolter.png"]{width:800px;}</style> \endhtmlonly
 ///
 /// ![Wolter optics schematic figure](Wolter.png)
+///
+/// The parameters shown there correspond to the geometrical description of each of
+/// the mirrors that build the optics device. Those parameters will be retrieved by
+/// TRestAxionOptics, and they will be placed inside TRestAxionOptics::fOpticsData.
+/// This class will use those parameters to implement the ray-tracing interactions
+/// inside the mirrors, and to define the entrance/middle/interface masks. The
+/// format of the file must follow the same specifications as the file
+/// [XMM.Wolter](https://github.com/rest-for-physics/axionlib-data/blob/master/optics/XMM.Wolter).
+///
+/// The optical parameters extracted from this file, in particular `R1`, `R3` and `R5`,
+/// will be used to generate the TRestRingsMask at each of the optical interfaces,
+/// entrance, middle, and exit. An additional mask, a TRestSpiderMask, common to all
+/// the interfaces must be defined in the RML configuration. The TRestRingsMask and the
+/// TRestSpiderMask will be used to build a TRestCombinedMask at each interface.
+///
+/// ### RML definition
+///
+/// Examples of RML optics definitions can be found at the [axion-lib data
+/// repository](https://github.com/rest-for-physics/axionlib-data/tree/master/optics).
+///
+/// \code
+///	<TRestAxionWolterOptics name="xmm" verboseLevel="warning" >
+///		<parameter name="opticsFile" value="XMM.Wolter" />
+///
+///		<parameter name="mirrorLength" value="300" />
+///
+///		<TRestAxionOpticsMirror name="XMM">
+///			<parameter name="mirrorType" value="Single" />
+///
+///			<parameter name="layerTop" value="Au" />
+///			<parameter name="layerThicknessTop" value="250" />
+///			<parameter name="sigmaTop" value="0.4" />
+///
+///			<parameter name="substrate" value="Ni" />
+///		</TRestAxionOpticsMirror>
+///
+///		<TRestSpiderMask name="spider" verboseLevel="warning">
+///			<parameter name="maskRadius" value="70cm"/>
+///			<parameter name="offset" value="(0,0)cm"/>
+///			<parameter name="rotationAngle" value="0"/>
+///			<parameter name="armsWidth" value="2.5deg"/>
+///			<parameter name="armsSeparationAngle" value="180./16degrees"/>
+///			<parameter name="initialRadius" value="0cm"/>
+///		</TRestSpiderMask>
+///	</TRestAxionWolterOptics>
+/// \endcode
+///
+/// The previous definition corresponds to the following image, that was
+/// generated using the method TRestAxionOptics::DrawDensityMaps,
+/// where we can visualize the XY projection of the photons at different
+/// Z-positions.
+///
+/// \htmlonly <style>div.image img[src="XMM_DMaps.png"]{width:750px;}</style> \endhtmlonly
+///
+/// ![Hitmaps for the XMM definition, using TRestAxionWolterOptics](XMM_DMaps.png)
+///
+/// This image was generated using the macro `REST_Axion_XMMPlots.C` which
+/// is available when entering the ROOT interface using the `restRootMacros`
+/// command. It corresponds with the flux of a perfectly aligned photon flux,
+/// deviation=0, for a TRestAxionWolterOptics definition of the XMM optics. The
+/// RML description used, `xmm.rml,` can be found at the [axion-lib data
+/// repository](https://github.com/rest-for-physics/axionlib-data/tree/master/optics).
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -239,7 +276,7 @@ Int_t TRestAxionWolterOptics::FirstMirrorReflection(const TVector3& pos, const T
     fFirstInteractionPosition =
         pos + dir * REST_Physics::GetConeVectorIntersection(pos, dir, TVector3(0, 0, -1), vertex, cosA);
 
-    if (fFirstInteractionPosition.Z() < GetEntranceZPosition() || fFirstInteractionPosition.Z() > 0) {
+    if (fFirstInteractionPosition.Z() < GetEntrancePositionZ() || fFirstInteractionPosition.Z() > 0) {
         RESTDebug << "TRestAxionWolterOptics::FirstMirrorReflection. No interaction!" << RESTendl;
         fFirstInteractionPosition = REST_Physics::MoveByDistance(pos, dir, fMirrorLength / 2.);
         fMiddleDirection = fEntranceDirection;
@@ -284,7 +321,7 @@ Int_t TRestAxionWolterOptics::SecondMirrorReflection(const TVector3& pos, const 
     fSecondInteractionPosition =
         pos + dir * REST_Physics::GetConeVectorIntersection(pos, dir, TVector3(0, 0, -1), vertex, cosA);
 
-    if (fSecondInteractionPosition.Z() > GetExitZPosition() || fSecondInteractionPosition.Z() < 0) {
+    if (fSecondInteractionPosition.Z() > GetExitPositionZ() || fSecondInteractionPosition.Z() < 0) {
         RESTDebug << "TRestAxionWolterOptics::SecondMirrorReflection. No interaction!" << RESTendl;
         fSecondInteractionPosition = REST_Physics::MoveByDistance(pos, dir, fMirrorLength / 2.);
         fExitDirection = fMiddleDirection;

@@ -46,10 +46,10 @@ class TRestAxionMCPLOptics : public TRestAxionOptics {
     void InitFromConfigFile() override;
 
     /// It returns the entrance Z-position defined by the optical axis.
-    Double_t GetEntranceZPosition() override { return 0; }
+    Double_t GetEntrancePositionZ() override { return 0; }
 
     /// It returns the exit Z-position defined by the optical axis
-    Double_t GetExitZPosition() override { return 0; }
+    Double_t GetExitPositionZ() override { return 0; }
 
     /// It returns the radial limits at the entrance of the optics
     std::pair<Double_t, Double_t> GetRadialLimits() override {

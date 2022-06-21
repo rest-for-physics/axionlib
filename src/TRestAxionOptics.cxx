@@ -103,20 +103,23 @@
 /// at each class in order to draw the mirrors position, to be visualized on
 /// the TRestAxionOptics::DrawParticleTracks method.
 ///
-/// The following image is generated using TRestAxionOptics::DrawDensityMaps
-/// where we can visualize the XY projection of the photons at different
-/// Z-positions.
+/// The method TRestAxionOptics::DrawParticleTracks is designed to draw
+/// few photon tracks and help to debug the correct tracking of light
+/// particles. The thickness of the mirror lines representing the mirror
+/// shells is proportional to the real thickness, and the color of photons
+/// is chosen to match the color of the reflecting mirror. If the photon
+/// hits the entrance mask (spider or mirrors) the line will be coloured
+/// in black.
 ///
-/// \htmlonly <style>div.image img[src="XMM_DMaps.png"]{width:750px;}</style> \endhtmlonly
+/// \htmlonly <style>div.image img[src="WolterTracing.png"]{width:750px;}</style> \endhtmlonly
 ///
-/// ![Hitmaps for the XMM definition, using TRestAxionWolterOptics](XMM_DMaps.png)
+/// ![Particle tracing inside the optics](WolterTracing.png)
 ///
-/// This image was generated using the macro `REST_Axion_XMMPlots.C` which
-/// is available when entering the ROOT interface using the `restRootMacros`
-/// command. It corresponds with the flux of a perfectly aligned photon flux,
-/// deviation=0, for a TRestAxionWolterOptics definition of the XMM optics. The
-/// RML description used, `xmm.rml,` can be found at the [axion-lib data
-/// repository](https://github.com/rest-for-physics/axionlib-data/tree/master/optics).
+/// Additionally, TRestAxionOptics::DrawParticleTracks will print on
+/// screen the result of the tracking for each particle using the method
+/// TRestAxionOptics::PrintPhotonTrackingSummary. Additional debuging
+/// information can be printed on screen by setting the output level
+/// to debug, `verboseLevel="debug"`.
 ///
 ///--------------------------------------------------------------------------
 ///

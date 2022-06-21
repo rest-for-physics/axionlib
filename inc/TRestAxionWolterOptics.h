@@ -28,7 +28,7 @@
 #include <TRestTools.h>
 #include <iostream>
 
-/// A class calculate the reflection path and probability of X-rays through a Wolter 1 telescope
+/// A class that calculates the reflection path of X-rays through a Wolter 1 telescope
 class TRestAxionWolterOptics : public TRestAxionOptics {
    private:
     /// Entrance radius R1 in mm. See schematic figure.
@@ -108,13 +108,13 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
     }
 
     /// It returns the entrance Z-position defined by the optical axis.
-    Double_t GetEntranceZPosition() override {
+    Double_t GetEntrancePositionZ() override {
         if (fCosAlpha.size() > 0) return -fMirrorLength * fCosAlpha[0];
         return 0;
     }
 
     /// It returns the exit Z-position defined by the optical axis
-    Double_t GetExitZPosition() override {
+    Double_t GetExitPositionZ() override {
         if (fCosAlpha_3.size() > 0) return fMirrorLength * fCosAlpha_3[0];
         return 0;
     }
