@@ -102,6 +102,8 @@ class TRestAxionOptics : public TRestMetadata {
    private:
     void ResetPositions();
 
+    Double_t GetPhotonReflectivity(Double_t energy);
+
    protected:
     /// A pad pointer to be used by the drawing methods
     TPad* fPad = nullptr;
@@ -137,7 +139,7 @@ class TRestAxionOptics : public TRestMetadata {
     /// It draws the mirrors using a TGraph. To be implemented at the inherited class.
     virtual TPad* DrawMirrors() = 0;
 
-    Double_t GetPhotonReflectivity(Double_t energy);
+    Double_t GetEntranceAngle() { return TMath::ACos(fEntranceDirection.Dot(TVector3(0, 0, 1))); }
 
     virtual Double_t FindFocal(Double_t from, Double_t to, Double_t energy, Double_t precision = 1,
                                Bool_t recalculate = false, Int_t particles = 5000);
@@ -162,10 +164,10 @@ class TRestAxionOptics : public TRestMetadata {
     TVector3 GetEntrancePosition() { return fEntrancePosition; }
 
     /// Returns the middle position from the latest propagated photon
-    TVector3 GetMiddlePosition() { return fEntrancePosition; }
+    TVector3 GetMiddlePosition() { return fMiddlePosition; }
 
     /// Returns the exit position from the latest propagated photon
-    TVector3 GetExitPosition() { return fEntrancePosition; }
+    TVector3 GetExitPosition() { return fExitPosition; }
 
     /// Returns the entrance position from the latest propagated photon
     TVector3 GetEntranceDirection() { return fEntranceDirection; }
