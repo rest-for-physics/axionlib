@@ -21,77 +21,102 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionOptics is a class that allows to load externally
-/// defined optics response files. This metadata class will be a generic,
-/// abstract, class that will be inherited by other more specific metadata
-/// classes. This class will define few common metadata members helping to
-/// describe the optics alignment, position, and basic geometry specifications,
-/// such as number of mirror rings, or additional entrance masks, such as
-/// spider mask.
+/// TRestAxionOptics is a class that allows to describe the geometrical
+/// and mirror properties of an optics focusing device.
+/// This metadata class is a pure abstract class used to define common
+/// data members and methods to any specific optics class.
 ///
-/// The derived metadata classes, such as TRestAxionGenericOptics or
-/// TRestAxionMCPLOptics must implement the following virtual methods
-/// TRestAxionOptics::GetPositionAtExit, TRestAxionOptics::GetDirectionAtExit
-/// and TRestAxionOptics::GetEfficiency.
+/// ## Conceptual optics implementation
 ///
-/// The following metadata parameters define the optics position, size and
-/// alignment:
-/// * **center**: It defines the center of the optics, entrance and exit
-/// optics planes will be defined using the half lenght and the `center`
-/// position.
-/// * **axis**: It defines the optical axis direction.
-/// * **length**: It defines the size of the optics, used to calculate
-/// the optics plane entrance, and the optics plane exit.
+/// This class implements a method, TRestAxionOptics::PropagatePhoton, that
+/// is used to generate the tracking of a photon given an initial position
+/// and direction. The photon propagation is done in different phases, where
+/// the photon position and direction is calculated at different optical
+/// interfaces (entrance/middle/exit) as it is shown in the following
+/// figure.
 ///
-/// A relevant parameter are the radii that define the mirror rings of
-/// the optics. In practice we define the iner and outer radius of a ring
-/// or corona (which is the space between two rings or mirrors). Thus, the
-/// inner and outer radius of each ring defines the region where photons are
-/// capable to go through. Photons hitting other regions should be ignored.
-/// The method TRestAxionOptics::GetEntranceRing will return the ring
-/// number where the photon entered. If the photon did not enter any
-/// ring, then it will return -1.
+/// \htmlonly <style>div.image img[src="opticsSchema.png"]{width:950px;}</style> \endhtmlonly
 ///
-/// The following metadata parameters define the ring entrances:
-/// * **ringMinRadii**: It contains a list of lower radius values for
-/// each ring.
-/// * **ringMaxRadii**: It contains a list of higher radius values for
-/// each ring.
+/// ![An schematic showing the principle of use of TRestAxionOptics](opticsSchema.png)
 ///
-/// On top of that we may define a spider mask which is usually present
-/// at integrated x-ray optics as an structure to keep the rings in
-/// position. The spider mask will prevent photons from entering inside
-/// the optics mirroring system.
+/// The transport of the photon in between two interfaces is controlled
+/// by two pure virtual methods TRestAxionOptics::FirstMirrorReflection and
+/// TRestAxionOptics::SecondMirrorReflection, that must be implemented at
+/// the inherited optics class, such as is is done at TRestAxionWolterOptics.
 ///
-/// The following parameters are used to define the spider mask geometry:
-/// * **spiderArmsSeparationAngle**: It defines the angular distance, measured in
-/// radians, between two consecutive spider arms. If this parameter is equal
-/// to 0, the spider net mask will be disabled. It is disabled by default.
-/// * **spiderOffsetAngle**: It defines the angle at which the first arm
-/// is located. The default is 0, being the first arm located at the
-/// positive y-axis. It cannot take a negative value.
-/// * **spiderWidth**: The width of each specific spider arm. Measured in
-/// radians. Default is 2.5 degrees.
+/// Other pure virtual methods need to be implemented at the inherited class
+/// in order to define the limits of the optical device, such as
+/// TRestAxionOptics::GetEntrancePositionZ, TRestAxionOptics::GetExitPositionZ
+/// or TRestAxionOptics::GetRadialLimits.
 ///
-/// The number of arms will be determined by those parameters.
+/// Furthermore, this class will define common methods that can be exploited
+/// by any optical device, such as TRestAxionOptics::FindFocal or
+/// TRestAxionOptics::CalculateSpotSize, which are MonteCarlo based, and can be
+/// optionally re-implemented at the inherited class.
 ///
-/// The following image is generated as a validation or a way to visualize the
-/// TRestAxionOptics::GetEntranceRing method. Each color represents a particle
-/// hitting in a different ring. The position is drawn at both, the generator
-/// plane and the optics entrance plane. This creates an effect of diffusion at
-/// the generator plane since the generator random direction is slightly tilted
-/// respect to the optical axis.
+/// ## Optics metadata description
 ///
-/// \htmlonly <style>div.image img[src="opticsBasic.png"]{width:750px;}</style> \endhtmlonly
+/// This class defines generic optics metadata members, that can be further
+/// extended at the inherited classes as needed.
 ///
-/// ![Basic optics validation for method TRestAxionOptics::GetEntranceRing](opticsBasic.png)
+/// We distinguish the following metadata members (which will be stored on
+/// disk and that can be initalized through RML).
 ///
-/// This image was generated using the pipeline/metadata/optics/basic.py script.
-/// And the rings description can be found at the corresponding basic.rml file.
+/// - **mirrorLength**: It defines a common mirror length for the optics.
 ///
-/// This class is an abstract class, to see an example of its implementation
-/// inside a RML configuration file, check for TRestAxionGenericOptics or
-/// TRestAxionMCPLOptics.
+/// - **opticsFile**: It is a text file describing a table with values
+/// giving geometrical information about the mirror positioning, thickness,
+/// or any other information required to describe the mirrors geometry.
+/// Each column on the data file will be related to a property of the
+/// optics, such as mirror radius, thickness, angle. While each row
+/// will correspond to a particular mirror. The meaning for each column
+/// must be implemented at the inherited class. TRestAxionOptics
+/// implementation just takes care of reading the file and storing it
+/// inside the `fOpticsData` member that is accessible to the inherited
+/// classes.
+///
+/// - **mirrorProperties**: It is an instance of TRestAxionOpticsMirror that contains
+/// the mirror properties, such as reflectivity as a function of angle
+/// and energy.
+///
+/// ## Optical masks
+///
+/// Each of the optical interfaces (entrance/middle/optics) is associated
+/// with an optical mask where we can identify regions. These regions allow
+/// to determine if a photon entered by and exited from the same optical
+/// cavity or allowed region. The use of 3 masks at the entrance, middle
+/// and exit levels permits to create a 3-dimensional constrain of the
+/// movement of the photon.
+///
+/// Thus, masks must be constructed by the inherited class using a
+/// TRestCombinedMask definition that is instantiated at the
+/// TRestAxionOptics level as fEntranceMask, fMiddleMask and fExitMask.
+///
+/// ## Common drawing methods
+///
+/// This class also defines common drawing methods such as
+/// TRestAxionOptics::DrawScatterMaps, TRestAxionOptics::DrawDensityMaps
+/// and TRestAxionOptics::DrawParticleTracks. That may help to visualize
+/// and debug the tracking of photons by the new implemented optics device.
+///
+/// A pure virtual method TRestAxionOptics::DrawMirrors must be implemented
+/// at each class in order to draw the mirrors position, to be visualized on
+/// the TRestAxionOptics::DrawParticleTracks method.
+///
+/// The following image is generated using TRestAxionOptics::DrawDensityMaps
+/// where we can visualize the XY projection of the photons at different
+/// Z-positions.
+///
+/// \htmlonly <style>div.image img[src="XMM_DMaps.png"]{width:750px;}</style> \endhtmlonly
+///
+/// ![Hitmaps for the XMM definition, using TRestAxionWolterOptics](XMM_DMaps.png)
+///
+/// This image was generated using the macro `REST_Axion_XMMPlots.C` which
+/// is available when entering the ROOT interface using the `restRootMacros`
+/// command. It corresponds with the flux of a perfectly aligned photon flux,
+/// deviation=0, for a TRestAxionWolterOptics definition of the XMM optics. The
+/// RML description used, `xmm.rml,` can be found at the [axion-lib data
+/// repository](https://github.com/rest-for-physics/axionlib-data/tree/master/optics).
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -220,7 +245,7 @@ Int_t TRestAxionOptics::GetNumberOfReflections() {
 ///
 Int_t TRestAxionOptics::TransportToEntrance(const TVector3& pos, const TVector3& dir) {
     RESTDebug << "TRestAxionOptics::TransportToEntrance" << RESTendl;
-    if (pos.Z() > GetEntranceZPosition()) {
+    if (pos.Z() > GetEntrancePositionZ()) {
         RESTWarning << "TRestAxionOptics::TransportToEntrance" << RESTendl;
         RESTWarning << "The particle should be placed before the entrance!" << RESTendl;
         return 0;
@@ -231,7 +256,7 @@ Int_t TRestAxionOptics::TransportToEntrance(const TVector3& pos, const TVector3&
         return 0;
     }
     fEntrancePosition =
-        REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), TVector3(0, 0, GetEntranceZPosition()));
+        REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), TVector3(0, 0, GetEntrancePositionZ()));
 
     return fEntranceMask->GetRegion(fEntrancePosition.X(), fEntrancePosition.Y());
 }
@@ -247,7 +272,7 @@ Int_t TRestAxionOptics::TransportToEntrance(const TVector3& pos, const TVector3&
 ///
 Int_t TRestAxionOptics::TransportToMiddle(const TVector3& pos, const TVector3& dir) {
     RESTDebug << "TRestAxionOptics::TransportToMiddle" << RESTendl;
-    if (pos.Z() > 0 || pos.Z() < GetEntranceZPosition()) {
+    if (pos.Z() > 0 || pos.Z() < GetEntrancePositionZ()) {
         RESTWarning << "TRestAxionOptics::TransportToMiddle" << RESTendl;
         RESTWarning << "The particle should be placed between entrance and middle!" << RESTendl;
         return 0;
@@ -276,7 +301,7 @@ Int_t TRestAxionOptics::TransportToMiddle(const TVector3& pos, const TVector3& d
 ///
 Int_t TRestAxionOptics::TransportToExit(const TVector3& pos, const TVector3& dir) {
     RESTDebug << "TRestAxionOptics::TransportToExit" << RESTendl;
-    if (pos.Z() < 0 || pos.Z() > GetExitZPosition()) {
+    if (pos.Z() < 0 || pos.Z() > GetExitPositionZ()) {
         RESTWarning << "TRestAxionOptics::TransportToExit" << RESTendl;
         RESTWarning << "The particle should be placed between middle and exit!" << RESTendl;
         return 0;
@@ -288,7 +313,7 @@ Int_t TRestAxionOptics::TransportToExit(const TVector3& pos, const TVector3& dir
     }
 
     fExitPosition =
-        REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), TVector3(0, 0, GetExitZPosition()));
+        REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), TVector3(0, 0, GetExitPositionZ()));
     fExitDirection = dir;
 
     return fExitMask->GetRegion(fExitPosition.X(), fExitPosition.Y());
@@ -365,12 +390,12 @@ Double_t TRestAxionOptics::PropagatePhoton(const TVector3& pos, const TVector3& 
 /// \brief Initialization of TRestAxionOptics field members through a RML file
 ///
 void TRestAxionOptics::InitFromConfigFile() {
-    if (fMirror) {
-        delete fMirror;
-        fMirror = nullptr;
+    if (fMirrorProperties) {
+        delete fMirrorProperties;
+        fMirrorProperties = nullptr;
     }
 
-    fMirror = (TRestAxionOpticsMirror*)this->InstantiateChildMetadata("TRestAxionOpticsMirror");
+    fMirrorProperties = (TRestAxionOpticsMirror*)this->InstantiateChildMetadata("TRestAxionOpticsMirror");
 
     TRestMetadata::InitFromConfigFile();
 
@@ -386,8 +411,8 @@ void TRestAxionOptics::PrintMetadata() {
 
     RESTMetadata << " - Optics file : " << fOpticsFile << RESTendl;
     RESTMetadata << "---------" << RESTendl;
-    RESTMetadata << "Entrance position in Z : " << GetEntranceZPosition() << " mm" << RESTendl;
-    RESTMetadata << "Exit position in Z : " << GetExitZPosition() << " mm" << RESTendl;
+    RESTMetadata << "Entrance position in Z : " << GetEntrancePositionZ() << " mm" << RESTendl;
+    RESTMetadata << "Exit position in Z : " << GetExitPositionZ() << " mm" << RESTendl;
     RESTMetadata << "---------" << RESTendl;
     RESTMetadata << " " << RESTendl;
     RESTMetadata << " Use \"this->PrintMasks()\" to get masks info" << RESTendl;
@@ -408,7 +433,7 @@ void TRestAxionOptics::PrintMasks() {
 /// \brief Prints on screen the 3-optical masks used on the optics planes
 ///
 void TRestAxionOptics::PrintMirror() {
-    if (fMirror) fMirror->PrintMetadata();
+    if (fMirrorProperties) fMirrorProperties->PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -516,7 +541,7 @@ TPad* TRestAxionOptics::CreatePad(Int_t nx, Int_t ny) {
 /// including the mirrors geometry.
 ///
 Double_t TRestAxionOptics::GetPhotonReflectivity(Double_t energy) {
-    if (!fMirror) return 0;
+    if (!fMirrorProperties) return 0;
 
     Double_t reflectivity = 1.;
     if (IsFirstMirrorReflection()) {
@@ -524,14 +549,14 @@ Double_t TRestAxionOptics::GetPhotonReflectivity(Double_t energy) {
 
         angle = angle * units("deg") / units("rad") / 2.;  // Incidence angle in degrees. We divide by 2
 
-        reflectivity *= fMirror->GetReflectivity(angle, energy);
+        reflectivity *= fMirrorProperties->GetReflectivity(angle, energy);
     }
     if (IsSecondMirrorReflection()) {
         Double_t angle = REST_Physics::GetVectorsAngle(fMiddleDirection, fExitDirection);
 
         angle = angle * units("deg") / units("rad") / 2.;  // Incidence angle in degrees. We divide by 2
 
-        reflectivity *= fMirror->GetReflectivity(angle, energy);
+        reflectivity *= fMirrorProperties->GetReflectivity(angle, energy);
     }
     return reflectivity;
 }

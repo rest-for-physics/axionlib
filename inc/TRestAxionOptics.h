@@ -43,7 +43,16 @@ class TRestAxionOptics : public TRestMetadata {
     std::vector<std::vector<Double_t>> fOpticsData;  //<
 
     /// The mirror properties
-    TRestAxionOpticsMirror* fMirror = nullptr;  //<
+    TRestAxionOpticsMirror* fMirrorProperties = nullptr;  //<
+
+    /// The entrance optical mask that defines a pattern with regions identified with a number
+    TRestCombinedMask* fEntranceMask = nullptr;  //!
+
+    /// The middle optical mask that defines a pattern with regions identified with a number
+    TRestCombinedMask* fMiddleMask = nullptr;  //!
+
+    /// The exit optical mask that defines a pattern with regions identified with a number
+    TRestCombinedMask* fExitMask = nullptr;  //!
 
     /// The particle position at the origin
     TVector3 fOriginPosition;  //!
@@ -74,15 +83,6 @@ class TRestAxionOptics : public TRestMetadata {
 
     /// The calculated focal in mm. It is updated by the method TRestAxionOptics::FindFocal.
     Double_t fFocal = -1;  //!
-
-    /// The entrance optical mask that defines a pattern with regions identified with a number
-    TRestCombinedMask* fEntranceMask = nullptr;  //!
-
-    /// The middle optical mask that defines a pattern with regions identified with a number
-    TRestCombinedMask* fMiddleMask = nullptr;  //!
-
-    /// The exit optical mask that defines a pattern with regions identified with a number
-    TRestCombinedMask* fExitMask = nullptr;  //!
 
     /// During the photon propagation it keeps track of the active mirror shell.
     Int_t fCurrentMirror = -1;  //!
@@ -125,10 +125,10 @@ class TRestAxionOptics : public TRestMetadata {
     virtual std::pair<Double_t, Double_t> GetRadialLimits() = 0;
 
     /// It returns the entrance Z-position defined by the optical axis.
-    virtual Double_t GetEntranceZPosition() = 0;
+    virtual Double_t GetEntrancePositionZ() = 0;
 
     /// It returns the exit Z-position defined by the optical axis
-    virtual Double_t GetExitZPosition() = 0;
+    virtual Double_t GetExitPositionZ() = 0;
 
     /// It updates the values fFirstInteractionPosition and fMiddleDirection. Returns 0 if is not in region.
     virtual Int_t FirstMirrorReflection(const TVector3& pos, const TVector3& dir) = 0;
@@ -139,6 +139,7 @@ class TRestAxionOptics : public TRestMetadata {
     /// It draws the mirrors using a TGraph. To be implemented at the inherited class.
     virtual TPad* DrawMirrors() = 0;
 
+    /// It returns the entrance angle to the optical axis (in radians).
     Double_t GetEntranceAngle() { return TMath::ACos(fEntranceDirection.Dot(TVector3(0, 0, 1))); }
 
     virtual Double_t FindFocal(Double_t from, Double_t to, Double_t energy, Double_t precision = 1,
@@ -196,7 +197,7 @@ class TRestAxionOptics : public TRestMetadata {
     TRestCombinedMask* const& GetExitMask() const { return fExitMask; }
 
     /// Returns a pointer to access directly the exit mask information
-    TRestAxionOpticsMirror* const& GetMirrorProperties() const { return fMirror; }
+    TRestAxionOpticsMirror* const& GetMirrorProperties() const { return fMirrorProperties; }
 
     void PrintMetadata();
 
