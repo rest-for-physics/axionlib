@@ -343,14 +343,11 @@ Double_t TRestAxionOptics::PropagatePhoton(const TVector3& pos, const TVector3& 
     /// fFirstInteractionPosition and fMiddleDirection
     FirstMirrorReflection(fEntrancePosition, fEntranceDirection);
 
-    //// TODO obtain incidence angle and reflectivity
-
     /// We move the particle to the entrance optics plane. We update fEntrancePosition
     Int_t middleRegion = TransportToMiddle(fFirstInteractionPosition, fMiddleDirection);
     RESTDebug << "Middle region : " << middleRegion << RESTendl;
     if (middleRegion != entranceRegion) return 0.0;
 
-    /// We update the position and direction at the second mirror
     /// We update the position and direction at the second mirror. We update
     /// fSecondInteractionPosition and fExitDirection
     SecondMirrorReflection(fMiddlePosition, fMiddleDirection);
@@ -722,15 +719,13 @@ Double_t TRestAxionOptics::PropagateMonteCarloPhoton(Double_t energy, Double_t d
     Double_t angle = fRandom->Uniform(0, 2 * TMath::Pi());
     TVector3 origin(r * TMath::Cos(angle), r * TMath::Sin(angle), -3 * fMirrorLength);
 
-    Double_t devX = fRandom->Uniform(-deviation, deviation);
-    Double_t devY = fRandom->Uniform(-deviation, deviation);
-    while (devX * devX + devY * devY > deviation * deviation) {
-        devX = fRandom->Uniform(-deviation, deviation);
-        devY = fRandom->Uniform(-deviation, deviation);
-    }
+    Double_t theta = fRandom->Uniform(0, deviation);
+    Double_t phi = fRandom->Uniform(0, 2 * TMath::Pi());
 
-    TVector3 direction(devX, devY, 1);
-    direction = direction.Unit();
+    TVector3 direction(0, 0, 1);
+    direction.SetTheta(theta);
+    direction.SetPhi(phi);
+    direction.SetMag(1.);
 
     return PropagatePhoton(origin, direction, energy);
 }
