@@ -37,8 +37,8 @@ class TRestAxionMCPLOptics : public TRestAxionOptics {
     /// The file containing the output particle list
     std::string fOutputMCPLFilename;
 
-    Int_t FirstMirrorReflection() { return 0; }
-    Int_t SecondMirrorReflection() { return 0; }
+    Int_t FirstMirrorReflection(const TVector3& pos, const TVector3& dir) override { return 0; }
+    Int_t SecondMirrorReflection(const TVector3& pos, const TVector3& dir) override { return 0; }
 
    public:
     void PrintMetadata() override;
@@ -56,6 +56,8 @@ class TRestAxionMCPLOptics : public TRestAxionOptics {
         std::pair<Double_t, Double_t> result(0, 0);
         return result;
     }
+
+    void SetMirror() override { fCurrentMirror = -1; }
 
     TPad* DrawMirrors() override;
 
