@@ -8,9 +8,22 @@
 #define RestTask_Axion_XMMEfficiency
 
 //*******************************************************************************************************
+//*** Description: It creates an efficiency curve as a function of angle respect to axis.
 //***
-//*** Your HELP is needed to verify, validate and document this macro
-//*** This macro might need update/revision.
+//*** It determines the fraction of photons that:
+//***
+//*** 1. Enter through the entrance plane (that does not hit the mirror thickness or spider structure),
+//*** only photons inside `GetRadialLimits` will be considered in the calculation,
+//*** 2. Once they enter the optics, they manage to go though the exit plane, and thus reach the
+//*** spot,
+//*** 3. and the fraction of photons reaching the spot convoluted with the reflectivity.
+//***
+//*** --------------
+//*** Usage: restManager XMMEfficiency [maxDev=0]
+//***
+//*** Where the optional arguments are:
+//***
+//*** - *maxDev*: Maximum deviation (in radians) respect to optical axis to be given to the MC-photons.
 //***
 //*******************************************************************************************************
 Int_t REST_Axion_XMMEfficiency(Double_t maxDev = 0.0005) {
