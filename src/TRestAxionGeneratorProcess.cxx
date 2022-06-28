@@ -162,11 +162,11 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
 
     TVector3 axionPosition = TVector3(0, 0, -100000);
     TVector3 axionDirection = TVector3(0, 0, 1);
-    Double_t energy = 0;
+    Double_t energy = 1;
 
     // Random unit position
     // We avoid the use of expensive trigonometric functions
-    Double_t energy = 1, x, y, r;
+    Double_t x, y, r;
     do {
         x = fRandom->Rndm() - 0.5;
         y = fRandom->Rndm() - 0.5;
@@ -180,8 +180,8 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
         energy = p.first;
         Double_t radius = p.second;
 
-        axionPosition(REST_Physics::solarRadius * radius * x / r, REST_Physics::solarRadius * radius * y / r,
-                      -REST_Physics::AU);
+        axionPosition = TVector3(REST_Physics::solarRadius * radius * x / r,
+                                 REST_Physics::solarRadius * radius * y / r, -REST_Physics::AU);
 
         axionDirection = -axionPosition.Unit();
     }
@@ -213,8 +213,9 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
 void TRestAxionGeneratorProcess::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
+    RESTMetadata << "Generator type: " << fGeneratorType << RESTendl;
     RESTMetadata << "Axion mass: " << fAxionMass * units("eV") << " eV" << RESTendl;
-    RESTMetadata << "Detector radius: " << fDetectorRadius * units("cm") << " cm" << RESTendl;
+    RESTMetadata << "Target radius: " << fTargetRadius * units("cm") << " cm" << RESTendl;
     RESTMetadata << "Random seed: " << (UInt_t)fSeed << RESTendl;
 
     RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
