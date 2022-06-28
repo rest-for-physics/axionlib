@@ -48,8 +48,11 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     /// The axion mass
     Double_t fAxionMass = 0;  //<
 
-    /// The central position of the generator (Default is 10cm)
-    Double_t fDetectorRadius = 0.5;  //<
+    /// The target size in mm (or generator source extension) for the generator.
+    Double_t fTargetRadius = 800;  //<
+
+    /// The generator type (solarFlux/flat)
+    Double_t fGeneratorType = "solarFlux";  //<
 
     // Seed used in random generator
     Int_t fSeed = 0;  //<

@@ -36,11 +36,18 @@
 /// define an initial axion position, direction and energy.
 ///
 /// The following metadata members can be tuned in this process:
-/// - `axionMass:` It defines the axion mass in eV required later on by axion-photon
+/// - **axionMass**: It defines the axion mass in eV required later on by axion-photon
 /// conversion processes. Its default value is 0.
-/// - `detectorRadius:` All generated axion events will end up in a circular region
+/// - **targetRadius**: All generated axion events will end up in a circular region
 /// placed at the XY plane. This parameter defines the radius of the circular region.
-/// The default value is 10cm.
+/// The default value is 80cm. It will be used to generate an additional deviation
+/// to the position.
+/// - **generatorType**: It defines for the moment two different types of generator.
+///    - `solarFlux`: It places the particle at the solar disk, 1-AU distance, with
+///    a spatial and energy distribution given by the TRestAxionSolarFlux description.
+///    - `flat`: It just gives a parallel flux with the extension of fTargetRadius.
+///    The photons energy is fixed for the moment to 1keV, and the Z-position far enough
+///    to be outside the IAXO helioscope.
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -132,7 +139,7 @@ void TRestAxionGeneratorProcess::InitProcess() {
 
     fAxionFlux = GetMetadata<TRestAxionSolarFlux>();
 
-    if (fAxionFlux == nullptr) {
+    if (fGeneratorType == "solarFlux" && fAxionFlux == nullptr) {
         if (!this->GetError()) this->SetError("The solar flux definition was not found.");
     }
 
@@ -153,12 +160,13 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     fOutputAxionEvent->SetID(fCounter);
     fCounter++;
 
-    std::pair<Double_t, Double_t> p = fAxionFlux->GetRandomEnergyAndRadius();
-    Double_t energy = p.first;
-    Double_t radius = p.second;
+    TVector3 axionPosition = TVector3(0, 0, -100000);
+    TVector3 axionDirection = TVector3(0, 0, 1);
+    Double_t energy = 0;
 
+    // Random unit position
     // We avoid the use of expensive trigonometric functions
-    Double_t x, y, r;
+    Double_t energy = 1, x, y, r;
     do {
         x = fRandom->Rndm() - 0.5;
         y = fRandom->Rndm() - 0.5;
@@ -167,10 +175,29 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
 
     r = TMath::Sqrt(r);
 
-    TVector3 axionPosition(REST_Physics::solarRadius * radius * x / r,
-                           REST_Physics::solarRadius * radius * y / r, -REST_Physics::AU);
+    if (fGeneratorType == "solarFlux") {
+        std::pair<Double_t, Double_t> p = fAxionFlux->GetRandomEnergyAndRadius();
+        energy = p.first;
+        Double_t radius = p.second;
 
-    TVector3 axionDirection = -axionPosition.Unit();
+        axionPosition(REST_Physics::solarRadius * radius * x / r, REST_Physics::solarRadius * radius * y / r,
+                      -REST_Physics::AU);
+
+        axionDirection = -axionPosition.Unit();
+    }
+
+    /// The axion position must be displaced by the target size (In my opinion the target should be
+    /// either the optics entrance, or the magnet end bore). Probably the most intuitive is to
+    /// place the optics at the (0,0,0) .
+    do {
+        x = fRandom->Rndm() - 0.5;
+        y = fRandom->Rndm() - 0.5;
+        r = x * x + y * y;
+    } while (r > 1 || r == 0);
+
+    r = TMath::Sqrt(r);
+
+    axionPosition = axionPosition + TVector3(fTargetRadius * x / r, fTargetRadius * y / r, 0);
 
     fOutputAxionEvent->SetEnergy(energy);
     fOutputAxionEvent->SetPosition(axionPosition);
