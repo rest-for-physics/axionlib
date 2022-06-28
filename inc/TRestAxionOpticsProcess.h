@@ -20,19 +20,21 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestAxionOpticsResponseProcess
-#define RestCore_TRestAxionOpticsResponseProcess
+#ifndef RestCore_TRestAxionOpticsProcess
+#define RestCore_TRestAxionOpticsProcess
 
 #include "TRestAxionEvent.h"
+#include "TRestAxionOptics.h"
 #include "TRestEventProcess.h"
 
 //! A process to introduce the response from optics in the axion signal generation chain
-class TRestAxionOpticsResponseProcess : public TRestEventProcess {
+class TRestAxionOpticsProcess : public TRestEventProcess {
    private:
     /// A pointer to the specific TRestAxionEvent
     TRestAxionEvent* fAxionEvent;  //!
 
-    void InitFromConfigFile() override;
+    /// A pointer to the optics description defined inside TRestRun
+    TRestAxionOptics* fOptics;  //!
 
     void Initialize() override;
 
@@ -40,6 +42,8 @@ class TRestAxionOpticsResponseProcess : public TRestEventProcess {
 
    protected:
    public:
+    void InitProcess() override;
+
     TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
     any GetInputEvent() { return fAxionEvent; }
@@ -58,12 +62,12 @@ class TRestAxionOpticsResponseProcess : public TRestEventProcess {
     const char* GetProcessName() const override { return "axionOpticsResponse"; }
 
     // Constructor
-    TRestAxionOpticsResponseProcess();
-    TRestAxionOpticsResponseProcess(char* cfgFileName);
+    TRestAxionOpticsProcess();
+    TRestAxionOpticsProcess(char* cfgFileName);
 
     // Destructor
-    ~TRestAxionOpticsResponseProcess();
+    ~TRestAxionOpticsProcess();
 
-    ClassDefOverride(TRestAxionOpticsResponseProcess, 1);
+    ClassDefOverride(TRestAxionOpticsProcess, 1);
 };
 #endif

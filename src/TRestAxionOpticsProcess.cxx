@@ -21,7 +21,7 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionOpticsResponseProcess TOBE documented
+/// TRestAxionOpticsProcess TOBE documented
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -32,20 +32,20 @@
 /// 2019-March:  First implementation of a dummy optics response
 ///             Javier Galan
 ///
-/// \class      TRestAxionOpticsResponseProcess
+/// \class      TRestAxionOpticsProcess
 /// \author
 ///
 /// <hr>
 ///
-#include "TRestAxionOpticsResponseProcess.h"
+#include "TRestAxionOpticsProcess.h"
 using namespace std;
 
-ClassImp(TRestAxionOpticsResponseProcess);
+ClassImp(TRestAxionOpticsProcess);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestAxionOpticsResponseProcess::TRestAxionOpticsResponseProcess() { Initialize(); }
+TRestAxionOpticsProcess::TRestAxionOpticsProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -58,7 +58,7 @@ TRestAxionOpticsResponseProcess::TRestAxionOpticsResponseProcess() { Initialize(
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestAxionOpticsResponseProcess::TRestAxionOpticsResponseProcess(char* cfgFileName) {
+TRestAxionOpticsProcess::TRestAxionOpticsProcess(char* cfgFileName) {
     Initialize();
 
     LoadConfig(cfgFileName);
@@ -67,12 +67,12 @@ TRestAxionOpticsResponseProcess::TRestAxionOpticsResponseProcess(char* cfgFileNa
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionOpticsResponseProcess::~TRestAxionOpticsResponseProcess() { delete fAxionEvent; }
+TRestAxionOpticsProcess::~TRestAxionOpticsProcess() { delete fAxionEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
 ///
-void TRestAxionOpticsResponseProcess::LoadDefaultConfig() {
+void TRestAxionOpticsProcess::LoadDefaultConfig() {
     SetName(this->ClassName());
     SetTitle("Default config");
 }
@@ -87,14 +87,14 @@ void TRestAxionOpticsResponseProcess::LoadDefaultConfig() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestAxionOpticsResponseProcess::LoadConfig(std::string cfgFilename, std::string name) {
+void TRestAxionOpticsProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define the section name
 ///
-void TRestAxionOpticsResponseProcess::Initialize() {
+void TRestAxionOpticsProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
@@ -102,10 +102,33 @@ void TRestAxionOpticsResponseProcess::Initialize() {
 }
 
 ///////////////////////////////////////////////
+/// \brief Process initialization. Data members that require initialization just before start processing
+/// should be initialized here.
+///
+void TRestAxionOpticsProcess::InitProcess() {
+    RESTDebug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << RESTendl;
+
+    fOptics = GetMetadata<TRestAxionOptics>();
+}
+
+///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestAxionOpticsResponseProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestAxionOpticsProcess::ProcessEvent(TRestEvent* evInput) {
     fAxionEvent = (TRestAxionEvent*)evInput;
+
+    TVector3 inPos = fAxionEvent->GetPosition();
+    TVector3 inDir = fAxionEvent->GetDirection();
+    Double_t energy = fAxionEvent->GetEnergy();
+
+    Double_t efficiency = fOptics->PropagatePhoton(inPos, inDir, energy);
+
+    if (efficiency <= 0) return nullptr;
+
+    fAxionEvent->SetPosition(fOptics->GetExitPosition());
+    fAxionEvent->SetDirection(fOptics->GetExitDirection());
+
+    /// TODO set efficiency
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         fAxionEvent->PrintEvent();
@@ -115,8 +138,3 @@ TRestEvent* TRestAxionOpticsResponseProcess::ProcessEvent(TRestEvent* evInput) {
 
     return fAxionEvent;
 }
-
-///////////////////////////////////////////////
-/// \brief Function reading input parameters from the RML TRestAxionOpticsResponseProcess metadata section
-///
-void TRestAxionOpticsResponseProcess::InitFromConfigFile() {}
