@@ -33,10 +33,10 @@ class TRestAxionEventProcess : public TRestEventProcess {
     TVector3 fCenter = TVector3(0, 0, 0);
 
     /// The rotation angle respect to the Y-axis
-    Double_t fTheta = 0;
+    Double_t fYaw = 0;
 
-    /// The rotation angle with respect to Z-axis (propagation axis)
-    Double_t fPhi = 0;
+    /// The rotation angle with respect to X-axis
+    Double_t fPitch = 0;
 
     /// The displacement applied to the process component
     TVector2 fDisplacement = TVector2(0, 0);
