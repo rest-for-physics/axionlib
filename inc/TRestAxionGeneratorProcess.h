@@ -52,7 +52,7 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     Double_t fTargetRadius = 800;  //<
 
     /// The generator type (solarFlux/flat)
-    Double_t fGeneratorType = "solarFlux";  //<
+    TString fGeneratorType = "solarFlux";  //<
 
     // Seed used in random generator
     Int_t fSeed = 0;  //<
