@@ -65,18 +65,22 @@ void TRestAxionEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
     TRestEventProcess::BeginOfEventProcess(inEv);
 
     fAxionEvent = (TRestAxionEvent*)inEv;
-    debug << "BoEP: Initial Position. X: " << fAxionEvent->GetPosition().X()
-          << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z() << endl;
-    debug << "BoEP: Initial Direction. X: " << fAxionEvent->GetDirection().X()
-          << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z() << endl;
+    RESTDebug << "BoEP: Initial Position. X: " << fAxionEvent->GetPosition().X()
+              << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z()
+              << RESTendl;
+    RESTDebug << "BoEP: Initial Direction. X: " << fAxionEvent->GetDirection().X()
+              << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z()
+              << RESTendl;
     fAxionEvent->RotateZX(fCenter, -fPhi, -fTheta);
     fAxionEvent->Translate(TVector3(-fDisplacement.X(), -fDisplacement.Y(), 0));
-    debug << " ---- " << endl;
-    debug << "BoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
-          << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z() << endl;
-    debug << "BoEP: Final Direction. X: " << fAxionEvent->GetDirection().X()
-          << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z() << endl;
-    debug << " ++++ " << endl;
+    RESTDebug << " ---- " << RESTendl;
+    RESTDebug << "BoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
+              << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z()
+              << RESTendl;
+    RESTDebug << "BoEP: Final Direction. X: " << fAxionEvent->GetDirection().X()
+              << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z()
+              << RESTendl;
+    RESTDebug << " ++++ " << RESTendl;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -86,18 +90,22 @@ void TRestAxionEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
 void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
     TRestEventProcess::EndOfEventProcess(evInput);
 
-    debug << "EoEP: Initial Position. X: " << fAxionEvent->GetPosition().X()
-          << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z() << endl;
-    debug << "EoEP: Initial Direction. X: " << fAxionEvent->GetDirection().X()
-          << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z() << endl;
-    debug << " ---- " << endl;
+    RESTDebug << "EoEP: Initial Position. X: " << fAxionEvent->GetPosition().X()
+              << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z()
+              << RESTendl;
+    RESTDebug << "EoEP: Initial Direction. X: " << fAxionEvent->GetDirection().X()
+              << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z()
+              << RESTendl;
+    RESTDebug << " ---- " << RESTendl;
     fAxionEvent->Translate(TVector3(fDisplacement.X(), fDisplacement.Y(), 0));
     fAxionEvent->RotateXZ(fCenter, fTheta, fPhi);
-    debug << "EoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
-          << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z() << endl;
-    debug << "EoEP: Final Direction. X: " << fAxionEvent->GetDirection().X()
-          << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z() << endl;
-    debug << " ++++ " << endl;
+    RESTDebug << "EoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
+              << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z()
+              << RESTendl;
+    RESTDebug << "EoEP: Final Direction. X: " << fAxionEvent->GetDirection().X()
+              << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z()
+              << RESTendl;
+    RESTDebug << " ++++ " << RESTendl;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -109,13 +117,14 @@ void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
 void TRestAxionEventProcess::BeginPrintProcess() {
     TRestEventProcess::BeginPrintProcess();
 
-    metadata << "Center: (" << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ")" << endl;
-    metadata << "Theta angle: " << fTheta * 180. / TMath::Pi() << " degrees" << endl;
-    metadata << "Phi angle: " << fPhi * 180. / TMath::Pi() << " degrees" << endl;
-    metadata << "X-displacement: " << fDisplacement.X() << " mm" << endl;
-    metadata << "Y-displacement: " << fDisplacement.Y() << " mm" << endl;
-    metadata << " --------------------------- " << endl;
-    metadata << " " << endl;
+    RESTMetadata << "Center: (" << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ")"
+                 << RESTendl;
+    RESTMetadata << "Theta angle: " << fTheta * 180. / TMath::Pi() << " degrees" << RESTendl;
+    RESTMetadata << "Phi angle: " << fPhi * 180. / TMath::Pi() << " degrees" << RESTendl;
+    RESTMetadata << "X-displacement: " << fDisplacement.X() << " mm" << RESTendl;
+    RESTMetadata << "Y-displacement: " << fDisplacement.Y() << " mm" << RESTendl;
+    RESTMetadata << " --------------------------- " << RESTendl;
+    RESTMetadata << " " << RESTendl;
 }
 
 //////////////////////////////////////////////////////////////////////////

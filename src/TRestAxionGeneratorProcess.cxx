@@ -186,9 +186,9 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
 void TRestAxionGeneratorProcess::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << "Axion mass: " << fAxionMass * units("eV") << " eV" << endl;
-    metadata << "Detector radius: " << fDetectorRadius * units("cm") << " cm" << endl;
-    metadata << "Random seed: " << (UInt_t)fSeed << endl;
+    RESTMetadata << "Axion mass: " << fAxionMass * units("eV") << " eV" << RESTendl;
+    RESTMetadata << "Detector radius: " << fDetectorRadius * units("cm") << " cm" << RESTendl;
+    RESTMetadata << "Random seed: " << (UInt_t)fSeed << RESTendl;
 
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }

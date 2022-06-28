@@ -122,7 +122,7 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
     fField = (TRestAxionMagneticField*)this->GetMetadata("TRestAxionMagneticField");
 
     if (!fField) {
-        ferr << "TRestAxionFieldPropagationprocess. Magnetic Field was not defined!" << endl;
+        RESTError << "TRestAxionFieldPropagationprocess. Magnetic Field was not defined!" << RESTendl;
         exit(0);
     }
 }
@@ -130,7 +130,7 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
 TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput) {
     // Already done by TRestAxionEventProcess
     fAxionEvent = (TRestAxionEvent*)evInput;
-    debug << "TRestAxionFieldPropagationProcess::ProcessEvent : " << fAxionEvent->GetID() << endl;
+    RESTDebug << "TRestAxionFieldPropagationProcess::ProcessEvent : " << fAxionEvent->GetID() << RESTendl;
 
     std::vector<TVector3> trackBounds =
         fField->GetFieldBoundaries(fAxionEvent->GetPosition(), fAxionEvent->GetDirection());

@@ -34,13 +34,18 @@
 //! A process to introduce the magnetic field profile integration along the track
 class TRestAxionFieldPropagationProcess : public TRestAxionEventProcess {
    private:
-    void Initialize();
-    // To be implemented
+    /// A pointer to the magnetic field description stored in TRestRun
+    TRestAxionMagneticField* fField;  //!
 
-    EndPrintProcess();
+    void Initialize() override;
 
-    /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestAxionFieldPropagationProcess; }
+   public:
+    void InitProcess() override;
+
+    RESTValue GetInputEvent() const override { return fAxionEvent; }
+    RESTValue GetOutputEvent() const override { return fAxionEvent; }
+
+    TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
 
     /// Returns the name of this process
     const char* GetProcessName() const override { return "axionFieldPropagation"; }
