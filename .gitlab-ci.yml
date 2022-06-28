@@ -1,4 +1,4 @@
-image: ghcr.io/lobis/root-geant4-garfield:cpp17_ROOT-v6-26-00_Geant4-v10.4.3_Garfield-af4a1451
+image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
 
 stages:
   - pre-build
@@ -30,7 +30,7 @@ validateLibrary:
             - $CRONJOB == "YES"
 
 build:
-  type: build
+  stage: build
   script:
     - echo "**${CI_PROJECT_DIR}**"
     - rm -rf ${CI_PROJECT_DIR}/install
@@ -38,13 +38,9 @@ build:
     - cd framework
     - ./scripts/checkoutRemoteBranch.sh ${CI_COMMIT_BRANCH}
     - git submodule init source/libraries/axion
-      # This will download the data from axionlib.
-      # erhaps we should make the data accessible throught https and then open the remote files from the pipeline?
     - git submodule update source/libraries/axion
     - cd source/libraries/axion/
     - git checkout ${CI_COMMIT_BRANCH}
-    - git submodule init data
-    - git submodule update data
     - cd ../../../
     - mkdir build
     - cd build
@@ -63,7 +59,7 @@ build:
     expire_in: 1 day
 
 loadRESTLibs:
-  type: loadRESTLibs
+  stage: loadRESTLibs
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
       #    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
@@ -73,14 +69,16 @@ loadRESTLibs:
       - $CRONJOB
 
 magneticField:
-  type: metadata
+  stage: metadata
   script:
       #    - . ${CI_PROJECT_DIR}/framework/source/libraries/axion/external/solarAxionFlux/bin/thisSolarAxionFluxLib.sh
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/magneticField/
-    - ls $REST_PATH/data/axion/magneticField/
+    - wget https://sultan.unizar.es/axionlib-data/magneticField/fields.rml
+    - wget https://sultan.unizar.es/axionlib-data/magneticField/Bykovskiy_201906.dat
     - python magneticField.py
     - cd trilinear
+    - wget https://sultan.unizar.es/axionlib-data/magneticField/fields.rml
     - restRoot -b -q GetMagneticField_test.C
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/magneticField/boundary/
     - restRoot -b -q Boundaries_test.C
@@ -88,23 +86,47 @@ magneticField:
       variables:
         - $CRONJOB
 
-optics:
-  type: metadata
+mirrors:
+  stage: metadata
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/optics/
-    - python basic.py
-    - python optics.py
+    - wget https://sultan.unizar.es/axionlib-data/optics/optics.rml
+    - wget https://sultan.unizar.es/axionlib-data/opticsMirror/mirrors.rml
+    - wget https://sultan.unizar.es/axionlib-data/opticsMirror/Reflectivity_Single_C_30_SiO2_0.N901f
+    - wget https://sultan.unizar.es/axionlib-data/opticsMirror/Transmission_Single_C_30_SiO2_0.N901f
+    - wget https://sultan.unizar.es/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
+    - wget https://sultan.unizar.es/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
+    - python mirrors.py
+      # - python optics.py
+      # - python basic.py
   except:
       variables:
         - $CRONJOB
 
+xRayTransmission:
+  stage: metadata
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/pipeline/metadata/transmission/
+    - wget https://sultan.unizar.es/axionlib-data/transmission/windows.rml
+    - wget https://sultan.unizar.es/axionlib-data/transmission/Al.sol
+    - wget https://sultan.unizar.es/axionlib-data/transmission/Si.sol
+    - wget https://sultan.unizar.es/axionlib-data/transmission/Si3N4.sol
+    - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CI_PROJECT_DIR}/mpfr-4.0.2/install/lib
+    - python windowPlot.py
+
 solarFlux:
-  type: metadata
+  stage: metadata
   script:
     - . ${CI_PROJECT_DIR}/install/thisREST.sh
     - cd ${CI_PROJECT_DIR}/pipeline/metadata/solarFlux/
-    - python solarFlux.py
+    - wget https://sultan.unizar.es/axionlib-data/solarFlux/fluxes.rml
+    - wget https://sultan.unizar.es/axionlib-data/solarFlux/Dummy_Galan_202202.spt
+    - wget https://sultan.unizar.es/axionlib-data/solarFlux/Primakoff_Gianotti_201904.dat
+    - wget https://sultan.unizar.es/axionlib-data/solarFlux/Primakoff_LennertHoof_202203.dat
+    - python solarTests.py
+    - python solarPlot.py
     - python compare.py
   except:
       variables:

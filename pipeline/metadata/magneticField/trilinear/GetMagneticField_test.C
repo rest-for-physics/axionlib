@@ -12,7 +12,7 @@ Int_t CheckPoint(TVector3 point);
 
 Int_t GetMagneticField_test() {
     TVector3 coordinates;
-    myField = new TRestAxionMagneticField("../fields.rml", "bField");
+    myField = new TRestAxionMagneticField("fields.rml", "bField");
 
     // changing x, while y and z are constant
     coordinates = TVector3(-349.8, -325.0, -4975.0);

@@ -110,7 +110,7 @@ void TRestAxionAnalysisProcess::Initialize() {
 TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     fAxionEvent = (TRestAxionEvent*)evInput;
 
-    debug << "TRestAxionAnalysisProcess::ProcessEvent : " << fAxionEvent->GetID() << endl;
+    RESTDebug << "TRestAxionAnalysisProcess::ProcessEvent : " << fAxionEvent->GetID() << RESTendl;
 
     SetObservableValue("energy", fAxionEvent->GetEnergy());
 
@@ -121,7 +121,7 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     SetObservableValue("B2", fAxionEvent->GetBSquared());
     SetObservableValue("Lcoh", fAxionEvent->GetLConversion());
 
-    if (GetVerboseLevel() >= REST_Debug) fAxionEvent->PrintEvent();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) fAxionEvent->PrintEvent();
 
     return fAxionEvent;
 }

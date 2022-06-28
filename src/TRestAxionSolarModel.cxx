@@ -70,7 +70,7 @@ void TRestAxionSolarModel::InitFromConfigFile() {
     sSolarModelFile = GetParameter("solarAxionModel", "SolarModel_B16-AGSS09.dat");
     std::string fullPathName = SearchFile((std::string)sSolarModelFile);
     if (fullPathName == "") {
-        ferr << "File not found : " << sSolarModelFile << endl;
+        RESTError << "File not found : " << sSolarModelFile << RESTendl;
     } else {
 #ifdef USE_SolaxFlux
         sol = SolarModel(fullPathName, OP, false);
@@ -80,9 +80,9 @@ void TRestAxionSolarModel::InitFromConfigFile() {
         fRefElectronCoupling = sol.get_gaee_ref_value();
         bSolarModelInitialized = sol.is_initialised();
         if (bSolarModelInitialized) {
-            debug << "Solar model file " << sSolarModelFile << " successfully loaded!" << endl;
+            RESTDebug << "Solar model file " << sSolarModelFile << " successfully loaded!" << RESTendl;
         } else {
-            ferr << "Solar model initialization was not successful!" << endl;
+            RESTError << "Solar model initialization was not successful!" << RESTendl;
         };
 #endif
     };
@@ -94,7 +94,7 @@ TRestAxionSolarModel::TRestAxionSolarModel() : TRestMetadata() { Initialize(); }
 // From-file contructor
 TRestAxionSolarModel::TRestAxionSolarModel(const char* cfgFileName, std::string name)
     : TRestMetadata(cfgFileName) {
-    debug << "Creating instance of TRestAxionSolarModel from file " + fConfigFileName + "..." << endl;
+    RESTDebug << "Creating instance of TRestAxionSolarModel from file " + fConfigFileName + "..." << RESTendl;
     Initialize();
     LoadConfigFromFile(fConfigFileName, name);
     PrintMetadata();
@@ -105,17 +105,17 @@ TRestAxionSolarModel::~TRestAxionSolarModel() {}  // SolarModel memory in sol wi
 void TRestAxionSolarModel::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
-    metadata << " Solar model created with " << sExternalLibraryName << "." << endl;
-    metadata << " - Solar model file : " << sSolarModelFile << endl;
-    metadata << " - Opacity code used : " << sOpacityCodeName << endl;
-    metadata << "-------------------------------------------------" << endl;
-    metadata << " - Reference value of the axion-photon coupling : " << fRefPhotonCoupling / 1.0e-10
-             << " x 10^{-10} / GeV" << endl;
-    metadata << " - Reference value of the axion-electron coupling : " << fRefElectronCoupling / 1.0e-13
-             << " x 10^{-13}" << endl;
-    metadata << " - Units of the solar axion flux from this class : axions / cm^2 s keV" << endl;
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
+    RESTMetadata << " Solar model created with " << sExternalLibraryName << "." << RESTendl;
+    RESTMetadata << " - Solar model file : " << sSolarModelFile << RESTendl;
+    RESTMetadata << " - Opacity code used : " << sOpacityCodeName << RESTendl;
+    RESTMetadata << "-------------------------------------------------" << RESTendl;
+    RESTMetadata << " - Reference value of the axion-photon coupling : " << fRefPhotonCoupling / 1.0e-10
+                 << " x 10^{-10} / GeV" << RESTendl;
+    RESTMetadata << " - Reference value of the axion-electron coupling : " << fRefElectronCoupling / 1.0e-13
+                 << " x 10^{-13}" << RESTendl;
+    RESTMetadata << " - Units of the solar axion flux from this class : axions / cm^2 s keV" << RESTendl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }
 
 std::string TRestAxionSolarModel::GetSolarModelFileName() { return sSolarModelFile; }
@@ -124,14 +124,15 @@ std::vector<double> TRestAxionSolarModel::GetSolarAxionFluxGAGamma(std::vector<d
                                                                    double r_max) {
     std::vector<double> result;
     if (bSolarModelInitialized) {
-        warning << "TRestAxionSolarModel::GetSolarAxionFluxGAGamma." << endl;
-        warning << "This code has been commented to allow compilation and needs to be reviewed!" << endl;
-        warning << "The result vector will be empty!" << endl;
+        RESTWarning << "TRestAxionSolarModel::GetSolarAxionFluxGAGamma." << RESTendl;
+        RESTWarning << "This code has been commented to allow compilation and needs to be reviewed!"
+                    << RESTendl;
+        RESTWarning << "The result vector will be empty!" << RESTendl;
         // result = sol.calculate_spectral_flux_Primakoff(energies, r_max);
     } else {
-        ferr << "TRestAxionSolarModel not properly initialised for "
-                "RestAxionSolarModel::GetSolarAxionFluxGAGamma(...)!"
-             << endl;
+        RESTError << "TRestAxionSolarModel not properly initialised for "
+                     "RestAxionSolarModel::GetSolarAxionFluxGAGamma(...)!"
+                  << RESTendl;
     };
     return result;
 }
@@ -148,14 +149,15 @@ std::vector<double> TRestAxionSolarModel::GetSolarAxionFluxGAGamma(std::vector<d
 std::vector<double> TRestAxionSolarModel::GetSolarAxionFluxGAE(std::vector<double> energies, double r_max) {
     std::vector<double> result;
     if (bSolarModelInitialized) {
-        warning << "TRestAxionSolarModel::GetSolarAxionFluxGAE." << endl;
-        warning << "This code has been commented to allow compilation and needs to be reviewed!" << endl;
-        warning << "The result vector will be empty!" << endl;
+        RESTWarning << "TRestAxionSolarModel::GetSolarAxionFluxGAE." << RESTendl;
+        RESTWarning << "This code has been commented to allow compilation and needs to be reviewed!"
+                    << RESTendl;
+        RESTWarning << "The result vector will be empty!" << RESTendl;
         // result = sol.calculate_spectral_flux_all_electron(energies, r_max);
     } else {
-        ferr << "TRestAxionSolarModel not properly initialised for "
-                "RestAxionSolarModel::GetSolarAxionFluxGAE(...)!"
-             << endl;
+        RESTError << "TRestAxionSolarModel not properly initialised for "
+                     "RestAxionSolarModel::GetSolarAxionFluxGAE(...)!"
+                  << RESTendl;
     };
     return result;
 }

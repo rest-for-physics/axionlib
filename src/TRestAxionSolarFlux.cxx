@@ -42,13 +42,48 @@
 /// given in the solar flux tables.
 /// - *fluxDataFile:* A table with 100 rows representing the solar ring flux from the
 /// center to the corona, and 200 columns representing the flux, measured in cm-2 s-1 keV-1,
-/// for the range (0,20)keV in steps of 100eV.
+/// for the range (0,20)keV in steps of 100eV. The table could be provided in ASCII format,
+/// using `.dat` extension, or it might be a binary table using `.N200f` extension.
 /// - *fluxSptFile:* A table where each column represents a monochromatic energy. The
 /// column contains 101 rows, the first element is the energy of the monochromatic line
 /// while the next 100 elements contain the flux, measured in cm-2 s-1, integrated to
 /// each solar ring, being the second element the ring in the center of the sun.
 ///
-/// The following code shows how to define this class inside a RML file.
+/// Additionally this class will be able to read `.flux` files that are the original files
+/// produced in 3-columns format (inner radius [solar units] / energy [keV] /
+/// flux [cm-2 s-1 keV-1]). The `.flux` files may contain the full information,
+/// continuum and spectral components. Those components will be splited into two independent
+/// contributions by TRestAxionSolarFlux::ReadFluxFile to be managed internally. Two
+/// additional parameters *will be required* to translate the `.flux` files into the tables
+/// that are understood by this class.
+/// - *binSize:* The energy binning used on the `.flux` file and inside the histogram used
+/// for monochromatic lines identification.
+/// - *peakSigma:* The ratio between the flux provided at the `.flux` file and the
+/// average flux calculated in the peak surroundings. If the flux ratio is higher than
+/// this value, the flux at that particular bin will be considered a peak.
+///
+/// Optionally, if we want to consider a different binning on the monochromatic/continuum
+/// histogram used internally for the calculation we may specify optionally a new parameter.
+/// In that case, `fBinSize` will be the binning of the internal histogram, while the new
+/// parameter will be the binning given inside the `.flux` file.
+/// - *fluxBinSize:* The bin size used on the `.flux` table.
+///
+/// Pre-generated solar axion flux tables will be available at the
+/// [axionlib-data](https://github.com/rest-for-physics/axionlib-data/tree/master)
+/// repository. The different RML flux definitions used to load those tables
+/// will be found at the
+/// [fluxes.rml](https://github.com/rest-for-physics/axionlib-data/blob/master/solarFlux/fluxes.rml)
+/// file found at the axionlib-data repository.
+///
+/// Inside a local REST installation, the `fluxes.rml` file will be found at the REST
+/// installation directory, and it will be located automatically by the
+/// TRestMetadata::SearchFile method.
+///
+/// ### A basic RML definition
+///
+/// The following definition integrates an axion-photon component with a continuum
+/// spectrum using a Primakoff production model, and a dummy spectrum file that
+/// includes two monocrhomatic lines at different solar disk radius positions.
 ///
 /// \code
 ///     <TRestAxionSolarFlux name="sunPrimakoff" verboseLevel="debug" >
@@ -59,15 +94,96 @@
 ///     </TRestAxionSolarFlux>
 /// \endcode
 ///
-/// The previous definition was used to generate the following figure using the script
-/// pipeline/solarFlux/solarFlux.py.
+/// \warning When the flux is loaded manually inside the `restRoot` interactive
+/// shell, or inside a macro or script, after metadata initialization, it is necessary
+/// to call the method TRestAxionSolarFlux::LoadTables to trigger the tables
+/// initialization.
 ///
-/// \htmlonly <style>div.image img[src="AxionSolarFlux.png"]{width:750px;}</style> \endhtmlonly
+/// ### Performing MonteCarlo tests using pre-loaded tables
 ///
-/// ![Solar flux distributions generated with TRestAxionSolarFlux.](AxionSolarFlux.png)
+/// In order to test the response of different solar flux definitions we may use the script
+/// `solarPlot.py` found at `pipeline/metadata/solarFlux/`. This script will generate a
+/// number of particles and it will assign to each particle an energy and solar disk
+/// location with the help of the method TRestAxionSolarFlux::GetRandomEnergyAndRadius.
+///
+/// \code
+/// python3 solarPlot.py --fluxname LennertHoofABC --N 1000000
+/// \endcode
+///
+/// By default, it will load the flux definition found at `fluxes.rml` from the
+/// `axionlib-data` repository, and generate a `png` image with the resuts from the
+/// Monte Carlo execution.
+///
+/// \htmlonly <style>div.image img[src="ABC_flux_MC.png"]{width:750px;}</style> \endhtmlonly
+///
+/// ![Solar flux distributions MC-generated with TRestAxionSolarFlux.](ABC_flux_MC.png)
+///
+/// ### Reading solar flux tables from `.flux` files
+///
+/// In a similar way we may initialize the class using a `.flux` file. The `.flux` described
+/// previously will contain a high definition flux table measured in `cm-2 s-1 keV-1` as a
+/// function of the energy (from 0 to 20keV) and the inner solar radius (from 0 to 1). The
+/// binning of this table will be typically between 1eV and 10eV.
+///
+/// The class TRestAxionSolarFlux will be initialized directly using the `.flux` file
+/// provided under the `fluxDataFile` parameter. During the initialization, the flux will be
+/// splitted into two independent flux components. One smooth continuum component integrated
+/// in 100 eV steps, and a monochromatic peak components.
+///
+/// In order to help with the identification of peaks we need to define the `binSize` used in
+/// the `.flux` table and the `peakSigma` defining the number of sigmas over the average for
+/// a bin to be considered a peak.
+///
+/// \code
+///    <TRestAxionSolarFlux name="LennertHoofABC_Flux" verboseLevel="warning" >
+///        <parameter name="couplingType" value="g_ae"/>
+///        <parameter name="couplingStrength" value="1.e-13"/>
+///        <parameter name="fluxDataFile" value="ABC_LennertHoof_202203.flux"/>
+///
+///        <parameter name="binSize" value="10eV" />
+///        <parameter name="peakSigma" value="10" />
+///
+///        <parameter name="seed" value="137" />
+///    </TRestAxionSolarFlux>
+/// \endcode
+///
+/// We will be able to load this file as usual, using the following recipe inside
+/// `restRoot`,
+///
+/// \code
+///    TRestAxionSolarFlux *sFlux = new TRestAxionSolarFlux("fluxes.rml", "LennertHoofABC")
+///    sFlux->LoadTables()
+///    TCanvas *c = sFlux->DrawSolarFluxes()
+///    c->Print("ABC_FluxTable.png" )
+/// \endcode
+///
+/// will generate the following figure.
+///
+/// \htmlonly <style>div.image img[src="ABC_FluxTable.png"]{width:750px;}</style> \endhtmlonly
+///
+/// ![Solar flux distributions generated with TRestAxionSolarFlux::DrawSolarFlux.](ABC_FluxTable.png)
+///
+/// ### Exporting the solar flux tables
+///
+/// On top of that, we will be able to export those tables to the TRestAxionSolarFlux standard
+/// format to be used in later occasions.
+///
+/// \code
+///    TRestAxionSolarFlux *sFlux = new TRestAxionSolarFlux("fluxes.rml", "LennertHoofABC")
+///    sFlux->LoadTables()
+///    sFlux->ExportTables()
+/// \endcode
+///
+/// which will produce two files, a binary table `.N200f` with the continuum flux, and an ASCII
+/// table containning the `.spt` monochromatic lines. The filename root will be extracted from
+/// the original `.flux` file. Optionally we may export the continuum flux to an ASCII file by
+/// indicating it at the TRestAxionSolarFlux::ExportTables method call. The files will be placed
+/// at the REST user space, at `$HOME/.rest/export/` directory.
 ///
 /// TODO Implement the method TRestAxionSolarFlux::InitializeSolarTable using
 /// a solar model description by TRestAxionSolarModel.
+///
+/// TODO Perhaps it would be interesting to replace fFluxTable for a TH2D
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -109,11 +225,9 @@ TRestAxionSolarFlux::TRestAxionSolarFlux() : TRestMetadata() {}
 /// corresponding TRestAxionMagneticField section inside the RML.
 ///
 TRestAxionSolarFlux::TRestAxionSolarFlux(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
-    cout << "Entering TRestAxionSolarFlux constructor( cfgFileName, name )" << endl;
-
     LoadConfigFromFile(fConfigFileName, name);
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -128,9 +242,23 @@ void TRestAxionSolarFlux::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
-    LoadContinuumFluxTable();
+    fTablesLoaded = false;
+    LoadTables();
+}
 
-    LoadMonoChromaticFluxTable();
+///////////////////////////////////////////////
+/// \brief It will load the tables in memory by using the filename information provided
+/// inside the metadata members.
+///
+void TRestAxionSolarFlux::LoadTables() {
+    if (fFluxDataFile == "" && fFluxSptFile == "") return;
+
+    if (TRestTools::GetFileNameExtension(fFluxDataFile) == "flux") {
+        ReadFluxFile();
+    } else {
+        LoadContinuumFluxTable();
+        LoadMonoChromaticFluxTable();
+    }
 
     IntegrateSolarFluxes();
 
@@ -141,6 +269,8 @@ void TRestAxionSolarFlux::Initialize() {
 
     fRandom = new TRandom3(fSeed);
     if (fSeed == 0) fSeed = fRandom->GetSeed();
+
+    fTablesLoaded = true;
 }
 
 ///////////////////////////////////////////////
@@ -149,27 +279,42 @@ void TRestAxionSolarFlux::Initialize() {
 ///
 void TRestAxionSolarFlux::LoadContinuumFluxTable() {
     if (fFluxDataFile == "") {
-        debug << "TRestAxionSolarflux::LoadContinuumFluxTable. No solar flux table was defined" << endl;
+        RESTDebug << "TRestAxionSolarflux::LoadContinuumFluxTable. No solar flux table was defined"
+                  << RESTendl;
         return;
     }
 
     string fullPathName = SearchFile((string)fFluxDataFile);
 
-    debug << "Loading table from file : " << endl;
-    debug << "File : " << fullPathName << endl;
+    RESTDebug << "Loading table from file : " << RESTendl;
+    RESTDebug << "File : " << fullPathName << RESTendl;
 
-    std::vector<std::vector<Double_t>> fluxTable;
-    TRestTools::ReadASCIITable(fullPathName, fluxTable);
+    std::vector<std::vector<Float_t>> fluxTable;
+    if (TRestTools::GetFileNameExtension(fFluxDataFile) == ".dat") {
+        std::vector<std::vector<Double_t>> doubleTable;
+        TRestTools::ReadASCIITable(fullPathName, doubleTable);
+        for (const auto& row : doubleTable) {
+            std::vector<Float_t> floatVec(row.begin(), row.end());
+            fluxTable.push_back(floatVec);
+        }
+    } else if (TRestTools::IsBinaryFile(fFluxDataFile))
+        TRestTools::ReadBinaryTable(fullPathName, fluxTable);
+    else {
+        fluxTable.clear();
+        RESTError << "Filename extension was not recognized!" << RESTendl;
+        RESTError << "Solar flux table will not be populated" << RESTendl;
+        RESTError << "Filename extension: " << TRestTools::GetFileNameExtension(fFluxDataFile) << RESTendl;
+    }
 
     if (fluxTable.size() != 100 && fluxTable[0].size() != 200) {
         fluxTable.clear();
-        ferr << "LoadContinuumFluxTable. The table does not contain the right number of rows or columns"
-             << endl;
-        ferr << "Table will not be populated" << endl;
+        RESTError << "LoadContinuumFluxTable. The table does not contain the right number of rows or columns"
+                  << RESTendl;
+        RESTError << "Table will not be populated" << RESTendl;
     }
 
     for (int n = 0; n < fluxTable.size(); n++) {
-        TH1D* h = new TH1D(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), "", 200, 0, 20);
+        TH1F* h = new TH1F(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), "", 200, 0, 20);
         for (int m = 0; m < fluxTable[n].size(); m++) h->SetBinContent(m + 1, fluxTable[n][m]);
         fFluxTable.push_back(h);
     }
@@ -181,35 +326,330 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
 ///
 void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
     if (fFluxSptFile == "") {
-        debug << "TRestAxionSolarflux::LoadMonoChromaticFluxTable. No solar flux monochromatic table was "
-                 "defined"
-              << endl;
+        RESTDebug << "TRestAxionSolarflux::LoadMonoChromaticFluxTable. No solar flux monochromatic table was "
+                     "defined"
+                  << RESTendl;
         return;
     }
 
     string fullPathName = SearchFile((string)fFluxSptFile);
 
-    debug << "Loading monochromatic lines from file : " << endl;
-    debug << "File : " << fullPathName << endl;
+    RESTDebug << "Loading monochromatic lines from file : " << RESTendl;
+    RESTDebug << "File : " << fullPathName << RESTendl;
 
-    std::vector<std::vector<Double_t>> asciiTable;
-    TRestTools::ReadASCIITable(fullPathName, asciiTable);
+    std::vector<std::vector<Double_t>> doubleTable;
+    TRestTools::ReadASCIITable(fullPathName, doubleTable);
+
+    std::vector<std::vector<Float_t>> asciiTable;
+    for (const auto& row : doubleTable) {
+        std::vector<Float_t> floatVec(row.begin(), row.end());
+        asciiTable.push_back(floatVec);
+    }
 
     fFluxLines.clear();
 
     if (asciiTable.size() != 101) {
-        ferr << "LoadMonoChromaticFluxTable. The table does not contain the right number of rows" << endl;
-        ferr << "Table will not be populated" << endl;
+        RESTError << "LoadMonoChromaticFluxTable. The table does not contain the right number of rows"
+                  << RESTendl;
+        RESTError << "Table will not be populated" << RESTendl;
         return;
     }
 
     for (int en = 0; en < asciiTable[0].size(); en++) {
-        Double_t energy = asciiTable[0][en];
-        std::vector<Double_t> profile;
-        TH1D* h = new TH1D(Form("%s_MonochromeFluxAtEnergy%4.2lf", GetName(), energy), "", 100, 0, 1);
+        Float_t energy = asciiTable[0][en];
+        TH1F* h = new TH1F(Form("%s_MonochromeFluxAtEnergy%6.4lf", GetName(), energy), "", 100, 0, 1);
         for (int r = 1; r < asciiTable.size(); r++) h->SetBinContent(r, asciiTable[r][en]);
         fFluxLines[energy] = h;
     }
+}
+
+///////////////////////////////////////////////
+/// \brief It loads a .flux file. It will split continuum and monochromatic peaks, loading
+/// both internal flux tables.
+///
+void TRestAxionSolarFlux::ReadFluxFile() {
+    if (fBinSize <= 0) {
+        RESTError << "TRestAxionSolarflux::ReadFluxFile. Energy bin size of .flux file must be specified."
+                  << RESTendl;
+        RESTError << "Please, define binSize parameter in eV." << RESTendl;
+        return;
+    }
+
+    if (fPeakSigma <= 0) {
+        RESTWarning << "TRestAxionSolarflux::ReadFluxFile. Peak sigma must be specified to generate "
+                       "monochromatic spectrum."
+                    << RESTendl;
+        RESTWarning << "Only continuum table will be generated. If this was intentional, please, ignore this "
+                       "RESTWarning."
+                    << RESTendl;
+        return;
+    }
+
+    string fullPathName = SearchFile((string)fFluxDataFile);
+
+    RESTDebug << "Loading flux table ...  " << RESTendl;
+    RESTDebug << "File : " << fullPathName << RESTendl;
+    std::vector<std::vector<Double_t>> fluxData;
+    TRestTools::ReadASCIITable(fullPathName, fluxData, 3);
+
+    RESTDebug << "Table loaded" << RESTendl;
+    TH2F* originalHist = new TH2F("FullTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
+    TH2F* continuumHist = new TH2F("ContinuumTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
+    TH2F* spectrumHist = new TH2F("LinesTable", "", 100, 0., 1., (Int_t)(20. / fBinSize), 0., 20.);
+
+    Double_t fluxBinSize = TRestTools::GetLowestIncreaseFromTable(fluxData, 1);
+
+    for (const auto& data : fluxData) {
+        Float_t r = 0.005 + data[0];
+        Float_t en = data[1] - 0.005;
+        Float_t flux = data[2] * fluxBinSize;  // flux in cm-2 s-1 bin-1
+
+        originalHist->Fill(r, en, (Float_t)flux);
+        continuumHist->Fill(r, en, (Float_t)flux);
+    }
+    RESTDebug << "Histograms filled" << RESTendl;
+
+    Int_t peaks = 0;
+    do {
+        peaks = 0;
+        // We just identify pronounced peaks, not smoothed gaussians!
+        const int smearPoints = (Int_t)(5 / (fBinSize * 100));
+        const int excludePoints = smearPoints / 5;
+        for (const auto& data : fluxData) {
+            Float_t r = 0.005 + data[0];
+            Float_t en = data[1] - 0.005;
+            Float_t flux = data[2];  // flux per cm-2 s-1 keV-1
+
+            Int_t binR = continuumHist->GetXaxis()->FindBin(r);
+            Int_t binE = continuumHist->GetYaxis()->FindBin(en);
+
+            Double_t avgFlux = 0;
+            Int_t n = 0;
+            for (int e = binE - smearPoints; e <= binE + smearPoints; e++) {
+                if (e < 1 || (e < binE + excludePoints && e > binE - excludePoints)) continue;
+                n++;
+                avgFlux += continuumHist->GetBinContent(binR, e);
+            }
+            avgFlux /= n;
+
+            Float_t targetBinFlux = continuumHist->GetBinContent(binR, binE);
+            Float_t thrFlux = avgFlux + fPeakSigma * TMath::Sqrt(avgFlux);
+            if (targetBinFlux > 0 && targetBinFlux > thrFlux) {
+                continuumHist->SetBinContent(binR, binE, avgFlux);
+                peaks++;
+            }
+        }
+    } while (peaks > 0);
+
+    for (int n = 0; n < originalHist->GetNbinsX(); n++)
+        for (int m = 0; m < originalHist->GetNbinsY(); m++) {
+            Float_t orig = originalHist->GetBinContent(n + 1, m + 1);
+            Float_t cont = continuumHist->GetBinContent(n + 1, m + 1);
+
+            spectrumHist->SetBinContent(n + 1, m + 1, orig - cont);
+        }
+
+    continuumHist->Rebin2D(1, (Int_t)(0.1 / fBinSize));  // cm-2 s-1 (100eV)-1
+    continuumHist->Scale(10);                            // cm-2 s-1 keV-1
+    // It could be over here if we would use directly a TH2D
+
+    fFluxTable.clear();
+    for (int n = 0; n < continuumHist->GetNbinsX(); n++) {
+        TH1F* hc =
+            (TH1F*)continuumHist->ProjectionY(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), n + 1, n + 1);
+        fFluxTable.push_back(hc);
+    }
+
+    fFluxLines.clear();
+    for (int n = 0; n < spectrumHist->GetNbinsY(); n++) {
+        if (spectrumHist->ProjectionX("", n + 1, n + 1)->Integral() > 0) {
+            Double_t energy = spectrumHist->ProjectionY()->GetBinCenter(n + 1);
+            TH1F* hm = (TH1F*)spectrumHist->ProjectionX(
+                Form("%s_MonochromeFluxAtEnergy%5.3lf", GetName(), energy), n + 1, n + 1);
+            fFluxLines[energy] = hm;
+        }
+    }
+
+    cout << "Number of peaks identified: " << fFluxLines.size() << endl;
+}
+
+///////////////////////////////////////////////
+/// \brief It builds a histogram with the continuum spectrum component.
+/// The flux will be expressed in cm-2 s-1 keV-1. Binned in 100eV steps.
+///
+TH1F* TRestAxionSolarFlux::GetContinuumSpectrum() {
+    if (fContinuumHist != nullptr) {
+        delete fContinuumHist;
+        fContinuumHist = nullptr;
+    }
+
+    fContinuumHist = new TH1F("ContinuumHist", "", 200, 0, 20);
+    for (const auto& x : fFluxTable) {
+        fContinuumHist->Add(x);
+    }
+
+    fContinuumHist->SetStats(0);
+    fContinuumHist->GetXaxis()->SetTitle("Energy [keV]");
+    fContinuumHist->GetXaxis()->SetTitleSize(0.05);
+    fContinuumHist->GetXaxis()->SetLabelSize(0.05);
+    fContinuumHist->GetYaxis()->SetTitle("Flux [cm-2 s-1 keV-1]");
+    fContinuumHist->GetYaxis()->SetTitleSize(0.05);
+    fContinuumHist->GetYaxis()->SetLabelSize(0.05);
+
+    return fContinuumHist;
+}
+
+///////////////////////////////////////////////
+/// \brief It builds a histogram with the monochromatic spectrum component.
+/// The flux will be expressed in cm-2 s-1 eV-1. Binned in 1eV steps.
+///
+TH1F* TRestAxionSolarFlux::GetMonochromaticSpectrum() {
+    if (fMonoHist != nullptr) {
+        delete fMonoHist;
+        fMonoHist = nullptr;
+    }
+
+    fMonoHist = new TH1F("MonochromaticHist", "", 20000, 0, 20);
+    for (const auto& x : fFluxLines) {
+        fMonoHist->Fill(x.first, x.second->Integral());  // cm-2 s-1 eV-1
+    }
+
+    fMonoHist->SetStats(0);
+    fMonoHist->GetXaxis()->SetTitle("Energy [keV]");
+    fMonoHist->GetXaxis()->SetTitleSize(0.05);
+    fMonoHist->GetXaxis()->SetLabelSize(0.05);
+    fMonoHist->GetYaxis()->SetTitle("Flux [cm-2 s-1 eV-1]");
+    fMonoHist->GetYaxis()->SetTitleSize(0.05);
+    fMonoHist->GetYaxis()->SetLabelSize(0.05);
+
+    return fMonoHist;
+}
+
+///////////////////////////////////////////////
+/// \brief It builds a histogram adding the continuum and the monochromatic
+/// spectrum component. The flux will be expressed in cm-2 s-1 keV-1.
+/// Binned in 1eV steps.
+///
+TH1F* TRestAxionSolarFlux::GetTotalSpectrum() {
+    TH1F* hm = GetMonochromaticSpectrum();
+    TH1F* hc = GetContinuumSpectrum();
+
+    if (fTotalHist != nullptr) {
+        delete fTotalHist;
+        fTotalHist = nullptr;
+    }
+
+    fTotalHist = new TH1F("fTotalHist", "", 20000, 0, 20);
+    for (int n = 0; n < hc->GetNbinsX(); n++) {
+        for (int m = 0; m < 100; m++) {
+            fTotalHist->SetBinContent(n * 100 + 1 + m, hc->GetBinContent(n + 1));
+        }
+    }
+
+    for (int n = 0; n < hm->GetNbinsX(); n++)
+        // 1e-2 is the renormalization from 20000 bins to 200 bins
+        fTotalHist->SetBinContent(n + 1, fTotalHist->GetBinContent(n + 1) + 100 * hm->GetBinContent(n + 1));
+
+    fTotalHist->SetStats(0);
+    fTotalHist->GetXaxis()->SetTitle("Energy [keV]");
+    fTotalHist->GetXaxis()->SetTitleSize(0.05);
+    fTotalHist->GetXaxis()->SetLabelSize(0.05);
+    fTotalHist->GetYaxis()->SetTitle("Flux [cm-2 s-1 keV-1]");
+    fTotalHist->GetYaxis()->SetTitleSize(0.05);
+    fTotalHist->GetYaxis()->SetLabelSize(0.05);
+
+    return fTotalHist;
+}
+
+///////////////////////////////////////////////
+/// \brief It builds a histogram using the contents of the .flux file given
+/// in the argument.
+///
+TH1F* TRestAxionSolarFlux::GetFluxHistogram(string fname, Double_t binSize) {
+    string fullPathName = SearchFile(fname);
+
+    std::vector<std::vector<Double_t>> fluxData;
+    TRestTools::ReadASCIITable(fullPathName, fluxData, 3);
+
+    TH2F* originalHist =
+        new TH2F(Form("FluxTable", GetName()), "", 100, 0., 1., (Int_t)(20. / binSize), 0., 20.);
+
+    for (const auto& data : fluxData) {
+        Double_t r = 0.005 + data[0];
+        Double_t en = data[1] - 0.005;
+        Double_t flux = data[2] * binSize;  // flux in cm-2 s-1 bin-1
+
+        originalHist->Fill(r, en, flux);
+    }
+
+    return (TH1F*)originalHist->ProjectionY();
+}
+
+///////////////////////////////////////////////
+/// \brief It draws the contents of a .flux file. This method just receives the
+/// name of the .flux file and it works stand-alone.
+///
+TCanvas* TRestAxionSolarFlux::DrawFluxFile(string fname, Double_t binSize) {
+    if (fCanvas != nullptr) {
+        delete fCanvas;
+        fCanvas = nullptr;
+    }
+    fCanvas = new TCanvas("canv", "This is the canvas title", 1400, 1200);
+    fCanvas->Draw();
+
+    TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
+    pad1->Draw();
+
+    fCanvas->cd();
+    pad1->cd();
+
+    GetFluxHistogram(fname, binSize)->Draw("hist");
+
+    return fCanvas;
+}
+
+///////////////////////////////////////////////
+/// \brief It draws the contents of a .flux file. This method just receives the
+///
+TCanvas* TRestAxionSolarFlux::DrawSolarFlux() {
+    if (fCanvas != nullptr) {
+        delete fCanvas;
+        fCanvas = nullptr;
+    }
+    fCanvas = new TCanvas("canv", "This is the canvas title", 1200, 500);
+    fCanvas->Draw();
+
+    TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
+    pad1->Divide(2, 1);
+    pad1->Draw();
+
+    pad1->cd(1);
+    pad1->cd(1)->SetLogy();
+    pad1->cd(1)->SetRightMargin(0.09);
+    pad1->cd(1)->SetLeftMargin(0.15);
+    pad1->cd(1)->SetBottomMargin(0.15);
+
+    TH1F* ht = GetTotalSpectrum();
+    ht->SetLineColor(kBlack);
+    ht->SetFillStyle(4050);
+    ht->SetFillColor(kBlue - 10);
+
+    TH1F* hm = GetMonochromaticSpectrum();
+    hm->SetLineColor(kBlack);
+    hm->Scale(100);  // renormalizing per 100eV-1
+
+    ht->Draw("hist");
+    hm->Draw("hist same");
+
+    pad1->cd(2);
+    pad1->cd(2)->SetRightMargin(0.09);
+    pad1->cd(2)->SetLeftMargin(0.15);
+    pad1->cd(2)->SetBottomMargin(0.15);
+
+    ht->Draw("hist");
+    hm->Draw("hist same");
+
+    return fCanvas;
 }
 
 ///////////////////////////////////////////////
@@ -219,6 +659,7 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
 void TRestAxionSolarFlux::IntegrateSolarFluxes() {
     fFluxLineIntegrals.clear();
     fTotalMonochromaticFlux = 0;
+
     for (const auto& line : fFluxLines) {
         fTotalMonochromaticFlux += line.second->Integral();
         fFluxLineIntegrals.push_back(fTotalMonochromaticFlux);
@@ -238,26 +679,12 @@ void TRestAxionSolarFlux::IntegrateSolarFluxes() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Initialization of TRestAxionSolarFlux metadata members through a RML file
-///
-void TRestAxionSolarFlux::InitFromConfigFile() {
-    debug << "Entering TRestAxionSolarFlux::InitFromConfigFile" << endl;
-
-    fFluxDataFile = GetParameter("fluxDataFile", "");
-    fFluxSptFile = GetParameter("fluxSptFile", "");
-    fCouplingType = GetParameter("couplingType", "g_ag");
-    fCouplingStrength = StringToDouble(GetParameter("couplingStrength", "1.e-10"));
-    fSeed = StringToInteger(GetParameter("seed", "0"));
-
-    this->Initialize();
-}
-
-///////////////////////////////////////////////
 /// \brief It returns a random solar radius position and energy according to the
 /// flux distributions defined inside the solar tables loaded in the class
 ///
 std::pair<Double_t, Double_t> TRestAxionSolarFlux::GetRandomEnergyAndRadius() {
     std::pair<Double_t, Double_t> result = {0, 0};
+    if (!fTablesLoaded) return result;
     Double_t rnd = fRandom->Rndm();
     if (fTotalMonochromaticFlux == 0 || fRandom->Rndm() > fFluxRatio) {
         // Continuum
@@ -305,9 +732,9 @@ void TRestAxionSolarFlux::PrintIntegratedRingFlux() {
     cout << "Integrated solar flux per solar ring: " << endl;
     cout << "--------------------------- " << endl;
     /*
-for (int n = 0; n < fFluxPerRadius.size(); n++)
+    for (int n = 0; n < fFluxPerRadius.size(); n++)
     cout << "n : " << n << " flux : " << fFluxPerRadius[n] << endl;
-cout << endl;
+    cout << endl;
     */
 }
 
@@ -333,21 +760,66 @@ void TRestAxionSolarFlux::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     if (fFluxDataFile != "")
-        metadata << " - Solar axion flux datafile (continuum) : " << fFluxDataFile << endl;
+        RESTMetadata << " - Solar axion flux datafile (continuum) : " << fFluxDataFile << RESTendl;
     if (fFluxSptFile != "")
-        metadata << " - Solar axion flux datafile (monochromatic) : " << fFluxSptFile << endl;
-    metadata << " - Coupling type : " << fCouplingType << endl;
-    metadata << " - Coupling strength : " << fCouplingStrength << endl;
-    metadata << "-------" << endl;
-    metadata << " - Total monochromatic flux : " << fTotalMonochromaticFlux << " cm-2 s-1" << endl;
-    metadata << " - Total continuum flux : " << fTotalContinuumFlux << " cm-2 s-1" << endl;
-    metadata << "--------" << endl;
-    metadata << " - Random seed : " << fSeed << endl;
-    metadata << "++++++++++++++++++" << endl;
+        RESTMetadata << " - Solar axion flux datafile (monochromatic) : " << fFluxSptFile << RESTendl;
+    RESTMetadata << " - Coupling type : " << fCouplingType << RESTendl;
+    RESTMetadata << " - Coupling strength : " << fCouplingStrength << RESTendl;
+    RESTMetadata << "-------" << RESTendl;
+    RESTMetadata << " - Total monochromatic flux : " << fTotalMonochromaticFlux << " cm-2 s-1" << RESTendl;
+    RESTMetadata << " - Total continuum flux : " << fTotalContinuumFlux << " cm-2 s-1" << RESTendl;
+    RESTMetadata << "--------" << RESTendl;
+    RESTMetadata << " - Random seed : " << fSeed << RESTendl;
+    RESTMetadata << "++++++++++++++++++" << RESTendl;
 
-    if (GetVerboseLevel() >= REST_Debug) {
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         PrintContinuumSolarTable();
         PrintMonoChromaticFlux();
         PrintIntegratedRingFlux();
+    }
+}
+
+///////////////////////////////////////////////
+/// \brief It will create files with the continuum and spectral flux components to be used
+/// in a later ocasion.
+///
+void TRestAxionSolarFlux::ExportTables(Bool_t ascii) {
+    string rootFilename = TRestTools::GetFileNameRoot(fFluxDataFile);
+
+    string path = REST_USER_PATH + "/export/";
+
+    if (!TRestTools::fileExists(path)) {
+        cout << "Creating path: " << path << endl;
+        system(("mkdir -p " + path).c_str());
+    }
+
+    if (fFluxTable.size() > 0) {
+        std::vector<std::vector<Float_t>> table;
+        for (const auto& x : fFluxTable) {
+            std::vector<Float_t> row;
+            for (int n = 0; n < x->GetNbinsX(); n++) row.push_back(x->GetBinContent(n + 1));
+
+            table.push_back(row);
+        }
+
+        if (!ascii)
+            TRestTools::ExportBinaryTable(path + "/" + rootFilename + ".N200f", table);
+        else
+            TRestTools::ExportASCIITable(path + "/" + rootFilename + ".dat", table);
+    }
+
+    if (fFluxLines.size() > 0) {
+        std::vector<std::vector<Float_t>> table;
+        for (const auto& x : fFluxLines) {
+            std::vector<Float_t> row;
+            row.push_back(x.first);
+            for (int n = 0; n < x.second->GetNbinsX(); n++) row.push_back(x.second->GetBinContent(n + 1));
+
+            table.push_back(row);
+        }
+
+        TRestTools::TransposeTable(table);
+
+        TRestTools::ExportASCIITable(path + "/" + rootFilename + ".spt", table);
     }
 }

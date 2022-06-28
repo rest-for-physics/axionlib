@@ -35,33 +35,15 @@
 class TRestAxionFieldPropagationProcess : public TRestAxionEventProcess {
    private:
     void Initialize();
+    // To be implemented
 
-    /// A pointer to the magnetic field stored in TRestRun
-    TRestAxionMagneticField* fField;  //!
-
-   protected:
-   public:
-    void InitProcess();
-
-    any GetInputEvent() { return fAxionEvent; }
-    any GetOutputEvent() { return fAxionEvent; }
-
-    TRestEvent* ProcessEvent(TRestEvent* evInput);
-
-    /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
-        BeginPrintProcess();
-
-        // To be implemented
-
-        EndPrintProcess();
-    }
+    EndPrintProcess();
 
     /// Returns a new instance of this class
     TRestEventProcess* Maker() { return new TRestAxionFieldPropagationProcess; }
 
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "axionFieldPropagation"; }
+    const char* GetProcessName() const override { return "axionFieldPropagation"; }
 
     // Constructor
     TRestAxionFieldPropagationProcess();
@@ -70,6 +52,6 @@ class TRestAxionFieldPropagationProcess : public TRestAxionEventProcess {
     // Destructor
     ~TRestAxionFieldPropagationProcess();
 
-    ClassDef(TRestAxionFieldPropagationProcess, 1);
+    ClassDefOverride(TRestAxionFieldPropagationProcess, 1);
 };
 #endif

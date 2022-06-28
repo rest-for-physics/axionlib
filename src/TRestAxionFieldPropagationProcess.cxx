@@ -117,7 +117,7 @@ void TRestAxionFieldPropagationProcess::Initialize() {
 /// should be initialized here.
 ///
 void TRestAxionFieldPropagationProcess::InitProcess() {
-    debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
+    RESTDebug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << RESTendl;
 
     fField = (TRestAxionMagneticField*)this->GetMetadata("TRestAxionMagneticField");
 
@@ -146,10 +146,9 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
         fAxionEvent->SetLConversion(lenght);
     }
 
-    if (GetVerboseLevel() >= REST_Debug) fAxionEvent->PrintEvent();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) fAxionEvent->PrintEvent();
 
     /// Missing to propagate the axion to the end of magnet bore?
 
     return fAxionEvent;
 }
-

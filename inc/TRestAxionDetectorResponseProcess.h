@@ -36,43 +36,40 @@ class TRestAxionDetectorResponseProcess : public TRestEventProcess {
 
     /// The filename of the response data file. It is actually registered into disk to identify the response
     /// file used.
-    string fResponseFileName;  //<
+    std::string fResponseFileName;  //<
 
     /// The name of TH2D histogram stored in fResponseFileName
-    string fResponseKeyName;  //<
+    std::string fResponseKeyName;  //<
 
     /// A 2-dimensional histogram were we store temporally the response loaded from a data response file.
     TH2D* fDetectorResponse;  //!
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
    protected:
    public:
-    TRestEvent* ProcessEvent(TRestEvent* evInput);
+    TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
-    any GetInputEvent() { return fAxionEvent; }
-    any GetOutputEvent() { return fAxionEvent; }
+    RESTValue GetInputEvent() const override { return fAxionEvent; }
+    RESTValue GetOutputEvent() const override { return fAxionEvent; }
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
-        metadata << "Response filename : " << fResponseFileName << endl;
+        RESTMetadata << "Response filename : " << fResponseFileName << RESTendl;
 
         EndPrintProcess();
     }
 
-    /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestAxionDetectorResponseProcess; }
-
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "axionDetectorResponse"; }
+    const char* GetProcessName() { return (TString) "axionDetectorResponse"; }
 
     // Constructor
     TRestAxionDetectorResponseProcess();
@@ -81,6 +78,6 @@ class TRestAxionDetectorResponseProcess : public TRestEventProcess {
     // Destructor
     ~TRestAxionDetectorResponseProcess();
 
-    ClassDef(TRestAxionDetectorResponseProcess, 1);
+    ClassDefOverride(TRestAxionDetectorResponseProcess, 1);
 };
 #endif

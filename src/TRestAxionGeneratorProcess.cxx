@@ -128,7 +128,7 @@ void TRestAxionGeneratorProcess::Initialize() {
 /// should be initialized here.
 ///
 void TRestAxionGeneratorProcess::InitProcess() {
-    debug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << endl;
+    RESTDebug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << RESTendl;
 
     fAxionFlux = GetMetadata<TRestAxionSolarFlux>();
 
@@ -149,7 +149,7 @@ void TRestAxionGeneratorProcess::InitProcess() {
 /// \brief The main processing event function
 ///
 TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
-    debug << "TRestAxionGeneratorProcess::ProcessEvent : " << fCounter << endl;
+    RESTDebug << "TRestAxionGeneratorProcess::ProcessEvent : " << fCounter << RESTendl;
     fOutputAxionEvent->SetID(fCounter);
     fCounter++;
 
@@ -177,7 +177,8 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     fOutputAxionEvent->SetDirection(axionDirection);
     fOutputAxionEvent->SetMass(fAxionMass);
 
-    if (GetVerboseLevel() >= REST_Debug) fOutputAxionEvent->PrintEvent();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug)
+        fOutputAxionEvent->PrintEvent();
 
     return fOutputAxionEvent;
 }
@@ -191,4 +192,3 @@ void TRestAxionGeneratorProcess::PrintMetadata() {
 
     metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
-

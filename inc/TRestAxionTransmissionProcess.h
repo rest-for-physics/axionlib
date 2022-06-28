@@ -33,33 +33,30 @@ class TRestAxionTransmissionProcess : public TRestEventProcess {
     /// A pointer to the specific TRestAxionEvent
     TRestAxionEvent* fAxionEvent;  //!
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
    protected:
    public:
-    any GetInputEvent() { return fAxionEvent; }
-    any GetOutputEvent() { return fAxionEvent; }
+    any GetInputEvent() const override { return fAxionEvent; }
+    any GetOutputEvent() const override { return fAxionEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* evInput);
+    TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
+    void PrintMetadata() override {
         BeginPrintProcess();
 
         EndPrintProcess();
     }
 
-    /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestAxionTransmissionProcess; }
-
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "axionTransmission"; }
+    const char* GetProcessName() const override { return "axionTransmission"; }
 
     // Constructor
     TRestAxionTransmissionProcess();
@@ -68,6 +65,6 @@ class TRestAxionTransmissionProcess : public TRestEventProcess {
     // Destructor
     ~TRestAxionTransmissionProcess();
 
-    ClassDef(TRestAxionTransmissionProcess, 1);
+    ClassDefOverride(TRestAxionTransmissionProcess, 1);
 };
 #endif

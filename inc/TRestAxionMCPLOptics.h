@@ -29,7 +29,7 @@
 /// A class to load optics response using MCPL files
 class TRestAxionMCPLOptics : public TRestAxionOptics {
    private:
-    void Initialize();
+    void Initialize() override;
 
     /// The file containing the input particle list
     std::string fInputMCPLFilename;
@@ -37,17 +37,34 @@ class TRestAxionMCPLOptics : public TRestAxionOptics {
     /// The file containing the output particle list
     std::string fOutputMCPLFilename;
 
+    Int_t FirstMirrorReflection(const TVector3& pos, const TVector3& dir) override { return 0; }
+    Int_t SecondMirrorReflection(const TVector3& pos, const TVector3& dir) override { return 0; }
+
    public:
-    void PrintMetadata();
+    void PrintMetadata() override;
 
-    void InitFromConfigFile();
+    void InitFromConfigFile() override;
 
-    TVector3 PropagatePhoton(const TVector3& in) { return TVector3(1, 1, 1); }
+    /// It returns the entrance Z-position defined by the optical axis.
+    Double_t GetEntrancePositionZ() override { return 0; }
+
+    /// It returns the exit Z-position defined by the optical axis
+    Double_t GetExitPositionZ() override { return 0; }
+
+    /// It returns the radial limits at the entrance of the optics
+    std::pair<Double_t, Double_t> GetRadialLimits() override {
+        std::pair<Double_t, Double_t> result(0, 0);
+        return result;
+    }
+
+    void SetMirror() override { fCurrentMirror = -1; }
+
+    TPad* DrawMirrors() override;
 
     TRestAxionMCPLOptics();
     TRestAxionMCPLOptics(const char* cfgFileName, std::string name = "");
     ~TRestAxionMCPLOptics();
 
-    ClassDef(TRestAxionMCPLOptics, 1);
+    ClassDefOverride(TRestAxionMCPLOptics, 1);
 };
 #endif

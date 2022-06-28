@@ -92,13 +92,13 @@ TRestAxionMCPLOptics::TRestAxionMCPLOptics() : TRestAxionOptics() { Initialize()
 ///
 TRestAxionMCPLOptics::TRestAxionMCPLOptics(const char* cfgFileName, string name)
     : TRestAxionOptics(cfgFileName) {
-    debug << "Entering TRestAxionMCPLOptics constructor( cfgFileName, name )" << endl;
+    RESTDebug << "Entering TRestAxionMCPLOptics constructor( cfgFileName, name )" << RESTendl;
 
     Initialize();
 
     LoadConfigFromFile(fConfigFileName, name);
 
-    if (GetVerboseLevel() >= REST_Info) PrintMetadata();
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
 }
 
 ///////////////////////////////////////////////
@@ -135,8 +135,17 @@ void TRestAxionMCPLOptics::InitFromConfigFile() {
 void TRestAxionMCPLOptics::PrintMetadata() {
     TRestAxionOptics::PrintMetadata();
 
-    metadata << "---------" << endl;
-    metadata << "Input MCPL file: " << fInputMCPLFilename << endl;
-    metadata << "Output MCPL file: " << fOutputMCPLFilename << endl;
-    metadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
+    RESTMetadata << "---------" << RESTendl;
+    RESTMetadata << "Input MCPL file: " << fInputMCPLFilename << RESTendl;
+    RESTMetadata << "Output MCPL file: " << fOutputMCPLFilename << RESTendl;
+    RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
+}
+
+///////////////////////////////////////////////
+/// \brief A method to draw the mirrors
+///
+TPad* TRestAxionMCPLOptics::DrawMirrors() {
+    // TO BE implemented. If not, it just creates an empty drawing pad
+
+    return TRestAxionOptics::CreatePad();
 }

@@ -20,53 +20,61 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestAxionTemplateProcess
-#define RestCore_TRestAxionTemplateProcess
+#ifndef _TRestAxionXrayWindow
+#define _TRestAxionXrayWindow
 
-#include "TRestAxionEvent.h"
-#include "TRestEventProcess.h"
+#include <TRestMetadata.h>
+#include <TRestPatternMask.h>
 
-//! A template process to serve as a copy/paste for creating new TRestAxion___Process
-class TRestAxionTemplateProcess : public TRestEventProcess {
+//! A metadata class to create x-ray transmission window definitions
+class TRestAxionXrayWindow : public TRestMetadata {
    private:
-    /// A pointer to the specific TRestAxionEvent
-    TRestAxionEvent* fAxionEvent;  //!
+    /// Position of the center of the window in mm
+    TVector3 fCenter = TVector3(0, 0, 0);  //<
 
-    void InitFromConfigFile();
+    /// Thicknesss of window material in mm
+    Double_t fThickness = 0.0;  //<
+
+    /// Window material name
+    std::string fMaterial = "Si";  //<
+
+    /// A mask defining a pattern where the transmission will be effective
+    TRestPatternMask* fMask = nullptr;  //<
+
+    /// A vector with the energies loaded from the material file. Not stored in disk.
+    std::vector<Double_t> fEnergy;  //!
+
+    /// A vector with the transmission already renormalized using the material thickness. Not stored in disk.
+    std::vector<Double_t> fTransmission;  //!
 
     void Initialize();
 
-    void LoadDefaultConfig();
+    void ReadMaterial();
 
-   protected:
+    Bool_t HitsPattern(Double_t x, Double_t y);
+
+    Int_t GetEnergyIndex(Double_t energy);
+
    public:
-    TRestEvent* ProcessEvent(TRestEvent* evInput);
-
-    any GetInputEvent() { return fAxionEvent; }
-    any GetOutputEvent() { return fAxionEvent; }
-
-    void LoadConfig(std::string cfgFilename, std::string name = "");
-
-    /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() {
-        BeginPrintProcess();
-
-        EndPrintProcess();
+    Double_t GetWindowRadius() {
+        if (!fMask) return 0;
+        return fMask->GetMaskRadius();
     }
 
-    /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestAxionTemplateProcess; }
+    TRestPatternMask* GetMask() const { return fMask; }
 
-    /// Returns the name of this process
-    TString GetProcessName() { return (TString) "axionTemplate"; }
+    Double_t GetTransmission(Double_t energy, Double_t x, Double_t y);
 
-    // Constructor
-    TRestAxionTemplateProcess();
-    TRestAxionTemplateProcess(char* cfgFileName);
+    void PrintTransmissionData();
 
-    // Destructor
-    ~TRestAxionTemplateProcess();
+    void InitFromConfigFile();
+    void PrintMetadata();
 
-    ClassDef(TRestAxionTemplateProcess, 1);
+    TRestAxionXrayWindow();
+    TRestAxionXrayWindow(const char* cfgFileName, std::string name = "");
+
+    ~TRestAxionXrayWindow();
+
+    ClassDef(TRestAxionXrayWindow, 1);
 };
 #endif

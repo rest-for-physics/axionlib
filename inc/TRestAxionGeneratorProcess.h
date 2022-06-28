@@ -54,27 +54,24 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     // Seed used in random generator
     Int_t fSeed = 0;  //<
 
-    void Initialize();
+    void Initialize() override;
 
     void LoadDefaultConfig();
 
    public:
-    void InitProcess();
+    void InitProcess() override;
 
-    any GetInputEvent() { return (TRestEvent*)NULL; }
-    any GetOutputEvent() { return fOutputAxionEvent; }
+    RESTValue GetInputEvent() const override { return nullptr; }
+    RESTValue GetOutputEvent() const override { return fOutputAxionEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* eventInput);
+    TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
     void PrintMetadata();
 
-    /// Returns a new instance of this class
-    TRestEventProcess* Maker() { return new TRestAxionGeneratorProcess; }
-
     /// Returns the name of this process
-    TString GetProcessName() { return (TString) "axionGenerator"; }
+    const char* GetProcessName() const override { return "axionGenerator"; }
 
     // Constructor
     TRestAxionGeneratorProcess();
@@ -83,6 +80,6 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     // Destructor
     ~TRestAxionGeneratorProcess();
 
-    ClassDef(TRestAxionGeneratorProcess, 1);
+    ClassDefOverride(TRestAxionGeneratorProcess, 1);
 };
 #endif
