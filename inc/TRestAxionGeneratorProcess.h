@@ -68,7 +68,7 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
-    void PrintMetadata();
+    void PrintMetadata() override;
 
     /// Returns the name of this process
     const char* GetProcessName() const override { return "axionGenerator"; }
