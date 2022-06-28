@@ -68,5 +68,10 @@ INSTALL(DIRECTORY ./data/
     COMPONENT install
     )
 
+INSTALL(DIRECTORY ./examples/
+    DESTINATION ./examples/axion/
+    COMPONENT install
+    )
+
 file(GLOB_RECURSE MAC "${CMAKE_CURRENT_SOURCE_DIR}/macros/*")
 INSTALL(FILES ${MAC} DESTINATION ./macros/axion)
