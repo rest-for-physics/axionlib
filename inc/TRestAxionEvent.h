@@ -92,6 +92,9 @@ class TRestAxionEvent : public TRestEvent {
     void RotateZX(const TVector3& center, Double_t phi, Double_t theta);
     void RotateXZ(const TVector3& center, Double_t theta, Double_t phi);
 
+    void RotateXY(const TVector3& center, Double_t pitch, Double_t yaw);
+    void RotateYX(const TVector3& center, Double_t yaw, Double_t pitch);
+
     void SetEnergy(Double_t en) { fEnergy = en; }
     void SetMass(Double_t m) { fMass = m; }
 

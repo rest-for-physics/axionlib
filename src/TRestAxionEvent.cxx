@@ -100,11 +100,6 @@ void TRestAxionEvent::RotateXZ(const TVector3& center, Double_t theta, Double_t 
 }
 
 ///////////////////////////////////////////////
-/// \brief This method will produce a tranlation of the axion position by an amount `delta`.
-///
-void TRestAxionEvent::Translate(const TVector3& delta) { fPosition += delta; }
-
-///////////////////////////////////////////////
 /// \brief This method will produce a rotation respect to a `center` given by argument.
 /// First we rotate the particle and direction along the Z-axis by an angle `phi`, then
 /// we rotate the particle and direction along the X-axis by an angle `theta`.
@@ -120,6 +115,45 @@ void TRestAxionEvent::RotateZX(const TVector3& center, Double_t phi, Double_t th
     fDirection.RotateZ(phi);
     fDirection.RotateX(theta);
 }
+
+///////////////////////////////////////////////
+/// \brief This method will produce a rotation respect to a `center` given by argument.
+/// First we rotate the particle and direction along the X-axis by an angle `pitch`, then
+/// we rotate the particle and direction along the Y-axis by an angle `yaw`.
+///
+void TRestAxionEvent::RotateXY(const TVector3& center, Double_t pitch, Double_t yaw) {
+    TVector3 ref = fPosition - center;
+
+    ref.RotateX(pitch);
+    ref.RotateY(yaw);
+
+    fPosition = ref + center;
+
+    fDirection.RotateX(pitch);
+    fDirection.RotateY(yaw);
+}
+
+///////////////////////////////////////////////
+/// \brief This method will produce a rotation respect to a `center` given by argument.
+/// First we rotate the particle and direction along the Y-axis by an angle `yaw`, then
+/// we rotate the particle and direction along the X-axis by an angle `pitch`.
+///
+void TRestAxionEvent::RotateYX(const TVector3& center, Double_t yaw, Double_t pitch) {
+    TVector3 ref = fPosition - center;
+
+    ref.RotateY(yaw);
+    ref.RotateX(pitch);
+
+    fPosition = ref + center;
+
+    fDirection.RotateY(yaw);
+    fDirection.RotateX(pitch);
+}
+
+///////////////////////////////////////////////
+/// \brief This method will produce a tranlation of the axion position by an amount `delta`.
+///
+void TRestAxionEvent::Translate(const TVector3& delta) { fPosition += delta; }
 
 void TRestAxionEvent::PrintEvent() {
     TRestEvent::PrintEvent();
