@@ -106,7 +106,8 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
 
         RESTMetadata << "Energy distribution" << RESTendl;
         RESTMetadata << "---------------------" << RESTendl;
-        RESTMetadata << "Energy range : (" << fEnergyRange.X() << ", " << fEnergyRange.Y() << ") keV" << RESTendl;
+        RESTMetadata << "Energy range : (" << fEnergyRange.X() << ", " << fEnergyRange.Y() << ") keV"
+                     << RESTendl;
         RESTMetadata << "Energy step : " << fEnergyStep << " keV" << RESTendl;
         RESTMetadata << " " << RESTendl;
 
@@ -114,14 +115,14 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
         RESTMetadata << "----------------------" << RESTendl;
         RESTMetadata << "Type : " << fAngularDistribution << RESTendl;
         RESTMetadata << "Main direction : (" << fAngularDirection.X() << "," << fAngularDirection.Y() << ","
-                 << fAngularDirection.Z() << ")" << RESTendl;
+                     << fAngularDirection.Z() << ")" << RESTendl;
         RESTMetadata << " " << RESTendl;
         RESTMetadata << "Spatial distribution" << RESTendl;
         RESTMetadata << "----------------------" << RESTendl;
         RESTMetadata << "Type : " << fSpatialDistribution << RESTendl;
         RESTMetadata << "Radius : " << fSpatialRadius << " mm" << RESTendl;
         RESTMetadata << "Origin : (" << fSpatialOrigin.X() << "," << fSpatialOrigin.Y() << ","
-                 << fSpatialOrigin.Z() << ")" << RESTendl;
+                     << fSpatialOrigin.Z() << ")" << RESTendl;
 
         EndPrintProcess();
     }

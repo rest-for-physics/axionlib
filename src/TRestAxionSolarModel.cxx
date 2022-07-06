@@ -111,9 +111,9 @@ void TRestAxionSolarModel::PrintMetadata() {
     RESTMetadata << " - Opacity code used : " << sOpacityCodeName << RESTendl;
     RESTMetadata << "-------------------------------------------------" << RESTendl;
     RESTMetadata << " - Reference value of the axion-photon coupling : " << fRefPhotonCoupling / 1.0e-10
-             << " x 10^{-10} / GeV" << RESTendl;
+                 << " x 10^{-10} / GeV" << RESTendl;
     RESTMetadata << " - Reference value of the axion-electron coupling : " << fRefElectronCoupling / 1.0e-13
-             << " x 10^{-13}" << RESTendl;
+                 << " x 10^{-13}" << RESTendl;
     RESTMetadata << " - Units of the solar axion flux from this class : axions / cm^2 s keV" << RESTendl;
     RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }
@@ -125,13 +125,14 @@ std::vector<double> TRestAxionSolarModel::GetSolarAxionFluxGAGamma(std::vector<d
     std::vector<double> result;
     if (bSolarModelInitialized) {
         RESTWarning << "TRestAxionSolarModel::GetSolarAxionFluxGAGamma." << RESTendl;
-        RESTWarning << "This code has been commented to allow compilation and needs to be reviewed!" << RESTendl;
+        RESTWarning << "This code has been commented to allow compilation and needs to be reviewed!"
+                    << RESTendl;
         RESTWarning << "The result vector will be empty!" << RESTendl;
         // result = sol.calculate_spectral_flux_Primakoff(energies, r_max);
     } else {
         RESTError << "TRestAxionSolarModel not properly initialised for "
-                "RestAxionSolarModel::GetSolarAxionFluxGAGamma(...)!"
-             << RESTendl;
+                     "RestAxionSolarModel::GetSolarAxionFluxGAGamma(...)!"
+                  << RESTendl;
     };
     return result;
 }
@@ -149,13 +150,14 @@ std::vector<double> TRestAxionSolarModel::GetSolarAxionFluxGAE(std::vector<doubl
     std::vector<double> result;
     if (bSolarModelInitialized) {
         RESTWarning << "TRestAxionSolarModel::GetSolarAxionFluxGAE." << RESTendl;
-        RESTWarning << "This code has been commented to allow compilation and needs to be reviewed!" << RESTendl;
+        RESTWarning << "This code has been commented to allow compilation and needs to be reviewed!"
+                    << RESTendl;
         RESTWarning << "The result vector will be empty!" << RESTendl;
         // result = sol.calculate_spectral_flux_all_electron(energies, r_max);
     } else {
         RESTError << "TRestAxionSolarModel not properly initialised for "
-                "RestAxionSolarModel::GetSolarAxionFluxGAE(...)!"
-             << RESTendl;
+                     "RestAxionSolarModel::GetSolarAxionFluxGAE(...)!"
+                  << RESTendl;
     };
     return result;
 }

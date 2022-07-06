@@ -553,9 +553,11 @@ std::vector<std::vector<TVector3>> TRestAxionFieldPropagationProcess::FindFieldB
     RESTDebug << "+------------------------+" << RESTendl;
     for (Int_t p = 0; p < boundaryFinalCollection.size(); p++) {
         RESTDebug << "for volume " << p << " in : (" << boundaryFinalCollection[p][0].X() << ","
-              << boundaryFinalCollection[p][0].Y() << "," << boundaryFinalCollection[p][0].Z() << ")" << RESTendl;
+                  << boundaryFinalCollection[p][0].Y() << "," << boundaryFinalCollection[p][0].Z() << ")"
+                  << RESTendl;
         RESTDebug << "for volume " << p << " out : (" << boundaryFinalCollection[p][1].X() << ","
-              << boundaryFinalCollection[p][1].Y() << "," << boundaryFinalCollection[p][1].Z() << ")" << RESTendl;
+                  << boundaryFinalCollection[p][1].Y() << "," << boundaryFinalCollection[p][1].Z() << ")"
+                  << RESTendl;
     }
     RESTDebug << "+------------------------+" << RESTendl;
 
@@ -688,23 +690,25 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSegment(
         mpfr::mpreal theta = 0.5 * atan(term_1 / term_2);
         mpfr::mpreal lambda = sqrt(term_1 * term_1 + term_2 * term_2) / (4. * Ea * 1000.0);  // in eV
 
-        RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+        RESTDebug << "+--------------------------------------------------------------------------+"
+                  << RESTendl;
         RESTDebug << " CalculateAmplitudesInSegment method: Parameter summary" << RESTendl;
         RESTDebug << RESTendl << "segment length = " << segment_length << " mm" << RESTendl;
-        RESTDebug << RESTendl
-              << "subsegment_start: (" << subsegment_start.x() << ", " << subsegment_start.y() << ", "
-              << subsegment_start.z() << ") "
-              << " mm" << RESTendl;
+        RESTDebug << RESTendl << "subsegment_start: (" << subsegment_start.x() << ", " << subsegment_start.y()
+                  << ", " << subsegment_start.z() << ") "
+                  << " mm" << RESTendl;
         RESTDebug << "subsegment_end: ( " << subsegment_end.x() << ", " << subsegment_end.y() << ", "
-              << subsegment_end.z() << ") "
-              << " mm" << RESTendl;
+                  << subsegment_end.z() << ") "
+                  << " mm" << RESTendl;
         RESTDebug << "subsegment length = " << subsegment_length << " m" << RESTendl << RESTendl;
 
-        RESTDebug << " average magnitude of the transverse component of the magnetic field in the subsegment : "
-              << BTmag << " T" << RESTendl;
-        RESTDebug << " angle of the transverse component of the average magnetic field in the subsegment with "
-                 "respect to the previous subsegment : "
-              << BTangle << " rad" << RESTendl;
+        RESTDebug
+            << " average magnitude of the transverse component of the magnetic field in the subsegment : "
+            << BTmag << " T" << RESTendl;
+        RESTDebug
+            << " angle of the transverse component of the average magnetic field in the subsegment with "
+               "respect to the previous subsegment : "
+            << BTangle << " rad" << RESTendl;
         RESTDebug << " g_agg : " << g_agg << " GeV-1" << RESTendl;
         RESTDebug << " Theta : " << theta << RESTendl;
         RESTDebug << " lambda : " << lambda << " eV" << RESTendl;
@@ -716,7 +720,8 @@ void TRestAxionFieldPropagationProcess::CalculateAmplitudesInSegment(
         PrintComplex(fparallelPhotonAmplitude);
         RESTDebug << " BEFORE calculating in subsegment: orthogonal photon component amplitude : ";
         PrintComplex(forthogonalPhotonAmplitude);
-        RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+        RESTDebug << "+--------------------------------------------------------------------------+"
+                  << RESTendl;
 
         CalculateAmplitudesInSubsegment(faxionAmplitude, fparallelPhotonAmplitude, forthogonalPhotonAmplitude,
                                         theta, lambda, subsegment_length, CommonPhase, OrthogonalPhase);
@@ -977,11 +982,12 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     RESTDebug << "(" << direction.X() << "," << direction.Y() << "," << direction.Z() << ")" << RESTendl;
     RESTDebug << "Axion energy : " << Ea << RESTendl;
     RESTDebug << "Axion mass : " << ma << RESTendl;
-    RESTDebug << "axion amplitude = " << faxionAmplitude.real << " + " << faxionAmplitude.img << "i" << RESTendl;
+    RESTDebug << "axion amplitude = " << faxionAmplitude.real << " + " << faxionAmplitude.img << "i"
+              << RESTendl;
     RESTDebug << "parallel photon amplitude = " << fparallelPhotonAmplitude.real << " + "
-          << fparallelPhotonAmplitude.img << "i" << RESTendl;
+              << fparallelPhotonAmplitude.img << "i" << RESTendl;
     RESTDebug << "orthogonal photon amplitude = " << forthogonalPhotonAmplitude.real << " + "
-          << forthogonalPhotonAmplitude.img << "i" << RESTendl;
+              << forthogonalPhotonAmplitude.img << "i" << RESTendl;
     RESTDebug << "+------------------------+" << RESTendl;
 
     std::vector<std::vector<TVector3>> boundaries;
@@ -989,7 +995,8 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     Int_t NofVolumes = boundaries.size();
 
     RESTDebug << "+------------------------+" << RESTendl;
-    RESTDebug << "Number of magnetic field regions through which the axion passes : " << NofVolumes << RESTendl;
+    RESTDebug << "Number of magnetic field regions through which the axion passes : " << NofVolumes
+              << RESTendl;
     RESTDebug << "+------------------------+" << RESTendl;
 
     Double_t probability = 0.;    // initial value of the axion to photon conversion probability
@@ -1000,8 +1007,8 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
         Int_t id = fAxionMagneticField->GetVolumeIndex(boundaries[i][0]);
         if (id < 0) {
             RESTWarning << "TRestAxionFieldPropagationProcess::ProcessEvent position is outside any volume. "
-                       "Setting photon mass to 0."
-                    << RESTendl;
+                           "Setting photon mass to 0."
+                        << RESTendl;
             photonMass = 0.0;  // in eV
         } else {
             Double_t mphoton = fAxionMagneticField->GetPhotonMass(
@@ -1023,10 +1030,10 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
         mpfr::mpreal OrthogonalPhase = Ea * 1000.0 - (photonMass * photonMass) / (2. * Ea * 1000.0);  // in eV
 
         RESTDebug << "Calculating amplitudes for one segment of trajectory where B is not zero. Segment "
-                 "boundaries are : ("
-              << boundaries[i][0].X() << "," << boundaries[i][0].Y() << "," << boundaries[i][0].Z()
-              << ") to (" << boundaries[i][1].X() << "," << boundaries[i][1].Y() << ","
-              << boundaries[i][1].Z() << ")" << RESTendl;
+                     "boundaries are : ("
+                  << boundaries[i][0].X() << "," << boundaries[i][0].Y() << "," << boundaries[i][0].Z()
+                  << ") to (" << boundaries[i][1].X() << "," << boundaries[i][1].Y() << ","
+                  << boundaries[i][1].Z() << ")" << RESTendl;
         CalculateAmplitudesInSegment(faxionAmplitude, fparallelPhotonAmplitude, forthogonalPhotonAmplitude,
                                      averageBT, axionMass, photonMass, Ea, boundaries[i][0], boundaries[i][1],
                                      CommonPhase, OrthogonalPhase);
@@ -1040,8 +1047,8 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
         PrintComplex(fparallelPhotonAmplitude);
         RESTDebug << " orthogonal photon component amplitude : ";
         PrintComplex(forthogonalPhotonAmplitude);
-        RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl
-              << RESTendl;
+        RESTDebug << "+--------------------------------------------------------------------------+"
+                  << RESTendl << RESTendl;
         if ((i + 1) < NofVolumes) {
             cout << "Calculating amplitudes along the part of trajectory where B = 0 between the two "
                     "segments. Boundaries are : ("
@@ -1062,7 +1069,7 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     RESTDebug << " orthogonal photon component amplitude : ";
     PrintComplex(forthogonalPhotonAmplitude);
     RESTDebug << " PROBABILITY for axion to photon conversion (1-|a|^2): " << 1.0 - Norm2(faxionAmplitude)
-          << RESTendl;
+              << RESTendl;
     RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
 
     mpfr::mpreal probabilityHighPrecision = 1.0 - Norm2(faxionAmplitude);
@@ -1080,7 +1087,7 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     RESTDebug << "+------------------------+" << RESTendl;
     RESTDebug << "Final position of the axion : " << RESTendl;
     RESTDebug << "(" << fAxionEvent->GetPositionX() << "," << fAxionEvent->GetPositionY() << ","
-          << fAxionEvent->GetPositionZ() << ")" << RESTendl;
+              << fAxionEvent->GetPositionZ() << ")" << RESTendl;
     RESTDebug << "+------------------------+" << RESTendl;
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) fAxionEvent->PrintEvent();

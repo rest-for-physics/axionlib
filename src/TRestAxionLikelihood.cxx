@@ -178,7 +178,7 @@ void TRestAxionLikelihood::GenerateMonteCarlo() {
         fMeasuredCountsPerStep.push_back(counts);
 
         RESTDebug << "Step : " << n << " measured : " << counts << " :: " << fMeasuredCountsPerStep.back()
-              << " counts" << RESTendl;
+                  << " counts" << RESTendl;
         RESTDebug << "Time : " << fExposureTimePerStep[n] / 12 << " days" << RESTendl;
     }
 

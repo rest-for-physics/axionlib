@@ -23,114 +23,195 @@
 #ifndef _TRestAxionOptics
 #define _TRestAxionOptics
 
+#include <TRestAxionOpticsMirror.h>
+#include <TRestCombinedMask.h>
 #include <TRestMetadata.h>
 #include <iostream>
 
+#include "TRandom3.h"
+
 /// An abstract class to define common optics parameters and methods
 class TRestAxionOptics : public TRestMetadata {
-   private:
-    /// It is the position of the center of the optics system.
-    TVector3 fCenter = TVector3(0, 0, 0);  //<
-
-    /// The axis of the optics system
-    TVector3 fAxis = TVector3(0, 0, 1);  //<
-
-    /// Optics physical mirror length in mm
-    Double_t fLength = 300;  //<
-
-    /// The angle between two consecutive spider arms measured in radians.
-    Double_t fSpiderArmsSeparationAngle = 0;  //<
-
-    /// The position angle at which the spider arm will start
-    Double_t fSpiderOffsetAngle = 0;  //<
-
-    /// The width of each specific spider arm. Measured in radians. Default is 2.5 degrees.
-    Double_t fSpiderWidth = TMath::Pi() / 18. / 4.;  //<
-
-    /// The spider structure will be effective from this radius, in mm. Default is from 20 mm.
-    Double_t fSpiderStartRadius = 20.;  //<
-
-    /// An internal variable to register the maximum shell radius
-    Double_t fMaxRingRadius = -1;  //!
-
-    /// An internal variable to register the minimum shell radius
-    Double_t fMinRingRadius = -1;  //!
-
-    /// It is the calculated axis position at the entrance of the optics plane.
-    TVector3 fEntrance = TVector3(0, 0, 0);  //!
-
-    /// It is the calculated axis position at the exit of the optics plane.
-    TVector3 fExit = TVector3(0, 0, 0);  //!
-
-    /// A vector used to define a reference vector at the optics plane
-    TVector3 fReference = TVector3(0, 0, 0);  //!
-
-    /// It defines the forbidden (cosine) angular ranges imposed by the spider structure (0,Pi)
-    std::vector<std::pair<Double_t, Double_t>> fSpiderPositiveRanges;  //!
-
-    /// It defines the forbidden (cosine) angular ranges imposed by the spider structure (Pi,2Pi)
-    std::vector<std::pair<Double_t, Double_t>> fSpiderNegativeRanges;  //!
-
-    void SetMaxAndMinRingRadius();
-    void InitializeSpiderAngles();
-
-    Bool_t IsInsideRing(const TVector3& pos, Double_t Rout, Double_t Rin = 0);
-    Bool_t HitsSpider(const TVector3& pos);
-
    protected:
-    /// A vector containing the shells ring radius definitions. First element is the lower radius.
-    std::vector<std::pair<Double_t, Double_t>> fRingsRadii;  //<
+    /// An optics file that contains all the specific optics parameters
+    std::string fOpticsFile = "";
 
-   public:
-    void Initialize();
+    /// The mirror length. If all mirrors got the same length. Otherwise will be zero.
+    Double_t fMirrorLength = 0;  //<
 
-    /// It returns the center of the optics system
-    TVector3 GetCenter() { return fCenter; }
+    /// The optics data table extracted from fOpticsFile
+    std::vector<std::vector<Double_t>> fOpticsData;  //<
 
-    /// It returns the axis vector of the optics system
-    TVector3 GetAxis() { return fAxis; }
+    /// The mirror properties
+    TRestAxionOpticsMirror* fMirrorProperties = nullptr;  //<
 
-    /// It returns the physical length of one mirror stack; the whole optical system would be L=(fLength + 1/2
-    /// * xSep) * (cos(angleRing) + cos(angleRing)) which doesn't work here because the angele hasn't been
-    /// defined
-    Double_t GetMirrLength() { return fLength; }
+    /// The entrance optical mask that defines a pattern with regions identified with a number
+    TRestCombinedMask* fEntranceMask = nullptr;  //!
 
-    /// It returns the physical length of the whole optics approximated
-    Double_t GetLength() { return fLength * 2; }
+    /// The middle optical mask that defines a pattern with regions identified with a number
+    TRestCombinedMask* fMiddleMask = nullptr;  //!
 
-    /// It returns the number of shells implemented in the optics system
-    Int_t GetNumberOfRings() { return fRingsRadii.size(); }
+    /// The exit optical mask that defines a pattern with regions identified with a number
+    TRestCombinedMask* fExitMask = nullptr;  //!
 
-    /// It returns the entrance position defined by the optical axis
-    TVector3 GetEntrance() { return fEntrance; }
+    /// The particle position at the origin
+    TVector3 fOriginPosition;  //!
 
-    /// It returns the exit position defined by the optical axis
-    TVector3 GetExit() { return fExit; }
+    /// The particle position at the optics plane entrance
+    TVector3 fEntrancePosition;  //!
 
-    /// It returns the maximum entrance radius
-    Double_t GetMaxRingRadius() { return fMaxRingRadius; }
+    /// The particle position at the front mirror interaction point
+    TVector3 fFirstInteractionPosition;  //!
 
-    TVector3 GetPositionAtEntrance(const TVector3& pos, const TVector3& dir);
+    /// The particle position at the optics plane middle
+    TVector3 fMiddlePosition;  //!
 
-    /// Pure abstract method to be implemented at inherited class
-    virtual TVector3 GetPositionAtExit(const TVector3& pos, const TVector3& dir) { return TVector3(0, 0, 0); }
+    /// The particle position at the back mirror interaction point
+    TVector3 fSecondInteractionPosition;  //!
 
-    /// Pure abstract method to be implemented at inherited class
-    virtual TVector3 GetDirectionAtExit(const TVector3& pos, const TVector3& dir) {
-        return TVector3(0, 0, 0);
-    }
+    /// The particle position at the optics plane exit
+    TVector3 fExitPosition;  //!
 
-    /// Pure abstract method to be implemented at inherited class
-    virtual Double_t GetEfficiency(const TVector3& pos, const TVector3& dir) { return 0.0; }
+    /// The particle position at the optics plane entrance
+    TVector3 fEntranceDirection;  //!
 
-    Int_t GetEntranceRing(const TVector3& pos, const TVector3& dir);
+    /// The particle position at the optics plane middle
+    TVector3 fMiddleDirection;  //!
 
-    void PrintMetadata();
+    /// The particle position at the optics plane exit
+    TVector3 fExitDirection;  //!
 
-    void InitFromConfigFile();
+    /// The calculated focal in mm. It is updated by the method TRestAxionOptics::FindFocal.
+    Double_t fFocal = -1;  //!
+
+    /// During the photon propagation it keeps track of the active mirror shell.
+    Int_t fCurrentMirror = -1;  //!
+
+    /// During the photon propagation it tells us if the photon interacted in the first mirror
+    Bool_t fFirstInteraction = false;  //!
+
+    /// During the photon propagation it tells us if the photon interacted in the second mirror
+    Bool_t fSecondInteraction = false;  //!
+
+    /// Random number generator
+    TRandom3* fRandom = nullptr;  //!
 
     TRestAxionOptics();
     TRestAxionOptics(const char* cfgFileName, std::string name = "");
+
+   private:
+    void ResetPositions();
+
+    Double_t GetPhotonReflectivity(Double_t energy);
+
+   protected:
+    /// A pad pointer to be used by the drawing methods
+    TPad* fPad = nullptr;
+
+    Int_t TransportToEntrance(const TVector3& pos, const TVector3& dir);
+    Int_t TransportToMiddle(const TVector3& pos, const TVector3& dir);
+    Int_t TransportToExit(const TVector3& pos, const TVector3& dir);
+
+    /// It returns the mirror index to be used in the photon reflection.
+    Int_t GetMirror() { return fCurrentMirror; }
+
+    /// It must be implemented at the inherited optics, making use of fEntrancePosition
+    virtual void SetMirror() = 0;
+
+   public:
+    virtual void Initialize();
+
+    /// It returns the lower/higher radius range where photons are allowed
+    virtual std::pair<Double_t, Double_t> GetRadialLimits() = 0;
+
+    /// It returns the entrance Z-position defined by the optical axis.
+    virtual Double_t GetEntrancePositionZ() = 0;
+
+    /// It returns the exit Z-position defined by the optical axis
+    virtual Double_t GetExitPositionZ() = 0;
+
+    /// It updates the values fFirstInteractionPosition and fMiddleDirection. Returns 0 if is not in region.
+    virtual Int_t FirstMirrorReflection(const TVector3& pos, const TVector3& dir) = 0;
+
+    /// It updates the values fSecondInteractionPosition and fExitDirection. Returns 0 if is not in region.
+    virtual Int_t SecondMirrorReflection(const TVector3& pos, const TVector3& dir) = 0;
+
+    /// It draws the mirrors using a TGraph. To be implemented at the inherited class.
+    virtual TPad* DrawMirrors() = 0;
+
+    /// It returns the entrance angle to the optical axis (in radians).
+    Double_t GetEntranceAngle() { return TMath::ACos(fEntranceDirection.Dot(TVector3(0, 0, 1))); }
+
+    virtual Double_t FindFocal(Double_t from, Double_t to, Double_t energy, Double_t precision = 1,
+                               Bool_t recalculate = false, Int_t particles = 5000);
+
+    Double_t CalculateSpotSize(Double_t energy, Double_t z, Int_t particles = 15000);
+
+    TPad* CreatePad(Int_t nx = 1, Int_t ny = 1);
+
+    TPad* DrawParticleTracks(Double_t deviation = 0, Int_t particles = 10);
+
+    TPad* DrawScatterMaps(Double_t z, Double_t energy = 0, Double_t deviation = 0, Int_t particles = 1000,
+                          Double_t focalHint = 7500);
+
+    TPad* DrawDensityMaps(Double_t z, Double_t energy = 0, Double_t deviation = 0, Int_t particles = 1000,
+                          Double_t focalHint = 7500);
+
+    Double_t PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy);
+
+    Double_t PropagateMonteCarloPhoton(Double_t energy, Double_t deviation);
+
+    /// Returns the entrance position from the latest propagated photon
+    TVector3 GetEntrancePosition() { return fEntrancePosition; }
+
+    /// Returns the middle position from the latest propagated photon
+    TVector3 GetMiddlePosition() { return fMiddlePosition; }
+
+    /// Returns the exit position from the latest propagated photon
+    TVector3 GetExitPosition() { return fExitPosition; }
+
+    /// Returns the entrance position from the latest propagated photon
+    TVector3 GetEntranceDirection() { return fEntranceDirection; }
+
+    /// Returns the middle position from the latest propagated photon
+    TVector3 GetMiddleDirection() { return fMiddleDirection; }
+
+    /// Returns the exit position from the latest propagated photon
+    TVector3 GetExitDirection() { return fExitDirection; }
+
+    /// It returns true if the photon got reflected in the first mirror
+    Bool_t IsFirstMirrorReflection() { return fFirstInteraction; }
+
+    /// It returns true if the photon got reflected in the second mirror
+    Bool_t IsSecondMirrorReflection() { return fSecondInteraction; }
+
+    Int_t GetNumberOfReflections();
+
+    /// Returns a pointer to access directly the entrance mask information
+    TRestCombinedMask* const& GetEntranceMask() const { return fEntranceMask; }
+
+    /// Returns a pointer to access directly the middle mask information
+    TRestCombinedMask* const& GetMiddleMask() const { return fMiddleMask; }
+
+    /// Returns a pointer to access directly the exit mask information
+    TRestCombinedMask* const& GetExitMask() const { return fExitMask; }
+
+    /// Returns a pointer to access directly the exit mask information
+    TRestAxionOpticsMirror* const& GetMirrorProperties() const { return fMirrorProperties; }
+
+    void PrintMetadata();
+
+    void PrintMirror();
+    void PrintMasks();
+
+    void PrintEntranceMask();
+    void PrintMiddleMask();
+    void PrintExitMask();
+
+    void PrintPhotonTrackingSummary();
+
+    void InitFromConfigFile();
+
     ~TRestAxionOptics();
 
     ClassDef(TRestAxionOptics, 1);

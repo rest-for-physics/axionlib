@@ -354,7 +354,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 
     if (!(projection == "XY" || projection == "XZ" || projection == "YZ")) {
         RESTError << "You entered : " << projection << " as a projection but you have to choose XY, XZ or YZ"
-             << RESTendl;
+                  << RESTendl;
         return fCanvas;
     }
 
@@ -392,7 +392,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
             z = depth;
         else
             RESTError << "You entered depth = " << depth << ", but you have to choose depth between " << zMin
-                 << " and " << zMax << RESTendl;
+                      << " and " << zMax << RESTendl;
         x = xMin;
 
         for (Int_t i = 0; i < nBinsX; i++) {
@@ -409,7 +409,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                             B = Bvec[2];
                         else
                             RESTError << "You entered : " << Bcomp
-                                 << " as a B component but you have to choose X, Y or Z" << RESTendl;
+                                      << " as a B component but you have to choose X, Y or Z" << RESTendl;
                     }
                 }
                 fHisto->Fill(x, y, B);
@@ -453,7 +453,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
             y = depth;
         else
             RESTError << "You entered depth = " << depth << ", but you have to choose depth between " << yMin
-                 << " and " << yMax << RESTendl;
+                      << " and " << yMax << RESTendl;
         x = xMin;
 
         for (Int_t i = 0; i < nBinsX; i++) {
@@ -470,7 +470,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                             B = Bvec[2];
                         else
                             RESTError << "You entered : " << Bcomp
-                                 << " as a B component but you have to choose X, Y or Z" << RESTendl;
+                                      << " as a B component but you have to choose X, Y or Z" << RESTendl;
                     }
                 }
                 fHisto->Fill(x, z, B);
@@ -514,7 +514,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
             x = depth;
         else
             RESTError << "You entered depth = " << depth << ", but you have to choose depth between " << xMin
-                 << " and " << xMax << RESTendl;
+                      << " and " << xMax << RESTendl;
         y = yMin;
 
         for (Int_t i = 0; i < nBinsY; i++) {
@@ -531,7 +531,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
                             B = Bvec[2];
                         else
                             RESTError << "You entered : " << Bcomp
-                                 << " as a B component but you have to choose X, Y or Z" << RESTendl;
+                                      << " as a B component but you have to choose X, Y or Z" << RESTendl;
                     }
                 }
                 fHisto->Fill(y, z, B);
@@ -721,8 +721,9 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
 
         if (n < 5) {
             RESTDebug << "X: " << data[n][0] << " Y: " << data[n][1] << " Z: " << data[n][2] << RESTendl;
-            RESTDebug << "absX: " << data[n][0] + mVol.position.X() << " absY: " << data[n][1] + mVol.position.Y()
-                  << " absZ: " << data[n][2] + mVol.position.Z() << RESTendl;
+            RESTDebug << "absX: " << data[n][0] + mVol.position.X()
+                      << " absY: " << data[n][1] + mVol.position.Y()
+                      << " absZ: " << data[n][2] + mVol.position.Z() << RESTendl;
             RESTDebug << "nX: " << nX << " nY: " << nY << " nZ: " << nZ << RESTendl;
             RESTDebug << "Bx: " << data[n][3] << " By: " << data[n][4] << " Bz: " << data[n][5] << RESTendl;
             if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) GetChar();
@@ -731,14 +732,15 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
         if (mVol.field[nX][nY][nZ] != TVector3(0.0, 0.0, 0.0)) {
             RESTWarning << "X: " << data[n][0] << " Y: " << data[n][1] << " Z: " << data[n][2] << RESTendl;
             RESTWarning << "nX: " << nX << " nY: " << nY << " nZ: " << nZ << RESTendl;
-            RESTWarning << "WARNING: field[nX][nY][nZ] element not equal to initial value (0, 0, 0) !!" << RESTendl;
+            RESTWarning << "WARNING: field[nX][nY][nZ] element not equal to initial value (0, 0, 0) !!"
+                        << RESTendl;
             RESTWarning << "It has value: "
-                    << "mVol.field[" << nX << "][" << nY << "][" << nZ << "] = ("
-                    << mVol.field[nX][nY][nZ].X() << " , " << mVol.field[nX][nY][nZ].Y() << " , "
-                    << mVol.field[nX][nY][nZ].Z() << ")" << RESTendl;
+                        << "mVol.field[" << nX << "][" << nY << "][" << nZ << "] = ("
+                        << mVol.field[nX][nY][nZ].X() << " , " << mVol.field[nX][nY][nZ].Y() << " , "
+                        << mVol.field[nX][nY][nZ].Z() << ")" << RESTendl;
             RESTWarning << "Values to write: "
-                    << "Bx: " << data[n][3] << " By: " << data[n][4] << " Bz: " << data[n][5] << RESTendl
-                    << RESTendl;
+                        << "Bx: " << data[n][3] << " By: " << data[n][4] << " Bz: " << data[n][5] << RESTendl
+                        << RESTendl;
 
             this->SetError("There was a problem assigning the field matrix!");
             if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) GetChar();
@@ -760,10 +762,11 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         RESTDebug << "Full path : " << fullPathName << RESTendl;
 
         if (fFileNames[n] != "none" && fullPathName == "") {
-            RESTError << "TRestAxionMagneticField::LoadMagneticVolumes. File " << fFileNames[n] << " not found!"
-                 << RESTendl;
-            RESTError << "REST will look for this file at any path given by <searchPath at globals definitions"
-                 << RESTendl;
+            RESTError << "TRestAxionMagneticField::LoadMagneticVolumes. File " << fFileNames[n]
+                      << " not found!" << RESTendl;
+            RESTError
+                << "REST will look for this file at any path given by <searchPath at globals definitions"
+                << RESTendl;
             exit(5);
         }
 
@@ -812,9 +815,9 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
                 if (fBoundMax[n] != TVector3(xMax, yMax, zMax)) {
                     RESTWarning << "Volume : " << n << RESTendl;
                     RESTWarning << "boundMax was defined in RML but does not match the field map boundaries!"
-                            << RESTendl;
-                    RESTWarning << "Max. Field map boundaries : (" << xMax << ", " << yMax << ", " << zMax << ")"
-                            << RESTendl;
+                                << RESTendl;
+                    RESTWarning << "Max. Field map boundaries : (" << xMax << ", " << yMax << ", " << zMax
+                                << ")" << RESTendl;
                 }
             }
 
@@ -827,9 +830,9 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
                 if (-fBoundMax[n] != TVector3(xMin, yMin, zMin)) {
                     RESTWarning << "Volume : " << n << RESTendl;
                     RESTWarning << "boundMax was defined in RML but does not match the field map boundaries"
-                            << RESTendl;
-                    RESTWarning << "Min. Field map boundaries : (" << xMin << ", " << yMin << ", " << zMin << ")"
-                            << RESTendl;
+                                << RESTendl;
+                    RESTWarning << "Min. Field map boundaries : (" << xMin << ", " << yMin << ", " << zMin
+                                << ")" << RESTendl;
                 }
             }
             fBoundMax[n] = TVector3(xMax, yMax, zMax);
@@ -842,11 +845,12 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
             if (fMeshSize[n] != TVector3(0, 0, 0)) {
                 if (fMeshSize[n] != TVector3(meshSizeX, meshSizeY, meshSizeZ)) {
                     RESTWarning << "Volume : " << n << RESTendl;
-                    RESTWarning << "MeshSize was defined in RML but does not match the mesh size deduced from "
-                               "field map"
-                            << RESTendl;
-                    RESTWarning << "Mesh size : (" << meshSizeX << ", " << meshSizeY << ", " << meshSizeZ << ")"
-                            << RESTendl;
+                    RESTWarning
+                        << "MeshSize was defined in RML but does not match the mesh size deduced from "
+                           "field map"
+                        << RESTendl;
+                    RESTWarning << "Mesh size : (" << meshSizeX << ", " << meshSizeY << ", " << meshSizeZ
+                                << ")" << RESTendl;
                 }
             }
             fMeshSize[n] = TVector3(meshSizeX, meshSizeY, meshSizeZ);
@@ -936,8 +940,8 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos, Bool_t showWarn
 
     if (id < 0) {
         if (showWarning)
-            RESTWarning << "TRestAxionMagneticField::GetMagneticField position (" << pos.X() << ", " << pos.Y()
-                    << ", " << pos.Z() << ") is outside any volume" << RESTendl;
+            RESTWarning << "TRestAxionMagneticField::GetMagneticField position (" << pos.X() << ", "
+                        << pos.Y() << ", " << pos.Z() << ") is outside any volume" << RESTendl;
         return TVector3(0, 0, 0);
     } else {
         if (IsFieldConstant(id)) return fConstantField[id];
@@ -978,7 +982,8 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos, Bool_t showWarn
         else
             xd = (pos.X() - x0) / (x1 - x0);
         if ((xd < -0.00001) || (xd > 1.00001))
-            RESTWarning << "TRestAxionMagneticField::GetMagneticField  Error: xd NOT between 0 and 1" << RESTendl;
+            RESTWarning << "TRestAxionMagneticField::GetMagneticField  Error: xd NOT between 0 and 1"
+                        << RESTendl;
 
         Double_t y0 = fMagneticFieldVolumes[id].mesh.GetY(nY);
         Double_t y1 = fMagneticFieldVolumes[id].mesh.GetY(nY_1);
@@ -988,7 +993,8 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos, Bool_t showWarn
         else
             yd = (pos.Y() - y0) / (y1 - y0);
         if ((yd < -0.00001) || (yd > 1.00001))
-            RESTWarning << "TRestAxionMagneticField::GetMagneticField  Error: yd NOT between 0 and 1" << RESTendl;
+            RESTWarning << "TRestAxionMagneticField::GetMagneticField  Error: yd NOT between 0 and 1"
+                        << RESTendl;
 
         Double_t z0 = fMagneticFieldVolumes[id].mesh.GetZ(nZ);
         Double_t z1 = fMagneticFieldVolumes[id].mesh.GetZ(nZ_1);
@@ -998,7 +1004,8 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos, Bool_t showWarn
         else
             zd = (pos.Z() - z0) / (z1 - z0);
         if ((zd < -0.00001) || (zd > 1.00001))
-            RESTWarning << "TRestAxionMagneticField::GetMagneticField  Error: zd NOT between 0 and 1" << RESTendl;
+            RESTWarning << "TRestAxionMagneticField::GetMagneticField  Error: zd NOT between 0 and 1"
+                        << RESTendl;
 
         // first we interpolate along x-axis
         TVector3 C00 = C000 * (1.0 - xd) + C100 * xd;
@@ -1015,21 +1022,32 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos, Bool_t showWarn
 
         RESTDebug << "position = (" << pos.X() << ", " << pos.Y() << ", " << pos.Z() << ")       ";
         RESTDebug << "nX = " << nX << " nY = " << nY << " nZ = " << nZ << "     nX_1 = " << nX_1
-              << "   nY_1 = " << nY_1 << "   nZ_1 = " << nZ_1 << RESTendl
-              << RESTendl;
-        RESTDebug << "C000 = (" << C000.X() << ", " << C000.Y() << ", " << C000.Z() << ")" << RESTendl << RESTendl;
-        RESTDebug << "C100 = (" << C100.X() << ", " << C100.Y() << ", " << C100.Z() << ")" << RESTendl << RESTendl;
-        RESTDebug << "C010 = (" << C010.X() << ", " << C010.Y() << ", " << C010.Z() << ")" << RESTendl << RESTendl;
-        RESTDebug << "C110 = (" << C110.X() << ", " << C110.Y() << ", " << C110.Z() << ")" << RESTendl << RESTendl;
-        RESTDebug << "C001 = (" << C001.X() << ", " << C001.Y() << ", " << C001.Z() << ")" << RESTendl << RESTendl;
-        RESTDebug << "C101 = (" << C101.X() << ", " << C101.Y() << ", " << C101.Z() << ")" << RESTendl << RESTendl;
-        RESTDebug << "C011 = (" << C011.X() << ", " << C011.Y() << ", " << C011.Z() << ")" << RESTendl << RESTendl;
-        RESTDebug << "C111 = (" << C111.X() << ", " << C111.Y() << ", " << C111.Z() << ")" << RESTendl << RESTendl;
+                  << "   nY_1 = " << nY_1 << "   nZ_1 = " << nZ_1 << RESTendl << RESTendl;
+        RESTDebug << "C000 = (" << C000.X() << ", " << C000.Y() << ", " << C000.Z() << ")" << RESTendl
+                  << RESTendl;
+        RESTDebug << "C100 = (" << C100.X() << ", " << C100.Y() << ", " << C100.Z() << ")" << RESTendl
+                  << RESTendl;
+        RESTDebug << "C010 = (" << C010.X() << ", " << C010.Y() << ", " << C010.Z() << ")" << RESTendl
+                  << RESTendl;
+        RESTDebug << "C110 = (" << C110.X() << ", " << C110.Y() << ", " << C110.Z() << ")" << RESTendl
+                  << RESTendl;
+        RESTDebug << "C001 = (" << C001.X() << ", " << C001.Y() << ", " << C001.Z() << ")" << RESTendl
+                  << RESTendl;
+        RESTDebug << "C101 = (" << C101.X() << ", " << C101.Y() << ", " << C101.Z() << ")" << RESTendl
+                  << RESTendl;
+        RESTDebug << "C011 = (" << C011.X() << ", " << C011.Y() << ", " << C011.Z() << ")" << RESTendl
+                  << RESTendl;
+        RESTDebug << "C111 = (" << C111.X() << ", " << C111.Y() << ", " << C111.Z() << ")" << RESTendl
+                  << RESTendl;
         RESTDebug << " -------------------------------------------------------" << RESTendl;
-        RESTDebug << "C00 = (" << C00.X() << ", " << C00.Y() << ", " << C00.Z() << ")" << RESTendl << RESTendl;
-        RESTDebug << "C01 = (" << C01.X() << ", " << C01.Y() << ", " << C01.Z() << ")" << RESTendl << RESTendl;
-        RESTDebug << "C10 = (" << C10.X() << ", " << C10.Y() << ", " << C10.Z() << ")" << RESTendl << RESTendl;
-        RESTDebug << "C11 = (" << C11.X() << ", " << C11.Y() << ", " << C11.Z() << ")" << RESTendl << RESTendl;
+        RESTDebug << "C00 = (" << C00.X() << ", " << C00.Y() << ", " << C00.Z() << ")" << RESTendl
+                  << RESTendl;
+        RESTDebug << "C01 = (" << C01.X() << ", " << C01.Y() << ", " << C01.Z() << ")" << RESTendl
+                  << RESTendl;
+        RESTDebug << "C10 = (" << C10.X() << ", " << C10.Y() << ", " << C10.Z() << ")" << RESTendl
+                  << RESTendl;
+        RESTDebug << "C11 = (" << C11.X() << ", " << C11.Y() << ", " << C11.Z() << ")" << RESTendl
+                  << RESTendl;
         RESTDebug << " -------------------------------------------------------" << RESTendl;
         RESTDebug << "C0 = (" << C0.X() << ", " << C0.Y() << ", " << C0.Z() << ")" << RESTendl << RESTendl;
         RESTDebug << "C1 = (" << C1.X() << ", " << C1.Y() << ", " << C1.Z() << ")" << RESTendl << RESTendl;
@@ -1073,7 +1091,8 @@ TVector3 TRestAxionMagneticField::GetVolumePosition(Int_t id) {
     if (GetNumberOfVolumes() > id)
         return fPositions[id];
     else {
-        RESTWarning << "TRestAxionMagneticField::GetVolumePosition. Id : " << id << " out of range!" << RESTendl;
+        RESTWarning << "TRestAxionMagneticField::GetVolumePosition. Id : " << id << " out of range!"
+                    << RESTendl;
         RESTWarning << "Number of volumes defined : " << GetNumberOfVolumes() << RESTendl;
         return TVector3(0, 0, 0);
     }
@@ -1106,7 +1125,8 @@ std::vector<Double_t> TRestAxionMagneticField::GetTransversalComponentAlongPath(
     if (Nmax > 0) {
         if (length / dl > Nmax) {
             diff = length / Nmax;
-            RESTWarning << "TRestAxionMagneticField::GetTransversalComponentAlongPath. Nmax reached!" << RESTendl;
+            RESTWarning << "TRestAxionMagneticField::GetTransversalComponentAlongPath. Nmax reached!"
+                        << RESTendl;
             RESTWarning << "Nmax = " << Nmax << RESTendl;
             RESTWarning << "Adjusting differential step to : " << diff << " mm" << RESTendl;
         }
@@ -1165,7 +1185,8 @@ TVector3 TRestAxionMagneticField::GetFieldAverageTransverseVector(TVector3 from,
     if (Nmax > 0) {
         if (length / dl > Nmax) {
             diff = length / Nmax;
-            RESTWarning << "TRestAxionMagneticField::GetFieldAverageTransverseVector Nmax reached!" << RESTendl;
+            RESTWarning << "TRestAxionMagneticField::GetFieldAverageTransverseVector Nmax reached!"
+                        << RESTendl;
             RESTWarning << "Nmax = " << Nmax << RESTendl;
             RESTWarning << "Adjusting differential step to : " << diff << " mm" << RESTendl;
         }
@@ -1186,9 +1207,10 @@ TVector3 TRestAxionMagneticField::GetFieldAverageTransverseVector(TVector3 from,
         BTavg =
             Bavg - (Bavg * direction) *
                        direction;  // calculates the transverse component of the average magnetic field vector
-        RESTDebug << "B average vector = (" << Bavg.x() << ", " << Bavg.y() << ", " << Bavg.z() << ")" << RESTendl;
+        RESTDebug << "B average vector = (" << Bavg.x() << ", " << Bavg.y() << ", " << Bavg.z() << ")"
+                  << RESTendl;
         RESTDebug << "Transverse B average vector = (" << BTavg.x() << ", " << BTavg.y() << ", " << BTavg.z()
-              << ")" << RESTendl;
+                  << ")" << RESTendl;
         return BTavg;
     }
     RESTError << "TRestAxionMagneticField::GetTransversalFieldAverage. Lenght is zero!" << RESTendl;
@@ -1221,11 +1243,13 @@ Bool_t TRestAxionMagneticField::CheckOverlaps() {
             RESTDebug << "Volume : " << m << RESTendl;
 
             TVector3 b = GetMagneticVolume(m)->mesh.GetVertex(0);
-            RESTDebug << "Relative bottom vertex : (" << b.X() << ", " << b.Y() << ", " << b.Z() << ")" << RESTendl;
+            RESTDebug << "Relative bottom vertex : (" << b.X() << ", " << b.Y() << ", " << b.Z() << ")"
+                      << RESTendl;
             if (GetMagneticVolume(n)->mesh.IsInsideBoundingBox(b)) return true;
 
             TVector3 t = GetMagneticVolume(m)->mesh.GetVertex(1);
-            RESTDebug << "Relative top vertex : (" << t.X() << ", " << t.Y() << ", " << t.Z() << ")" << RESTendl;
+            RESTDebug << "Relative top vertex : (" << t.X() << ", " << t.Y() << ", " << t.Z() << ")"
+                      << RESTendl;
             if (GetMagneticVolume(n)->mesh.IsInsideBoundingBox(t)) return true;
         }
     }
@@ -1355,12 +1379,12 @@ void TRestAxionMagneticField::InitFromConfigFile() {
         RESTDebug << "-----" << RESTendl;
         RESTDebug << "Filename : " << filename << RESTendl;
         RESTDebug << "Position: ( " << position.X() << ", " << position.Y() << ", " << position.Z() << ") mm"
-              << RESTendl;
+                  << RESTendl;
         RESTDebug << "Field: ( " << field.X() << ", " << field.Y() << ", " << field.Z() << ") T" << RESTendl;
-        RESTDebug << "Max bounding box ( " << boundMax.X() << ", " << boundMax.Y() << ", " << boundMax.Z() << ")"
-              << RESTendl;
+        RESTDebug << "Max bounding box ( " << boundMax.X() << ", " << boundMax.Y() << ", " << boundMax.Z()
+                  << ")" << RESTendl;
         RESTDebug << "Mesh size ( " << meshSize.X() << ", " << meshSize.Y() << ", " << meshSize.Z() << ")"
-              << RESTendl;
+                  << RESTendl;
         RESTDebug << "----" << RESTendl;
 
         magVolumeDef = GetNextElement(magVolumeDef);
@@ -1399,12 +1423,12 @@ void TRestAxionMagneticField::PrintMetadata() {
         Double_t zMax = centerZ + halfSizeZ;
 
         RESTMetadata << "* Volume " << p << " centered at  (" << centerX << "," << centerY << "," << centerZ
-                 << ") mm" << RESTendl;
+                     << ") mm" << RESTendl;
         RESTMetadata << "  - Grid mesh element size.  X: " << fMeshSize[p].X() << "mm "
-                 << " Y: " << fMeshSize[p].Y() << "mm "
-                 << " Z: " << fMeshSize[p].Z() << "mm " << RESTendl;
+                     << " Y: " << fMeshSize[p].Y() << "mm "
+                     << " Z: " << fMeshSize[p].Z() << "mm " << RESTendl;
         RESTMetadata << "  - Offset field [T] : (" << fConstantField[p].X() << ", " << fConstantField[p].Y()
-                 << ", " << fConstantField[p].Z() << ")" << RESTendl;
+                     << ", " << fConstantField[p].Z() << ")" << RESTendl;
         RESTMetadata << "  - File loaded : " << fFileNames[p] << RESTendl;
         RESTMetadata << " " << RESTendl;
         RESTMetadata << "  - Bounds : " << RESTendl;

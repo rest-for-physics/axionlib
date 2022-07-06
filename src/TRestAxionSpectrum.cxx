@@ -61,8 +61,8 @@ void TRestAxionSpectrum::InitFromConfigFile() {
             RESTError << "File not found : " << sTableFileName << RESTendl;
         } else if (std::isnan(g1ref)) {
             RESTError << "You need to supply at least one reference value 'g1ref' in 'table' mode of "
-                    "TRestAxionSpectrum."
-                 << RESTendl;
+                         "TRestAxionSpectrum."
+                      << RESTendl;
         } else {
             fDefaultG1 = g1ref;
             if (not(std::isnan(g2ref))) {
@@ -116,10 +116,10 @@ void TRestAxionSpectrum::InitFromConfigFile() {
                 avail_approximation_names += " " + el.first;
             };
             RESTError << "You want to use the 'analytical' mode of TRestAxionSpectrum but neither supplied a "
-                    "known 'named_approx' OR the four required parameters 'a', 'b', 'norm', "
-                    "and 'g1ref'.\n The available known approximations are:" +
-                        avail_approximation_names
-                 << RESTendl;
+                         "known 'named_approx' OR the four required parameters 'a', 'b', 'norm', "
+                         "and 'g1ref'.\n The available known approximations are:" +
+                             avail_approximation_names
+                      << RESTendl;
         }
     } else if (sMode == "solar_model") {
         // TODO: Ideally use TRestAxionSolarModel here...
@@ -133,8 +133,8 @@ void TRestAxionSpectrum::InitFromConfigFile() {
 #endif
     } else {
         RESTError << "Mode for TRestAxionSpectrum not known! Choose one of 'table', 'analytical', and "
-                "'solar_model'."
-             << RESTendl;
+                     "'solar_model'."
+                  << RESTendl;
         sMode = "none";
     };
 }
@@ -168,15 +168,17 @@ void TRestAxionSpectrum::PrintMetadata() {
 #endif
     } else if (sMode == "table") {
         RESTMetadata << " - Tabulated spectrum file used : "
-                 << TRestTools::SeparatePathAndName(sTableFileName).second << RESTendl;
+                     << TRestTools::SeparatePathAndName(sTableFileName).second << RESTendl;
     };
     RESTMetadata << "-------------------------------------------------" << RESTendl;
     RESTMetadata << " - Units of the solar axion flux from this class : axions / cm^2 s keV" << RESTendl;
     if (not(std::isnan(fDefaultG1))) {
-        RESTMetadata << " - Numerical value of coupling g1 (in appropriate units): " << fDefaultG1 << RESTendl;
+        RESTMetadata << " - Numerical value of coupling g1 (in appropriate units): " << fDefaultG1
+                     << RESTendl;
     };
     if (fDefaultG2 > 0) {
-        RESTMetadata << " - Numerical value of coupling g2 (in appropriate units): " << fDefaultG2 << RESTendl;
+        RESTMetadata << " - Numerical value of coupling g2 (in appropriate units): " << fDefaultG2
+                     << RESTendl;
     } else {
         RESTMetadata << " - A second coupling, g2, is not available in this class instance." << RESTendl;
     };

@@ -190,7 +190,8 @@ Double_t TRestAxionBufferGas::GetGasDensity(TString gasName) {
     Int_t gasIndex = FindGasIndex(gasName);
 
     if (gasIndex < 0) {
-        RESTError << "TRestAxionBufferGas::GetGasDensity. Gas name : " << gasName << " not found!" << RESTendl;
+        RESTError << "TRestAxionBufferGas::GetGasDensity. Gas name : " << gasName << " not found!"
+                  << RESTendl;
         return 0;
     }
 
@@ -375,7 +376,8 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
         if (fBufferGasName[n] == "Xe") W_value = 131.293;  // g/mol
 
         if (W_value == 0) {
-            RESTError << "Gas name : " << fBufferGasName[n] << " is not implemented in TRestBufferGas!!" << RESTendl;
+            RESTError << "Gas name : " << fBufferGasName[n] << " is not implemented in TRestBufferGas!!"
+                      << RESTendl;
             RESTError << "W value must be defined in TRestAxionBufferGas::GetPhotonMass" << RESTendl;
             RESTError << "This gas will not contribute to the calculation of the photon mass!" << RESTendl;
         } else {
@@ -400,7 +402,8 @@ Double_t TRestAxionBufferGas::GetAbsorptionCoefficient(TString gasName, Double_t
     }
 
     if (gasIndex == -1) {
-        RESTError << "TRestAxionBufferGas::GetAbsorptionCoefficient. Gas: " << gasName << " Not Found!" << RESTendl;
+        RESTError << "TRestAxionBufferGas::GetAbsorptionCoefficient. Gas: " << gasName << " Not Found!"
+                  << RESTendl;
         exit(1);
     }
 
@@ -500,9 +503,9 @@ void TRestAxionBufferGas::PrintMetadata() {
             RESTMetadata << " Gas name : " << fBufferGasName[n] << RESTendl;
             RESTMetadata << " Gas density : " << fBufferGasDensity[n] << " g/cm3" << RESTendl;
             RESTMetadata << " Form factor energy range : ( " << fFactorEnergy[n][0] << ", "
-                     << fFactorEnergy[n].back() << " ) keV" << RESTendl;
-            RESTMetadata << " Absorption energy range : ( " << fAbsEnergy[n][0] << ", " << fAbsEnergy[n].back()
-                     << " ) keV" << RESTendl;
+                         << fFactorEnergy[n].back() << " ) keV" << RESTendl;
+            RESTMetadata << " Absorption energy range : ( " << fAbsEnergy[n][0] << ", "
+                         << fAbsEnergy[n].back() << " ) keV" << RESTendl;
             RESTMetadata << " " << RESTendl;
         }
     }

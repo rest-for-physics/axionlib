@@ -91,8 +91,8 @@ jobs:
         wget https://sultan.unizar.es/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
         wget https://sultan.unizar.es/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
         python mirrors.py
-        python optics.py
-        python basic.py
+        #python optics.py
+        #python basic.py
     - name: X-ray transmission
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
