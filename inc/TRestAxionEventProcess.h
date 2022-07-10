@@ -38,9 +38,6 @@ class TRestAxionEventProcess : public TRestEventProcess {
     /// The rotation angle with respect to X-axis
     Double_t fPitch = 0;
 
-    /// The displacement applied to the process component
-    TVector2 fDisplacement = TVector2(0, 0);
-
    protected:
     /// A pointer to the specific TRestAxionEvent
     TRestAxionEvent* fAxionEvent;  //!
@@ -49,18 +46,20 @@ class TRestAxionEventProcess : public TRestEventProcess {
     void EndPrintProcess();
 
    public:
-    /// To be executed at the beginning of the run (outside event loop)
-    virtual void InitProcess() {}
+    RESTValue GetInputEvent() const override { return fAxionEvent; }
+    RESTValue GetOutputEvent() const override { return fAxionEvent; }
+
+    virtual void InitProcess() override {}
 
     /// Begin of event process, preparation work. Called right before ProcessEvent()
-    virtual void BeginOfEventProcess(TRestEvent* evInput = nullptr);
+    void BeginOfEventProcess(TRestEvent* evInput = nullptr) override;
 
     /// End of event process. Called directly after ProcessEvent()
-    virtual void EndOfEventProcess(TRestEvent* evInput = nullptr);
+    void EndOfEventProcess(TRestEvent* evInput = nullptr) override;
 
     TRestAxionEventProcess();
     ~TRestAxionEventProcess();
 
-    ClassDef(TRestAxionEventProcess, 1);
+    ClassDefOverride(TRestAxionEventProcess, 1);
 };
 #endif

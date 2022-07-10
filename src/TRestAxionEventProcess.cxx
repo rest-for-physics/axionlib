@@ -72,7 +72,7 @@ void TRestAxionEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
               << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z()
               << RESTendl;
     fAxionEvent->RotateYX(fCenter, -fYaw, -fPitch);
-    fAxionEvent->Translate(TVector3(-fDisplacement.X(), -fDisplacement.Y(), 0));
+    fAxionEvent->Translate(TVector3(-fCenter.X(), -fCenter.Y(), -fCenter.Z()));
     RESTDebug << " ---- " << RESTendl;
     RESTDebug << "BoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
               << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z()
@@ -97,7 +97,7 @@ void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
               << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z()
               << RESTendl;
     RESTDebug << " ---- " << RESTendl;
-    fAxionEvent->Translate(TVector3(fDisplacement.X(), fDisplacement.Y(), 0));
+    fAxionEvent->Translate(TVector3(fCenter.X(), fCenter.Y(), fCenter.Z()));
     fAxionEvent->RotateXY(fCenter, fPitch, fYaw);
     RESTDebug << "EoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
               << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z()
@@ -121,8 +121,6 @@ void TRestAxionEventProcess::BeginPrintProcess() {
                  << RESTendl;
     RESTMetadata << "Yaw angle (Y-axis): " << fYaw * units("degrees") << " degrees" << RESTendl;
     RESTMetadata << "Pitch angle (X-axis): " << fPitch * units("degrees") << " degrees" << RESTendl;
-    RESTMetadata << "X-displacement: " << fDisplacement.X() << " mm" << RESTendl;
-    RESTMetadata << "Y-displacement: " << fDisplacement.Y() << " mm" << RESTendl;
     RESTMetadata << " --------------------------- " << RESTendl;
     RESTMetadata << " " << RESTendl;
 }
