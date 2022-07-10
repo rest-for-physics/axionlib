@@ -186,9 +186,11 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
         axionDirection = -axionPosition.Unit();
     }
 
-    /// The axion position must be displaced by the target size (In my opinion the target should be
-    /// either the optics entrance, or the magnet end bore). Probably the most intuitive is to
-    /// place the optics at the (0,0,0) .
+    /// The axion position must be displaced by the target size.
+    /// The target is virtually placed at the (0,0,0).
+    /// In my opinion the target should be either the optics, or the magnet end bore.
+    /// Then one should place the optics or the magnet end bore at the (0,0,0).
+    ///
     do {
         x = fRandom->Rndm() - 0.5;
         y = fRandom->Rndm() - 0.5;
