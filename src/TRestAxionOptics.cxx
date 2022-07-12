@@ -416,6 +416,8 @@ void TRestAxionOptics::PrintMetadata() {
     RESTMetadata << "---------" << RESTendl;
     RESTMetadata << "Entrance position in Z : " << GetEntrancePositionZ() << " mm" << RESTendl;
     RESTMetadata << "Exit position in Z : " << GetExitPositionZ() << " mm" << RESTendl;
+    RESTMetadata << "Low radial limit : " << GetRadialLimits().first << " mm" << RESTendl;
+    RESTMetadata << "High radial limit : " << GetRadialLimits().second << " mm" << RESTendl;
     RESTMetadata << "---------" << RESTendl;
     RESTMetadata << " " << RESTendl;
     RESTMetadata << " Use \"this->PrintMasks()\" to get masks info" << RESTendl;
