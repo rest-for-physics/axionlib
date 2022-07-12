@@ -63,6 +63,7 @@
         </addProcess>
         <addProcess type="TRestAxionOpticsProcess" name="optics" value="ON" verboseLevel="info">
             <parameter name="center" value="(0,0,0)"/>
+            <observable name="efficiency" value="ON"/>
         </addProcess>
         <addProcess type="TRestAxionTransportProcess" name="ToZ1500" zPosition="1500">
 		</addProcess>
