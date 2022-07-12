@@ -179,6 +179,9 @@ class TRestAxionOptics : public TRestMetadata {
     /// Returns the exit position from the latest propagated photon
     TVector3 GetExitDirection() { return fExitDirection; }
 
+    TVector3 GetLastGoodPosition();
+    TVector3 GetLastGoodDirection();
+
     /// It returns true if the photon got reflected in the first mirror
     Bool_t IsFirstMirrorReflection() { return fFirstInteraction; }
 
