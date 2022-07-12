@@ -32,8 +32,6 @@ class TRestAxionAnalysisProcess : public TRestEventProcess {
     /// A pointer to the specific TRestAxionEvent
     TRestAxionEvent* fAxionEvent;  //!
 
-    void InitFromConfigFile() override;
-
     void Initialize() override;
 
     void LoadDefaultConfig();
