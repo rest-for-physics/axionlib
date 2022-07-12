@@ -45,6 +45,8 @@ class TRestAxionEventProcess : public TRestEventProcess {
     void BeginPrintProcess();
     void EndPrintProcess();
 
+    TVector3 GetCenter() const { return fCenter; }
+
    public:
     RESTValue GetInputEvent() const override { return fAxionEvent; }
     RESTValue GetOutputEvent() const override { return fAxionEvent; }
