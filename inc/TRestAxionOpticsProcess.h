@@ -33,8 +33,6 @@ class TRestAxionOpticsProcess : public TRestAxionEventProcess {
     /// A pointer to the optics description defined inside TRestRun
     TRestAxionOptics* fOptics;  //!
 
-    void InitFromConfigFile() override;
-
     void Initialize() override;
 
     void LoadDefaultConfig();
