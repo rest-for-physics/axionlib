@@ -118,8 +118,8 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     SetObservableValue("posY", fAxionEvent->GetPosition().Y());
     SetObservableValue("posZ", fAxionEvent->GetPosition().Z());
 
-    SetObservableValue("B2", fAxionEvent->GetBSquared());
-    SetObservableValue("Lcoh", fAxionEvent->GetLConversion());
+    // SetObservableValue("B2", fAxionEvent->GetBSquared());
+    // SetObservableValue("Lcoh", fAxionEvent->GetLConversion());
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) fAxionEvent->PrintEvent();
 
