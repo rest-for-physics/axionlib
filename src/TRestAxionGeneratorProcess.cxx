@@ -160,7 +160,7 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     fOutputAxionEvent->SetID(fCounter);
     fCounter++;
 
-    TVector3 axionPosition = TVector3(0, 0, -100000);
+    TVector3 axionPosition = TVector3(0, 0, -REST_Physics::AU);
     TVector3 axionDirection = TVector3(0, 0, 1);
     Double_t energy = 1;
 
@@ -168,8 +168,8 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     // We avoid the use of expensive trigonometric functions
     Double_t x, y, r;
     do {
-        x = fRandom->Rndm() - 0.5;
-        y = fRandom->Rndm() - 0.5;
+        x = 2 * (fRandom->Rndm() - 0.5);
+        y = 2 * (fRandom->Rndm() - 0.5);
         r = x * x + y * y;
     } while (r > 1 || r == 0);
 
@@ -180,8 +180,8 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
         energy = p.first;
         Double_t radius = p.second;
 
-        axionPosition = TVector3(REST_Physics::solarRadius * radius * x / r,
-                                 REST_Physics::solarRadius * radius * y / r, -REST_Physics::AU);
+        axionPosition = TVector3(REST_Physics::solarRadius * radius * x,
+                                 REST_Physics::solarRadius * radius * y, -REST_Physics::AU);
 
         axionDirection = -axionPosition.Unit();
     }
@@ -192,14 +192,14 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     /// Then one should place the optics or the magnet end bore at the (0,0,0).
     ///
     do {
-        x = fRandom->Rndm() - 0.5;
-        y = fRandom->Rndm() - 0.5;
+        x = 2 * (fRandom->Rndm() - 0.5);
+        y = 2 * (fRandom->Rndm() - 0.5);
         r = x * x + y * y;
     } while (r > 1 || r == 0);
 
     r = TMath::Sqrt(r);
 
-    axionPosition = axionPosition + TVector3(fTargetRadius * x / r, fTargetRadius * y / r, 0);
+    axionPosition = axionPosition + TVector3(fTargetRadius * x, fTargetRadius * y, 0);
 
     fOutputAxionEvent->SetEnergy(energy);
     fOutputAxionEvent->SetPosition(axionPosition);
