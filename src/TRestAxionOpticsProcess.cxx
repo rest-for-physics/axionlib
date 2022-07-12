@@ -109,6 +109,12 @@ void TRestAxionOpticsProcess::InitProcess() {
     RESTDebug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << RESTendl;
 
     fOptics = GetMetadata<TRestAxionOptics>();
+
+    if (fOptics) {
+        fOptics->PrintMetadata();
+    } else {
+        RESTError << "TRestAxionOptics::InitProcess. No sucess instantiating optics." << RESTendl;
+    }
 }
 
 ///////////////////////////////////////////////
@@ -121,14 +127,16 @@ TRestEvent* TRestAxionOpticsProcess::ProcessEvent(TRestEvent* evInput) {
     TVector3 inDir = fAxionEvent->GetDirection();
     Double_t energy = fAxionEvent->GetEnergy();
 
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) fAxionEvent->PrintEvent();
     Double_t efficiency = fOptics->PropagatePhoton(inPos, inDir, energy);
 
-    if (efficiency <= 0) return nullptr;
+    SetObservableValue("efficiency", efficiency);
 
-    fAxionEvent->SetPosition(fOptics->GetExitPosition());
-    fAxionEvent->SetDirection(fOptics->GetExitDirection());
+    // We register the event even if it is not properly reflected, i.e. efficiency = 0
+    fAxionEvent->SetPosition(fOptics->GetLastGoodPosition());
+    fAxionEvent->SetDirection(fOptics->GetLastGoodDirection());
 
-    /// TODO set efficiency
+    /// TODO set efficiency inside the event
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         fAxionEvent->PrintEvent();
