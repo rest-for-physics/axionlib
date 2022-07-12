@@ -24,17 +24,16 @@
 #define RestCore_TRestAxionOpticsProcess
 
 #include "TRestAxionEvent.h"
+#include "TRestAxionEventProcess.h"
 #include "TRestAxionOptics.h"
-#include "TRestEventProcess.h"
 
 //! A process to introduce the response from optics in the axion signal generation chain
-class TRestAxionOpticsProcess : public TRestEventProcess {
+class TRestAxionOpticsProcess : public TRestAxionEventProcess {
    private:
-    /// A pointer to the specific TRestAxionEvent
-    TRestAxionEvent* fAxionEvent;  //!
-
     /// A pointer to the optics description defined inside TRestRun
     TRestAxionOptics* fOptics;  //!
+
+    void InitFromConfigFile() override;
 
     void Initialize() override;
 
@@ -46,9 +45,6 @@ class TRestAxionOpticsProcess : public TRestEventProcess {
 
     TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
-    any GetInputEvent() { return fAxionEvent; }
-    any GetOutputEvent() { return fAxionEvent; }
-
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure
@@ -59,7 +55,7 @@ class TRestAxionOpticsProcess : public TRestEventProcess {
     }
 
     /// Returns the name of this process
-    const char* GetProcessName() const override { return "axionOpticsResponse"; }
+    const char* GetProcessName() const override { return "axionOptics"; }
 
     // Constructor
     TRestAxionOpticsProcess();
