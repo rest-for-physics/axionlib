@@ -128,7 +128,9 @@ TRestEvent* TRestAxionTransportProcess::ProcessEvent(TRestEvent* evInput) {
         RESTWarning
             << "TRestAxionTransportProcess::ProcessEvent. Not appropiate particle direction to reach Z="
             << fZPosition << RESTendl;
-        RESTWarning << "Axion position. Z:" << inPos.Z() << " direction Z" << inDir.Z() << RESTendl;
+        RESTWarning << "Axion position. Z:" << inPos.Z() << " direction Z: " << inDir.Z() << RESTendl;
+        fAxionEvent->PrintEvent();
+
         return fAxionEvent;
     }
 
