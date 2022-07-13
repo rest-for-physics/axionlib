@@ -54,8 +54,14 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     /// The generator type (solarFlux/flat)
     TString fGeneratorType = "solarFlux";  //<
 
-    // Seed used in random generator
+    /// Seed used in random generator
     Int_t fSeed = 0;  //<
+
+    /// It defines the minimum energy as a cut-off to the generator. Default is 50eV.
+    Double_t fMinEnergy = 0.05;  //<
+
+    /// It defines the maximum energy as a cut-off to the generator. No limits if equals 0.
+    Double_t fMaxEnergy = 0;  //<
 
     void Initialize() override;
 
