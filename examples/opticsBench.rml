@@ -15,6 +15,7 @@
         <parameter name="user" value="${USER}"/>
         <parameter name="verboseLevel" value="2"/>
         <parameter name="outputFileName" value="Run_[fExperimentName]_[fRunType]_[fRunTag]_PrimakoffDummy_[fRunNumber].root"/>
+        <!-- Optics definition -->
         <TRestAxionWolterOptics name="xmm" title="A test" verboseLevel="info">
             <parameter name="opticsFile" value="XMM.Wolter"/>
             <parameter name="mirrorLength" value="300"/>
@@ -46,40 +47,33 @@
             <parameter name="axionMass" value="5meV"/>
             <parameter name="targetRadius" value="40cm"/>
         </addProcess>
-        <addProcess type="TRestAxionAnalysisProcess" name="axGen1" value="ON" verboseLevel="info">
-            <observable name="energy" value="ON"/>
-            <observable name="posX" value="ON"/>
-            <observable name="posY" value="ON"/>
-            <observable name="posZ" value="ON"/>
+        <addProcess type="TRestAxionAnalysisProcess" name="axGen1" observable="all"/>
+        <!-- Moving to Z=-1000 -->
+        <addProcess type="TRestAxionTransportProcess" name="ToOpticsEntrance" zPosition="-1000"/>
+        <addProcess type="TRestAxionAnalysisProcess" name="beforeOptics" verboseLevel="info">
+            <observable name="posX"/>
+            <observable name="posY"/>
         </addProcess>
-        <!-- We move the particle 1-m before origin -->
-        <addProcess type="TRestAxionTransportProcess" name="ToOpticsEntrance" zPosition="-1000">
-		</addProcess>
-        <addProcess type="TRestAxionAnalysisProcess" name="beforeOptics" value="ON" verboseLevel="info">
-            <observable name="energy" value="ON"/>
-            <observable name="posX" value="ON"/>
-            <observable name="posY" value="ON"/>
-            <observable name="posZ" value="ON"/>
-        </addProcess>
-        <addProcess type="TRestAxionOpticsProcess" name="optics" value="ON" verboseLevel="info">
+        <!-- Optics response -->
+        <addProcess type="TRestAxionOpticsProcess" name="optics">
             <parameter name="center" value="(0,0,0)"/>
             <observable name="efficiency" value="ON"/>
         </addProcess>
-        <addProcess type="TRestAxionTransportProcess" name="ToZ1500" zPosition="1500">
-		</addProcess>
-        <addProcess type="TRestAxionAnalysisProcess" name="afterOptics" value="OFF" verboseLevel="info">
-            <observable name="energy" value="ON"/>
-            <observable name="posX" value="ON"/>
-            <observable name="posY" value="ON"/>
-            <observable name="posZ" value="ON"/>
+        <addProcess type="TRestAxionAnalysisProcess" name="afterOptics">
+            <observable name="posX"/>
+            <observable name="posY"/>
         </addProcess>
-        <addProcess type="TRestAxionTransportProcess" name="ToFocalPoint" zPosition="7500">
-		</addProcess>
-        <addProcess type="TRestAxionAnalysisProcess" name="focal" value="ON" verboseLevel="info">
-            <observable name="energy" value="ON"/>
-            <observable name="posX" value="ON"/>
-            <observable name="posY" value="ON"/>
-            <observable name="posZ" value="ON"/>
+        <!-- Moving to Z=1500 -->
+        <addProcess type="TRestAxionTransportProcess" name="ToZ1500" zPosition="1500"/>
+        <addProcess type="TRestAxionAnalysisProcess" name="z1500">
+            <observable name="posX"/>
+            <observable name="posY"/>
+        </addProcess>
+        <!-- Moving to Z=7500 -->
+        <addProcess type="TRestAxionTransportProcess" name="ToFocalPoint" zPosition="7500"/>
+        <addProcess type="TRestAxionAnalysisProcess" name="focal">
+            <observable name="posX"/>
+            <observable name="posY"/>
         </addProcess>
     </TRestProcessRunner>
     <addTask command="EventProcess-&gt;RunProcess()" value="ON"/>
