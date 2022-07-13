@@ -186,7 +186,15 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
         axionDirection = -axionPosition.Unit();
     }
 
+    if (fGeneratorType == "flat" || fGeneratorType == "plain") {
+        if (fMaxEnergy > 0)
+            energy = fRandom->Rndm() * (fMaxEnergy - fMinEnergy) + fMinEnergy;
+        else
+            energy = (1. - fMinEnergy) * fRandom->Rndm() + fMinEnergy;
+    }
+
     /// The axion position must be displaced by the target size.
+    /// We always do this. It is independent of generator
     /// The target is virtually placed at the (0,0,0).
     /// In my opinion the target should be either the optics, or the magnet end bore.
     /// Then one should place the optics or the magnet end bore at the (0,0,0).
@@ -200,6 +208,7 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     r = TMath::Sqrt(r);
 
     axionPosition = axionPosition + TVector3(fTargetRadius * x, fTargetRadius * y, 0);
+    /// ///
 
     fOutputAxionEvent->SetEnergy(energy);
     fOutputAxionEvent->SetPosition(axionPosition);
@@ -219,6 +228,7 @@ void TRestAxionGeneratorProcess::PrintMetadata() {
     RESTMetadata << "Axion mass: " << fAxionMass * units("eV") << " eV" << RESTendl;
     RESTMetadata << "Target radius: " << fTargetRadius * units("cm") << " cm" << RESTendl;
     RESTMetadata << "Random seed: " << (UInt_t)fSeed << RESTendl;
+    RESTMetadata << "Energy range: (" << fMinEnergy << ", " << fMaxEnergy << ") keV" << RESTendl;
 
     RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }
