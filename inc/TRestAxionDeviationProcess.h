@@ -31,14 +31,8 @@
 //! A process to deviate the axion direction by a given yaw and pitch angle distributions
 class TRestAxionDeviationProcess : public TRestAxionEventProcess {
    private:
-    /// The max yaw angle to deviate
-    Double_t fYaw = 0;  //<
-
-    /// The max pitch angle to deviate
-    Double_t fPitch = 0;  //<
-
-    /// The deviation type
-    Double_t fDistribution = "flat";  //<
+    /// The angle that defines the cone directrix that defines the maximum deviation
+    Double_t fDevAngle = 0;  //<
 
     /// Seed used in random generator
     Int_t fSeed = 0;  //<
@@ -62,9 +56,7 @@ class TRestAxionDeviationProcess : public TRestAxionEventProcess {
     void PrintMetadata() override {
         BeginPrintProcess();
 
-        RESTMetadata << "Angle distribution: " << fDistribution << RESTendl;
-        RESTMetadata << "Maximum yaw deviation: " << fYaw * units("degrees") << " degrees" << RESTendl;
-        RESTMetadata << "Maximum pitch deviation: " << fPitch * units("degrees") << " degrees" << RESTendl;
+        RESTMetadata << "Cone directrix angle: " << fDevAngle * units("degrees") << " degrees" << RESTendl;
 
         EndPrintProcess();
     }

@@ -21,12 +21,11 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionDeviationProcess simply produces a deviation based on
-/// a given angular distribution on the YX plane. For the moment, we simply
-/// define the maximum deviation at each axis using fYaw and fPitch metadata
-/// members, which will be distributed according to fDistribution member.
+/// TRestAxionDeviationProcess simply produces a deviation given by an
+/// angle, fDevAngle, that defines the cone directrix delimiting the
+/// deviation along the main axion direction.
 ///
-/// For the moment we simply produce a uniform distribution for each angle.
+/// For the moment we simply produce a uniform distribution for the angle.
 /// This will likely produce a non-homogeneous angular distribution, but
 /// still good for small angles.
 ///
@@ -133,10 +132,16 @@ TRestEvent* TRestAxionDeviationProcess::ProcessEvent(TRestEvent* evInput) {
     TVector3 inPos = fAxionEvent->GetPosition();
     TVector3 inDir = fAxionEvent->GetDirection();
 
-    Double_t yaw = 2 * fYaw * (fRandom->Rndm() - 0.5);
-    Double_t pitch = 2 * fPitch * (fRandom->Rndm() - 0.5);
+    Double_t theta = fDevAngle * fRandom->Rndm();
+    Double_t phi = TMath::Pi() * fRandom->Rndm();
 
-    fAxionEvent->RotateYX(inPos, yaw, pitch);
+    TVector3 ortho = inDir.Orthogonal();
+    TVector3 newDir = inDir;
+
+    newDir.Rotate(theta, ortho);
+    newDir.Rotate(phi, inDir);
+
+    fAxionEvent->SetDirection(newDir);
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         fAxionEvent->PrintEvent();
