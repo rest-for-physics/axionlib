@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+### This script is now obsolete. It should be updated to use a specific optics inherited class.
+
 import ROOT, math
 
 outfname = "opticsBasic.png"

@@ -7,16 +7,18 @@
         <parameter name="Pi" value="3.1415927"/>
         <variable name="REST_DEV" value="0.005"/>
         <variable name="REST_YAW" value="0.05"/>
+        <variable name="REST_NEVENTS" value="1000000"/>
+        <variable name="REST_RUN" value="auto"/>
     </globals>
     <TRestRun name="axionRun" title="BabyIAXO V1.0" verboseLevel="info">
-        <parameter name="experimentName" value="babyIAXO"/>
-        <parameter name="runType" value="opticsBench"/>
-        <parameter name="runNumber" value="auto"/>
+        <parameter name="experimentName" value="BabyIAXO"/>
+        <parameter name="runType" value="OpticsBench"/>
+        <parameter name="runNumber" value="${REST_RUN}"/>
         <parameter name="runTag" value="Yaw_${REST_YAW}_Dev_${REST_DEV}"/>
         <parameter name="runDescription" value=""/>
         <parameter name="user" value="${USER}"/>
         <parameter name="verboseLevel" value="2"/>
-        <parameter name="outputFileName" value="Run_[fExperimentName]_[fRunType]_[fRunTag]_PrimakoffDummy_[fRunNumber].root"/>
+        <parameter name="outputFileName" value="[fExperimentName]_[fRunType]_[fRunTag]_Run[fRunNumber].root"/>
         <!-- Optics definition -->
         <TRestAxionWolterOptics name="xmm" title="A test" verboseLevel="info">
             <parameter name="opticsFile" value="XMM.Wolter"/>
@@ -39,7 +41,7 @@
         </TRestAxionWolterOptics>
     </TRestRun>
     <TRestProcessRunner name="EventProcess" verboseLevel="info">
-        <parameter name="eventsToProcess" value="1000000"/>
+        <parameter name="eventsToProcess" value="${REST_NEVENTS}"/>
         <parameter name="threadNumber" value="1"/>
         <parameter name="inputAnalysis" value="on"/>
         <parameter name="inputEvent" value="off"/>
