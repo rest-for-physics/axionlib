@@ -141,4 +141,4 @@ jobs:
         wget https://sultan.unizar.es/axionlib-data/optics/xmm.rml
         wget https://sultan.unizar.es/axionlib-data/optics/XMM.Wolter
         restManager --c opticsBench.rml
-        restRoot ValidateXMM.C'("BabyIAXO_OpticsBench_Yaw_0.02_Dev_0.005_Run00100.root")'
+        restRoot ValidateXMM.C'("OpticsBench_Yaw_0.02_Dev_0.005_BabyIAXO_Run00100.root")'
