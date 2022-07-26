@@ -20,25 +20,7 @@
         <parameter name="verboseLevel" value="2"/>
         <parameter name="outputFileName" value="[fExperimentName]_[fRunType]_[fRunTag]_Run[fRunNumber].root"/>
         <!-- Optics definition -->
-        <TRestAxionWolterOptics name="xmm" title="A test" verboseLevel="info">
-            <parameter name="opticsFile" value="XMM.Wolter"/>
-            <parameter name="mirrorLength" value="300"/>
-            <TRestAxionOpticsMirror name="XMM">
-                <parameter name="mirrorType" value="Single"/>
-                <parameter name="layerTop" value="Au"/>
-                <parameter name="layerThicknessTop" value="250"/>
-                <parameter name="sigmaTop" value="0.4"/>
-                <parameter name="substrate" value="Ni"/>
-            </TRestAxionOpticsMirror>
-            <TRestSpiderMask name="spider" verboseLevel="info">
-                <parameter name="maskRadius" value="70cm"/>
-                <parameter name="offset" value="(0,0)cm"/>
-                <parameter name="rotationAngle" value="0"/>
-                <parameter name="armsWidth" value="2.29deg"/>
-                <parameter name="armsSeparationAngle" value="360./16degrees"/>
-                <parameter name="initialRadius" value="0cm"/>
-            </TRestSpiderMask>
-        </TRestAxionWolterOptics>
+        <TRestAxionWolterOptics file="xmm.rml"/>
     </TRestRun>
     <TRestProcessRunner name="EventProcess" verboseLevel="info">
         <parameter name="eventsToProcess" value="${REST_NEVENTS}"/>
