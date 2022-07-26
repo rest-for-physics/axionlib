@@ -102,6 +102,8 @@ jobs:
         source ${{ env.REST_PATH }}/thisREST.sh
         export REST_NEVENTS=1000
         export REST_RUN=100
+        wget https://sultan.unizar.es/axionlib-data/optics/xmm.rml
+        wget https://sultan.unizar.es/axionlib-data/optics/XMM.Wolter
         restManager --c opticsBench.rml
         restRoot ValidateXMM.C'("BabyIAXO_OpticsBench_Yaw_0.02_Dev_0.005_Run00100.root")'
     - name: X-ray transmission
