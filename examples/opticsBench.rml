@@ -18,7 +18,7 @@
         <parameter name="runDescription" value=""/>
         <parameter name="user" value="${USER}"/>
         <parameter name="verboseLevel" value="2"/>
-        <parameter name="outputFileName" value="[fExperimentName]_[fRunType]_[fRunTag]_Run[fRunNumber].root"/>
+        <parameter name="outputFileName" value="[fRunType]_[fRunTag]_[fExperimentName]_Run[fRunNumber].root"/>
         <!-- Optics definition -->
         <TRestAxionWolterOptics file="xmm.rml"/>
     </TRestRun>
