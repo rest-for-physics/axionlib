@@ -5,6 +5,7 @@ stages:
   - build
   - loadRESTLibs
   - metadata
+  - ray-tracing
 
 before_script:
     - export USER="axion"
@@ -115,21 +116,6 @@ MCPL Optics:
       variables:
         - $CRONJOB
 
-XMM optics bench ray-tracing:
-  stage: metadata
-  script:
-    - . ${CI_PROJECT_DIR}/install/thisREST.sh
-    - cd ${CI_PROJECT_DIR}/pipeline/metadata/optics/
-    - export REST_NEVENTS=1000
-    - export REST_RUN=100
-    - wget https://sultan.unizar.es/axionlib-data/optics/xmm.rml
-    - wget https://sultan.unizar.es/axionlib-data/optics/XMM.Wolter
-    - restManager --c opticsBench.rml
-    - restRoot ValidateXMM.C'("BabyIAXO_OpticsBench_Yaw_0.02_Dev_0.005_Run00100.root")'
-  except:
-      variables:
-        - $CRONJOB
-
 xRayTransmission:
   stage: metadata
   script:
@@ -154,6 +140,21 @@ solarFlux:
     - python solarTests.py
     - python solarPlot.py
     - python compare.py
+  except:
+      variables:
+        - $CRONJOB
+
+XMM optics bench ray-tracing:
+  stage: ray-tracing
+  script:
+    - . ${CI_PROJECT_DIR}/install/thisREST.sh
+    - cd ${CI_PROJECT_DIR}/pipeline/ray-tracing/
+    - export REST_NEVENTS=1000
+    - export REST_RUN=100
+    - wget https://sultan.unizar.es/axionlib-data/optics/xmm.rml
+    - wget https://sultan.unizar.es/axionlib-data/optics/XMM.Wolter
+    - restManager --c opticsBench.rml
+    - restRoot ValidateXMM.C'("BabyIAXO_OpticsBench_Yaw_0.02_Dev_0.005_Run00100.root")'
   except:
       variables:
         - $CRONJOB
