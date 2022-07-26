@@ -5,12 +5,14 @@
         <!-- options are : silent(0), essential(1), info(2), info(3), extreme(4) -->
         <parameter name="inputFileName" value=""/>
         <parameter name="Pi" value="3.1415927"/>
+        <variable name="REST_DEV" value="0.005"/>
+        <variable name="REST_YAW" value="0.05"/>
     </globals>
     <TRestRun name="axionRun" title="BabyIAXO V1.0" verboseLevel="info">
         <parameter name="experimentName" value="babyIAXO"/>
         <parameter name="runType" value="opticsBench"/>
         <parameter name="runNumber" value="auto"/>
-        <parameter name="runTag" value="Validation"/>
+        <parameter name="runTag" value="Yaw_${REST_YAW}_Dev_${REST_DEV}"/>
         <parameter name="runDescription" value=""/>
         <parameter name="user" value="${USER}"/>
         <parameter name="verboseLevel" value="2"/>
@@ -30,26 +32,28 @@
                 <parameter name="maskRadius" value="70cm"/>
                 <parameter name="offset" value="(0,0)cm"/>
                 <parameter name="rotationAngle" value="0"/>
-                <parameter name="armsWidth" value="2.5deg"/>
-                <parameter name="armsSeparationAngle" value="180./16degrees"/>
+                <parameter name="armsWidth" value="2.29deg"/>
+                <parameter name="armsSeparationAngle" value="360./16degrees"/>
                 <parameter name="initialRadius" value="0cm"/>
             </TRestSpiderMask>
         </TRestAxionWolterOptics>
     </TRestRun>
     <TRestProcessRunner name="EventProcess" verboseLevel="info">
-        <parameter name="eventsToProcess" value="10000"/>
+        <parameter name="eventsToProcess" value="1000000"/>
         <parameter name="threadNumber" value="1"/>
         <parameter name="inputAnalysis" value="on"/>
         <parameter name="inputEvent" value="off"/>
         <parameter name="outputEvent" value="on"/>
         <addProcess type="TRestAxionGeneratorProcess" name="axionGen" value="ON" verboseLevel="info">
             <parameter name="generatorType" value="flat"/>
+            <parameter name="maxEnergy" value="10"/>
             <parameter name="axionMass" value="5meV"/>
             <parameter name="targetRadius" value="40cm"/>
         </addProcess>
         <addProcess type="TRestAxionAnalysisProcess" name="axGen1" observable="all"/>
         <!-- Moving to Z=-1000 -->
-        <addProcess type="TRestAxionTransportProcess" name="ToOpticsEntrance" zPosition="-1000"/>
+        <addProcess type="TRestAxionTransportProcess" name="ToOpticsEntrance" zPosition="-350"/>
+        <addProcess type="TRestAxionDeviationProcess" name="deviation" devAngle="${REST_DEV}degrees" value="ON"/>
         <addProcess type="TRestAxionAnalysisProcess" name="beforeOptics" verboseLevel="info">
             <observable name="posX"/>
             <observable name="posY"/>
@@ -57,6 +61,7 @@
         <!-- Optics response -->
         <addProcess type="TRestAxionOpticsProcess" name="optics">
             <parameter name="center" value="(0,0,0)"/>
+            <parameter name="yaw" value="${REST_YAW}degrees"/>
             <observable name="efficiency" value="ON"/>
         </addProcess>
         <addProcess type="TRestAxionAnalysisProcess" name="afterOptics">
