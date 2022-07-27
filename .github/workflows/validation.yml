@@ -140,5 +140,7 @@ jobs:
         export REST_RUN=100
         wget https://sultan.unizar.es/axionlib-data/optics/xmm.rml
         wget https://sultan.unizar.es/axionlib-data/optics/XMM.Wolter
+        wget https://sultan.unizar.es/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
+        wget https://sultan.unizar.es/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
         restManager --c opticsBench.rml
         restRoot ValidateXMM.C'("OpticsBench_Yaw_0.02_Dev_0.005_BabyIAXO_Run00100.root")'
