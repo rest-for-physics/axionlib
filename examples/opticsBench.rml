@@ -46,6 +46,7 @@
         <addProcess type="TRestAxionOpticsProcess" name="optics">
             <parameter name="center" value="(0,0,0)"/>
             <parameter name="yaw" value="${REST_YAW}degrees"/>
+            <parameter name="opticalAxis" value="false"/>
             <observable name="efficiency" value="ON"/>
         </addProcess>
         <addProcess type="TRestAxionAnalysisProcess" name="afterOptics">
