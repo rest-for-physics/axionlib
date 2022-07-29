@@ -19,10 +19,10 @@
 					<label value="Run tag : [TRestRun::fRunTag]" x="0.25" y="0.82" />
 					<label value="Entries : <<entries>>" x="0.25" y="0.74" />
 
-					<label value="Optics yaw: '[optics::fYaw]*360.*60./3.14' arcmin" x="0.25" y="0.60" />
-					<label value="Optics pitch: '[optics::fPitch]*360.*60./3.14' arcmin" x="0.25" y="0.52" />
+					<label value="Optics yaw: '[optics::fYaw]*180.*60./3.14' arcmin" x="0.25" y="0.60" />
+					<label value="Optics pitch: '[optics::fPitch]*180.*60./3.14' arcmin" x="0.25" y="0.52" />
 
-					<label value="Random deviation: '[deviation::fDevAngle]*360*60./3.14' arcmin" x="0.25" y="0.38" />
+					<label value="Random deviation: '[deviation::fDevAngle]*180*60./3.14' arcmin" x="0.25" y="0.38" />
 
 					</panel>
 
