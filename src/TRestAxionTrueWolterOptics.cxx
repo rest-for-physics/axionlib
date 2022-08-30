@@ -316,7 +316,7 @@ Int_t TRestAxionTrueWolterOptics::SecondMirrorReflection(const TVector3& pos, co
 
     TVector3 vertex(0, 0, fBackVertex[mirror]);
     Double_t cosA = fCosAlpha_3[mirror];
-    Double_t focal = fR3[mirror] / TMath::Tan(4 * fAlpha[mirror])
+    Double_t focal = fR3[mirror] / TMath::Tan(4 * fAlpha[mirror]);
 
     //// Reflection on first mirror
     fSecondInteractionPosition =
