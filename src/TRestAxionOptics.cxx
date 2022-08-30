@@ -345,6 +345,30 @@ void TRestAxionOptics::ResetPositions() {
 }
 
 ///////////////////////////////////////////////
+/// \brief It returns the last valid particle position known in the particle tracking.
+///
+TVector3 TRestAxionOptics::GetLastGoodPosition() {
+    if (GetExitDirection().Mag() > 0)
+        return GetExitPosition();
+    else if (GetMiddleDirection().Mag() > 0)
+        return GetMiddlePosition();
+
+    return GetEntrancePosition();
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the last valid particle direction known in the particle tracking.
+///
+TVector3 TRestAxionOptics::GetLastGoodDirection() {
+    if (GetExitDirection().Mag() > 0)
+        return GetExitDirection();
+    else if (GetMiddleDirection().Mag() > 0)
+        return GetMiddleDirection();
+
+    return GetEntranceDirection();
+}
+
+///////////////////////////////////////////////
 /// \brief Propagating photon
 ///
 Double_t TRestAxionOptics::PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy) {
@@ -416,6 +440,8 @@ void TRestAxionOptics::PrintMetadata() {
     RESTMetadata << "---------" << RESTendl;
     RESTMetadata << "Entrance position in Z : " << GetEntrancePositionZ() << " mm" << RESTendl;
     RESTMetadata << "Exit position in Z : " << GetExitPositionZ() << " mm" << RESTendl;
+    RESTMetadata << "Low radial limit : " << GetRadialLimits().first << " mm" << RESTendl;
+    RESTMetadata << "High radial limit : " << GetRadialLimits().second << " mm" << RESTendl;
     RESTMetadata << "---------" << RESTendl;
     RESTMetadata << " " << RESTendl;
     RESTMetadata << " Use \"this->PrintMasks()\" to get masks info" << RESTendl;

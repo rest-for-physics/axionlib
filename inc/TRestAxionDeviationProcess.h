@@ -20,75 +20,57 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestAxionGeneratorProcess
-#define RestCore_TRestAxionGeneratorProcess
-
-#include "TRestAxionEvent.h"
-#include "TRestEventProcess.h"
-
-#include "TRestAxionSolarFlux.h"
+#ifndef RestCore_TRestAxionDeviationProcess
+#define RestCore_TRestAxionDeviationProcess
 
 #include "TRandom3.h"
 
-//! A process to initialize the axion event (mainly through TRestAxionSolarFlux)
-class TRestAxionGeneratorProcess : public TRestEventProcess {
+#include "TRestAxionEvent.h"
+#include "TRestAxionEventProcess.h"
+
+//! A process to deviate the axion direction by a given yaw and pitch angle distributions
+class TRestAxionDeviationProcess : public TRestAxionEventProcess {
    private:
-    /// A pointer to the specific TRestAxionEvent output
-    TRestAxionEvent* fOutputAxionEvent;  //!
-
-    /// A pointer to the TRestAxionSolarFlux metadata description
-    TRestAxionSolarFlux* fAxionFlux;  //!
-
-    /// Used internally to define the event id
-    Int_t fCounter = 0;  //!
-
-    /// Internal process random generator
-    TRandom3* fRandom = nullptr;  //!
-
-    /// The axion mass
-    Double_t fAxionMass = 0;  //<
-
-    /// The target size in mm (or generator source extension) for the generator.
-    Double_t fTargetRadius = 800;  //<
-
-    /// The generator type (solarFlux/flat)
-    TString fGeneratorType = "solarFlux";  //<
+    /// The angle that defines the cone directrix that defines the maximum deviation
+    Double_t fDevAngle = 0;  //<
 
     /// Seed used in random generator
     Int_t fSeed = 0;  //<
 
-    /// It defines the minimum energy as a cut-off to the generator. Default is 50eV.
-    Double_t fMinEnergy = 0.05;  //<
-
-    /// It defines the maximum energy as a cut-off to the generator. No limits if equals 0.
-    Double_t fMaxEnergy = 0;  //<
-
-    void Initialize() override;
+    /// Internal process random generator
+    TRandom3* fRandom = nullptr;  //!
 
     void LoadDefaultConfig();
 
+   protected:
    public:
     void InitProcess() override;
 
-    RESTValue GetInputEvent() const override { return nullptr; }
-    RESTValue GetOutputEvent() const override { return fOutputAxionEvent; }
+    void Initialize() override;
 
-    TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
+    TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
-    void PrintMetadata() override;
+    /// It prints out the process parameters stored in the metadata structure
+    void PrintMetadata() override {
+        BeginPrintProcess();
+
+        RESTMetadata << "Cone directrix angle: " << fDevAngle * units("degrees") << " degrees" << RESTendl;
+
+        EndPrintProcess();
+    }
 
     /// Returns the name of this process
-    const char* GetProcessName() const override { return "axionGenerator"; }
+    const char* GetProcessName() const override { return "axionDeviation"; }
 
     // Constructor
-    TRestAxionGeneratorProcess();
-    TRestAxionGeneratorProcess(char* cfgFileName);
+    TRestAxionDeviationProcess();
+    TRestAxionDeviationProcess(char* cfgFileName);
 
     // Destructor
-    ~TRestAxionGeneratorProcess();
+    ~TRestAxionDeviationProcess();
 
-    ClassDefOverride(TRestAxionGeneratorProcess, 1);
+    ClassDefOverride(TRestAxionDeviationProcess, 1);
 };
 #endif

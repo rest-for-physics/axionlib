@@ -20,48 +20,48 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestAxionAnalysisProcess
-#define RestCore_TRestAxionAnalysisProcess
+#ifndef RestCore_TRestAxionEventProcess
+#define RestCore_TRestAxionEventProcess
 
 #include "TRestAxionEvent.h"
 #include "TRestEventProcess.h"
 
-//! An analyis process to add TRestAxionEvent observables to the analysis tree
-class TRestAxionAnalysisProcess : public TRestEventProcess {
+/// A base class for any axion event process. Defines position, rotation and component displacement.
+class TRestAxionEventProcess : public TRestEventProcess {
    private:
+    /// The position respect which the rotation will be applied
+    TVector3 fCenter = TVector3(0, 0, 0);
+
+    /// The rotation angle respect to the Y-axis
+    Double_t fYaw = 0;
+
+    /// The rotation angle with respect to X-axis
+    Double_t fPitch = 0;
+
+   protected:
     /// A pointer to the specific TRestAxionEvent
     TRestAxionEvent* fAxionEvent;  //!
 
-    void Initialize() override;
+    void BeginPrintProcess();
+    void EndPrintProcess();
 
-    void LoadDefaultConfig();
+    TVector3 GetCenter() const { return fCenter; }
 
-   protected:
    public:
     RESTValue GetInputEvent() const override { return fAxionEvent; }
     RESTValue GetOutputEvent() const override { return fAxionEvent; }
 
-    TRestEvent* ProcessEvent(TRestEvent* evInput) override;
+    virtual void InitProcess() override {}
 
-    void LoadConfig(std::string cfgFilename, std::string name = "");
+    /// Begin of event process, preparation work. Called right before ProcessEvent()
+    virtual void BeginOfEventProcess(TRestEvent* evInput = nullptr) override;
 
-    /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() override {
-        BeginPrintProcess();
+    /// End of event process. Called directly after ProcessEvent()
+    virtual void EndOfEventProcess(TRestEvent* evInput = nullptr) override;
 
-        EndPrintProcess();
-    }
+    TRestAxionEventProcess();
+    ~TRestAxionEventProcess();
 
-    /// Returns the name of this process
-    const char* GetProcessName() const override { return "axionAnalysis"; }
-
-    // Constructor
-    TRestAxionAnalysisProcess();
-    TRestAxionAnalysisProcess(char* cfgFileName);
-
-    // Destructor
-    ~TRestAxionAnalysisProcess();
-
-    ClassDefOverride(TRestAxionAnalysisProcess, 1);
+    ClassDefOverride(TRestAxionEventProcess, 1);
 };
 #endif

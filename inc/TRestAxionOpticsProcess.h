@@ -20,75 +20,70 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestAxionGeneratorProcess
-#define RestCore_TRestAxionGeneratorProcess
+#ifndef RestCore_TRestAxionOpticsProcess
+#define RestCore_TRestAxionOpticsProcess
 
 #include "TRestAxionEvent.h"
-#include "TRestEventProcess.h"
+#include "TRestAxionEventProcess.h"
+#include "TRestAxionOptics.h"
 
-#include "TRestAxionSolarFlux.h"
-
-#include "TRandom3.h"
-
-//! A process to initialize the axion event (mainly through TRestAxionSolarFlux)
-class TRestAxionGeneratorProcess : public TRestEventProcess {
+//! A process to introduce the response from optics in the axion signal generation chain
+class TRestAxionOpticsProcess : public TRestAxionEventProcess {
    private:
-    /// A pointer to the specific TRestAxionEvent output
-    TRestAxionEvent* fOutputAxionEvent;  //!
+    /// A variable to determine if the new axis will be optical or universal axis
+    Bool_t fOpticalAxis = false;  //<
 
-    /// A pointer to the TRestAxionSolarFlux metadata description
-    TRestAxionSolarFlux* fAxionFlux;  //!
-
-    /// Used internally to define the event id
-    Int_t fCounter = 0;  //!
-
-    /// Internal process random generator
-    TRandom3* fRandom = nullptr;  //!
-
-    /// The axion mass
-    Double_t fAxionMass = 0;  //<
-
-    /// The target size in mm (or generator source extension) for the generator.
-    Double_t fTargetRadius = 800;  //<
-
-    /// The generator type (solarFlux/flat)
-    TString fGeneratorType = "solarFlux";  //<
-
-    /// Seed used in random generator
-    Int_t fSeed = 0;  //<
-
-    /// It defines the minimum energy as a cut-off to the generator. Default is 50eV.
-    Double_t fMinEnergy = 0.05;  //<
-
-    /// It defines the maximum energy as a cut-off to the generator. No limits if equals 0.
-    Double_t fMaxEnergy = 0;  //<
+    /// A pointer to the optics description defined inside TRestRun
+    TRestAxionOptics* fOptics;  //!
 
     void Initialize() override;
 
     void LoadDefaultConfig();
 
+   protected:
    public:
     void InitProcess() override;
 
-    RESTValue GetInputEvent() const override { return nullptr; }
-    RESTValue GetOutputEvent() const override { return fOutputAxionEvent; }
+    /// This InitFromConfigFile could be removed as soon as PR rest-for-physics/framework#275
+    /// is solved
+    void InitFromConfigFile() override {
+        TRestEventProcess::InitFromConfigFile();
 
-    TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
+        if (ToUpper(GetParameter("opticalAxis", "false")) == "TRUE")
+            fOpticalAxis = true;
+        else
+            fOpticalAxis = false;
+    }
+
+    TRestEvent* ProcessEvent(TRestEvent* evInput) override;
+
+    /// End of event process. Called directly after ProcessEvent()
+    void EndOfEventProcess(TRestEvent* evInput = nullptr) override;
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
-    void PrintMetadata() override;
+    /// It prints out the process parameters stored in the metadata structure
+    void PrintMetadata() override {
+        BeginPrintProcess();
+
+        if (fOpticalAxis)
+            RESTMetadata << "Output particle is described respect to the optical axis" << RESTendl;
+        else
+            RESTMetadata << "Output particle is described respect to the universal axis" << RESTendl;
+
+        EndPrintProcess();
+    }
 
     /// Returns the name of this process
-    const char* GetProcessName() const override { return "axionGenerator"; }
+    const char* GetProcessName() const override { return "axionOptics"; }
 
     // Constructor
-    TRestAxionGeneratorProcess();
-    TRestAxionGeneratorProcess(char* cfgFileName);
+    TRestAxionOpticsProcess();
+    TRestAxionOpticsProcess(char* cfgFileName);
 
     // Destructor
-    ~TRestAxionGeneratorProcess();
+    ~TRestAxionOpticsProcess();
 
-    ClassDefOverride(TRestAxionGeneratorProcess, 1);
+    ClassDefOverride(TRestAxionOpticsProcess, 1);
 };
 #endif

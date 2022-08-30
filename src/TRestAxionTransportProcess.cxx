@@ -21,32 +21,37 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionAnalysisProcess TOBE documented
+/// TRestAxionTransportProcess simply translates the axion to a given
+/// z-position without modifying the direction. This process will only
+/// allow the movement on the sense of direction, particle cannot move
+/// backwards.
 ///
-/// The axion is generated with intensity proportional to g_ag = 1.0 x g10
+/// It receives a single parameter that defines the Z-position where
+/// the particle should be moved `zPosition`.
+///
 ///--------------------------------------------------------------------------
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
-/// 2019-March:  First implementation of shared memory buffer to rawsignal conversion.
+/// 2022-June:  Basic implementation of a photon transport process
 ///             Javier Galan
 ///
-/// \class      TRestAxionAnalysisProcess
-/// \author     Javier Galan
+/// \class      TRestAxionTransportProcess
+/// \author
 ///
 /// <hr>
 ///
-#include "TRestAxionAnalysisProcess.h"
+#include "TRestAxionTransportProcess.h"
 using namespace std;
 
-ClassImp(TRestAxionAnalysisProcess);
+ClassImp(TRestAxionTransportProcess);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestAxionAnalysisProcess::TRestAxionAnalysisProcess() { Initialize(); }
+TRestAxionTransportProcess::TRestAxionTransportProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -59,7 +64,7 @@ TRestAxionAnalysisProcess::TRestAxionAnalysisProcess() { Initialize(); }
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestAxionAnalysisProcess::TRestAxionAnalysisProcess(char* cfgFileName) {
+TRestAxionTransportProcess::TRestAxionTransportProcess(char* cfgFileName) {
     Initialize();
 
     LoadConfig(cfgFileName);
@@ -68,12 +73,12 @@ TRestAxionAnalysisProcess::TRestAxionAnalysisProcess(char* cfgFileName) {
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionAnalysisProcess::~TRestAxionAnalysisProcess() { delete fAxionEvent; }
+TRestAxionTransportProcess::~TRestAxionTransportProcess() { delete fAxionEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
 ///
-void TRestAxionAnalysisProcess::LoadDefaultConfig() {
+void TRestAxionTransportProcess::LoadDefaultConfig() {
     SetName(this->ClassName());
     SetTitle("Default config");
 }
@@ -88,40 +93,57 @@ void TRestAxionAnalysisProcess::LoadDefaultConfig() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestAxionAnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
+void TRestAxionTransportProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define the section name
 ///
-void TRestAxionAnalysisProcess::Initialize() {
+void TRestAxionTransportProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
     fAxionEvent = new TRestAxionEvent();
+}
 
-    fAxionEvent->Initialize();
+///////////////////////////////////////////////
+/// \brief Process initialization. Data members that require initialization just before start processing
+/// should be initialized here.
+///
+void TRestAxionTransportProcess::InitProcess() {
+    RESTDebug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << RESTendl;
 }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestAxionTransportProcess::ProcessEvent(TRestEvent* evInput) {
     fAxionEvent = (TRestAxionEvent*)evInput;
 
-    RESTDebug << "TRestAxionAnalysisProcess::ProcessEvent : " << fAxionEvent->GetID() << RESTendl;
+    TVector3 inPos = fAxionEvent->GetPosition();
+    TVector3 inDir = fAxionEvent->GetDirection();
 
-    SetObservableValue("energy", fAxionEvent->GetEnergy());
+    if ((inPos.Z() - fZPosition) * inDir.Z() >= 0) {
+        RESTWarning
+            << "TRestAxionTransportProcess::ProcessEvent. Not appropiate particle direction to reach Z="
+            << fZPosition << RESTendl;
+        RESTWarning << "Axion position. Z:" << inPos.Z() << " direction Z: " << inDir.Z() << RESTendl;
+        fAxionEvent->PrintEvent();
 
-    SetObservableValue("posX", fAxionEvent->GetPosition().X());
-    SetObservableValue("posY", fAxionEvent->GetPosition().Y());
-    SetObservableValue("posZ", fAxionEvent->GetPosition().Z());
+        return fAxionEvent;
+    }
 
-    // SetObservableValue("B2", fAxionEvent->GetBSquared());
-    // SetObservableValue("Lcoh", fAxionEvent->GetLConversion());
+    TVector3 newPosition =
+        REST_Physics::MoveToPlane(inPos, inDir, TVector3(0, 0, 1), TVector3(0, 0, fZPosition));
 
-    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) fAxionEvent->PrintEvent();
+    fAxionEvent->SetPosition(newPosition);
+
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
+        fAxionEvent->PrintEvent();
+
+        if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) GetChar();
+    }
 
     return fAxionEvent;
 }

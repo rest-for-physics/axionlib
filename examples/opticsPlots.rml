@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<TRestManager name="SpecPlot" title="Example" verboseLevel="info" >
+
+	<TRestRun name="DummyRun" />
+
+	<TRestAnalysisPlot name="restplot" title="Optics Plots" verboseLevel="warning">
+
+		<parameter name="previewPlot" value="false"/>
+
+		<canvas size="(3600,1600)" divide="(3,2)" save="optics_[fRunTag].png"/>
+
+			<!--
+				<globalCut name="Some_Analysis_Variable" condition=">50" value="OFF" />
+			-->
+
+				<panel font_size="0.05" precision="2">
+					<label value="Run number : [TRestRun::fRunNumber]" x="0.25" y="0.9" />
+					<label value="Run tag : [TRestRun::fRunTag]" x="0.25" y="0.82" />
+					<label value="Entries : <<entries>>" x="0.25" y="0.74" />
+
+					<label value="Optics yaw: '[optics::fYaw]*180.*60./3.14' arcmin" x="0.25" y="0.60" />
+					<label value="Optics pitch: '[optics::fPitch]*180.*60./3.14' arcmin" x="0.25" y="0.52" />
+
+					<label value="Random deviation: '[deviation::fDevAngle]*180*60./3.14' arcmin" x="0.25" y="0.38" />
+
+					</panel>
+
+
+					<plot name="AllEvents" title="Hitmap distribution at focal plane (all events)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" >
+						<variable name="focal_posX" nbins="800" range="(-400,400)" />
+						<variable name="focal_posY" nbins="800" range="(-400,400)" />
+					</plot>
+
+
+					<plot name="Efficiency" title="Optics efficiency" xlabel="Energy [keV]" ylabel="Counts" logscale="false"
+						legend="on" annotation="on" marginLeft="0.2" marginRight="0.05" option="L">
+
+						<histo name="noCuts">
+							<variable name="axGen1_energy" nbins="100" />
+							<parameter name="lineColor" value="1"/>
+						</histo>
+
+						<histo name="optical">
+							<variable name="axGen1_energy" nbins="100" />
+							<parameter name="lineColor" value="2"/>
+							<cut variable="optics_efficiency" condition=">0" value="ON" />
+						</histo>
+
+						<histo name="reflectivity" lineColor="1" weight="optics_efficiency" lineStyle="1" fillColor="46" fillStyle="4050" option="hist">
+							<variable name="axGen1_energy" nbins="100" />
+							<cut variable="optics_efficiency" condition=">0" value="ON" />
+						</histo>
+					</plot>
+
+					<!-- We just select those events with reflectivity > 0 -->
+					<plot name="SpotEvents" title="Hitmap distribution at focal plane (spot events)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" weight="optics_efficiency" >
+						<variable name="focal_posX" nbins="100" range="(-20,20)" />
+						<variable name="focal_posY" nbins="100" range="(-20,20)" />
+						<cut variable="optics_efficiency" condition=">0" value="ON" />
+					</plot>
+
+					<plot name="SpotEventsX" title="Focal plane X-distribution" weight="optics_efficiency" xlabel="X [mm]" ylabel="Counts" value="ON" stats="ON" option="hist" fillColor="38" fillStyle="4050" >
+						<variable name="focal_posX" nbins="100" range="(-20,20)" />
+						<cut variable="optics_efficiency" condition=">0" value="ON" />
+					</plot>
+
+					<plot name="SpotEventsY" title="Focal plane Y-distribution" weight="optics_efficiency" xlabel="Y [mm]" ylabel="Counts" value="ON" stats="ON" option="hist" lineColor="1" lineStyle="1" fillColor="38" fillStyle="4050" >
+						<variable name="focal_posY" nbins="100" range="(-20,20)" />
+						<cut variable="optics_efficiency" condition=">0" value="ON" />
+					</plot>
+
+					</TRestAnalysisPlot>
+
+					<addTask command="restplot->PlotCombinedCanvas()" value="ON"/>
+
+				</TRestManager>
+
+
+				<!--paramater here is accessible to all the classes-->

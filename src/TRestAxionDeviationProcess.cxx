@@ -21,32 +21,37 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionAnalysisProcess TOBE documented
+/// TRestAxionDeviationProcess simply produces a deviation given by an
+/// angle, fDevAngle, that defines the cone directrix delimiting the
+/// deviation along the main axion direction.
 ///
-/// The axion is generated with intensity proportional to g_ag = 1.0 x g10
+/// For the moment we simply produce a uniform distribution for the angle.
+/// This will likely produce a non-homogeneous angular distribution, but
+/// still good for small angles.
+///
 ///--------------------------------------------------------------------------
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
 ///
 /// History of developments:
 ///
-/// 2019-March:  First implementation of shared memory buffer to rawsignal conversion.
+/// 2022-July:  Basic implementation of a photon transport process
 ///             Javier Galan
 ///
-/// \class      TRestAxionAnalysisProcess
-/// \author     Javier Galan
+/// \class      TRestAxionDeviationProcess
+/// \author
 ///
 /// <hr>
 ///
-#include "TRestAxionAnalysisProcess.h"
+#include "TRestAxionDeviationProcess.h"
 using namespace std;
 
-ClassImp(TRestAxionAnalysisProcess);
+ClassImp(TRestAxionDeviationProcess);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestAxionAnalysisProcess::TRestAxionAnalysisProcess() { Initialize(); }
+TRestAxionDeviationProcess::TRestAxionDeviationProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Constructor loading data from a config file
@@ -59,7 +64,7 @@ TRestAxionAnalysisProcess::TRestAxionAnalysisProcess() { Initialize(); }
 ///
 /// \param cfgFileName A const char* giving the path to an RML file.
 ///
-TRestAxionAnalysisProcess::TRestAxionAnalysisProcess(char* cfgFileName) {
+TRestAxionDeviationProcess::TRestAxionDeviationProcess(char* cfgFileName) {
     Initialize();
 
     LoadConfig(cfgFileName);
@@ -68,12 +73,12 @@ TRestAxionAnalysisProcess::TRestAxionAnalysisProcess(char* cfgFileName) {
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionAnalysisProcess::~TRestAxionAnalysisProcess() { delete fAxionEvent; }
+TRestAxionDeviationProcess::~TRestAxionDeviationProcess() { delete fAxionEvent; }
 
 ///////////////////////////////////////////////
 /// \brief Function to load the default config in absence of RML input
 ///
-void TRestAxionAnalysisProcess::LoadDefaultConfig() {
+void TRestAxionDeviationProcess::LoadDefaultConfig() {
     SetName(this->ClassName());
     SetTitle("Default config");
 }
@@ -88,40 +93,61 @@ void TRestAxionAnalysisProcess::LoadDefaultConfig() {
 /// \param name The name of the specific metadata. It will be used to find the
 /// correspondig TRestGeant4AnalysisProcess section inside the RML.
 ///
-void TRestAxionAnalysisProcess::LoadConfig(std::string cfgFilename, std::string name) {
+void TRestAxionDeviationProcess::LoadConfig(std::string cfgFilename, std::string name) {
     if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
 }
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define the section name
 ///
-void TRestAxionAnalysisProcess::Initialize() {
+void TRestAxionDeviationProcess::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
     fAxionEvent = new TRestAxionEvent();
+}
 
-    fAxionEvent->Initialize();
+///////////////////////////////////////////////
+/// \brief Process initialization. Data members that require initialization just before start processing
+/// should be initialized here.
+///
+void TRestAxionDeviationProcess::InitProcess() {
+    RESTDebug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << RESTendl;
+
+    if (!fRandom) {
+        delete fRandom;
+        fRandom = nullptr;
+    }
+
+    fRandom = new TRandom3(fSeed);
+    if (fSeed == 0) fSeed = fRandom->GetSeed();
 }
 
 ///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
-TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
+TRestEvent* TRestAxionDeviationProcess::ProcessEvent(TRestEvent* evInput) {
     fAxionEvent = (TRestAxionEvent*)evInput;
 
-    RESTDebug << "TRestAxionAnalysisProcess::ProcessEvent : " << fAxionEvent->GetID() << RESTendl;
+    TVector3 inPos = fAxionEvent->GetPosition();
+    TVector3 inDir = fAxionEvent->GetDirection();
 
-    SetObservableValue("energy", fAxionEvent->GetEnergy());
+    Double_t theta = fDevAngle * fRandom->Rndm();
+    Double_t phi = TMath::Pi() * fRandom->Rndm();
 
-    SetObservableValue("posX", fAxionEvent->GetPosition().X());
-    SetObservableValue("posY", fAxionEvent->GetPosition().Y());
-    SetObservableValue("posZ", fAxionEvent->GetPosition().Z());
+    TVector3 ortho = inDir.Orthogonal();
+    TVector3 newDir = inDir;
 
-    // SetObservableValue("B2", fAxionEvent->GetBSquared());
-    // SetObservableValue("Lcoh", fAxionEvent->GetLConversion());
+    newDir.Rotate(theta, ortho);
+    newDir.Rotate(phi, inDir);
 
-    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) fAxionEvent->PrintEvent();
+    fAxionEvent->SetDirection(newDir);
+
+    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
+        fAxionEvent->PrintEvent();
+
+        if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) GetChar();
+    }
 
     return fAxionEvent;
 }

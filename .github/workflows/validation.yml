@@ -80,7 +80,7 @@ jobs:
         restRoot -b -q GetMagneticField_test.C
         cd ../boundary/
         restRoot -b -q Boundaries_test.C
-    - name: Optics
+    - name: Optics Mirrors
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
         cd pipeline/metadata/optics/
@@ -91,8 +91,12 @@ jobs:
         wget https://sultan.unizar.es/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
         wget https://sultan.unizar.es/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
         python mirrors.py
-        #python optics.py
-        #python basic.py
+    - name: MCPL Optics
+      run: |
+        source ${{ env.REST_PATH }}/thisREST.sh
+        cd pipeline/metadata/optics/
+        wget https://sultan.unizar.es/axionlib-data/optics/optics.rml
+        python mcpl.py
     - name: X-ray transmission
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
@@ -114,3 +118,29 @@ jobs:
         python solarTests.py
         python solarPlot.py
         python compare.py
+
+  Ray-tracing:
+    name: Check ray-tracing processing chain
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ build-axionlib ]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Restore cache
+      uses: actions/cache@v3
+      id: axionlib-install-cache
+      with:
+        key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+        path: ${{ env.REST_PATH }}
+    - name: XMM optics bench ray-tracing
+      run: |
+        source ${{ env.REST_PATH }}/thisREST.sh
+        export REST_NEVENTS=1000
+        export REST_RUN=100
+        wget https://sultan.unizar.es/axionlib-data/optics/xmm.rml
+        wget https://sultan.unizar.es/axionlib-data/optics/XMM.Wolter
+        wget https://sultan.unizar.es/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
+        wget https://sultan.unizar.es/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
+        restManager --c opticsBench.rml
+        restRoot ValidateXMM.C'("OpticsBench_Yaw_0.02_Dev_0.005_BabyIAXO_Run00100.root")'

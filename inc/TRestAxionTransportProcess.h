@@ -20,30 +20,27 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef RestCore_TRestAxionOpticsResponseProcess
-#define RestCore_TRestAxionOpticsResponseProcess
+#ifndef RestCore_TRestAxionTransportProcess
+#define RestCore_TRestAxionTransportProcess
 
 #include "TRestAxionEvent.h"
-#include "TRestEventProcess.h"
+#include "TRestAxionEventProcess.h"
 
-//! A process to introduce the response from optics in the axion signal generation chain
-class TRestAxionOpticsResponseProcess : public TRestEventProcess {
+//! A process to transport the axion to a given z-position without changing direction
+class TRestAxionTransportProcess : public TRestAxionEventProcess {
    private:
-    /// A pointer to the specific TRestAxionEvent
-    TRestAxionEvent* fAxionEvent;  //!
-
-    void InitFromConfigFile() override;
-
-    void Initialize() override;
+    /// The Z-position where we will move the particle
+    Double_t fZPosition;  //<
 
     void LoadDefaultConfig();
 
    protected:
    public:
-    TRestEvent* ProcessEvent(TRestEvent* evInput) override;
+    void InitProcess() override;
 
-    any GetInputEvent() { return fAxionEvent; }
-    any GetOutputEvent() { return fAxionEvent; }
+    void Initialize() override;
+
+    TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
@@ -51,19 +48,21 @@ class TRestAxionOpticsResponseProcess : public TRestEventProcess {
     void PrintMetadata() override {
         BeginPrintProcess();
 
+        RESTMetadata << "Moving to Z: " << fZPosition << " mm" << RESTendl;
+
         EndPrintProcess();
     }
 
     /// Returns the name of this process
-    const char* GetProcessName() const override { return "axionOpticsResponse"; }
+    const char* GetProcessName() const override { return "axionTransport"; }
 
     // Constructor
-    TRestAxionOpticsResponseProcess();
-    TRestAxionOpticsResponseProcess(char* cfgFileName);
+    TRestAxionTransportProcess();
+    TRestAxionTransportProcess(char* cfgFileName);
 
     // Destructor
-    ~TRestAxionOpticsResponseProcess();
+    ~TRestAxionTransportProcess();
 
-    ClassDefOverride(TRestAxionOpticsResponseProcess, 1);
+    ClassDefOverride(TRestAxionTransportProcess, 1);
 };
 #endif
