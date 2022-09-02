@@ -20,8 +20,8 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef _TRestAxionPhotonConversion
-#define _TRestAxionPhotonConversion
+#ifndef _TRestAxionField
+#define _TRestAxionField
 
 #include "TRestAxionBufferGas.h"
 #include "TRestComplex.h"
@@ -29,7 +29,7 @@
 /*
 /// MOVED TO TRestAxionFieldPropagationProcess class
 /// A structure to define the two components of a complex number using real precision.
-/// To be used inside TRestAxionPhotonConversion.
+/// To be used inside TRestAxionField.
 struct ComplexReal {
     /// The real part of the number
     mpfr::mpreal real = 0;
@@ -39,7 +39,7 @@ struct ComplexReal {
 };
 */
 //! A basic class to define analytical axion-photon conversion calculations for axion helioscopes
-class TRestAxionPhotonConversion : public TObject {
+class TRestAxionField : public TObject {
    private:
     /// A two component vector to store the complex EM field amplitude.
     /// MOVED to TRestAxionFieldPropagationProcess
@@ -80,9 +80,9 @@ class TRestAxionPhotonConversion : public TObject {
     /// void PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma, Double_t mg = 0,
     ///                    Double_t absLength = 0);
 
-    TRestAxionPhotonConversion();
-    ~TRestAxionPhotonConversion();
+    TRestAxionField();
+    ~TRestAxionField();
 
-    ClassDef(TRestAxionPhotonConversion, 2);
+    ClassDef(TRestAxionField, 2);
 };
 #endif
