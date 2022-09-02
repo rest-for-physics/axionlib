@@ -26,7 +26,7 @@
 /// state.
 ///
 /// A peculiarity from this class is that it encapsulates internally the high
-/// precision calculations using the real precisions types from library mpreal.
+/// precision calculations using the real precisions types using TRestComplex.
 /// It is known that double precision is not good enough in some scenarios.
 ///
 ///--------------------------------------------------------------------------
@@ -46,7 +46,6 @@
 #include "TRestAxionPhotonConversion.h"
 #include <TVectorD.h>
 #include "TH1F.h"
-#include "TRestComplex.h"
 
 using namespace std;
 
