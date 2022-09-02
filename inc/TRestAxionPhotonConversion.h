@@ -24,7 +24,7 @@
 #define _TRestAxionPhotonConversion
 
 #include "TRestAxionBufferGas.h"
-#include "mpreal.h"
+#include "TRestComplex.h"
 
 /*
 /// MOVED TO TRestAxionFieldPropagationProcess class
