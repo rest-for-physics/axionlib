@@ -84,9 +84,9 @@ void TRestAxionLikelihood::Initialize() {
     fBufferGas = new TRestAxionBufferGas();
 
     // Conversion probabilities as defined by van Bibber paper
-    fPhotonConversion = new TRestAxionPhotonConversion();
+    fAxionField = new TRestAxionField();
 
-    fPhotonConversion->AssignBufferGas(fBufferGas);
+    fAxionField->AssignBufferGas(fBufferGas);
 
     // Solar axion flux on earth
     fAxionSpectrum = new TRestAxionSpectrum(fConfigFileName.c_str());
@@ -288,8 +288,8 @@ Double_t TRestAxionLikelihood::GetSignal(Double_t ma, Double_t g10_4, Double_t r
     Double_t dE = 0.01;
     for (Double_t en = fErange.X(); en < fErange.Y(); en = en + dE) {
         Double_t Phi_a = fAxionSpectrum->GetDifferentialSolarAxionFlux(en);
-        // TODO Needs to be readapted to the new TRestAxionPhotonConversion implementation
-        // Double_t Pa_g = fPhotonConversion->GammaTransmissionProbability(en, fBmag, ma);
+        // TODO Needs to be readapted to the new TRestAxionField implementation
+        // Double_t Pa_g = fField->GammaTransmissionProbability(en, fBmag, ma);
 
         Double_t Pa_g = 0;  // Just dummy 0 probability!!
         Double_t nGamma = Pa_g * Phi_a;
@@ -347,7 +347,7 @@ Double_t TRestAxionLikelihood::LogLikelihood(Double_t ma, Double_t g10_4, Double
     // Double_t Ngamma = solarFluxG10 * magnetArea * (fTExpVacuum * 3600.) * fEfficiency;
 
     // Double_t nGammaVacuum =
-    // fPhotonConversion->SetAxionMass( Double_t m ) { fAxionMass = m; }
+    // fField->SetAxionMass( Double_t m ) { fAxionMass = m; }
 
     return lhood;
 }
@@ -361,9 +361,9 @@ void TRestAxionLikelihood::InitFromConfigFile() {
     fRmag = GetDblParameterWithUnits("Rmag", 300);
     fLmag = GetDblParameterWithUnits("Lmag", 4500.);
 
-    /// This needs to be reviewed. TRestAxionPhotonConversion does not store those parameter anymore.
-    // fPhotonConversion->SetCoherenceLength(fLmag);
-    // fPhotonConversion->SetMagneticField(fBmag);
+    /// This needs to be reviewed. TRestAxionField does not store those parameter anymore.
+    // fField->SetCoherenceLength(fLmag);
+    // fField->SetMagneticField(fBmag);
 
     fEfficiency = StringToDouble(GetParameter("efficiency", "1"));
 
