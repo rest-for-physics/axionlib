@@ -45,11 +45,10 @@
 ///
 #include "TRestAxionPhotonConversion.h"
 #include <TVectorD.h>
-#include "TComplex.h"
 #include "TH1F.h"
+#include "TRestComplex.h"
 
 using namespace std;
-using namespace REST_Physics;
 
 // Better we keep specifying  mpfr:: explicitily
 // using mpfr::mpreal;
@@ -73,7 +72,7 @@ TRestAxionPhotonConversion::~TRestAxionPhotonConversion() {}
 /// So that we can still calculate numbers such as : 1.0 - 1.e-30
 ///
 void TRestAxionPhotonConversion::Initialize() {
-    mpfr::mpreal::set_default_prec(mpfr::digits2bits(30));
+    TRestComplex::SetPrecision(30);
 
     fBufferGas = NULL;
 
@@ -91,7 +90,7 @@ void TRestAxionPhotonConversion::Initialize() {
 double TRestAxionPhotonConversion::BL(Double_t Bmag, Double_t Lcoh) {
     Double_t lengthInMeters = Lcoh / 1000.;
 
-    Double_t tm = lightSpeed / naturalElectron * 1.0e-9;  // GeV
+    Double_t tm = REST_Physics::lightSpeed / REST_Physics::naturalElectron * 1.0e-9;  // GeV
     Double_t sol = lengthInMeters * Bmag * tm;
     sol = sol * 1.0e-10;
 
@@ -108,7 +107,7 @@ double TRestAxionPhotonConversion::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  
 {
     Double_t lengthInMeters = Lcoh / 1000.;
 
-    Double_t tm = lightSpeed / naturalElectron * 1.0e-9;  // gev
+    Double_t tm = REST_Physics::lightSpeed / REST_Physics::naturalElectron * 1.0e-9;  // gev
     Double_t sol = lengthInMeters * Bmag * tm / 2;
     sol = sol * sol * 1.0e-20;
 
@@ -150,7 +149,7 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Bmag,
     if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(Bmag, Lcoh);
 
     mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
-    mpfr::mpreal l = cohLength * PhMeterIneV;
+    mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
     mpfr::mpreal phi = q * l;
 
     mpfr::mpreal Gamma = absLength;
@@ -225,7 +224,7 @@ Double_t TRestAxionPhotonConversion::AxionAbsorptionProbability(Double_t Bmag, D
     if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(Bmag, Lcoh);
 
     mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
-    mpfr::mpreal l = cohLength * PhMeterIneV;
+    mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
     mpfr::mpreal phi = q * l;
 
     mpfr::mpreal Gamma = absLength;
