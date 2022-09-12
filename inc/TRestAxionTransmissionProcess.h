@@ -30,16 +30,11 @@
 //! A process to include photon transmission using a combination of TRestAxionXrayWindow definitions
 class TRestAxionTransmissionProcess : public TRestAxionEventProcess {
    private:
-    /// A pointer to the specific TRestAxionEvent
-    TRestAxionEvent* fAxionEvent;  //!
-
     /// The names of the metadata TRestAxionXrayWindow that will be combined for transmission
     std::vector<std::string> fWindowNames;  //<
 
     /// A list with pointers to the windows metadata descriptions
     std::vector<TRestAxionXrayWindow*> fXrayWindows;  //!
-
-    void InitFromConfigFile() override;
 
     void Initialize() override;
 
@@ -48,6 +43,8 @@ class TRestAxionTransmissionProcess : public TRestAxionEventProcess {
    protected:
    public:
     void InitProcess() override;
+
+    void InitFromConfigFile() override;
 
     TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
