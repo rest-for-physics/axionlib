@@ -132,6 +132,23 @@ void TRestAxionTransmissionProcess::InitProcess() {
 TRestEvent* TRestAxionTransmissionProcess::ProcessEvent(TRestEvent* evInput) {
     fAxionEvent = (TRestAxionEvent*)evInput;
 
+    TVector3 inPos = fAxionEvent->GetPosition();
+
+    Double_t transmission = 1;
+    Double_t x = inPos.X();
+    Double_t y = inPos.Y();
+    Double_t z = inPos.Z();
+    Double_t en = fAxionEvent->GetEnergy();
+
+    RESTDebug << "Particle position to evaluate window transmission. " << RESTendl;
+    RESTDebug << "X : " << x << " Y: " << y << " Z: " << z << RESTendl;
+
+    for (const auto& window : fXrayWindows) {
+        transmission *= window->GetTransmission(en, x, y);
+    }
+
+    SetObservableValue("transmission", transmission);
+
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         fAxionEvent->PrintEvent();
 
