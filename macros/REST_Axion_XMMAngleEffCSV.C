@@ -24,17 +24,18 @@
 //*******************************************************************************************************
 Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBench_Yaw_*_Dev_*_BabyIAXO_Run*.root") {
     vector<string> files = TRestTools::GetFilesMatchingPattern((string)pathAndPattern);
-
+    
     if (files.size() == 0) {
         RESTError << "Files not found!" << RESTendl;
         return -1;
     }
-    
+
     TRestRun* run = new TRestRun();
     std::vector<float> efficiencies(files.size());
     std::vector<float> angles(files.size());
     std::vector<float> deviations(files.size());
     Double_t eff0 = 0;
+    std::vector<float> totalCounts(files.size());
 
     for (unsigned int n = 0; n < files.size(); n++) {
         run->OpenInputFile(files[n]);
@@ -47,45 +48,35 @@ Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBen
             continue;
         }
         Double_t eff = 0;
+        Double_t counts = 0;
         Double_t angle = std::stod(run->GetMetadataMember("optics::fYaw")) * 180. * 60. / 3.1415;
         Double_t dev = std::stod(run->GetMetadataMember("deviation::fDevAngle")) * 180. / 3.1415;
-        
+
         for (int i = 0; i < run->GetEntries(); i++) {
             run->GetAnalysisTree()->GetBranch((TString)"optics_efficiency")->GetEntry(i);
             Double_t value = run->GetAnalysisTree()->GetDblObservableValue(obsID);
             //std::cout << value << " for i " << i << std::endl;
+            counts++;
             eff += value;
         }
         std::cout.precision(10);
         std::cout << "eff: " << eff << " angle: " << angle << std::endl;
         efficiencies[n] = eff;
         angles[n] = angle;
+        totalCounts[n] = counts;
         if (angle == 0 && dev == 0) eff0 = eff; // and dev 0
     }
-
-    for (unsigned int n = 0; n < files.size(); n++) {
-        efficiencies[n] = efficiencies[n] / eff0;
-    }
+    Double_t angleMax = *max_element(angles.begin(), angles.end());
 
 
-    std::cout << "eff: " << efficiencies[0] << " " << eff0 << std::endl;
-    
     delete run;
-    /*  std::vector<Double_t> angle, entranceError, exitError, finalError;
-      for (int n = 0; n < divs; n++) {
-          angle.push_back((((Double_t)n) + 0.5) * angleMax / divs);
-          std::cout << "n : " << totalCounts[n] << " - " << entranceEfficiency[n] / totalCounts[n] << " - "
-                    << exitEfficiency[n] / totalCounts[n] << " - " << finalEfficiency[n] / totalCounts[n]
-                    << std::endl;
-          entranceError.push_back(TMath::Sqrt(entranceEfficiency[n]) / totalCounts[n]);
-          entranceEfficiency[n] = entranceEfficiency[n] / totalCounts[n];
-
-          exitError.push_back(TMath::Sqrt(exitEfficiency[n]) / totalCounts[n]);
-          exitEfficiency[n] = exitEfficiency[n] / totalCounts[n];
-
-          finalError.push_back(TMath::Sqrt(finalEfficiency[n]) / totalCounts[n]);
-          finalEfficiency[n] = finalEfficiency[n] / totalCounts[n];
-      }*/
+    std::vector<float> effError;
+    for (int n = 0; n < files.size(); n++) {
+        std::cout << "eff: " << efficiencies[n] << " total " << totalCounts[n] << std::endl;
+        effError.push_back(TMath::Sqrt(efficiencies[n] + efficiencies[n] / eff0) / eff0);
+        std::cout << "eff: " << efficiencies[n] << " error " << (TMath::Sqrt(efficiencies[n] + efficiencies[n] / eff0) / eff0) << std::endl;
+        efficiencies[n] = efficiencies[n] / eff0;   
+    }
     rapidcsv::Document doc("./trueWolter/xmm_newton_angular_effective_area.csv");
 
     std::vector<float> anglesExp = doc.GetColumn<float>("angle[arcmin]");
@@ -103,12 +94,12 @@ Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBen
 
     TCanvas c("", "", 1200, 800);
 
-    TGraph effGraph(files.size(), &angles[0], &efficiencies[0]);
+    TGraphErrors effGraph((Int_t)files.size(), &angles[0], &efficiencies[0], nullptr, &effError[0]);
     effGraph.SetName("effGraph");
     effGraph.SetTitle("Relative Efficiency Comparison");
     effGraph.GetXaxis()->SetTitle("Angle to optical axis [arcmin]");
     effGraph.GetYaxis()->SetTitle("Efficiency");
-    effGraph.GetYaxis()->SetLimits(0.0, 1.5);
+
     effGraph.SetMarkerColor(kRed);
     effGraph.SetMarkerStyle(21);
     effGraph.Draw("AP");
@@ -119,12 +110,12 @@ Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBen
     expGraph.SetMarkerStyle(2);
     expGraph.Draw("L");
 
-    
-    /*effGraph.GetHistogram()->SetMaximum(1);
+    effGraph.GetYaxis()->SetLimits(0.0, angleMax);
+    effGraph.GetHistogram()->SetMaximum(1);
     effGraph.GetHistogram()->SetMinimum(0);
 
 
-    auto legend = new TLegend(0.1, 0.7, 0.2, 0.4);
+    /*auto legend = new TLegend(0.1, 0.7, 0.2, 0.4);
     legend->AddEntry("effGraph", "expGraph", "lep");
     legend->Draw();*/
 
