@@ -180,6 +180,7 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     if (fGeneratorType == "solarFlux") {
         std::pair<Double_t, Double_t> p = fAxionFlux->GetRandomEnergyAndRadius();
         energy = p.first;
+        if (energy < fMinEnergy) return nullptr;
         if (energy > fMaxEnergy) return nullptr;
         Double_t radius = p.second;
 
