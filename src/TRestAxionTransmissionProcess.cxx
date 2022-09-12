@@ -104,6 +104,29 @@ void TRestAxionTransmissionProcess::Initialize() {
 }
 
 ///////////////////////////////////////////////
+/// \brief Process initialization. Data members that require initialization just before start processing
+/// should be initialized here.
+///
+void TRestAxionTransmissionProcess::InitProcess() {
+    RESTDebug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << RESTendl;
+
+    fXrayWindows.clear();
+    for (const auto& wName : fWindowNames) {
+        TRestAxionXrayWindow* w = (TRestAxionXrayWindow*)GetMetadata(wName);
+
+        if (w == nullptr) {
+            RESTError << "TRestAxionTransmissionProcess. Window definition with name : " << wName
+                      << " not found!" << RESTendl;
+        } else {
+            fXrayWindows.push_back(w);
+        }
+    }
+
+    // fRandom = new TRandom3(fSeed);
+    // if (fSeed == 0) fSeed = fRandom->GetSeed();
+}
+
+///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
 TRestEvent* TRestAxionTransmissionProcess::ProcessEvent(TRestEvent* evInput) {
