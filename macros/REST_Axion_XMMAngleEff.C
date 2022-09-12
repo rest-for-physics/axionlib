@@ -29,7 +29,7 @@ Int_t REST_Axion_XMMAngleEff(TString pathAndPattern = "./trueWolter/OpticsBench_
         return -1;
     }
     
-        TRestRun* run = new TRestRun();
+    TRestRun* run = new TRestRun();
     std::vector<float> efficiencies(files.size());
     std::vector<float> angles(files.size());
     std::vector<float> deviations(files.size());
