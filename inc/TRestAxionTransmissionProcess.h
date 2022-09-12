@@ -26,12 +26,14 @@
 #include "TRestAxionEvent.h"
 #include "TRestEventProcess.h"
 
-//! A process to include photon transmission from different interfaces found till reaching the detector. E.g.
-//! differential vaccuum windows
+//! A process to include photon transmission using a combination of TRestAxionXrayWindow definitions
 class TRestAxionTransmissionProcess : public TRestEventProcess {
    private:
     /// A pointer to the specific TRestAxionEvent
     TRestAxionEvent* fAxionEvent;  //!
+
+    /// The names of the metadata TRestAxionXrayWindow that will be combined for transmission
+    std::vector<std::string> fWindowNames;  //<
 
     void InitFromConfigFile() override;
 
@@ -41,6 +43,8 @@ class TRestAxionTransmissionProcess : public TRestEventProcess {
 
    protected:
    public:
+    void InitProcess() override;
+
     any GetInputEvent() const override { return fAxionEvent; }
     any GetOutputEvent() const override { return fAxionEvent; }
 

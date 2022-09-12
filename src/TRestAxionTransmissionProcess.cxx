@@ -121,4 +121,14 @@ TRestEvent* TRestAxionTransmissionProcess::ProcessEvent(TRestEvent* evInput) {
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML TRestAxionTransmissionProcess metadata section
 ///
-void TRestAxionTransmissionProcess::InitFromConfigFile() {}
+void TRestAxionTransmissionProcess::InitFromConfigFile() {
+    TRestEventProcess::InitFromConfigFile();
+
+    // This is the additional code required by the process to read window names
+    TiXmlElement* windowDefinition = GetElement("window");
+    while (windowDefinition) {
+        fWindowNames.push_back(GetFieldValue("name", windowDefinition));
+
+        windowDefinition = GetNextElement(windowDefinition);
+    }
+}
