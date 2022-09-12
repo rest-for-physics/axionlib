@@ -143,7 +143,7 @@ void TRestAxionGeneratorProcess::InitProcess() {
         if (!this->GetError()) this->SetError("The solar flux definition was not found.");
     }
 
-    fAxionFlux->LoadTables();
+    if (fAxionFlux) fAxionFlux->LoadTables();
 
     if (!fRandom) {
         delete fRandom;
