@@ -1,13 +1,12 @@
 #include "TCanvas.h"
 #include "TLatex.h"
 #include "TLegend.h"
-#include "TRestAxionWolterOptics.h"
 #include "TRestTask.h"
 #include "TRestTools.h"
 #include "rapidcsv.h"
 
-#ifndef RestTask_Axion_XMMAngleEff
-#define RestTask_Axion_XMMAngleEff
+#ifndef RestTask_Axion_XMMAngleEffCSV
+#define RestTask_Axion_XMMAngleEffCSV
 
 //*******************************************************************************************************
 //*** Description: It creates an efficiency curve from different runs under different angles. 
