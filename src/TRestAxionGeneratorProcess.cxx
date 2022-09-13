@@ -183,8 +183,8 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
         energy = p.first;
         Double_t radius = p.second;
 
-        axionPosition = TVector3(REST_Physics::solarRadius * radius * x,
-                                 REST_Physics::solarRadius * radius * y, -REST_Physics::AU);
+        axionPosition = TVector3(REST_Physics::solarRadius * radius * x / r,
+                                 REST_Physics::solarRadius * radius * y / r, -REST_Physics::AU);
 
         axionDirection = -axionPosition.Unit();
     }
