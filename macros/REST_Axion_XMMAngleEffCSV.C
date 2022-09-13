@@ -22,7 +22,7 @@
 //***
 //*** - The path and name of the csv file with data to compare to the data from the prvious files. If not given it will be left out.
 //*******************************************************************************************************
-Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBench_Yaw_*_Dev_*_BabyIAXO_Run*.root", TString csvFile = "") {
+Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBench_Yaw_*_Dev_*_BabyIAXO_Run*.root", const string& csvFile = "") {
     vector<string> files = TRestTools::GetFilesMatchingPattern((string)pathAndPattern);
     
     if (files.size() == 0) {
