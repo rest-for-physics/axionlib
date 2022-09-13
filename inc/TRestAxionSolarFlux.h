@@ -35,8 +35,6 @@
 //! A metadata class to load tabulated solar axion fluxes
 class TRestAxionSolarFlux : public TRestMetadata {
    private:
-    void Initialize();
-
     /// The filename containning the solar flux table with continuum spectrum
     std::string fFluxDataFile = "";  //<
 
@@ -44,10 +42,10 @@ class TRestAxionSolarFlux : public TRestMetadata {
     std::string fFluxSptFile = "";  //<
 
     /// Axion coupling. Defines coupling type and strength.
-    std::string fCouplingType;  //<
+    std::string fCouplingType = "";  //<
 
     /// Axion coupling strength
-    Double_t fCouplingStrength;  //<
+    Double_t fCouplingStrength = 0;  //<
 
     /// Seed used in random generator
     Int_t fSeed = 0;  //<
@@ -97,6 +95,8 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// A metadata member to control if the tables have been loaded
     Bool_t fTablesLoaded = false;  //!
 
+    void Initialize();
+
     void ReadFluxFile();
     void LoadContinuumFluxTable();
     void LoadMonoChromaticFluxTable();
@@ -112,7 +112,7 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// It returns the total integrated flux at earth in cm-2 s-1
     Double_t GetTotalFlux() { return fTotalContinuumFlux + fTotalMonochromaticFlux; }
 
-    std::pair<Double_t, Double_t> GetRandomEnergyAndRadius();
+    std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1));
 
     void LoadTables();
 
