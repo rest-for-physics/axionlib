@@ -15,14 +15,15 @@
 //*** 
 //***
 //*** --------------
-//*** Usage: restManager XMMAngleEffCSV [pathAndPattern = "/trueWolter/OpticsBench_Yaw_*_Dev_*_BabyIAXO_Run*.root"]
+//*** Usage: restManager XMMAngleEffCSV [pathAndPattern = "/trueWolter/OpticsBench_Yaw_*_Dev_*_BabyIAXO_Run*.root", csvFile = ""]
 //***
 //*** Where the optional arguments are:
 //***
-//*** - 
+//*** - The path and pattern name of the files that should be read in. The * is in the places where there is a difference in the file names.
 //***
+//*** - The path and name of the csv file with data to compare to the data from the prvious files. If not given it will be left out.
 //*******************************************************************************************************
-Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBench_Yaw_*_Dev_*_BabyIAXO_Run*.root") {
+Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBench_Yaw_*_Dev_*_BabyIAXO_Run*.root", TString csvFile = "") {
     vector<string> files = TRestTools::GetFilesMatchingPattern((string)pathAndPattern);
     
     if (files.size() == 0) {
@@ -77,20 +78,7 @@ Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBen
         std::cout << "eff: " << efficiencies[n] << " error " << (TMath::Sqrt(efficiencies[n] + efficiencies[n] / eff0) / eff0) << std::endl;
         efficiencies[n] = efficiencies[n] / eff0;   
     }
-    rapidcsv::Document doc("./trueWolter/xmm_newton_angular_effective_area.csv");
-
-    std::vector<float> anglesExp = doc.GetColumn<float>("angle[arcmin]");
-    std::vector<float> efficienciesExp = doc.GetColumn<float>("effectiveArea");
-    Double_t effExp0 = 0;
-
-    for (unsigned int n = 0; n < anglesExp.size(); n++) {
-        if (anglesExp[n] < 0.01 && anglesExp[n] > 0) effExp0 = efficienciesExp[n];
-    }
-    std::cout << "effExp: " << effExp0 << std::endl;
-    for (unsigned int n = 0; n < anglesExp.size(); n++) {
-        efficienciesExp[n] = efficienciesExp[n] / effExp0;
-    }
-
+    
 
     TCanvas c("", "", 1200, 800);
 
@@ -103,12 +91,29 @@ Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBen
     effGraph.SetMarkerColor(kRed);
     effGraph.SetMarkerStyle(21);
     effGraph.Draw("AP");
+    
+    /// Add the csv file if given
+    if (csvFile != ""){
+        rapidcsv::Document doc(csvFile);
 
-    TGraph expGraph(anglesExp.size(), &anglesExp[0], &efficienciesExp[0]);
-    expGraph.SetName("expGraph");
-    expGraph.SetMarkerColor(kBlue);
-    expGraph.SetMarkerStyle(2);
-    expGraph.Draw("L");
+        std::vector<float> anglesExp = doc.GetColumn<float>("angle[arcmin]");
+        std::vector<float> efficienciesExp = doc.GetColumn<float>("effectiveArea");
+        Double_t effExp0 = 0;
+
+        for (unsigned int n = 0; n < anglesExp.size(); n++) {
+            if (anglesExp[n] < 0.01 && anglesExp[n] > 0) effExp0 = efficienciesExp[n];
+        }
+        std::cout << "effExp: " << effExp0 << std::endl;
+        for (unsigned int n = 0; n < anglesExp.size(); n++) {
+            efficienciesExp[n] = efficienciesExp[n] / effExp0;
+        }
+
+        TGraph expGraph(anglesExp.size(), &anglesExp[0], &efficienciesExp[0]);
+        expGraph.SetName("expGraph");
+        expGraph.SetMarkerColor(kBlue);
+        expGraph.SetMarkerStyle(2);
+        expGraph.Draw("L");
+    }
 
     effGraph.GetYaxis()->SetLimits(0.0, angleMax);
     effGraph.GetHistogram()->SetMaximum(1);
