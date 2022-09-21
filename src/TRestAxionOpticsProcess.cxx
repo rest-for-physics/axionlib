@@ -132,6 +132,8 @@ TRestEvent* TRestAxionOpticsProcess::ProcessEvent(TRestEvent* evInput) {
 
     SetObservableValue("efficiency", efficiency);
 
+    RESTDebug << "Optics efficiency: " << efficiency << RESTendl;
+
     // We register the event even if it is not properly reflected, i.e. efficiency = 0
     fAxionEvent->SetPosition(fOptics->GetLastGoodPosition());
     fAxionEvent->SetDirection(fOptics->GetLastGoodDirection());
