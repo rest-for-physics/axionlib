@@ -203,6 +203,10 @@ Double_t TRestAxionXrayWindow::GetTransmission(Double_t energy, Double_t x, Doub
 
     if (fMask && xNew * xNew + yNew * yNew > fMask->GetMaskRadius() * fMask->GetMaskRadius()) return 0;
 
+    /// No sense to define a pattern when using vacuum material
+    if (fMaterial == "vacuum") return 1;
+
+    /// If we do not hit the pattern the photon simply goes through.
     if (fMask && !fMask->HitsPattern(xNew, yNew)) return 1.;
 
     Double_t energyIndex = GetEnergyIndex(energy);
