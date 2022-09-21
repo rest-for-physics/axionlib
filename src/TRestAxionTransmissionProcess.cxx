@@ -133,11 +133,16 @@ TRestEvent* TRestAxionTransmissionProcess::ProcessEvent(TRestEvent* evInput) {
     fAxionEvent = (TRestAxionEvent*)evInput;
 
     TVector3 inPos = fAxionEvent->GetPosition();
+    TVector3 inDir = fAxionEvent->GetDirection();
+
+    /// The component is placed at (0,0,0). It is TRestAxionEventProcess the responsible to translate the
+    /// component (in reality the particle) according to fCenter.
+    TVector3 newPos = REST_Physics::MoveToPlane(inPos, inDir, TVector3(0, 0, 1), TVector3(0, 0, 0));
 
     Double_t transmission = 1;
-    Double_t x = inPos.X();
-    Double_t y = inPos.Y();
-    Double_t z = inPos.Z();
+    Double_t x = newPos.X();
+    Double_t y = newPos.Y();
+    Double_t z = newPos.Z();
     Double_t en = fAxionEvent->GetEnergy();
 
     RESTDebug << "Particle position to evaluate window transmission. " << RESTendl;
@@ -146,6 +151,7 @@ TRestEvent* TRestAxionTransmissionProcess::ProcessEvent(TRestEvent* evInput) {
     for (const auto& window : fXrayWindows) {
         transmission *= window->GetTransmission(en, x, y);
     }
+    RESTDebug << "Transmission: " << transmission << RESTendl;
 
     SetObservableValue("transmission", transmission);
 
