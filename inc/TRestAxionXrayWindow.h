@@ -36,7 +36,7 @@ class TRestAxionXrayWindow : public TRestMetadata {
     Double_t fThickness = 0.0;  //<
 
     /// Window material name
-    std::string fMaterial = "Si";  //<
+    std::string fMaterial = "Vacuum";  //<
 
     /// A mask defining a pattern where the transmission will be effective
     TRestPatternMask* fMask = nullptr;  //<
