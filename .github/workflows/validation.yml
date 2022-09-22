@@ -148,9 +148,10 @@ jobs:
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
         cd pipeline/ray-tracing/transmission/
+        wget https://sultan.unizar.es/axionlib-data/transmission/Si.sol
         restManager --c emptyWindow.rml
-        restManager --c siWindow.rml
-        restManager --c shiftedWindow.rml
         restRoot ValidateTransmission.C'("EmptyVacuumWindow.root", 0.07, 0.09)'
+        restManager --c shiftedWindow.rml
         restRoot ValidateTransmission.C'("ShiftedVacuumWindow", 0.3, 0.5)'
+        restManager --c siWindow.rml
         restRoot ValidateTransmission.C'("SiWindow.root", 0.9, 1)'
