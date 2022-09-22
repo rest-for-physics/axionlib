@@ -139,6 +139,9 @@ histH.Draw("colz")
 
 c1.Print(outfname)
 
+print ( "Low: " + str( histL.Integral() ) )
+print ( "Mid: " + str( histM.Integral() ) )
+print ( "High: " + str( histH.Integral() ) )
 if( histL.Integral() < 10000 ):
     print( "Effective counts at low energy below 10000!!")
     print ( "Low: " + str( histL.Integral() ) )
