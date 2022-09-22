@@ -27,8 +27,11 @@ pad1.Draw()
 
 totalSamples = 100000
 
+print ("Loading cathode" )
 cathode = ROOT.TRestAxionXrayWindow("windows.rml", "cathode")
+print ("Loading strongBack" )
 strongBack = ROOT.TRestAxionXrayWindow("windows.rml", patternType)
+print ("Loading silicon foil" )
 siFoil = ROOT.TRestAxionXrayWindow("windows.rml", "siliconFoil")
 
 radius = strongBack.GetWindowRadius()
