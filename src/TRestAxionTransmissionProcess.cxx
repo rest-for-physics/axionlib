@@ -110,6 +110,8 @@ void TRestAxionTransmissionProcess::Initialize() {
 void TRestAxionTransmissionProcess::InitProcess() {
     RESTDebug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << RESTendl;
 
+    RegisterAllObservables();
+
     fXrayWindows.clear();
     for (const auto& wName : fWindowNames) {
         TRestAxionXrayWindow* w = (TRestAxionXrayWindow*)GetMetadata(wName);
