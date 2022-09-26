@@ -506,7 +506,9 @@ void TRestAxionBufferGas::PrintMetadata() {
     if (fBufferGasName.size() == 0) {
         RESTMetadata << "Buffer medium is vacuum" << RESTendl;
     } else {
-        RESTMetadata << "Buffer gases defined : " << RESTendl;
+        RESTMetadata << "Photon mass at 4keV : " << this->GetPhotonMass(4.) << " eV" << RESTendl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << "Buffer gases inside mixture : " << RESTendl;
         RESTMetadata << "---------------------------" << RESTendl;
         for (unsigned int n = 0; n < fBufferGasName.size(); n++) {
             RESTMetadata << " Gas name : " << fBufferGasName[n] << RESTendl;
