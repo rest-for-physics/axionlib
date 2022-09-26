@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<gas>
+    <TRestAxionBufferGas name="helium" verboseLevel="warning">
+        <gas name="He" density="0.0025e-6g/cm^3"/>
+    </TRestAxionBufferGas>
+    <TRestAxionBufferGas name="HeNeMixture" verboseLevel="warning">
+        <gas name="He+Ne" density="0.0025e-6g/cm^3+1.0mg/cm^3"/>
+    </TRestAxionBufferGas>
+</gas>
