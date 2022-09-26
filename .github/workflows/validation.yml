@@ -54,6 +54,28 @@ jobs:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
           path: ${{ env.REST_PATH }}
 
+  Physics:
+    name: Check physics
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ build-axionlib ]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Restore cache
+      uses: actions/cache@v3
+      id: axionlib-install-cache
+      with:
+        key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+        path: ${{ env.REST_PATH }}
+    - name: Basic physics tests
+      run: |
+        source ${{ env.REST_PATH }}/thisREST.sh
+        cd pipeline/physics/
+        wget https://sultan.unizar.es/axionlib-data/magneticField/fields.rml
+        wget https://sultan.unizar.es/axionlib-data/magneticField/Bykovskiy_201906.dat
+        restRoot -b -q AxionPhysicsValidation.C
+
   Metadata:
     name: Check metadata
     runs-on: ubuntu-latest
