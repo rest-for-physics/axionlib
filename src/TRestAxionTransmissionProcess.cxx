@@ -104,10 +104,50 @@ void TRestAxionTransmissionProcess::Initialize() {
 }
 
 ///////////////////////////////////////////////
+/// \brief Process initialization. Data members that require initialization just before start processing
+/// should be initialized here.
+///
+void TRestAxionTransmissionProcess::InitProcess() {
+    RESTDebug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << RESTendl;
+
+    fXrayWindows.clear();
+    for (const auto& wName : fWindowNames) {
+        TRestAxionXrayWindow* w = (TRestAxionXrayWindow*)GetMetadata(wName);
+
+        if (w == nullptr) {
+            RESTError << "TRestAxionTransmissionProcess. Window definition with name : " << wName
+                      << " not found!" << RESTendl;
+        } else {
+            fXrayWindows.push_back(w);
+        }
+    }
+
+    // fRandom = new TRandom3(fSeed);
+    // if (fSeed == 0) fSeed = fRandom->GetSeed();
+}
+
+///////////////////////////////////////////////
 /// \brief The main processing event function
 ///
 TRestEvent* TRestAxionTransmissionProcess::ProcessEvent(TRestEvent* evInput) {
     fAxionEvent = (TRestAxionEvent*)evInput;
+
+    TVector3 inPos = fAxionEvent->GetPosition();
+
+    Double_t transmission = 1;
+    Double_t x = inPos.X();
+    Double_t y = inPos.Y();
+    Double_t z = inPos.Z();
+    Double_t en = fAxionEvent->GetEnergy();
+
+    RESTDebug << "Particle position to evaluate window transmission. " << RESTendl;
+    RESTDebug << "X : " << x << " Y: " << y << " Z: " << z << RESTendl;
+
+    for (const auto& window : fXrayWindows) {
+        transmission *= window->GetTransmission(en, x, y);
+    }
+
+    SetObservableValue("transmission", transmission);
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         fAxionEvent->PrintEvent();
@@ -121,4 +161,14 @@ TRestEvent* TRestAxionTransmissionProcess::ProcessEvent(TRestEvent* evInput) {
 ///////////////////////////////////////////////
 /// \brief Function reading input parameters from the RML TRestAxionTransmissionProcess metadata section
 ///
-void TRestAxionTransmissionProcess::InitFromConfigFile() {}
+void TRestAxionTransmissionProcess::InitFromConfigFile() {
+    TRestEventProcess::InitFromConfigFile();
+
+    // This is the additional code required by the process to read window names
+    TiXmlElement* windowDefinition = GetElement("window");
+    while (windowDefinition) {
+        fWindowNames.push_back(GetFieldValue("name", windowDefinition));
+
+        windowDefinition = GetNextElement(windowDefinition);
+    }
+}

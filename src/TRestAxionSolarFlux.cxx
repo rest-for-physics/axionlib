@@ -682,7 +682,7 @@ void TRestAxionSolarFlux::IntegrateSolarFluxes() {
 /// \brief It returns a random solar radius position and energy according to the
 /// flux distributions defined inside the solar tables loaded in the class
 ///
-std::pair<Double_t, Double_t> TRestAxionSolarFlux::GetRandomEnergyAndRadius() {
+std::pair<Double_t, Double_t> TRestAxionSolarFlux::GetRandomEnergyAndRadius(TVector2 eRange) {
     std::pair<Double_t, Double_t> result = {0, 0};
     if (!fTablesLoaded) return result;
     Double_t rnd = fRandom->Rndm();
@@ -691,6 +691,9 @@ std::pair<Double_t, Double_t> TRestAxionSolarFlux::GetRandomEnergyAndRadius() {
         for (int r = 0; r < fFluxTableIntegrals.size(); r++) {
             if (rnd < fFluxTableIntegrals[r]) {
                 Double_t energy = fFluxTable[r]->GetRandom();
+                if (eRange.X() != -1 && eRange.Y() != -1) {
+                    if (energy < eRange.X() || energy > eRange.Y()) return GetRandomEnergyAndRadius(eRange);
+                }
                 Double_t radius = ((Double_t)r + fRandom->Rndm()) * 0.01;
                 std::pair<Double_t, Double_t> p = {energy, radius};
                 return p;
