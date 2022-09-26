@@ -35,7 +35,7 @@ Int_t AxionPhysicsValidation() {
     std::cout << "Evaluating dummy gas mixtures" << std::endl;
     std::cout << "-----------------------------" << std::endl;
 
-    TRestAxionBufferGas helium("gas.rml", "helium");
+    TRestAxionBufferGas helium("bufferGases.rml", "helium");
 
     std::cout << "Gas name : " << helium.GetName() << std::endl;
     std::cout << "---------------" << std::endl;
@@ -55,7 +55,7 @@ Int_t AxionPhysicsValidation() {
 
     std::cout << std::endl;
 
-    TRestAxionBufferGas mixture("gas.rml", "HeNeMixture");
+    TRestAxionBufferGas mixture("bufferGases.rml", "HeNeMixture");
 
     std::cout << "Gas name : " << mixture.GetName() << std::endl;
     std::cout << "---------------" << std::endl;

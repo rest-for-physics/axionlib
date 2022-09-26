@@ -76,6 +76,7 @@ jobs:
         wget https://sultan.unizar.es/axionlib-data/bufferGas/He.nff
         wget https://sultan.unizar.es/axionlib-data/bufferGas/Ne.abs
         wget https://sultan.unizar.es/axionlib-data/bufferGas/Ne.nff
+        wget https://sultan.unizar.es/axionlib-data/bufferGas/bufferGases.rml
         wget https://sultan.unizar.es/axionlib-data/magneticField/fields.rml
         wget https://sultan.unizar.es/axionlib-data/magneticField/Bykovskiy_201906.dat
         restRoot -b -q AxionPhysicsValidation.C
