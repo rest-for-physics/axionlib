@@ -312,7 +312,10 @@ void TRestAxionXrayWindow::InitFromConfigFile() {
     }
     fMask = (TRestPatternMask*)this->InstantiateChildMetadata(0, "Mask");
 
-    if (!fMask) RESTWarning << "No mask pattern was defined for the X-ray window!" << RESTendl;
+    if (!fMask) {
+        RESTWarning << "TRestAxionXrayWindow. Name : " << this->GetName() << RESTendl;
+        RESTWarning << "No mask pattern was defined for the X-ray window!" << RESTendl;
+    }
 }
 
 ///////////////////////////////////////////////
