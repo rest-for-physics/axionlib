@@ -200,7 +200,7 @@ Double_t TRestAxionXrayWindow::GetTransmission(Double_t energy, Double_t x, Doub
 
     if (fMask && x * x + y * y > fMask->GetMaskRadius() * fMask->GetMaskRadius()) return 0;
 
-    if (fMask && !fMask->HitsPattern(xNew, yNew)) return 1.;
+    if (fMask && !fMask->HitsPattern(x, y)) return 1.;
 
     // This line must be after all previous cuts to make sure mask limits do an effect
     if (fMaterial == "Vacuum") return 1;
