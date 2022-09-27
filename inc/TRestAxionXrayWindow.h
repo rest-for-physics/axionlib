@@ -29,9 +29,6 @@
 //! A metadata class to create x-ray transmission window definitions
 class TRestAxionXrayWindow : public TRestMetadata {
    private:
-    /// Position of the center of the window in mm
-    TVector3 fCenter = TVector3(0, 0, 0);  //<
-
     /// Thicknesss of window material in mm
     Double_t fThickness = 0.0;  //<
 
@@ -75,6 +72,6 @@ class TRestAxionXrayWindow : public TRestMetadata {
 
     ~TRestAxionXrayWindow();
 
-    ClassDef(TRestAxionXrayWindow, 1);
+    ClassDef(TRestAxionXrayWindow, 2);
 };
 #endif

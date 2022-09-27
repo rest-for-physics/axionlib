@@ -198,10 +198,7 @@ void TRestAxionXrayWindow::ReadMaterial() {
 Double_t TRestAxionXrayWindow::GetTransmission(Double_t energy, Double_t x, Double_t y) {
     if (fMaterial != "Vacuum" && fEnergy.size() == 0) ReadMaterial();
 
-    Double_t xNew = x - fCenter.X();
-    Double_t yNew = y - fCenter.Y();
-
-    if (fMask && xNew * xNew + yNew * yNew > fMask->GetMaskRadius() * fMask->GetMaskRadius()) return 0;
+    if (fMask && x * x + y * y > fMask->GetMaskRadius() * fMask->GetMaskRadius()) return 0;
 
     if (fMask && !fMask->HitsPattern(xNew, yNew)) return 1.;
 
@@ -324,8 +321,6 @@ void TRestAxionXrayWindow::InitFromConfigFile() {
 void TRestAxionXrayWindow::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    RESTMetadata << "Window center: ( " << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ") mm"
-                 << RESTendl;
     RESTMetadata << "Thickness: " << fThickness * units("um") << " um" << RESTendl;
     RESTMetadata << "Material: " << fMaterial << RESTendl;
     RESTMetadata << "----" << RESTendl;
