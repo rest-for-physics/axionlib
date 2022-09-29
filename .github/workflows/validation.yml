@@ -43,11 +43,7 @@ jobs:
         with:
           cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DREST_WELCOME=ON -DRESTLIB_AXION=ON"
           branch: ${{ env.BRANCH_NAME }}
-      - name: Load REST libraries
-        run: |
-          source ${{ env.REST_PATH }}/thisREST.sh
-          restRoot -b -q
-      - name: Cache axionlib installation
+      - name: Cache framework installation
         id: axionlib-install-cache
         uses: actions/cache@v3
         with:
