@@ -196,14 +196,14 @@ void TRestAxionXrayWindow::ReadMaterial() {
 /// not hitted.
 ///
 Double_t TRestAxionXrayWindow::GetTransmission(Double_t energy, Double_t x, Double_t y) {
-    if (fEnergy.size() == 0) ReadMaterial();
+    if (fMaterial != "Vacuum" && fEnergy.size() == 0) ReadMaterial();
 
-    Double_t xNew = x - fCenter.X();
-    Double_t yNew = y - fCenter.Y();
+    if (fMask && x * x + y * y > fMask->GetMaskRadius() * fMask->GetMaskRadius()) return 0;
 
-    if (fMask && xNew * xNew + yNew * yNew > fMask->GetMaskRadius() * fMask->GetMaskRadius()) return 0;
+    if (fMask && !fMask->HitsPattern(x, y)) return 1.;
 
-    if (fMask && !fMask->HitsPattern(xNew, yNew)) return 1.;
+    // This line must be after all previous cuts to make sure mask limits do an effect
+    if (fMaterial == "Vacuum") return 1;
 
     Double_t energyIndex = GetEnergyIndex(energy);
 
@@ -310,7 +310,12 @@ void TRestAxionXrayWindow::InitFromConfigFile() {
         delete fMask;
         fMask = nullptr;
     }
-    fMask = (TRestPatternMask*)this->InstantiateChildMetadata("Mask", "mask");
+    fMask = (TRestPatternMask*)this->InstantiateChildMetadata(0, "Mask");
+
+    if (!fMask) {
+        RESTWarning << "TRestAxionXrayWindow. Name : " << this->GetName() << RESTendl;
+        RESTWarning << "No mask pattern was defined for the X-ray window!" << RESTendl;
+    }
 }
 
 ///////////////////////////////////////////////
@@ -319,8 +324,6 @@ void TRestAxionXrayWindow::InitFromConfigFile() {
 void TRestAxionXrayWindow::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
-    RESTMetadata << "Window center: ( " << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ") mm"
-                 << RESTendl;
     RESTMetadata << "Thickness: " << fThickness * units("um") << " um" << RESTendl;
     RESTMetadata << "Material: " << fMaterial << RESTendl;
     RESTMetadata << "----" << RESTendl;

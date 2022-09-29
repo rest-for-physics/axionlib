@@ -43,11 +43,7 @@ jobs:
         with:
           cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DREST_WELCOME=ON -DRESTLIB_AXION=ON"
           branch: ${{ env.BRANCH_NAME }}
-      - name: Load REST libraries
-        run: |
-          source ${{ env.REST_PATH }}/thisREST.sh
-          restRoot -b -q
-      - name: Cache axionlib installation
+      - name: Cache framework installation
         id: axionlib-install-cache
         uses: actions/cache@v3
         with:
@@ -144,3 +140,14 @@ jobs:
         wget https://sultan.unizar.es/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
         restManager --c opticsBench.rml
         restRoot ValidateXMM.C'("OpticsBench_Yaw_0.02_Dev_0.005_BabyIAXO_Run00100.root")'
+    - name: Window transmission
+      run: |
+        source ${{ env.REST_PATH }}/thisREST.sh
+        cd pipeline/ray-tracing/transmission/
+        wget https://sultan.unizar.es/axionlib-data/transmission/Si.sol
+        restManager --c emptyWindow.rml
+        restRoot ValidateTransmission.C'("EmptyVacuumWindow.root", 0.07, 0.09)'
+        restManager --c shiftedWindow.rml
+        restRoot ValidateTransmission.C'("ShiftedVacuumWindow", 0.3, 0.5)'
+        restManager --c siWindow.rml
+        restRoot ValidateTransmission.C'("SiWindow.root", 0.9, 1)'
