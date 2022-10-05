@@ -114,8 +114,9 @@ double TRestAxionField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**
 /// \brief Performs the calculation of axion-photon conversion probability using directly
 /// equation (11) from van Bibber, Phys Rev D Part Fields. 1989.
 ///
-/// m_gamma will be obtainned from buffer gas definition. If no buffer gas has been assigned the medium
-/// will be assumed to be vacuum.
+/// If m_gamma (mg) is not given as an argument, i.e. it is equal to zero, then m_gamma
+/// will be obtainned from the buffer gas definition. If no buffer gas has been assigned
+/// then the medium will be assumed to be vacuum.
 ///
 /// Ea in keV, ma in eV, mgamma in eV, Lcoh in mm, Bmag in T
 ///
@@ -139,6 +140,81 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t L
     RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
     RESTDebug << " Lcoh : " << Lcoh << " mm" << RESTendl;
     RESTDebug << " Bmag : " << Bmag << " T" << RESTendl;
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+
+    if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(Bmag, Lcoh);
+
+    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
+    mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
+    mpfr::mpreal phi = q * l;
+
+    mpfr::mpreal Gamma = absLength;
+    if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
+    mpfr::mpreal GammaL = Gamma * cohLength * 100;
+
+    if (fDebug) {
+        RESTDebug << "+------------------------+" << RESTendl;
+        RESTDebug << " Intermediate calculations" << RESTendl;
+        RESTDebug << " q : " << q << " eV" << RESTendl;
+        RESTDebug << " l : " << l << " eV-1" << RESTendl;
+        RESTDebug << " phi : " << phi << RESTendl;
+        RESTDebug << "Gamma : " << Gamma << RESTendl;
+        RESTDebug << "GammaL : " << GammaL << RESTendl;
+        RESTDebug << "+------------------------+" << RESTendl;
+    }
+
+    mpfr::mpreal MFactor = phi * phi + GammaL * GammaL / 4.0;
+    MFactor = 1.0 / MFactor;
+
+    if (fDebug) {
+        RESTDebug << "Mfactor : " << MFactor << RESTendl;
+        RESTDebug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << RESTendl;
+        RESTDebug << "cos(phi) : " << cos(phi) << RESTendl;
+        RESTDebug << "Exp(-GammaL) : " << exp(-GammaL) << RESTendl;
+    }
+
+    double sol =
+        (double)(MFactor * BLHalfSquared(Bmag, Lcoh) * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
+
+    RESTDebug << "Axion-photon transmission probability : " << sol << RESTendl;
+
+    return sol;
+}
+
+///////////////////////////////////////////////
+/// \brief Performs the calculation of axion-photon conversion probability using directly
+/// equation (28) from J. Redondo and A. Ringwald, Light shinning through walls.
+/// https://arxiv.org/pdf/1011.3741.pdf
+///
+/// If m_gamma (mg) is not given as an argument, i.e. it is equal to zero, then m_gamma
+/// will be obtainned from the buffer gas definition. If no buffer gas has been assigned
+/// then the medium will be assumed to be vacuum.
+///
+/// Ea in keV, ma in eV, mgamma in eV, Lcoh in mm, Bmag in T
+///
+/// mg in eV, absLength in cm-1
+///
+/// The returned value is given for g_ag = 10^-10 GeV-1
+///
+Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL,
+                                                       Double_t Ea, Double_t mg, Double_t absLength) {
+    mpfr::mpreal axionMass = ma;
+    mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
+
+    mpfr::mpreal photonMass = mg;
+
+    if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
+
+    Double_t fieldAverage = 0;
+    if (Bmag.size() > 0) fieldAverage = std::accumulate(Bmag.begin(), Bmag.end(), 0.0) / Bmag.size();
+
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+    RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << RESTendl;
+    RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
+    RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
+    RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
+    RESTDebug << " Lcoh : " << Lcoh << " mm" << RESTendl;
+    RESTDebug << " Bmag average : " << fieldAverage << " T" << RESTendl;
     RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
 
     if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(Bmag, Lcoh);

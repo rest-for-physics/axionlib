@@ -72,6 +72,9 @@ class TRestAxionField : public TObject {
     Double_t GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                           Double_t mg = 0, Double_t absLength = 0);
 
+    Double_t GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL, Double_t Ea,
+                                          Double_t ma, Double_t mg = 0, Double_t absLength = 0);
+
     Double_t AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                         Double_t mg = 0, Double_t absLength = 0);
 
