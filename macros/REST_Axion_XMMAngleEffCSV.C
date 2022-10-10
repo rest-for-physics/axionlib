@@ -91,33 +91,35 @@ Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBen
     effGraph.SetMarkerStyle(21);
     effGraph.Draw("AP");
     
+    effGraph.GetYaxis()->SetLimits(0.0, angleMax);
+    effGraph.GetHistogram()->SetMaximum(1);
+    effGraph.GetHistogram()->SetMinimum(0);
+    TGraph expGraph;
     /// Add the csv file if given
     if (csvFile != ""){
-        rapidcsv::Document doc(csvFile);
-
-        std::vector<float> anglesExp = doc.GetColumn<float>("angle[arcmin]");
-        std::vector<float> efficienciesExp = doc.GetColumn<float>("effectiveArea");
+        std::vector<std::vector <Double_t>> expData;
+        TRestTools::ReadCSVFile(csvFile, expData, 1); // angles at expData[n][0], effArea at expData[n][1]
+        
+        std::vector<float> anglesExp;
+        std::vector<float> efficienciesExp;
         Double_t effExp0 = 0;
-
-        for (unsigned int n = 0; n < anglesExp.size(); n++) {
-            if (anglesExp[n] < 0.01 && anglesExp[n] > 0) effExp0 = efficienciesExp[n];
+        
+        for (unsigned int n = 0; n < expData.size(); n++) {
+            if (expData[n][0] < 0.01 && expData[n][0] > 0) effExp0 = expData[n][1];
         }
         std::cout << "effExp: " << effExp0 << std::endl;
-        for (unsigned int n = 0; n < anglesExp.size(); n++) {
-            efficienciesExp[n] = efficienciesExp[n] / effExp0;
+        for (unsigned int n = 0; n < expData.size(); n++) {
+            efficienciesExp.push_back(expData[n][1] / effExp0);
+            anglesExp.push_back(expData[n][0]);
+            expGraph.AddPoint(expData[n][0], expData[n][1] / effExp0);
         }
-
-        TGraph expGraph(anglesExp.size(), &anglesExp[0], &efficienciesExp[0]);
+        std::cout << anglesExp[2000] << " " << efficienciesExp[2000] << std::endl;
+        
         expGraph.SetName("expGraph");
         expGraph.SetMarkerColor(kBlue);
         expGraph.SetMarkerStyle(2);
         expGraph.Draw("L");
     }
-
-    effGraph.GetYaxis()->SetLimits(0.0, angleMax);
-    effGraph.GetHistogram()->SetMaximum(1);
-    effGraph.GetHistogram()->SetMinimum(0);
-
 
     /*auto legend = new TLegend(0.1, 0.7, 0.2, 0.4);
     legend->AddEntry("effGraph", "expGraph", "lep");
