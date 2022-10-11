@@ -3,7 +3,6 @@
 #include "TLegend.h"
 #include "TRestTask.h"
 #include "TRestTools.h"
-#include "rapidcsv.h"
 
 #ifndef RestTask_Axion_XMMAngleEffCSV
 #define RestTask_Axion_XMMAngleEffCSV
