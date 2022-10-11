@@ -57,11 +57,8 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     /// Seed used in random generator
     Int_t fSeed = 0;  //<
 
-    /// It defines the minimum energy as a cut-off to the generator. Default is 50eV.
-    Double_t fMinEnergy = 0.05;  //<
-
-    /// It defines the maximum energy as a cut-off to the generator. No limits if equals 0.
-    Double_t fMaxEnergy = 0;  //<
+    /// It defines the energy range for the axion event generator. Default between 50eV and 10keV.
+    TVector2 fEnergyRange = TVector2(0.05, 10);  //<
 
     void Initialize() override;
 

@@ -43,11 +43,7 @@ jobs:
         with:
           cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DREST_WELCOME=ON -DRESTLIB_AXION=ON"
           branch: ${{ env.BRANCH_NAME }}
-      - name: Load REST libraries
-        run: |
-          source ${{ env.REST_PATH }}/thisREST.sh
-          restRoot -b -q
-      - name: Cache axionlib installation
+      - name: Cache framework installation
         id: axionlib-install-cache
         uses: actions/cache@v3
         with:
@@ -72,11 +68,11 @@ jobs:
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
         cd pipeline/metadata/magneticField/
-        wget https://sultan.unizar.es/axionlib-data/magneticField/fields.rml
-        wget https://sultan.unizar.es/axionlib-data/magneticField/Bykovskiy_201906.dat
+        wget https://rest-for-physics.github.io/axionlib-data/magneticField/fields.rml
+        wget https://rest-for-physics.github.io/axionlib-data/magneticField/Bykovskiy_201906.dat
         python magneticField.py
         cd trilinear
-        wget https://sultan.unizar.es/axionlib-data/magneticField/fields.rml
+        wget https://rest-for-physics.github.io/axionlib-data/magneticField/fields.rml
         restRoot -b -q GetMagneticField_test.C
         cd ../boundary/
         restRoot -b -q Boundaries_test.C
@@ -84,37 +80,37 @@ jobs:
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
         cd pipeline/metadata/optics/
-        wget https://sultan.unizar.es/axionlib-data/optics/optics.rml
-        wget https://sultan.unizar.es/axionlib-data/opticsMirror/mirrors.rml
-        wget https://sultan.unizar.es/axionlib-data/opticsMirror/Reflectivity_Single_C_30_SiO2_0.N901f
-        wget https://sultan.unizar.es/axionlib-data/opticsMirror/Transmission_Single_C_30_SiO2_0.N901f
-        wget https://sultan.unizar.es/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
-        wget https://sultan.unizar.es/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
+        wget https://rest-for-physics.github.io/axionlib-data/optics/optics.rml
+        wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/mirrors.rml
+        wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Reflectivity_Single_C_30_SiO2_0.N901f
+        wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Transmission_Single_C_30_SiO2_0.N901f
+        wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
+        wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
         python mirrors.py
     - name: MCPL Optics
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
         cd pipeline/metadata/optics/
-        wget https://sultan.unizar.es/axionlib-data/optics/optics.rml
+        wget https://rest-for-physics.github.io/axionlib-data/optics/optics.rml
         python mcpl.py
     - name: X-ray transmission
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
         cd pipeline/metadata/transmission/
-        wget https://sultan.unizar.es/axionlib-data/transmission/windows.rml
-        wget https://sultan.unizar.es/axionlib-data/transmission/Al.sol
-        wget https://sultan.unizar.es/axionlib-data/transmission/Si.sol
-        wget https://sultan.unizar.es/axionlib-data/transmission/Si3N4.sol
+        wget https://rest-for-physics.github.io/axionlib-data/transmission/windows.rml
+        wget https://rest-for-physics.github.io/axionlib-data/transmission/Al.sol
+        wget https://rest-for-physics.github.io/axionlib-data/transmission/Si.sol
+        wget https://rest-for-physics.github.io/axionlib-data/transmission/Si3N4.sol
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ env.REST_PATH }}/mpfr-4.0.2/install/lib
         python windowPlot.py
     - name: Solar flux
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
         cd pipeline/metadata/solarFlux/
-        wget https://sultan.unizar.es/axionlib-data/solarFlux/fluxes.rml
-        wget https://sultan.unizar.es/axionlib-data/solarFlux/Dummy_Galan_202202.spt
-        wget https://sultan.unizar.es/axionlib-data/solarFlux/Primakoff_Gianotti_201904.dat
-        wget https://sultan.unizar.es/axionlib-data/solarFlux/Primakoff_LennertHoof_202203.dat
+        wget https://rest-for-physics.github.io/axionlib-data/solarFlux/fluxes.rml
+        wget https://rest-for-physics.github.io/axionlib-data/solarFlux/Dummy_Galan_202202.spt
+        wget https://rest-for-physics.github.io/axionlib-data/solarFlux/Primakoff_Gianotti_201904.dat
+        wget https://rest-for-physics.github.io/axionlib-data/solarFlux/Primakoff_LennertHoof_202203.dat
         python solarTests.py
         python solarPlot.py
         python compare.py
@@ -138,9 +134,20 @@ jobs:
         source ${{ env.REST_PATH }}/thisREST.sh
         export REST_NEVENTS=1000
         export REST_RUN=100
-        wget https://sultan.unizar.es/axionlib-data/optics/xmm.rml
-        wget https://sultan.unizar.es/axionlib-data/optics/XMM.Wolter
-        wget https://sultan.unizar.es/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
-        wget https://sultan.unizar.es/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
+        wget https://rest-for-physics.github.io/axionlib-data/optics/xmm.rml
+        wget https://rest-for-physics.github.io/axionlib-data/optics/XMM.Wolter
+        wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
+        wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
         restManager --c opticsBench.rml
         restRoot ValidateXMM.C'("OpticsBench_Yaw_0.02_Dev_0.005_BabyIAXO_Run00100.root")'
+    - name: Window transmission
+      run: |
+        source ${{ env.REST_PATH }}/thisREST.sh
+        cd pipeline/ray-tracing/transmission/
+        wget https://rest-for-physics.github.io/axionlib-data/transmission/Si.sol
+        restManager --c emptyWindow.rml
+        restRoot ValidateTransmission.C'("EmptyVacuumWindow.root", 0.07, 0.09)'
+        restManager --c shiftedWindow.rml
+        restRoot ValidateTransmission.C'("ShiftedVacuumWindow", 0.3, 0.5)'
+        restManager --c siWindow.rml
+        restRoot ValidateTransmission.C'("SiWindow.root", 0.9, 1)'

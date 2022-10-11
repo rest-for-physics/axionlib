@@ -24,16 +24,17 @@
 #define RestCore_TRestAxionTransmissionProcess
 
 #include "TRestAxionEvent.h"
-#include "TRestEventProcess.h"
+#include "TRestAxionEventProcess.h"
+#include "TRestAxionXrayWindow.h"
 
-//! A process to include photon transmission from different interfaces found till reaching the detector. E.g.
-//! differential vaccuum windows
-class TRestAxionTransmissionProcess : public TRestEventProcess {
+//! A process to include photon transmission using a combination of TRestAxionXrayWindow definitions
+class TRestAxionTransmissionProcess : public TRestAxionEventProcess {
    private:
-    /// A pointer to the specific TRestAxionEvent
-    TRestAxionEvent* fAxionEvent;  //!
+    /// The names of the metadata TRestAxionXrayWindow that will be combined for transmission
+    std::vector<std::string> fWindowNames;  //<
 
-    void InitFromConfigFile() override;
+    /// A list with pointers to the windows metadata descriptions
+    std::vector<TRestAxionXrayWindow*> fXrayWindows;  //!
 
     void Initialize() override;
 
@@ -41,8 +42,9 @@ class TRestAxionTransmissionProcess : public TRestEventProcess {
 
    protected:
    public:
-    any GetInputEvent() const override { return fAxionEvent; }
-    any GetOutputEvent() const override { return fAxionEvent; }
+    void InitProcess() override;
+
+    void InitFromConfigFile() override;
 
     TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
@@ -52,7 +54,14 @@ class TRestAxionTransmissionProcess : public TRestEventProcess {
     void PrintMetadata() override {
         BeginPrintProcess();
 
+        RESTMetadata << "X-ray window names: " << RESTendl;
+        for (const auto& wName : fWindowNames) RESTMetadata << " - " << wName << RESTendl;
+
         EndPrintProcess();
+
+        RESTMetadata << "Printing window definitions found inside TRestAxionTransmissionProcess" << RESTendl;
+
+        for (const auto& w : fXrayWindows) w->PrintMetadata();
     }
 
     /// Returns the name of this process

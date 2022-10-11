@@ -143,6 +143,8 @@ void TRestAxionGeneratorProcess::InitProcess() {
         if (!this->GetError()) this->SetError("The solar flux definition was not found.");
     }
 
+    if (fAxionFlux) fAxionFlux->LoadTables();
+
     if (!fRandom) {
         delete fRandom;
         fRandom = nullptr;
@@ -175,22 +177,26 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
 
     r = TMath::Sqrt(r);
 
+    std::pair<Double_t, Double_t> p;
     if (fGeneratorType == "solarFlux") {
-        std::pair<Double_t, Double_t> p = fAxionFlux->GetRandomEnergyAndRadius();
+        p = fAxionFlux->GetRandomEnergyAndRadius(fEnergyRange);
         energy = p.first;
         Double_t radius = p.second;
 
-        axionPosition = TVector3(REST_Physics::solarRadius * radius * x,
-                                 REST_Physics::solarRadius * radius * y, -REST_Physics::AU);
+        axionPosition = TVector3(REST_Physics::solarRadius * radius * x / r,
+                                 REST_Physics::solarRadius * radius * y / r, -REST_Physics::AU);
 
         axionDirection = -axionPosition.Unit();
     }
 
     if (fGeneratorType == "flat" || fGeneratorType == "plain") {
-        if (fMaxEnergy > 0)
-            energy = fRandom->Rndm() * (fMaxEnergy - fMinEnergy) + fMinEnergy;
-        else
-            energy = (1. - fMinEnergy) * fRandom->Rndm() + fMinEnergy;
+        if (fEnergyRange.X() > 0 && fEnergyRange.Y() > 0)
+            energy = fRandom->Rndm() * (fEnergyRange.Y() - fEnergyRange.X()) + fEnergyRange.X();
+        else if (fEnergyRange.X() > 0)
+            energy = (1. - fEnergyRange.X()) * fRandom->Rndm() + fEnergyRange.X();
+        else {
+            RESTWarning << "Not a valid energy range was defined!" << RESTendl;
+        }
     }
 
     /// The axion position must be displaced by the target size.
@@ -228,7 +234,7 @@ void TRestAxionGeneratorProcess::PrintMetadata() {
     RESTMetadata << "Axion mass: " << fAxionMass * units("eV") << " eV" << RESTendl;
     RESTMetadata << "Target radius: " << fTargetRadius * units("cm") << " cm" << RESTendl;
     RESTMetadata << "Random seed: " << (UInt_t)fSeed << RESTendl;
-    RESTMetadata << "Energy range: (" << fMinEnergy << ", " << fMaxEnergy << ") keV" << RESTendl;
+    RESTMetadata << "Energy range: (" << fEnergyRange.X() << ", " << fEnergyRange.Y() << ") keV" << RESTendl;
 
     RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }

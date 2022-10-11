@@ -3,6 +3,7 @@
 [![website](https://img.shields.io/badge/user-guide-E8B6FF.svg)](https://rest-for-physics.github.io)
 [![api](https://img.shields.io/badge/user-API-FFCA78.svg)](https://sultan.unizar.es/rest/)
 [![forum](https://img.shields.io/badge/user-forum-AAFF90.svg)](https://rest-forum.unizar.es/)
+[![github pipeline](https://github.com/rest-for-physics/axionlib/actions/workflows/validation.yml/badge.svg)](https://github.com/rest-for-physics/axionlib/commits/master)
 
 This is a REST-for-Physics library used to generate solar axions and obtain the detection probability function. The library allows to define a generic helioscope setup - buffer gas, magnetic field, optics response, photon transmission - through REST metadata structures.
 
