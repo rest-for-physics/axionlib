@@ -13,7 +13,7 @@
 //*** 
 //***
 //*** --------------
-//*** Usage: restManager XMMAngleEffCSV [pathAndPattern = "/trueWolter/OpticsBench_Yaw_*_Dev_*_BabyIAXO_Run*.root", csvFile = ""]
+//*** Usage: restManager XMMAngleEffCSV "./trueWolter/OpticsBench_Yaw_*_Dev_*_BabyIAXO_Run*.root" [csvFile]
 //***
 //*** Where the optional arguments are:
 //***
