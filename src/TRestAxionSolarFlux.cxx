@@ -290,7 +290,7 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
     RESTDebug << "File : " << fullPathName << RESTendl;
 
     std::vector<std::vector<Float_t>> fluxTable;
-    if (TRestTools::GetFileNameExtension(fFluxDataFile) == ".dat") {
+    if (TRestTools::GetFileNameExtension(fFluxDataFile) == "dat") {
         std::vector<std::vector<Double_t>> doubleTable;
         TRestTools::ReadASCIITable(fullPathName, doubleTable);
         for (const auto& row : doubleTable) {
