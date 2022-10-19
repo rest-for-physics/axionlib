@@ -54,6 +54,28 @@ jobs:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
           path: ${{ env.REST_PATH }}
 
+  macros-health:
+    name: "Macros with clean error output"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ build-axionlib ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: axionlib-install-cache
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: Load restRootMacros in axiolib standalone
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd pipeline
+          export DISPLAY=localhost:0.0
+          echo "Running validation script"
+          python3 validateMacros.py
+
   Physics:
     name: Check physics
     runs-on: ubuntu-latest
