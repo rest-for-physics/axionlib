@@ -47,6 +47,8 @@
 #include <TVectorD.h>
 #include "TH1F.h"
 
+#include <numeric>
+
 using namespace std;
 
 ClassImp(TRestAxionField);
@@ -196,10 +198,18 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t L
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
+/// \note The density is for the moment homogeneous. We would need to implemnent a double integral
+/// to solve the problem with a density profile. TOBE implemented in a new method if needed, where
+/// Gamma is not constant and \integral{q(z)} is integrated at each step.
+///
 Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL,
-                                                       Double_t Ea, Double_t mg, Double_t absLength) {
+                                                       Double_t Ea, Double_t ma, Double_t mg,
+                                                       Double_t absLength) {
     mpfr::mpreal axionMass = ma;
-    mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
+
+    // Default REST units are mm. We express cohLength in m.
+    Double_t Lcoh = (Bmag.size() - 1) * deltaL;  // in mm
+    Double_t cohLength = Lcoh / 1000.;           // in m
 
     mpfr::mpreal photonMass = mg;
 
@@ -213,11 +223,12 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
     RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
     RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
     RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
-    RESTDebug << " Lcoh : " << Lcoh << " mm" << RESTendl;
+    RESTDebug << " Lcoh : " << cohLength << " mm" << RESTendl;
     RESTDebug << " Bmag average : " << fieldAverage << " T" << RESTendl;
     RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
 
-    if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(Bmag, Lcoh);
+    // In vacuum
+    if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(fieldAverage, Lcoh);
 
     mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
     mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
@@ -243,14 +254,26 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
 
     if (fDebug) {
         RESTDebug << "Mfactor : " << MFactor << RESTendl;
-        RESTDebug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << RESTendl;
+        RESTDebug << "(BL/2)^2 : " << BLHalfSquared(fieldAverage, Lcoh) << RESTendl;
         RESTDebug << "cos(phi) : " << cos(phi) << RESTendl;
         RESTDebug << "Exp(-GammaL) : " << exp(-GammaL) << RESTendl;
     }
 
-    double sol =
-        (double)(MFactor * BLHalfSquared(Bmag, Lcoh) * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
+    for (unsigned int n = 0; n < Bmag.size() - 1; n++) {
+        Double_t Bmiddle = 0.5 * (Bmag[n] + Bmag[n + 1]);
 
+        TRestComplex qC(0, -q);
+        qC = TRestComplex::Exp(qC);
+
+        std::cout << "n : " << n << " qC: " << qC << std::endl;
+    }
+
+    /*
+    double sol =
+    (double)(MFactor * BLHalfSquared(Bmag, Lcoh) * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
+            */
+
+    double sol = 0;
     RESTDebug << "Axion-photon transmission probability : " << sol << RESTendl;
 
     return sol;
