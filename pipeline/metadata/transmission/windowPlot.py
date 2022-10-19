@@ -27,8 +27,11 @@ pad1.Draw()
 
 totalSamples = 100000
 
+print ("Loading cathode" )
 cathode = ROOT.TRestAxionXrayWindow("windows.rml", "cathode")
+print ("Loading strongBack" )
 strongBack = ROOT.TRestAxionXrayWindow("windows.rml", patternType)
+print ("Loading silicon foil" )
 siFoil = ROOT.TRestAxionXrayWindow("windows.rml", "siliconFoil")
 
 radius = strongBack.GetWindowRadius()
@@ -136,6 +139,9 @@ histH.Draw("colz")
 
 c1.Print(outfname)
 
+print ( "Low: " + str( histL.Integral() ) )
+print ( "Mid: " + str( histM.Integral() ) )
+print ( "High: " + str( histH.Integral() ) )
 if( histL.Integral() < 10000 ):
     print( "Effective counts at low energy below 10000!!")
     print ( "Low: " + str( histL.Integral() ) )
