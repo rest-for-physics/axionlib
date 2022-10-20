@@ -41,7 +41,7 @@ jobs:
       - name: Build and install
         uses: rest-for-physics/framework/.github/actions/build@master
         with:
-          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DREST_WELCOME=ON -DRESTLIB_AXION=ON"
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DREST_WELCOME=ON -DRESTLIB_AXION=ON -DREST_MPFR=ON"
           branch: ${{ env.BRANCH_NAME }}
       - name: Cache framework installation
         id: axionlib-install-cache
