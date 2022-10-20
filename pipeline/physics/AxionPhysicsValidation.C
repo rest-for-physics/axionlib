@@ -156,12 +156,6 @@ Int_t AxionPhysicsValidation() {
     Double_t ma = 1.e-2;  // eV
     Double_t Ea = 3.0;    // keV
 
-    std::cout << endl;
-    std::cout << "--> Axion-photon probability calculations succeeded!" << std::endl;
-    std::cout << endl;
-
-    // axionField.GammaTransmissionProbability(bProfile, 50, 3., 0.1);
-
     std::cout << "Probability (CAST. Helium. ma:10meV - Ea:3keV): "
               << axionField.GammaTransmissionProbability(B, L, Ea, ma) << std::endl;
 
@@ -169,6 +163,18 @@ Int_t AxionPhysicsValidation() {
         std::cout << "CAST Probability. Wrong axion-photon conversion probability" << std::endl;
         return 301;
     }
+
+    Double_t prob = axionField.GammaTransmissionProbability(bProfile, 50, Ea, ma);
+    std::cout << "Probability BabyIAXO : " << prob << std::endl;
+
+    if (std::round(prob * 1.e22) != 2482) {
+        std::cout << "BabyIAXO Probability. Wrong axion-photon conversion probability" << std::endl;
+        return 401;
+    }
+
+    std::cout << endl;
+    std::cout << "--> Axion-photon probability calculations succeeded!" << std::endl;
+    std::cout << endl;
 
     return 0;
 }
