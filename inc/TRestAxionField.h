@@ -24,31 +24,10 @@
 #define _TRestAxionField
 
 #include "TRestAxionBufferGas.h"
-#include "TRestComplex.h"
 
-/*
-/// MOVED TO TRestAxionFieldPropagationProcess class
-/// A structure to define the two components of a complex number using real precision.
-/// To be used inside TRestAxionField.
-struct ComplexReal {
-    /// The real part of the number
-    mpfr::mpreal real = 0;
-
-    /// The imaginary part of the number
-    mpfr::mpreal img = 0;
-};
-*/
 //! A basic class to define analytical axion-photon conversion calculations for axion helioscopes
 class TRestAxionField : public TObject {
    private:
-    /// A two component vector to store the complex EM field amplitude.
-    /// MOVED to TRestAxionFieldPropagationProcess
-    /// ComplexReal fAem;  //!
-
-    /// A two component vector to store the complex axion field amplitude.
-    /// MOVED to TRestAxionFieldPropagationProcess
-    /// ComplexReal faxion;  //!
-
     Bool_t fDebug = false;  //!
 
     void Initialize();
@@ -77,11 +56,6 @@ class TRestAxionField : public TObject {
 
     Double_t AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                         Double_t mg = 0, Double_t absLength = 0);
-
-    /// Commented because it uses ComplexReal structure that is moved to TRestAxionFieldPropagationProcess
-    /// class
-    /// void PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma, Double_t mg = 0,
-    ///                    Double_t absLength = 0);
 
     TRestAxionField();
     ~TRestAxionField();
