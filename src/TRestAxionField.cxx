@@ -46,6 +46,7 @@
 #include "TRestAxionField.h"
 #include <TVectorD.h>
 #include "TH1F.h"
+#include "TRestComplex.h"
 
 #include <numeric>
 
@@ -192,7 +193,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t L
 /// will be obtainned from the buffer gas definition. If no buffer gas has been assigned
 /// then the medium will be assumed to be vacuum.
 ///
-/// Ea in keV, ma in eV, mgamma in eV, Lcoh in mm, Bmag in T
+/// Ea in keV, ma in eV, mgamma in eV, deltaL in mm, Bmag in T
 ///
 /// mg in eV, absLength in cm-1
 ///
@@ -259,24 +260,38 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
         RESTDebug << "Exp(-GammaL) : " << exp(-GammaL) << RESTendl;
     }
 
+    Double_t deltaIneV = deltaL / 1000. * REST_Physics::PhMeterIneV;
+
+    /// We integrate following the Midpoint rule method. (Other potential options : Trapezoidal, Simpsons)
+    TRestComplex sum(0, 0);
     for (unsigned int n = 0; n < Bmag.size() - 1; n++) {
         Double_t Bmiddle = 0.5 * (Bmag[n] + Bmag[n + 1]);
 
-        TRestComplex qC(0, -q);
+        Double_t lStepIneV = ((double)n + 0.5) * deltaIneV;
+        Double_t lStepInCm = ((double)n + 0.5) * deltaL / 10.;
+
+        TRestComplex qC(0, -q * lStepIneV);
         qC = TRestComplex::Exp(qC);
 
-        std::cout << "n : " << n << " qC: " << qC << std::endl;
+        TRestComplex gC(0.5 * Gamma * lStepInCm, 0);
+        gC = TRestComplex::Exp(gC);
+
+        TRestComplex integrand = Bmiddle * deltaL * gC * qC;  // The integrand is in T by mm
+
+        sum += integrand;
     }
+
+    mpfr::mpreal sol = exp(-GammaL) * sum.Rho2() * BLHalfSquared(1, 1);
+    // Now T and mm have been recalculated in natural units using BLHalfSquared(1,1).
 
     /*
     double sol =
     (double)(MFactor * BLHalfSquared(Bmag, Lcoh) * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
             */
 
-    double sol = 0;
     RESTDebug << "Axion-photon transmission probability : " << sol << RESTendl;
 
-    return sol;
+    return (Double_t)sol;
 }
 
 ///////////////////////////////////////////////
