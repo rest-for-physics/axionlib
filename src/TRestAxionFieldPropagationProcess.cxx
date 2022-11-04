@@ -119,11 +119,18 @@ void TRestAxionFieldPropagationProcess::Initialize() {
 void TRestAxionFieldPropagationProcess::InitProcess() {
     RESTDebug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << RESTendl;
 
-    fField = (TRestAxionMagneticField*)this->GetMetadata("TRestAxionMagneticField");
+    fMagneticField = (TRestAxionMagneticField*)this->GetMetadata("TRestAxionMagneticField");
 
-    if (!fField) {
+    if (!fMagneticField) {
         RESTError << "TRestAxionFieldPropagationprocess. Magnetic Field was not defined!" << RESTendl;
         exit(0);
+    }
+
+    if (!fAxionField) {
+        fAxionField = new TRestAxionField();
+
+        fBufferGas = (TRestAxionBufferGas*)this->GetMetadata("TRestAxionBufferGas");
+        if (fBufferGas) fAxionField->AssignBufferGas(fBufferGas);
     }
 }
 
@@ -133,17 +140,24 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     RESTDebug << "TRestAxionFieldPropagationProcess::ProcessEvent : " << fAxionEvent->GetID() << RESTendl;
 
     std::vector<TVector3> trackBounds =
-        fField->GetFieldBoundaries(fAxionEvent->GetPosition(), fAxionEvent->GetDirection());
+        fMagneticField->GetFieldBoundaries(fAxionEvent->GetPosition(), fAxionEvent->GetDirection());
 
-    if (trackBounds.size() == 0) {
-        fAxionEvent->SetBSquared(0);
-        fAxionEvent->SetLConversion(0);
-    } else {
-        Double_t B = fField->GetTransversalFieldAverage(trackBounds[0], trackBounds[1], 100, 200);
-        Double_t lenght = (trackBounds[1] - trackBounds[0]).Mag();
+    std::vector<Double_t> bProfile =
+        fMagneticField->GetTransversalComponentAlongPath(trackBounds[0], trackBounds[1], fIntegrationStep);
 
-        fAxionEvent->SetBSquared(B * B);
-        fAxionEvent->SetLConversion(lenght);
+    Double_t Ea = fAxionEvent->GetEnergy();
+    Double_t ma = fAxionEvent->GetMass();
+
+    Double_t prob = fAxionField->GammaTransmissionProbability(bProfile, fIntegrationStep, Ea, ma);
+    SetObservableValue("probability", prob);
+
+    Double_t lCoh = (bProfile.size() - 1) * fIntegrationStep;
+    SetObservableValue("coherenceLength", lCoh);
+
+    if (fBufferGas && fBufferGasAdditionalLength > 0) {
+        Double_t Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
+        Double_t GammaL = Gamma * lCoh * units("cm");
+        SetObservableValue("absorption", exp(-GammaL));
     }
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) fAxionEvent->PrintEvent();

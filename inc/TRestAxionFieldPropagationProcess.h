@@ -28,14 +28,27 @@
 
 #include "TRestAxionEvent.h"
 #include "TRestAxionEventProcess.h"
+#include "TRestAxionField.h"
 #include "TRestAxionMagneticField.h"
 #include "TRestPhysics.h"
 
 //! A process to introduce the magnetic field profile integration along the track
 class TRestAxionFieldPropagationProcess : public TRestAxionEventProcess {
    private:
+    /// The differential length in mm used for the field integration
+    Double_t fIntegrationStep = 50;  //<
+
+    /// The additional length in mm that the converted photon propagates without magnetic field
+    Double_t fBufferGasAdditionalLength = 0;  //<
+
     /// A pointer to the magnetic field description stored in TRestRun
-    TRestAxionMagneticField* fField;  //!
+    TRestAxionMagneticField* fMagneticField = nullptr;  //!
+
+    /// A pointer to TRestAxionField that implements probability calculations
+    TRestAxionField* fAxionField = nullptr;  //!
+
+    /// A pointer to TRestBufferGas given to TRestAxionField to perform calculations in a particular gas
+    TRestAxionBufferGas* fBufferGas = nullptr;  //!
 
     void Initialize() override;
 
@@ -46,6 +59,17 @@ class TRestAxionFieldPropagationProcess : public TRestAxionEventProcess {
     RESTValue GetOutputEvent() const override { return fAxionEvent; }
 
     TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
+
+    /// It prints out the process parameters stored in the metadata structure
+    void PrintMetadata() override {
+        BeginPrintProcess();
+
+        RESTMetadata << "Integration step length : " << fIntegrationStep << " mm" << RESTendl;
+        RESTMetadata << "Buffer gas additional length : " << fBufferGasAdditionalLength * units("m") << " m"
+                     << RESTendl;
+
+        EndPrintProcess();
+    }
 
     /// Returns the name of this process
     const char* GetProcessName() const override { return "axionFieldPropagation"; }
