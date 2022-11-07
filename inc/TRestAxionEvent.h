@@ -97,6 +97,6 @@ class TRestAxionEvent : public TRestEvent {
     TRestAxionEvent();
     ~TRestAxionEvent();
 
-    ClassDef(TRestAxionEvent, 1);
+    ClassDef(TRestAxionEvent, 2);
 };
 #endif
