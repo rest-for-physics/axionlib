@@ -75,6 +75,7 @@
 #include "TRestAxionFieldPropagationProcess.h"
 #include <TVectorD.h>
 
+#include <numeric>
 using namespace std;
 
 ClassImp(TRestAxionFieldPropagationProcess);
@@ -150,9 +151,12 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     Double_t prob = 0;
     Double_t lCoh = 0;
     Double_t absorption = 0;
+    Double_t fieldAverage = 0;
     if (trackBounds.size() == 2) {
         std::vector<Double_t> bProfile = fMagneticField->GetTransversalComponentAlongPath(
             trackBounds[0], trackBounds[1], fIntegrationStep);
+
+        fieldAverage = std::accumulate(bProfile.begin(), bProfile.end(), 0.0) / bProfile.size();
 
         Double_t Ea = fAxionEvent->GetEnergy();
         Double_t ma = fAxionEvent->GetMass();
@@ -167,8 +171,6 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
             absorption = exp(-GammaL);
         }
     }
-
-    Double_t fieldAverage = std::accumulate(bProfile.begin(), bProfile.end(), 0.0) / bProfile.size();
 
     SetObservableValue("fieldAverage", fieldAverage);
     SetObservableValue("probability", prob);
