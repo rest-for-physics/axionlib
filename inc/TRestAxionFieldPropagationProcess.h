@@ -81,6 +81,6 @@ class TRestAxionFieldPropagationProcess : public TRestAxionEventProcess {
     // Destructor
     ~TRestAxionFieldPropagationProcess();
 
-    ClassDefOverride(TRestAxionFieldPropagationProcess, 1);
+    ClassDefOverride(TRestAxionFieldPropagationProcess, 2);
 };
 #endif
