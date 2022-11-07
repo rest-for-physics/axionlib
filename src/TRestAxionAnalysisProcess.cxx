@@ -118,8 +118,8 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     SetObservableValue("posY", fAxionEvent->GetPosition().Y());
     SetObservableValue("posZ", fAxionEvent->GetPosition().Z());
 
-    // SetObservableValue("B2", fAxionEvent->GetBSquared());
-    // SetObservableValue("Lcoh", fAxionEvent->GetLConversion());
+    SetObservableValue("thetaAngle", fAxionEvent->GetDirection().Theta());
+    SetObservableValue("phiAngle", fAxionEvent->GetDirection().Phi());
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) fAxionEvent->PrintEvent();
 
