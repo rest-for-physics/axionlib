@@ -168,6 +168,9 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
         }
     }
 
+    Double_t fieldAverage = std::accumulate(bProfile.begin(), bProfile.end(), 0.0) / bProfile.size();
+
+    SetObservableValue("fieldAverage", fieldAverage);
     SetObservableValue("probability", prob);
     SetObservableValue("coherenceLength", lCoh);
     SetObservableValue("absorption", absorption);
@@ -175,6 +178,8 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) fAxionEvent->PrintEvent();
 
     /// Missing to propagate the axion to the end of magnet bore?
+    /// May not be necessary, it can be done by TRestAxionTransportProcess if user needs any process
+    /// that changes direction, this is done for example by optics processes internally
 
     return fAxionEvent;
 }
