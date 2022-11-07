@@ -117,9 +117,11 @@ void TRestAxionFieldPropagationProcess::Initialize() {
 /// should be initialized here.
 ///
 void TRestAxionFieldPropagationProcess::InitProcess() {
-    RESTDebug << "Entering ... TRestAxionGeneratorProcess::InitProcess" << RESTendl;
+    RESTDebug << "Entering ... TRestAxionFieldPropagationProcess::InitProcess" << RESTendl;
 
     fMagneticField = (TRestAxionMagneticField*)this->GetMetadata("TRestAxionMagneticField");
+
+    RESTDebug << "Magnetic field : " << fMagneticField << RESTendl;
 
     if (!fMagneticField) {
         RESTError << "TRestAxionFieldPropagationprocess. Magnetic Field was not defined!" << RESTendl;
@@ -132,33 +134,43 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
         fBufferGas = (TRestAxionBufferGas*)this->GetMetadata("TRestAxionBufferGas");
         if (fBufferGas) fAxionField->AssignBufferGas(fBufferGas);
     }
+
+    RESTDebug << "Axion-field : " << fAxionField << RESTendl;
+    RESTDebug << "Buffer gas : " << fBufferGas << RESTendl;
 }
 
 TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput) {
-    // Already done by TRestAxionEventProcess
     fAxionEvent = (TRestAxionEvent*)evInput;
+
     RESTDebug << "TRestAxionFieldPropagationProcess::ProcessEvent : " << fAxionEvent->GetID() << RESTendl;
 
     std::vector<TVector3> trackBounds =
         fMagneticField->GetFieldBoundaries(fAxionEvent->GetPosition(), fAxionEvent->GetDirection());
 
-    std::vector<Double_t> bProfile =
-        fMagneticField->GetTransversalComponentAlongPath(trackBounds[0], trackBounds[1], fIntegrationStep);
+    Double_t prob = 0;
+    Double_t lCoh = 0;
+    Double_t absorption = 0;
+    if (trackBounds.size() == 2) {
+        std::vector<Double_t> bProfile = fMagneticField->GetTransversalComponentAlongPath(
+            trackBounds[0], trackBounds[1], fIntegrationStep);
 
-    Double_t Ea = fAxionEvent->GetEnergy();
-    Double_t ma = fAxionEvent->GetMass();
+        Double_t Ea = fAxionEvent->GetEnergy();
+        Double_t ma = fAxionEvent->GetMass();
 
-    Double_t prob = fAxionField->GammaTransmissionProbability(bProfile, fIntegrationStep, Ea, ma);
-    SetObservableValue("probability", prob);
+        prob = fAxionField->GammaTransmissionProbability(bProfile, fIntegrationStep, Ea, ma);
 
-    Double_t lCoh = (bProfile.size() - 1) * fIntegrationStep;
-    SetObservableValue("coherenceLength", lCoh);
+        lCoh = (bProfile.size() - 1) * fIntegrationStep;
 
-    if (fBufferGas && fBufferGasAdditionalLength > 0) {
-        Double_t Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
-        Double_t GammaL = Gamma * lCoh * units("cm");
-        SetObservableValue("absorption", exp(-GammaL));
+        if (fBufferGas && fBufferGasAdditionalLength > 0) {
+            Double_t Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
+            Double_t GammaL = Gamma * lCoh * units("cm");
+            absorption = exp(-GammaL);
+        }
     }
+
+    SetObservableValue("probability", prob);
+    SetObservableValue("coherenceLength", lCoh);
+    SetObservableValue("absorption", absorption);
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) fAxionEvent->PrintEvent();
 
