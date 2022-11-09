@@ -16,7 +16,7 @@
         <TRestAxionBufferGas file="bufferGases.rml" name="helium"/>
     </TRestRun>
     <TRestProcessRunner name="EventProcess" verboseLevel="info">
-        <parameter name="eventsToProcess" value="100000"/>
+        <parameter name="eventsToProcess" value="100"/>
         <!-- By default the generator will place the Z-position at 1 A.U. -->
         <addProcess type="TRestAxionGeneratorProcess" name="axionGen">
             <parameter name="generatorType" value="flat"/>
