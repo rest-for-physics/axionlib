@@ -183,6 +183,7 @@ jobs:
         source ${{ env.REST_PATH }}/thisREST.sh
         export REST_NEVENTS=1000
         export REST_RUN=100
+        cd pipeline/ray-tracing/optics/
         wget https://rest-for-physics.github.io/axionlib-data/optics/xmm.rml
         wget https://rest-for-physics.github.io/axionlib-data/optics/XMM.Wolter
         wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
