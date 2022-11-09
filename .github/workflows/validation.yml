@@ -205,5 +205,7 @@ jobs:
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
         cd pipeline/ray-tracing/axion-field/
+        wget https://rest-for-physics.github.io/axionlib-data/magneticField/fields.rml
+        wget https://rest-for-physics.github.io/axionlib-data/magneticField/Bykovskiy_201906.dat
         restManager --c photonConversion.rml
         restRoot -b -q Validate.C
