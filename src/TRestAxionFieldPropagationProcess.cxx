@@ -70,6 +70,23 @@
 /// * **Transmission**: This observable will register the photon transmission produced by an additional
 /// buffer gas length at the end of the magnetic region.
 ///
+/// This process can be tested using the RML files found inside the directory
+/// `/pipeline/ray-tracing/axion-field/`. The following commands will generate plots with different
+/// distributions containing different axion-photon probability calculations.
+///
+/// \code
+/// restManager --c photonConversion.rml
+/// restManager --c plots.rml --f AxionPhotonProbability.root
+/// \endcode
+///
+/// The previous commands were used to generate the following plots where a total of 100,000 events
+/// were generated.
+///
+/// \htmlonly <style>div.image img[src="axionFieldPlots.png"]{width:800px;}</style> \endhtmlonly
+///
+/// ![Distributions of axion-photon probability, field average, coherence length produced by
+/// tracking.](axionFieldPlots.png)
+///
 ///--------------------------------------------------------------------------
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
@@ -84,6 +101,9 @@
 ///
 /// 2020-March:  Review and validation of this process.
 ///              Javier Galan and Krešimir Jakovčić
+///
+/// 2022-November:  Finally including non-homogeneous field integration
+///                 Javier Galan
 ///
 ///
 /// \class      TRestAxionFieldPropagationProcess
