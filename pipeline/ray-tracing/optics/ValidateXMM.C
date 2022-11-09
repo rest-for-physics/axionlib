@@ -13,6 +13,7 @@ Int_t ValidateXMM(std::string fname) {
 
     run->GetAnalysisTree()->Draw("optics_efficiency", "optics_efficiency");
 
+    run->GetEntry(10);
     run->GetAnalysisTree()->PrintObservables();
 
     TH1D* h = (TH1D*)run->GetAnalysisTree()->GetHistogram();
