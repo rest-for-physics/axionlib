@@ -150,7 +150,7 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
 
     Double_t prob = 0;
     Double_t lCoh = 0;
-    Double_t absorption = 0;
+    Double_t transmission = 0;
     Double_t fieldAverage = 0;
     if (trackBounds.size() == 2) {
         std::vector<Double_t> bProfile = fMagneticField->GetTransversalComponentAlongPath(
@@ -168,14 +168,14 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
         if (fBufferGas && fBufferGasAdditionalLength > 0) {
             Double_t Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
             Double_t GammaL = Gamma * lCoh * units("cm");
-            absorption = exp(-GammaL);
+            transmission = exp(-GammaL);
         }
     }
 
     SetObservableValue("fieldAverage", fieldAverage);
     SetObservableValue("probability", prob);
     SetObservableValue("coherenceLength", lCoh);
-    SetObservableValue("absorption", absorption);
+    SetObservableValue("transmission", transmission);
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) fAxionEvent->PrintEvent();
 
