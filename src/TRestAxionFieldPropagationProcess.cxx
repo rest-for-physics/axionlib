@@ -85,8 +85,7 @@
 ///
 /// \htmlonly <style>div.image img[src="axionFieldPlots.png"]{width:800px;}</style> \endhtmlonly
 ///
-/// ![Distributions of axion-photon probability, field average, coherence length produced by
-/// tracking.](axionFieldPlots.png)
+/// ![Ray-tracing distributions of probability, field average and coherence length](axionFieldPlots.png)
 ///
 ///--------------------------------------------------------------------------
 ///
