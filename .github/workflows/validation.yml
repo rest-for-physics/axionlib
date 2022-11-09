@@ -188,7 +188,7 @@ jobs:
         wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
         wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
         restManager --c opticsBench.rml
-        restRoot -b -q ValidateXMM.C'("OpticsBench_Yaw_0.02_Dev_0.005_BabyIAXO_Run00100.root")'
+        restRoot -b -q ValidateXMM.C'("OpticsBench_Yaw_0.05_Dev_0.005_BabyIAXO_Run00100.root")'
     - name: Window transmission
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
