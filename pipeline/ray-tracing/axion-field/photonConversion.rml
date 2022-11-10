@@ -22,6 +22,7 @@
             <parameter name="generatorType" value="flat"/>
             <parameter name="maxEnergy" value="10"/>
             <parameter name="targetRadius" value="35cm"/>
+            <parameter name="seed" value="314"/>
         </addProcess>
         <addProcess type="TRestAxionTransportProcess" zPosition="-5m" name="to5m"/>
         <addProcess type="TRestAxionDeviationProcess" name="dev" devAngle="2deg" seed="137"/>
