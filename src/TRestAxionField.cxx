@@ -140,7 +140,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t L
         << RESTendl;
     RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
     return 0;
-#elif
+#else
     mpfr::mpreal axionMass = ma;
     mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
 
@@ -225,7 +225,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
         << RESTendl;
     RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
     return 0;
-#elif
+#else
     mpfr::mpreal axionMass = ma;
 
     // Default REST units are mm. We express cohLength in m.
@@ -336,7 +336,7 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
         << RESTendl;
     RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
     return 0;
-#elif
+#else
     mpfr::mpreal axionMass = ma;
     mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
 
