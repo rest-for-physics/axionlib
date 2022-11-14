@@ -47,7 +47,7 @@
 #include <TVectorD.h>
 #include "TH1F.h"
 
-#ifdef REST_MPFR
+#ifdef USE_MPFR
 #include "TRestComplex.h"
 #endif
 
@@ -74,7 +74,7 @@ TRestAxionField::~TRestAxionField() {}
 /// So that we can still calculate numbers such as : 1.0 - 1.e-30
 ///
 void TRestAxionField::Initialize() {
-#ifdef REST_MPFR
+#ifdef USE_MPFR
     TRestComplex::SetPrecision(30);
 #endif
 
@@ -134,7 +134,7 @@ double TRestAxionField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**
 ///
 Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                                        Double_t mg, Double_t absLength) {
-#ifndef REST_MPFR
+#ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
         << RESTendl;
@@ -219,7 +219,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t L
 Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL,
                                                        Double_t Ea, Double_t ma, Double_t mg,
                                                        Double_t absLength) {
-#ifndef REST_MPFR
+#ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
         << RESTendl;
@@ -330,7 +330,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
 ///
 Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                                      Double_t mg, Double_t absLength) {
-#ifndef REST_MPFR
+#ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFr=ON to your REST compilation"
         << RESTendl;
