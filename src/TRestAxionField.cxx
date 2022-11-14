@@ -46,7 +46,10 @@
 #include "TRestAxionField.h"
 #include <TVectorD.h>
 #include "TH1F.h"
+
+#ifdef REST_MPFR
 #include "TRestComplex.h"
+#endif
 
 #include <numeric>
 
@@ -71,7 +74,9 @@ TRestAxionField::~TRestAxionField() {}
 /// So that we can still calculate numbers such as : 1.0 - 1.e-30
 ///
 void TRestAxionField::Initialize() {
+#ifdef REST_MPFR
     TRestComplex::SetPrecision(30);
+#endif
 
     fBufferGas = NULL;
 
@@ -129,6 +134,13 @@ double TRestAxionField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**
 ///
 Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                                        Double_t mg, Double_t absLength) {
+#ifndef REST_MPFR
+    RESTWarning
+        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
+        << RESTendl;
+    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
+    return 0;
+#elif
     mpfr::mpreal axionMass = ma;
     mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
 
@@ -182,6 +194,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t L
     RESTDebug << "Axion-photon transmission probability : " << sol << RESTendl;
 
     return sol;
+#endif
 }
 
 ///////////////////////////////////////////////
@@ -206,6 +219,13 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t L
 Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL,
                                                        Double_t Ea, Double_t ma, Double_t mg,
                                                        Double_t absLength) {
+#ifndef REST_MPFR
+    RESTWarning
+        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
+        << RESTendl;
+    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
+    return 0;
+#elif
     mpfr::mpreal axionMass = ma;
 
     // Default REST units are mm. We express cohLength in m.
@@ -292,6 +312,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
     RESTDebug << "Axion-photon transmission probability : " << sol << RESTendl;
 
     return (Double_t)sol;
+#endif
 }
 
 ///////////////////////////////////////////////
@@ -309,6 +330,13 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
 ///
 Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                                      Double_t mg, Double_t absLength) {
+#ifndef REST_MPFR
+    RESTWarning
+        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFr=ON to your REST compilation"
+        << RESTendl;
+    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
+    return 0;
+#elif
     mpfr::mpreal axionMass = ma;
     mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
 
@@ -364,6 +392,7 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
     if (fDebug) RESTDebug << "Axion-photon absorption probability : " << sol << RESTendl;
 
     return sol;
+#endif
 }
 
 /// Commented because it uses ComplexReal structure that is moved to TRestAxionFieldPropagationProcess class
