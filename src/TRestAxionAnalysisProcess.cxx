@@ -21,7 +21,17 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionAnalysisProcess TOBE documented
+/// TRestAxionAnalysisProcess adds to the analysis tree information about
+/// the particle state.
+///
+/// Observable values defined by this process:
+/// - **energy**: The energy in keV.
+/// - **posX**: The X-position in mm.
+/// - **posY**: The Y-position in mm.
+/// - **posZ**: The Z-position in mm.
+/// - **thetaAngle**: The angle in radians respect to the propagation axis, defined in Z.
+/// - **phiAngle**: The angle moving along the XY-plane.
+/// - **R**: The distance to the Z-axis in mm.
 ///
 /// The axion is generated with intensity proportional to g_ag = 1.0 x g10
 ///--------------------------------------------------------------------------
@@ -114,9 +124,14 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     SetObservableValue("energy", fAxionEvent->GetEnergy());
 
-    SetObservableValue("posX", fAxionEvent->GetPosition().X());
-    SetObservableValue("posY", fAxionEvent->GetPosition().Y());
+    Double_t x = fAxionEvent->GetPosition().X();
+    Double_t y = fAxionEvent->GetPosition().Y();
+    SetObservableValue("posX", x);
+    SetObservableValue("posY", y);
     SetObservableValue("posZ", fAxionEvent->GetPosition().Z());
+
+    Double_t r = TMath::Sqrt(x * x + y * y);
+    SetObservableValue("R", r);
 
     SetObservableValue("thetaAngle", fAxionEvent->GetDirection().Theta());
     SetObservableValue("phiAngle", fAxionEvent->GetDirection().Phi());
