@@ -23,32 +23,25 @@
             <parameter name="couplingType" value="g_ag"/>
             <parameter name="couplingStrength" value="1.e-10"/>
             <parameter name="fluxDataFile" value="Primakoff_LennertHoof_202203.dat"/>
-            <parameter name="energyRange" value="(0.05, 10)keV" />
+            <parameter name="energyRange" value="(0.05, 10)keV"/>
             <parameter name="seed" value="137"/>
         </TRestAxionSolarFlux>
-        
-	<TRestAxionXrayWindow name="siliconFoil" verboseLevel="info" thickness="0.3um" material="Si3N4" >
-        <TRestPatternMask name="mask" verboseLevel="warning" maskRadius="7mm" />
-    	</TRestAxionXrayWindow>
-
-        <TRestAxionXrayWindow name="strongBack" verboseLevel="warning">
-            <parameter name="windowType" value="stripped" />
-            <parameter name="thickness" value="200um" />
-            <parameter name="material" value="Si" />
-
-            <TRestStrippedMask name="mask" verboseLevel="warning" maskRadius="7mm" offset="(1.15,0)mm"
-                rotationAngle="0.5" stripsGap="2.3mm" stripsThickness="0.5mm" />
+        <TRestAxionXrayWindow name="siliconFoil" verboseLevel="info" thickness="0.3um" material="Si3N4">
+            <TRestPatternMask name="mask" verboseLevel="warning" maskRadius="7mm"/>
         </TRestAxionXrayWindow>
-
-        <TRestAxionXrayWindow name="cathode" verboseLevel="info" thickness="0.02um" material="Al" >
-        <TRestPatternMask name="mask" verboseLevel="warning" maskRadius="7mm" />
-    	</TRestAxionXrayWindow>
-        
+        <TRestAxionXrayWindow name="strongBack" verboseLevel="warning">
+            <parameter name="windowType" value="stripped"/>
+            <parameter name="thickness" value="200um"/>
+            <parameter name="material" value="Si"/>
+            <TRestStrippedMask name="mask" verboseLevel="warning" maskRadius="7mm" offset="(1.15,0)mm" rotationAngle="0.5" stripsGap="2.3mm" stripsThickness="0.5mm"/>
+        </TRestAxionXrayWindow>
+        <TRestAxionXrayWindow name="cathode" verboseLevel="info" thickness="0.02um" material="Al">
+            <TRestPatternMask name="mask" verboseLevel="warning" maskRadius="7mm"/>
+        </TRestAxionXrayWindow>
         <TRestAxionXrayWindow name="magnetBore" material="Vacuum">
             <TRestPatternMask name="mask" maskRadius="16cm" verboseLevel="info"/>
         </TRestAxionXrayWindow>
-
-	<!-- Optics definition -->
+        <!-- Optics definition -->
         <TRestAxionTrueWolterOptics file="xmmTrueWolter.rml"/>
     </TRestRun>
     <TRestProcessRunner name="EventProcess" verboseLevel="info">
@@ -58,7 +51,7 @@
         <parameter name="inputEvent" value="off"/>
         <parameter name="outputEvent" value="on"/>
         <addProcess type="TRestAxionGeneratorProcess" name="axionGen" value="ON" verboseLevel="info">
-			<parameter name="generatorType" value="solarFlux" />
+            <parameter name="generatorType" value="solarFlux"/>
             <parameter name="energyRange" value="(0.03,10)keV"/>
             <parameter name="axionMass" value="5meV"/>
             <parameter name="targetRadius" value="40cm"/>
@@ -74,7 +67,6 @@
             <observable name="posX"/>
             <observable name="posY"/>
         </addProcess>
-        
         <!-- Optics response -->
         <addProcess type="TRestAxionOpticsProcess" name="optics" veboseLevel="info">
             <parameter name="center" value="(0,0,0)"/>
@@ -92,20 +84,18 @@
             <observable name="posX"/>
             <observable name="posY"/>
         </addProcess>
-
         <!-- Moving to Z=7500 -->
         <addProcess type="TRestAxionTransportProcess" name="ToFocalPoint" zPosition="7500"/>
         <addProcess type="TRestAxionAnalysisProcess" name="focal">
             <observable name="posX"/>
             <observable name="posY"/>
-        
         </addProcess>
-                <addProcess type="TRestAxionTransmissionProcess" name="window" veboseLevel="info" value="ON">
-			<parameter name="center" value="(0,0,7500)mm" />
-            		<observable name="transmission"/>
-            		<window name="siliconFoil" />
-			<window name="cathode" />
-			<window name="strongBack" />
+        <addProcess type="TRestAxionTransmissionProcess" name="window" veboseLevel="info" value="ON">
+            <parameter name="center" value="(0,0,7500)mm"/>
+            <observable name="transmission"/>
+            <window name="siliconFoil"/>
+            <window name="cathode"/>
+            <window name="strongBack"/>
         </addProcess>
     </TRestProcessRunner>
     <addTask command="EventProcess-&gt;RunProcess()" value="ON"/>

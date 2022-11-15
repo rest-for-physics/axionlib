@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<TRestAxionLikelihood name="babyIAXO" title="It's me" verboseLevel="debug">
+    <parameter name="Bmag" value="1000G"/>
+    <parameter name="Rmag" value="30cm"/>
+    <parameter name="Lmag" value="4m"/>
+    <parameter name="efficiency" value="0.5"/>
+    <parameter name="bckLevel" value="1.e-7"/>
+    <parameter name="expTimeVacuum" value="2*365*18"/>
+    <parameter name="expTimePerStep" value="3*18"/>
+    <parameter name="pressureSteps" value="100"/>
+</TRestAxionLikelihood>
