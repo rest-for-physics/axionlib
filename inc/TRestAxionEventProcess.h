@@ -38,6 +38,9 @@ class TRestAxionEventProcess : public TRestEventProcess {
     /// The rotation angle with respect to X-axis
     Double_t fPitch = 0;
 
+    /// If enabled it will skip the end rotation that recovers the original axion trajectory direction
+    Bool_t fSkipEndProcessRotation = false;  //!
+
    protected:
     /// A pointer to the specific TRestAxionEvent
     TRestAxionEvent* fAxionEvent;  //!
@@ -46,6 +49,8 @@ class TRestAxionEventProcess : public TRestEventProcess {
     void EndPrintProcess();
 
     TVector3 GetCenter() const { return fCenter; }
+
+    void SkipEndProcessRotation(Bool_t value = true) { fSkipEndProcessRotation = value; }
 
    public:
     RESTValue GetInputEvent() const override { return fAxionEvent; }

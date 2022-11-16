@@ -57,9 +57,6 @@ class TRestAxionOpticsProcess : public TRestAxionEventProcess {
 
     TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
-    /// End of event process. Called directly after ProcessEvent()
-    void EndOfEventProcess(TRestEvent* evInput = nullptr) override;
-
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
     /// It prints out the process parameters stored in the metadata structure

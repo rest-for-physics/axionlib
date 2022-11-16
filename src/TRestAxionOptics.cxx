@@ -261,7 +261,9 @@ Int_t TRestAxionOptics::TransportToEntrance(const TVector3& pos, const TVector3&
     fEntrancePosition =
         REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), TVector3(0, 0, GetEntrancePositionZ()));
 
-    return fEntranceMask->GetRegion(fEntrancePosition.X(), fEntrancePosition.Y());
+    Double_t x = fEntrancePosition.X();
+    Double_t y = fEntrancePosition.Y();
+    return fEntranceMask->GetRegion(x, y);
 }
 
 ///////////////////////////////////////////////
@@ -290,7 +292,9 @@ Int_t TRestAxionOptics::TransportToMiddle(const TVector3& pos, const TVector3& d
     fMiddlePosition = REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), TVector3(0, 0, 0));
     fMiddleDirection = dir;
 
-    return fMiddleMask->GetRegion(fMiddlePosition.X(), fMiddlePosition.Y());
+    Double_t x = fMiddlePosition.X();
+    Double_t y = fMiddlePosition.Y();
+    return fMiddleMask->GetRegion(x, y);
 }
 
 ///////////////////////////////////////////////
@@ -319,7 +323,9 @@ Int_t TRestAxionOptics::TransportToExit(const TVector3& pos, const TVector3& dir
         REST_Physics::MoveToPlane(pos, dir, TVector3(0, 0, 1), TVector3(0, 0, GetExitPositionZ()));
     fExitDirection = dir;
 
-    return fExitMask->GetRegion(fExitPosition.X(), fExitPosition.Y());
+    Double_t x = fExitPosition.X();
+    Double_t y = fExitPosition.Y();
+    return fExitMask->GetRegion(x, y);
 }
 
 ///////////////////////////////////////////////

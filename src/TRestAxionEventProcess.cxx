@@ -98,7 +98,7 @@ void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
               << RESTendl;
     RESTDebug << " ---- " << RESTendl;
     fAxionEvent->Translate(TVector3(fCenter.X(), fCenter.Y(), fCenter.Z()));
-    fAxionEvent->RotateXY(fCenter, fPitch, fYaw);
+    if (!fSkipEndProcessRotation) fAxionEvent->RotateXY(fCenter, fPitch, fYaw);
     RESTDebug << "EoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
               << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z()
               << RESTendl;
