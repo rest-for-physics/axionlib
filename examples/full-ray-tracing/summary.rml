@@ -3,7 +3,7 @@
     <TRestRun name="DummyRun"/>
     <TRestAnalysisPlot name="restplot" title="Optics Plots" verboseLevel="warning">
         <parameter name="previewPlot" value="false"/>
-        <canvas size="(4800,4000)" divide="(4,5)" save="axionFieldPlots.png"/>
+        <canvas size="(4800,4000)" divide="(4,5)" save="axionFieldPlots_[fRunNumber].png"/>
         <!--- -->
         <plot name="Probability" title="Axion-photon probability" xlabel="Axion-photon probability" ylabel="" value="ON" stats="OFF" option="colz" marginTop="0.1">
             <variable name="axionPhoton_probability" nbins="500" range="(1.e-22,2.e-18)"/>
@@ -76,36 +76,35 @@
             <variable name="initial_posY" nbins="100"/>
             <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
         </plot>
-        <plot name="OffsetDist" title="Spot at 0.5m focal-offset (only reflected rays)" xlabel="X [m]" ylabel="Y [m]" value="ON" stats="OFF" option="colz" marginTop="0.1">
+        <plot name="OffsetDist" title="Spot at 0.5m focal-offset (only reflected rays)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1">
             <variable name="offset_posX" nbins="100"/>
             <variable name="offset_posY" nbins="100"/>
             <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
         </plot>
-        <plot name="OffsetDistWindow" title="Spot at 0.5m focal-offset (reflected rays + window transmission)" xlabel="X [m]" ylabel="Y [m]" value="ON" stats="OFF" option="colz" marginTop="0.1" weight="window_transmission">
+        <plot name="OffsetDistWindow" title="Spot at 0.5m focal-offset (reflected rays + window transmission)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1" weight="window_transmission">
             <variable name="offset_posX" nbins="100"/>
             <variable name="offset_posY" nbins="100"/>
             <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
         </plot>
-        <plot name="FocalAllEvents" title="Spot at focal (all events)" xlabel="X [m]" ylabel="Y [m]" value="ON" stats="OFF" option="colz" marginTop="0.1">
+        <plot name="FocalAllEvents" title="Spot at focal (all events)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1">
             <variable name="final_posX" nbins="100"/>
             <variable name="final_posY" nbins="100"/>
         </plot>
-        <plot name="FocalOptics" title="Spot at focal (only reflected rays)" xlabel="X [m]" ylabel="Y [m]" value="ON" stats="OFF" option="colz" marginTop="0.1">
-            <variable name="final_posX" nbins="100"/>
-            <variable name="final_posY" nbins="100"/>
-            <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
-        </plot>
-        <plot name="FocalOpticsWindow" title="Spot at focal (only reflected rays and window transmission weighted)" xlabel="X [m]" ylabel="Y [m]" value="ON" stats="OFF" option="colz" marginTop="0.1" weight="optics_efficiency*window_transmission">
+        <plot name="FocalOptics" title="Spot at focal (only reflected rays)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1">
             <variable name="final_posX" nbins="100"/>
             <variable name="final_posY" nbins="100"/>
             <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
         </plot>
-        <plot name="ProbabilityXY" title="Spot at focal (axion-photon probability)" xlabel="X [m]" ylabel="Y [m]" value="ON" stats="OFF" option="colz" marginTop="0.1" weight="axionPhoton_probability">
-            <variable name="final_posX" nbins="100"/>
-            <variable name="final_posY" nbins="100"/>
-            <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
+		<plot name="FocalOpticsWindow" title="Spot at focal (only reflected rays. Zoom)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1" weight="optics_efficiency">
+            <variable name="final_posX" nbins="100" range="(-20,20)"/>
+            <variable name="final_posY" nbins="100" range="(-20,20)"/>
+			<cut variable="optics_efficiency" condition="<1" value="ON"/>
         </plot>
-        <plot name="FocalSpot" title="Spot at focal (all efficiencies)" xlabel="X [m]" ylabel="Y [m]" value="ON" stats="OFF" option="colz" marginTop="0.1" weight="optics_efficiency*window_transmission*boreExitGate_transmission*axionPhoton_transmission*axionPhoton_probability">
+        <plot name="SolarDiskWindow" title="Solar Disk (window_transmission weighted)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1" weight="window_transmission">
+            <variable name="initial_posX" nbins="100"/>
+            <variable name="initial_posY" nbins="100"/>
+        </plot>
+        <plot name="FocalSpot" title="Spot at focal (all efficiencies)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1" weight="optics_efficiency*window_transmission*boreExitGate_transmission*axionPhoton_transmission*axionPhoton_probability">
             <variable name="final_posX" nbins="100"/>
             <variable name="final_posY" nbins="100"/>
             <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
