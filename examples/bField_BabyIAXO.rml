@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-
-<TRestAxionMagneticField name="bFieldBabyIAXO" title="bFieldBabyIAXO" verboseLevel="warning" >
-    <addMagneticVolume fileName="mag1.dat" position="(0,750,0)mm" />
-    <addMagneticVolume fileName="mag1.dat" position="(0,-750,0)mm" />
-</TRestAxionMagneticField>

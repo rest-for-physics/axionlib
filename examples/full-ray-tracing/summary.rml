@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<TRestManager name="SpecPlot" title="Example" verboseLevel="info">
+    <TRestRun name="DummyRun"/>
+    <TRestAnalysisPlot name="restplot" title="Optics Plots" verboseLevel="warning">
+        <parameter name="previewPlot" value="false"/>
+        <canvas size="(4800,4000)" divide="(4,5)" save="axionFieldPlots_[fRunNumber].png"/>
+        <!--- -->
+        <plot name="Probability" title="Axion-photon probability" xlabel="Axion-photon probability" ylabel="" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="axionPhoton_probability" nbins="500" range="(1.e-22,2.e-18)"/>
+        </plot>
+        <plot name="FieldAverage" title="Average field" xlabel="Average magnetic field [T]" ylabel="" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="axionPhoton_fieldAverage" nbins="500" range="(0,2.5)"/>
+        </plot>
+        <plot name="Lcoh" title="Coherence length" xlabel="Coherence length [m]" ylabel="" value="ON" stats="OFF" option="colz" marginTop="0.1" logscale="true">
+            <variable name="axionPhoton_coherenceLength/1000" nbins="100" range="(0,10.01)"/>
+        </plot>
+        <plot name="ProbVsB" title="Axion-photon probability versus average field" xlabel="Average magnetic field [T]" ylabel="Axion-photon probability" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="axionPhoton_fieldAverage" nbins="500" range="(0,2.5)"/>
+            <variable name="axionPhoton_probability" nbins="500" range="(1.e-22,2.e-18)"/>
+        </plot>
+        <!--- -->
+        <plot name="ProbVsL" title="Axion-photon probability versus coherence length" xlabel="Coherence length [m]" ylabel="Axion-photon probability" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="axionPhoton_coherenceLength/1000" nbins="100" range="(0,10.01)"/>
+            <variable name="axionPhoton_probability" nbins="100" range="(1.e-22,2.e-18)"/>
+        </plot>
+        <plot name="BufferGasTransmission" title="Additional buffer gas transmission" xlabel="Energy [keV]" ylabel="Transmission" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="initial_energy" nbins="100" range="(0,10.01)"/>
+            <variable name="axionPhoton_transmission" nbins="100" range="(0,1)"/>
+        </plot>
+        <plot name="BvsAngle" title="Average field versus theta angle" xlabel="Incident angle [rads]" ylabel="Average magnetic field" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="initial_thetaAngle" nbins="100" range="(0,0.0035)"/>
+            <variable name="axionPhoton_fieldAverage" nbins="100" range="(0,2.5)"/>
+        </plot>
+        <plot name="InitialVsFinalAngle" title="Incident versus outcoming optics angle" xlabel="Incident angle [rads]" ylabel="Output optics angle [rads]" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="initial_thetaAngle" nbins="100" range="(0,0.0035)"/>
+            <variable name="final_thetaAngle" nbins="100" range="(0,0.07)"/>
+            <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
+        </plot>
+        <plot name="EnergySpectrum" title="Energy Spectrum" xlabel="Energy [keV]" ylabel="Counts per bin" value="ON" stats="OFF" option="colz" marginTop="0.1" legend="ON">
+            <histo name="noCuts" lineColor="1">
+                <variable name="initial_energy" nbins="500" range="(0,10.0)"/>
+                <parameter name="lineColor" value="1"/>
+            </histo>
+            <histo name="optics" lineColor="2">
+                <variable name="initial_energy" nbins="500" range="(0,10.0)"/>
+                <parameter name="lineColor" value="1"/>
+                <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
+            </histo>
+            <histo name="opticsWeigth" lineColor="4" weight="optics_efficiency">
+                <variable name="initial_energy" nbins="500" range="(0,10.0)"/>
+                <parameter name="lineColor" value="1"/>
+                <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
+            </histo>
+            <histo name="opticsAndWindow" lineColor="12" weight="optics_efficiency*window_transmission*boreExitGate_transmission">
+                <variable name="initial_energy" nbins="500" range="(0,10.0)"/>
+                <parameter name="lineColor" value="1"/>
+                <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
+            </histo>
+        </plot>
+        <plot name="MagnetEntranceDist" title="Magnet entrance distribution" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="magnetEntrance_posX" nbins="100"/>
+            <variable name="magnetEntrance_posY" nbins="100"/>
+        </plot>
+        <plot name="MagnetExitDist" title="Magnet exit distribution" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="magnetExit_posX" nbins="100"/>
+            <variable name="magnetExit_posY" nbins="100"/>
+            <cut variable="boreExitGate_transmission" condition="&gt;0" value="ON"/>
+        </plot>
+        <plot name="MagnetEntranceDistOptics" title="Magnet entrance distribution (Optics acceptance)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="magnetEntrance_posX" nbins="100"/>
+            <variable name="magnetEntrance_posY" nbins="100"/>
+            <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
+        </plot>
+        <plot name="SolarDist" title="Solar disk distribution" xlabel="X [m]" ylabel="Y [m]" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="initial_posX" nbins="100"/>
+            <variable name="initial_posY" nbins="100"/>
+            <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
+        </plot>
+        <plot name="OffsetDist" title="Spot at 0.5m focal-offset (only reflected rays)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="offset_posX" nbins="100"/>
+            <variable name="offset_posY" nbins="100"/>
+            <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
+        </plot>
+        <plot name="OffsetDistWindow" title="Spot at 0.5m focal-offset (reflected rays + window transmission)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1" weight="window_transmission">
+            <variable name="offset_posX" nbins="100"/>
+            <variable name="offset_posY" nbins="100"/>
+            <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
+        </plot>
+        <plot name="FocalAllEvents" title="Spot at focal (all events)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="final_posX" nbins="100"/>
+            <variable name="final_posY" nbins="100"/>
+        </plot>
+        <plot name="FocalOptics" title="Spot at focal (only reflected rays)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="final_posX" nbins="100"/>
+            <variable name="final_posY" nbins="100"/>
+            <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
+        </plot>
+		<plot name="FocalOpticsWindow" title="Spot at focal (only reflected rays. Zoom)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1" weight="optics_efficiency">
+            <variable name="final_posX" nbins="100" range="(-20,20)"/>
+            <variable name="final_posY" nbins="100" range="(-20,20)"/>
+			<cut variable="optics_efficiency" condition="<1" value="ON"/>
+        </plot>
+        <plot name="SolarDiskWindow" title="Solar Disk (window_transmission weighted)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1" weight="window_transmission">
+            <variable name="initial_posX" nbins="100"/>
+            <variable name="initial_posY" nbins="100"/>
+        </plot>
+        <plot name="FocalSpot" title="Spot at focal (all efficiencies)" xlabel="X [mm]" ylabel="Y [mm]" value="ON" stats="OFF" option="colz" marginTop="0.1" weight="optics_efficiency*window_transmission*boreExitGate_transmission*axionPhoton_transmission*axionPhoton_probability">
+            <variable name="final_posX" nbins="100"/>
+            <variable name="final_posY" nbins="100"/>
+            <cut variable="optics_efficiency" condition="&gt;0" value="ON"/>
+        </plot>
+    </TRestAnalysisPlot>
+    <addTask command="restplot-&gt;PlotCombinedCanvas()" value="ON"/>
+</TRestManager>

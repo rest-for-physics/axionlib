@@ -41,7 +41,7 @@ jobs:
       - name: Build and install
         uses: rest-for-physics/framework/.github/actions/build@master
         with:
-          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DREST_WELCOME=ON -DRESTLIB_AXION=ON"
+          cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DREST_WELCOME=ON -DRESTLIB_AXION=ON -DREST_MPFR=ON"
           branch: ${{ env.BRANCH_NAME }}
       - name: Cache framework installation
         id: axionlib-install-cache
@@ -49,6 +49,55 @@ jobs:
         with:
           key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
           path: ${{ env.REST_PATH }}
+
+  macros-health:
+    name: "Macros with clean error output"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ build-axionlib ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Restore cache
+        uses: actions/cache@v3
+        id: axionlib-install-cache
+        with:
+          key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+          path: ${{ env.REST_PATH }}
+      - name: Load restRootMacros in axiolib standalone
+        run: |
+          source ${{ env.REST_PATH }}/thisREST.sh
+          cd pipeline
+          export DISPLAY=localhost:0.0
+          echo "Running validation script"
+          python3 validateMacros.py
+
+  Physics:
+    name: Check physics
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ build-axionlib ]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Restore cache
+      uses: actions/cache@v3
+      id: axionlib-install-cache
+      with:
+        key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+        path: ${{ env.REST_PATH }}
+    - name: Basic physics tests
+      run: |
+        source ${{ env.REST_PATH }}/thisREST.sh
+        cd pipeline/physics/
+        wget https://sultan.unizar.es/axionlib-data/bufferGas/He.abs
+        wget https://sultan.unizar.es/axionlib-data/bufferGas/He.nff
+        wget https://sultan.unizar.es/axionlib-data/bufferGas/Ne.abs
+        wget https://sultan.unizar.es/axionlib-data/bufferGas/Ne.nff
+        wget https://sultan.unizar.es/axionlib-data/bufferGas/bufferGases.rml
+        wget https://sultan.unizar.es/axionlib-data/magneticField/fields.rml
+        wget https://sultan.unizar.es/axionlib-data/magneticField/Bykovskiy_201906.dat
+        restRoot -b -q AxionPhysicsValidation.C
 
   Metadata:
     name: Check metadata
@@ -134,12 +183,13 @@ jobs:
         source ${{ env.REST_PATH }}/thisREST.sh
         export REST_NEVENTS=1000
         export REST_RUN=100
+        cd pipeline/ray-tracing/optics/
         wget https://rest-for-physics.github.io/axionlib-data/optics/xmm.rml
         wget https://rest-for-physics.github.io/axionlib-data/optics/XMM.Wolter
         wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
         wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
         restManager --c opticsBench.rml
-        restRoot ValidateXMM.C'("OpticsBench_Yaw_0.02_Dev_0.005_BabyIAXO_Run00100.root")'
+        restRoot -b -q ValidateXMM.C'("OpticsBench_Yaw_0.05_Dev_0.005_BabyIAXO_Run00100.root")'
     - name: Window transmission
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
@@ -150,4 +200,15 @@ jobs:
         restManager --c shiftedWindow.rml
         restRoot ValidateTransmission.C'("ShiftedVacuumWindow", 0.3, 0.5)'
         restManager --c siWindow.rml
-        restRoot ValidateTransmission.C'("SiWindow.root", 0.9, 1)'
+        restRoot -b -q ValidateTransmission.C'("SiWindow.root", 0.9, 1)'
+    - name: Axion-field integration
+      run: |
+        source ${{ env.REST_PATH }}/thisREST.sh
+        cd pipeline/ray-tracing/axion-field/
+        wget https://rest-for-physics.github.io/axionlib-data/magneticField/fields.rml
+        wget https://rest-for-physics.github.io/axionlib-data/magneticField/Bykovskiy_201906.dat
+        wget https://sultan.unizar.es/axionlib-data/bufferGas/He.abs
+        wget https://sultan.unizar.es/axionlib-data/bufferGas/He.nff
+        wget https://rest-for-physics.github.io/axionlib-data/bufferGas/bufferGases.rml
+        restManager --c photonConversion.rml
+        restRoot -b -q Validate.C

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<TRestManager name="SpecPlot" title="Example" verboseLevel="info">
+    <TRestRun name="DummyRun"/>
+    <TRestAnalysisPlot name="restplot" title="Optics Plots" verboseLevel="warning">
+        <parameter name="previewPlot" value="false"/>
+        <canvas size="(3600,2400)" divide="(3,3)" save="axionFieldPlots.png"/>
+        <plot name="ProbVsB" title="Axion-photon probability versus average field" xlabel="Average magnetic field [T]" ylabel="Axion-photon probability" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="axionPhoton_fieldAverage" nbins="500" range="(0,2.5)"/>
+            <variable name="axionPhoton_probability" nbins="500" range="(1.e-22,2.e-18)"/>
+        </plot>
+        <plot name="ProbVsL" title="Axion-photon probability versus coherence length" xlabel="Coherence length [m]" ylabel="Axion-photon probability" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="axionPhoton_coherenceLength/1000" nbins="100" range="(0,10)"/>
+            <variable name="axionPhoton_probability" nbins="100" range="(1.e-22,2.e-18)"/>
+        </plot>
+        <plot name="BvsL" title="Average field versus coherence length" xlabel="Coherence length [m]" ylabel="Average magnetic field" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="axionPhoton_coherenceLength/1000" nbins="100" range="(0,10)"/>
+            <variable name="axionPhoton_fieldAverage" nbins="100" range="(0,2.5)"/>
+        </plot>
+        <plot name="FieldVsThetaAngleNoCuts" title="Field average versus theta angle" xlabel="Angle [rads]" ylabel="Field average" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="at5m_thetaAngle" nbins="100" range="(0,0.035)"/>
+            <variable name="axionPhoton_fieldAverage" nbins="100" range="(0,2.5)"/>
+        </plot>
+        <plot name="FieldVsThetaAngle" title="Field average versus theta angle (X and Y positive)" xlabel="Angle [rads]" ylabel="Field average" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="at5m_thetaAngle" nbins="100" range="(0,0.035)"/>
+            <variable name="axionPhoton_fieldAverage" nbins="100" range="(0,2.5)"/>
+            <cut variable="at5m_posX" condition="&gt;0" value="ON"/>
+            <cut variable="at5m_posY" condition="&gt;0" value="ON"/>
+        </plot>
+        <plot name="ProbVsEnergy" title="Axion-photon probability versus energy" xlabel="Energy [keV]" ylabel="Axion-photon probability" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="at5m_energy" nbins="100" range="(0,10)"/>
+            <variable name="axionPhoton_probability" nbins="500" range="(1.e-22,2.e-18)"/>
+        </plot>
+        <plot name="FieldVsPhiAngleNoCuts" title="Field average versus phi angle" xlabel="Angle [rads]" ylabel="Field average" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="at5m_phiAngle" nbins="100" range="(-3.14,3.14)"/>
+            <variable name="axionPhoton_fieldAverage" nbins="100" range="(0,2.5)"/>
+        </plot>
+        <plot name="FieldVsPhiAngle" title="Field average versus phi angle (X and Y positive)" xlabel="Angle [rads]" ylabel="Field average" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="at5m_phiAngle" nbins="100" range="(-3.14,3.14)"/>
+            <variable name="axionPhoton_fieldAverage" nbins="100" range="(0,2.5)"/>
+            <cut variable="at5m_posX" condition="&gt;0" value="ON"/>
+            <cut variable="at5m_posY" condition="&gt;0" value="ON"/>
+        </plot>
+        <plot name="PhotonTransmissionsVsEnergy" title="Photon transmission versus energy" xlabel="Energy [keV]" ylabel="Photon transmission" value="ON" stats="OFF" option="colz" marginTop="0.1">
+            <variable name="at5m_energy" nbins="100" range="(0,10)"/>
+            <variable name="axionPhoton_transmission" nbins="100" range="(0,1.1)"/>
+            <cut variable="axionPhoton_coherenceLength" condition="&gt;0" value="ON"/>
+        </plot>
+    </TRestAnalysisPlot>
+    <addTask command="restplot-&gt;PlotCombinedCanvas()" value="ON"/>
+</TRestManager>

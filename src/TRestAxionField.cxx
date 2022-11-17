@@ -21,12 +21,12 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionPhotonConversion is a class used to calculate the axion-photon mixing
+/// TRestAxionField is a class used to calculate the axion-photon mixing
 /// and determine the probability of the particle being in an axion or photon
 /// state.
 ///
 /// A peculiarity from this class is that it encapsulates internally the high
-/// precision calculations using the real precisions types from library mpreal.
+/// precision calculations using the real precisions types using TRestComplex.
 /// It is known that double precision is not good enough in some scenarios.
 ///
 ///--------------------------------------------------------------------------
@@ -35,45 +35,48 @@
 ///
 /// History of developments:
 ///
-/// 2019-March: First concept and implementation of TRestAxionPhotonConversion class.
+/// 2019-March: First concept and implementation of TRestAxionField class.
 ///             Javier Galan
 ///
-/// \class      TRestAxionPhotonConversion
+/// \class      TRestAxionField
 /// \author     Javier Galan
 ///
 /// <hr>
 ///
-#include "TRestAxionPhotonConversion.h"
+#include "TRestAxionField.h"
 #include <TVectorD.h>
-#include "TComplex.h"
 #include "TH1F.h"
 
+#ifdef USE_MPFR
+#include "TRestComplex.h"
+#endif
+
+#include <numeric>
+
 using namespace std;
-using namespace REST_Physics;
 
-// Better we keep specifying  mpfr:: explicitily
-// using mpfr::mpreal;
-
-ClassImp(TRestAxionPhotonConversion);
+ClassImp(TRestAxionField);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestAxionPhotonConversion::TRestAxionPhotonConversion() { Initialize(); }
+TRestAxionField::TRestAxionField() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionPhotonConversion::~TRestAxionPhotonConversion() {}
+TRestAxionField::~TRestAxionField() {}
 
 ///////////////////////////////////////////////
-/// \brief Initialization of TRestAxionPhotonConversion class
+/// \brief Initialization of TRestAxionField class
 ///
 /// It sets the default real precision to be used with mpfr types. Now it is 30 digits.
 /// So that we can still calculate numbers such as : 1.0 - 1.e-30
 ///
-void TRestAxionPhotonConversion::Initialize() {
-    mpfr::mpreal::set_default_prec(mpfr::digits2bits(30));
+void TRestAxionField::Initialize() {
+#ifdef USE_MPFR
+    TRestComplex::SetPrecision(30);
+#endif
 
     fBufferGas = NULL;
 
@@ -88,10 +91,10 @@ void TRestAxionPhotonConversion::Initialize() {
 /// `Lcoh` should be expressed in `mm`, and `Bmag` in `T`.
 /// The result will be given for an axion-photon coupling of 10^{-10} GeV^{-1}
 ///
-double TRestAxionPhotonConversion::BL(Double_t Bmag, Double_t Lcoh) {
+double TRestAxionField::BL(Double_t Bmag, Double_t Lcoh) {
     Double_t lengthInMeters = Lcoh / 1000.;
 
-    Double_t tm = lightSpeed / naturalElectron * 1.0e-9;  // GeV
+    Double_t tm = REST_Physics::lightSpeed / REST_Physics::naturalElectron * 1.0e-9;  // GeV
     Double_t sol = lengthInMeters * Bmag * tm;
     sol = sol * 1.0e-10;
 
@@ -104,11 +107,11 @@ double TRestAxionPhotonConversion::BL(Double_t Bmag, Double_t Lcoh) {
 /// `Lcoh` should be expressed in `mm`, and `Bmag` in `T`.
 /// The result will be given for an axion-photon coupling of 10^{-10} GeV^{-1}
 ///
-double TRestAxionPhotonConversion::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**2
+double TRestAxionField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**2
 {
     Double_t lengthInMeters = Lcoh / 1000.;
 
-    Double_t tm = lightSpeed / naturalElectron * 1.0e-9;  // gev
+    Double_t tm = REST_Physics::lightSpeed / REST_Physics::naturalElectron * 1.0e-9;  // gev
     Double_t sol = lengthInMeters * Bmag * tm / 2;
     sol = sol * sol * 1.0e-20;
 
@@ -119,8 +122,9 @@ double TRestAxionPhotonConversion::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  
 /// \brief Performs the calculation of axion-photon conversion probability using directly
 /// equation (11) from van Bibber, Phys Rev D Part Fields. 1989.
 ///
-/// m_gamma will be obtainned from buffer gas definition. If no buffer gas has been assigned the medium
-/// will be assumed to be vacuum.
+/// If m_gamma (mg) is not given as an argument, i.e. it is equal to zero, then m_gamma
+/// will be obtainned from the buffer gas definition. If no buffer gas has been assigned
+/// then the medium will be assumed to be vacuum.
 ///
 /// Ea in keV, ma in eV, mgamma in eV, Lcoh in mm, Bmag in T
 ///
@@ -128,9 +132,15 @@ double TRestAxionPhotonConversion::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea,
-                                                                  Double_t ma, Double_t mg,
-                                                                  Double_t absLength) {
+Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+                                                       Double_t mg, Double_t absLength) {
+#ifndef USE_MPFR
+    RESTWarning
+        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
+        << RESTendl;
+    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
+    return 0;
+#else
     mpfr::mpreal axionMass = ma;
     mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
 
@@ -139,7 +149,7 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Bmag,
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
 
     RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
-    RESTDebug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary" << RESTendl;
+    RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << RESTendl;
     RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
     RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
     RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
@@ -150,7 +160,7 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Bmag,
     if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(Bmag, Lcoh);
 
     mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
-    mpfr::mpreal l = cohLength * PhMeterIneV;
+    mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
     mpfr::mpreal phi = q * l;
 
     mpfr::mpreal Gamma = absLength;
@@ -184,6 +194,125 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Bmag,
     RESTDebug << "Axion-photon transmission probability : " << sol << RESTendl;
 
     return sol;
+#endif
+}
+
+///////////////////////////////////////////////
+/// \brief Performs the calculation of axion-photon conversion probability using directly
+/// equation (28) from J. Redondo and A. Ringwald, Light shinning through walls.
+/// https://arxiv.org/pdf/1011.3741.pdf
+///
+/// If m_gamma (mg) is not given as an argument, i.e. it is equal to zero, then m_gamma
+/// will be obtainned from the buffer gas definition. If no buffer gas has been assigned
+/// then the medium will be assumed to be vacuum.
+///
+/// Ea in keV, ma in eV, mgamma in eV, deltaL in mm, Bmag in T
+///
+/// mg in eV, absLength in cm-1
+///
+/// The returned value is given for g_ag = 10^-10 GeV-1
+///
+/// \note The density is for the moment homogeneous. We would need to implemnent a double integral
+/// to solve the problem with a density profile. TOBE implemented in a new method if needed, where
+/// Gamma is not constant and \integral{q(z)} is integrated at each step.
+///
+Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL,
+                                                       Double_t Ea, Double_t ma, Double_t mg,
+                                                       Double_t absLength) {
+#ifndef USE_MPFR
+    RESTWarning
+        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
+        << RESTendl;
+    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
+    return 0;
+#else
+    mpfr::mpreal axionMass = ma;
+
+    // Default REST units are mm. We express cohLength in m.
+    Double_t Lcoh = (Bmag.size() - 1) * deltaL;  // in mm
+    Double_t cohLength = Lcoh / 1000.;           // in m
+
+    mpfr::mpreal photonMass = mg;
+
+    if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
+
+    Double_t fieldAverage = 0;
+    if (Bmag.size() > 0) fieldAverage = std::accumulate(Bmag.begin(), Bmag.end(), 0.0) / Bmag.size();
+
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+    RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << RESTendl;
+    RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
+    RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
+    RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
+    RESTDebug << " Lcoh : " << cohLength << " mm" << RESTendl;
+    RESTDebug << " Bmag average : " << fieldAverage << " T" << RESTendl;
+    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+
+    // In vacuum
+    if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(fieldAverage, Lcoh);
+
+    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
+    mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
+    mpfr::mpreal phi = q * l;
+
+    mpfr::mpreal Gamma = absLength;
+    if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
+    mpfr::mpreal GammaL = Gamma * cohLength * 100;
+
+    if (fDebug) {
+        RESTDebug << "+------------------------+" << RESTendl;
+        RESTDebug << " Intermediate calculations" << RESTendl;
+        RESTDebug << " q : " << q << " eV" << RESTendl;
+        RESTDebug << " l : " << l << " eV-1" << RESTendl;
+        RESTDebug << " phi : " << phi << RESTendl;
+        RESTDebug << "Gamma : " << Gamma << RESTendl;
+        RESTDebug << "GammaL : " << GammaL << RESTendl;
+        RESTDebug << "+------------------------+" << RESTendl;
+    }
+
+    mpfr::mpreal MFactor = phi * phi + GammaL * GammaL / 4.0;
+    MFactor = 1.0 / MFactor;
+
+    if (fDebug) {
+        RESTDebug << "Mfactor : " << MFactor << RESTendl;
+        RESTDebug << "(BL/2)^2 : " << BLHalfSquared(fieldAverage, Lcoh) << RESTendl;
+        RESTDebug << "cos(phi) : " << cos(phi) << RESTendl;
+        RESTDebug << "Exp(-GammaL) : " << exp(-GammaL) << RESTendl;
+    }
+
+    Double_t deltaIneV = deltaL / 1000. * REST_Physics::PhMeterIneV;
+
+    /// We integrate following the Midpoint rule method. (Other potential options : Trapezoidal, Simpsons)
+    TRestComplex sum(0, 0);
+    for (unsigned int n = 0; n < Bmag.size() - 1; n++) {
+        Double_t Bmiddle = 0.5 * (Bmag[n] + Bmag[n + 1]);
+
+        Double_t lStepIneV = ((double)n + 0.5) * deltaIneV;
+        Double_t lStepInCm = ((double)n + 0.5) * deltaL / 10.;
+
+        TRestComplex qC(0, -q * lStepIneV);
+        qC = TRestComplex::Exp(qC);
+
+        TRestComplex gC(0.5 * Gamma * lStepInCm, 0);
+        gC = TRestComplex::Exp(gC);
+
+        TRestComplex integrand = Bmiddle * deltaL * gC * qC;  // The integrand is in T by mm
+
+        sum += integrand;
+    }
+
+    mpfr::mpreal sol = exp(-GammaL) * sum.Rho2() * BLHalfSquared(1, 1);
+    // Now T and mm have been recalculated in natural units using BLHalfSquared(1,1).
+
+    /*
+    double sol =
+    (double)(MFactor * BLHalfSquared(Bmag, Lcoh) * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
+            */
+
+    RESTDebug << "Axion-photon transmission probability : " << sol << RESTendl;
+
+    return (Double_t)sol;
+#endif
 }
 
 ///////////////////////////////////////////////
@@ -199,9 +328,15 @@ Double_t TRestAxionPhotonConversion::GammaTransmissionProbability(Double_t Bmag,
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-Double_t TRestAxionPhotonConversion::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea,
-                                                                Double_t ma, Double_t mg,
-                                                                Double_t absLength) {
+Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+                                                     Double_t mg, Double_t absLength) {
+#ifndef USE_MPFR
+    RESTWarning
+        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFr=ON to your REST compilation"
+        << RESTendl;
+    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
+    return 0;
+#else
     mpfr::mpreal axionMass = ma;
     mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
 
@@ -211,8 +346,7 @@ Double_t TRestAxionPhotonConversion::AxionAbsorptionProbability(Double_t Bmag, D
     if (fDebug) {
         RESTDebug << "+--------------------------------------------------------------------------+"
                   << RESTendl;
-        RESTDebug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary"
-                  << RESTendl;
+        RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << RESTendl;
         RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
         RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
         RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
@@ -225,7 +359,7 @@ Double_t TRestAxionPhotonConversion::AxionAbsorptionProbability(Double_t Bmag, D
     if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(Bmag, Lcoh);
 
     mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
-    mpfr::mpreal l = cohLength * PhMeterIneV;
+    mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
     mpfr::mpreal phi = q * l;
 
     mpfr::mpreal Gamma = absLength;
@@ -258,11 +392,12 @@ Double_t TRestAxionPhotonConversion::AxionAbsorptionProbability(Double_t Bmag, D
     if (fDebug) RESTDebug << "Axion-photon absorption probability : " << sol << RESTendl;
 
     return sol;
+#endif
 }
 
 /// Commented because it uses ComplexReal structure that is moved to TRestAxionFieldPropagationProcess class
 /*
-void TRestAxionPhotonConversion::PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+void TRestAxionField::PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                                 Double_t mg, Double_t absLength) {
     mpfr::mpreal axionMass = ma;
     mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
@@ -272,7 +407,7 @@ void TRestAxionPhotonConversion::PropagateAxion(Double_t Bmag, Double_t Lcoh, Do
 
     if (fDebug) {
         RESTDebug << "+--------------------------------------------------------------------------+" <<
-RESTendl; RESTDebug << " TRestAxionPhotonConversion::GammaTransmissionProbability. Parameter summary" <<
+RESTendl; RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" <<
 RESTendl; RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl; RESTDebug << " Axion mass : " <<
 ma << " eV" << RESTendl; RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl; RESTDebug << " Lcoh : "
 << Lcoh << " mm" << RESTendl; RESTDebug << " Bmag : " << Bmag << " T" << RESTendl; RESTDebug <<

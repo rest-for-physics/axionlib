@@ -142,8 +142,13 @@ void TRestAxionBufferGas::InitFromConfigFile() {
     auto gasDefinition = GetElement("gas");
     while (gasDefinition) {
         TString gasName = GetFieldValue("name", gasDefinition);
-        Double_t gasDensity = GetDblParameterWithUnits("density", gasDefinition) * units("g/cm3");
-        SetGasDensity(gasName, gasDensity);
+        if (gasName.Contains("+")) {
+            TString gasDensity = GetFieldValue("density", gasDefinition);
+            SetGasMixture(gasName, gasDensity);
+        } else {
+            Double_t gasDensity = GetDblParameterWithUnits("density", gasDefinition);
+            SetGasDensity(gasName, gasDensity);
+        }
         gasDefinition = GetNextElement(gasDefinition);
     }
 
@@ -152,6 +157,8 @@ void TRestAxionBufferGas::InitFromConfigFile() {
 
 ///////////////////////////////////////////////
 /// \brief It adds a new gas component to the mixture. If it already exists it will update its density.
+///
+/// Density must be given in standard REST units: kg/mm^3
 ///
 void TRestAxionBufferGas::SetGasDensity(TString gasName, Double_t density) {
     Int_t gasIndex = FindGasIndex(gasName);
@@ -176,7 +183,7 @@ void TRestAxionBufferGas::SetGasMixture(TString gasMixture, TString gasDensities
     if (names.size() == densities.size()) {
         for (int n = 0; n < names.size(); n++) {
             Double_t density = GetValueInRESTUnits(densities[n]);
-            SetGasDensity(names[n], density * units("g/cm3"));
+            SetGasDensity(names[n], density);
         }
     } else {
         this->SetError("SetGasMixture. Number of gases does not match the densities!");
@@ -340,7 +347,8 @@ Double_t TRestAxionBufferGas::GetFormFactor(TString gasName, Double_t energy) {
 Double_t TRestAxionBufferGas::GetPhotonAbsorptionLength(Double_t energy) {
     Double_t attLength = 0;
     for (unsigned int n = 0; n < fBufferGasName.size(); n++)
-        attLength += fBufferGasDensity[n] * GetAbsorptionCoefficient(fBufferGasName[n], energy);
+        attLength +=
+            fBufferGasDensity[n] * units("g/cm^3") * GetAbsorptionCoefficient(fBufferGasName[n], energy);
 
     return attLength;
 }
@@ -381,7 +389,8 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
             RESTError << "W value must be defined in TRestAxionBufferGas::GetPhotonMass" << RESTendl;
             RESTError << "This gas will not contribute to the calculation of the photon mass!" << RESTendl;
         } else {
-            photonMass += fBufferGasDensity[n] * GetFormFactor(fBufferGasName[n], en) / W_value;
+            photonMass +=
+                fBufferGasDensity[n] * units("g/cm^3") * GetFormFactor(fBufferGasName[n], en) / W_value;
         }
     }
 
@@ -497,11 +506,14 @@ void TRestAxionBufferGas::PrintMetadata() {
     if (fBufferGasName.size() == 0) {
         RESTMetadata << "Buffer medium is vacuum" << RESTendl;
     } else {
-        RESTMetadata << "Buffer gases defined : " << RESTendl;
+        RESTMetadata << "Photon mass at 4keV : " << this->GetPhotonMass(4.) << " eV" << RESTendl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << "Buffer gases inside mixture : " << RESTendl;
         RESTMetadata << "---------------------------" << RESTendl;
         for (unsigned int n = 0; n < fBufferGasName.size(); n++) {
             RESTMetadata << " Gas name : " << fBufferGasName[n] << RESTendl;
-            RESTMetadata << " Gas density : " << fBufferGasDensity[n] << " g/cm3" << RESTendl;
+            RESTMetadata << " Gas density : " << fBufferGasDensity[n] * units("g/cm^3") << " g/cm3"
+                         << RESTendl;
             RESTMetadata << " Form factor energy range : ( " << fFactorEnergy[n][0] << ", "
                          << fFactorEnergy[n].back() << " ) keV" << RESTendl;
             RESTMetadata << " Absorption energy range : ( " << fAbsEnergy[n][0] << ", "

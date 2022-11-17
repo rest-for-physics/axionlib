@@ -128,7 +128,9 @@ class TRestAxionTrueWolterOptics : public TRestAxionOptics {
     }
 
     void SetMirror() override {
-        fCurrentMirror = fEntranceRingsMask->GetRegion(fEntrancePosition.X(), fEntrancePosition.Y());
+        Double_t x = fEntrancePosition.X();
+        Double_t y = fEntrancePosition.Y();
+        fCurrentMirror = fEntranceRingsMask->GetRegion(x, y);
     }
 
     TPad* DrawMirrors() override;

@@ -29,7 +29,8 @@
 /// The following metadata parameters are used to define the mirror
 /// properties:
 /// * **mirrorType**: It defines the mirror type (Single, Thick, Bilayer,
-/// Multilayer). For the moment only `Single` layer type has been implemented.
+/// Multilayer). For the moment only `Single` and `Bilayer` types have
+/// been implemented.
 /// * **layer**: It defines the layer material. Chemical formula.
 /// * **layerThickness**: It defines the layer thickness in nm.
 /// * **substrate**: It defines the substrate material. Chemical formula.
