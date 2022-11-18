@@ -678,6 +678,26 @@ void TRestAxionSolarFlux::IntegrateSolarFluxes() {
     fFluxRatio = fTotalMonochromaticFlux / (fTotalContinuumFlux + fTotalMonochromaticFlux);
 }
 
+Double_t TRestAxionSolarFlux::GetFluxInRange(TVector2 eRange) {
+    if (eRange.X() == -1 && eRange.Y() == -1) {
+        if (GetTotalFlux() == 0) IntegrateSolarFluxes();
+        return GetTotalFlux();
+    }
+
+    Double_t flux = 0;
+    for (const auto& line : fFluxLines)
+        if (line.first > eRange.X() && line.first < eRange.Y()) flux += line.second->Integral();
+
+    fTotalContinuumFlux = 0.0;
+    for (int n = 0; n < fFluxTable.size(); n++) {
+        flux += fFluxTable[n]->Integral(fFluxTable[n]->FindFixBin(eRange.X()),
+                                        fFluxTable[n]->FindFixBin(eRange.Y())) *
+                0.1;  // We integrate in 100eV steps
+    }
+
+    return flux;
+}
+
 ///////////////////////////////////////////////
 /// \brief It returns a random solar radius position and energy according to the
 /// flux distributions defined inside the solar tables loaded in the class

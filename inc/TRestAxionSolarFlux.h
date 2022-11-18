@@ -56,7 +56,7 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// It will be used when loading `.flux` files to define the threshold for peak identification
     Double_t fPeakSigma = 0;  //<
 
-    /// The tabulated solar flux continuum spectra TH1F(100,0,20)keV in cm-2 s-1 keV-1 versus solar radius
+    /// The tabulated solar flux continuum spectra TH1F(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
     std::vector<TH1F*> fFluxTable;  //!
 
     /// The tabulated solar flux in cm-2 s-1 for a number of monochromatic energies versus solar radius
@@ -108,6 +108,9 @@ class TRestAxionSolarFlux : public TRestMetadata {
 
     /// It returns true if monochromatic flux spectra was loaded
     Bool_t isSolarSpectrumLoaded() { return fFluxLines.size() > 0; }
+
+    /// It returns the integrated flux at earth in cm-2 s-1 for the given energy range
+    Double_t GetFluxInRange(TVector2 eRange = TVector2(-1, -1));
 
     /// It returns the total integrated flux at earth in cm-2 s-1
     Double_t GetTotalFlux() { return fTotalContinuumFlux + fTotalMonochromaticFlux; }
