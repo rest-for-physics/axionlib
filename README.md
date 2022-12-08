@@ -1,9 +1,13 @@
-[![DOI](https://zenodo.org/badge/324291710.svg)](http://doi.org/10.5281/zenodo.4528985)
 [![pipeline status](https://gitlab.cern.ch/rest-for-physics/axionlib/badges/master/pipeline.svg)](https://gitlab.cern.ch/rest-for-physics/axionlib/-/commits/master)
 [![website](https://img.shields.io/badge/user-guide-E8B6FF.svg)](https://rest-for-physics.github.io)
 [![api](https://img.shields.io/badge/user-API-FFCA78.svg)](https://sultan.unizar.es/rest/)
 [![forum](https://img.shields.io/badge/user-forum-AAFF90.svg)](https://rest-forum.unizar.es/)
 [![github pipeline](https://github.com/rest-for-physics/axionlib/actions/workflows/validation.yml/badge.svg)](https://github.com/rest-for-physics/axionlib/commits/master)
+
+**Framework DOI:** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7156324.svg)](https://doi.org/10.5281/zenodo.7156324)
+
+**Library DOI:** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7415788.svg)](https://doi.org/10.5281/zenodo.7415788)
+
 
 This is a REST-for-Physics library used to generate solar axions and obtain the detection probability function. The library allows to define a generic helioscope setup - buffer gas, magnetic field, optics response, photon transmission - through dedicated REST-for-Physics metadata definitions found in this library.
 
