@@ -4,17 +4,6 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 include(ExternalProject)
 set(CMAKE_MACOSX_RPATH 1)
 
-## --------------------------------------------------------------------------
-## ---------- ONLY need to change THIS_LIBRARY and LibraryVersion -----------
-## ---------- to adapt this dummy CMakeLists to a new library name.  --------
-## ---------- The version value should be assigned to any metadata ----------
-## ---------- structure inside the Initialize method              -----------
-## ----------
-## ---------- THIS_LIBRARY should contain `Rest` or `REST` in the -----------
-## ---------- name to be recognized by TRestTools::GetListOfRestLibraries. --
-## ---------- You might use any string you like in the version field --------
-## ----------
-set( THIS_LIBRARY "RestAxion" )
 set( LibraryVersion "1.0" )
 add_definitions(-DLIBRARY_VERSION="${LibraryVersion}")
 
