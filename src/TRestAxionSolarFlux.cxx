@@ -681,7 +681,7 @@ void TRestAxionSolarFlux::IntegrateSolarFluxes() {
 ///////////////////////////////////////////////
 /// \brief It returns the integrated flux at earth in cm-2 s-1 for the given energy range
 ///
-Double_t TRestAxionSolarFlux::GetFluxInRange(TVector2 eRange) {
+Double_t TRestAxionSolarFlux::IntegrateFluxInRange(TVector2 eRange) {
     if (eRange.X() == -1 && eRange.Y() == -1) {
         if (GetTotalFlux() == 0) IntegrateSolarFluxes();
         return GetTotalFlux();

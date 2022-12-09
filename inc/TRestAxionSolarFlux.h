@@ -110,7 +110,7 @@ class TRestAxionSolarFlux : public TRestMetadata {
     Bool_t isSolarSpectrumLoaded() { return fFluxLines.size() > 0; }
 
     /// It returns the integrated flux at earth in cm-2 s-1 for the given energy range
-    Double_t GetFluxInRange(TVector2 eRange = TVector2(-1, -1));
+    Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1));
 
     /// It returns the total integrated flux at earth in cm-2 s-1
     Double_t GetTotalFlux() { return fTotalContinuumFlux + fTotalMonochromaticFlux; }
