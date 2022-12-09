@@ -1,26 +1,26 @@
-[![DOI](https://zenodo.org/badge/324291710.svg)](http://doi.org/10.5281/zenodo.4528985)
 [![pipeline status](https://gitlab.cern.ch/rest-for-physics/axionlib/badges/master/pipeline.svg)](https://gitlab.cern.ch/rest-for-physics/axionlib/-/commits/master)
 [![website](https://img.shields.io/badge/user-guide-E8B6FF.svg)](https://rest-for-physics.github.io)
 [![api](https://img.shields.io/badge/user-API-FFCA78.svg)](https://sultan.unizar.es/rest/)
 [![forum](https://img.shields.io/badge/user-forum-AAFF90.svg)](https://rest-forum.unizar.es/)
 [![github pipeline](https://github.com/rest-for-physics/axionlib/actions/workflows/validation.yml/badge.svg)](https://github.com/rest-for-physics/axionlib/commits/master)
 
-This is a REST-for-Physics library used to generate solar axions and obtain the detection probability function. The library allows to define a generic helioscope setup - buffer gas, magnetic field, optics response, photon transmission - through REST metadata structures.
+**Framework DOI:** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7156324.svg)](https://doi.org/10.5281/zenodo.7156324)
 
-### Retrieving RestAxionLib with sub-modules
+**Library DOI:** [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7415788.svg)](https://doi.org/10.5281/zenodo.7415788)
 
-This library must be installed as a submodule at the main [REST-for-Physics Framework](https://github.com/rest-for-physics/framework/). Follow the README instructions to clone REST from that repository. Once you have a local copy, this module can be retrieved at the framework by executing.
+
+This is a REST-for-Physics library used to generate solar axions and obtain the detection probability function. The library allows to define a generic helioscope setup - buffer gas, magnetic field, optics response, photon transmission - through dedicated REST-for-Physics metadata definitions found in this library.
+
+This library is distributed together with the REST-for-Physics framework as a submodule. In order to use it within the framework it is necessary to pull the library submodule. The main user website guide, at the [downloads page](https://rest-for-physics.github.io/downloading.html), will provide accurate instructions on how to download the axionlib and other modules. In short, the following recipe should pull the latest official version:
 
 ```
-python3 pull-submodules.py --lfna
+cd rest-framework
+python3 pull-submodules.py --onlylibs
 ```
-
-Be aware that this is a private repository, and you may need to request access and add your public ssh key to your GutLab LFNA account.
 
 ### Prerequisites
 
-As any REST library, RestAxionLib requires a running installion of REST-for-Physics Framework. But on top of that, some calculations require higher precision arithmetics and we need to use a external library named `mpfr`. 
-We use a c++ wrapper that is available at the [following site](http://www.holoborodko.com/pavel/mpfr/#intro). This wrapper (mpreal.h) is already available/uploaded to this repository.
+As any REST library, this library requires a running installion of REST-for-Physics Framework. But on top of that, some calculations require higher precision arithmetics and we need to use a external library named `mpfr`.  We use a c++ wrapper that is available at the [following site](http://www.holoborodko.com/pavel/mpfr/#intro). This wrapper (mpreal.h) is already available/uploaded to this repository.
 
 All you need to be able to compile RestAxionLib is to install the [mpfr](https://www.mpfr.org) and [mpir](http://mpir.org) libraries. Download the source, compile, and install. 
 Usually as simple as running `./configure`, `make` and `make install` at the downloaded source directory.
@@ -57,9 +57,11 @@ Once you have all the prerequisites installed you need to add the library at the
 
 ```
 cd framework/build
-cmake -DRESTLIB_AXION=ON ../
+cmake -DRESTLIB_AXION=ON -DREST_MPFR=ON ../
 make -j4 install
 ```
+
+It is necessary to enable the `REST_MPFR` cmake option in order to benefit from the MPFR routines integration. If not, classes that use MPFR will not be compiled. `REST_MPFR` might be optionally disabled in case MPFR libraries are not available. However, this will lead to a non-complete installation of axionlib.
 
 ### Publications
 
