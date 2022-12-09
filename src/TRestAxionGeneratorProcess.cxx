@@ -143,7 +143,11 @@ void TRestAxionGeneratorProcess::InitProcess() {
         if (!this->GetError()) this->SetError("The solar flux definition was not found.");
     }
 
-    if (fAxionFlux) fAxionFlux->LoadTables();
+    if (fAxionFlux) {
+        fAxionFlux->LoadTables();
+
+        fTotalFlux = fAxionFlux->IntegrateFluxInRange(fEnergyRange);
+    }
 
     if (!fRandom) {
         delete fRandom;
@@ -227,6 +231,9 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     return fOutputAxionEvent;
 }
 
+///////////////////////////////////////////////
+/// \brief Prints out relevant metadata members
+///
 void TRestAxionGeneratorProcess::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
@@ -235,6 +242,7 @@ void TRestAxionGeneratorProcess::PrintMetadata() {
     RESTMetadata << "Target radius: " << fTargetRadius * units("cm") << " cm" << RESTendl;
     RESTMetadata << "Random seed: " << (UInt_t)fSeed << RESTendl;
     RESTMetadata << "Energy range: (" << fEnergyRange.X() << ", " << fEnergyRange.Y() << ") keV" << RESTendl;
+    RESTMetadata << "Total flux: " << fTotalFlux << " cm-2 s-1" << RESTendl;
 
     RESTMetadata << "+++++++++++++++++++++++++++++++++++++++++++++++++" << RESTendl;
 }

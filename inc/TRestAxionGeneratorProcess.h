@@ -60,6 +60,9 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     /// It defines the energy range for the axion event generator. Default between 50eV and 10keV.
     TVector2 fEnergyRange = TVector2(0.05, 10);  //<
 
+    /// Absolute solar flux (cm-2 s-1). Required for future calculations.
+    Double_t fTotalFlux = 0;  //<
+
     void Initialize() override;
 
     void LoadDefaultConfig();
@@ -86,6 +89,6 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     // Destructor
     ~TRestAxionGeneratorProcess();
 
-    ClassDefOverride(TRestAxionGeneratorProcess, 1);
+    ClassDefOverride(TRestAxionGeneratorProcess, 2);
 };
 #endif
