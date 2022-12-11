@@ -45,13 +45,8 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     /// Internal process random generator
     TRandom3* fRandom = nullptr;  //!
 
-    /// The axion mass random distribution exponential factor
-    Double_t fAxionMassRandomFactor = 1;  //!
-
     /// The axion mass range in keV
-    TVector2 fAxionMassRange = (1.e-6, 1e-2);  //<
-
-    /// The axion mass exponential distribution constant
+    TVector2 fAxionMassRange = TVector2(1.e-6, 1e-2);  //<
 
     /// The target size in mm (or generator source extension) for the generator.
     Double_t fTargetRadius = 800;  //<

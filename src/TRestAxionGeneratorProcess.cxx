@@ -143,8 +143,6 @@ void TRestAxionGeneratorProcess::InitProcess() {
         if (!this->GetError()) this->SetError("The solar flux definition was not found.");
     }
 
-    fAxionMassRandomFactor = 1. / TMath : Log(10.) / units("eV");
-
     if (fAxionFlux) {
         fAxionFlux->LoadTables();
 
@@ -221,10 +219,7 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
 
     axionPosition = axionPosition + TVector3(fTargetRadius * x, fTargetRadius * y, 0);
 
-    Double_t mass = -1;
-    while (mass < fAxionMass.X() || mass > fAxionMass.Y()) {
-        mass = fRandom->Exp(fAxionMassRandomFactor);
-    }
+    Double_t mass = fRandom->Uniform(fAxionMassRange.X(), fAxionMassRange.Y());
 
     fOutputAxionEvent->SetEnergy(energy);
     fOutputAxionEvent->SetPosition(axionPosition);
