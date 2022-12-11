@@ -123,6 +123,7 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     RESTDebug << "TRestAxionAnalysisProcess::ProcessEvent : " << fAxionEvent->GetID() << RESTendl;
 
     SetObservableValue("energy", fAxionEvent->GetEnergy());
+    SetObservableValue("mass", fAxionEvent->GetMass());
 
     Double_t x = fAxionEvent->GetPosition().X();
     Double_t y = fAxionEvent->GetPosition().Y();
