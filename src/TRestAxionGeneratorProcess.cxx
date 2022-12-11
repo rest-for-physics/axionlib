@@ -143,6 +143,8 @@ void TRestAxionGeneratorProcess::InitProcess() {
         if (!this->GetError()) this->SetError("The solar flux definition was not found.");
     }
 
+    fAxionMassRandomFactor = 1. / TMath : Log(10.) / units("eV");
+
     if (fAxionFlux) {
         fAxionFlux->LoadTables();
 
@@ -218,12 +220,16 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     r = TMath::Sqrt(r);
 
     axionPosition = axionPosition + TVector3(fTargetRadius * x, fTargetRadius * y, 0);
-    /// ///
+
+    Double_t mass = -1;
+    while (mass < fAxionMass.X() || mass > fAxionMass.Y()) {
+        mass = fRandom->Exp(fAxionMassRandomFactor);
+    }
 
     fOutputAxionEvent->SetEnergy(energy);
     fOutputAxionEvent->SetPosition(axionPosition);
     fOutputAxionEvent->SetDirection(axionDirection);
-    fOutputAxionEvent->SetMass(fAxionMass);
+    fOutputAxionEvent->SetMass(mass);
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug)
         fOutputAxionEvent->PrintEvent();
@@ -238,7 +244,8 @@ void TRestAxionGeneratorProcess::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     RESTMetadata << "Generator type: " << fGeneratorType << RESTendl;
-    RESTMetadata << "Axion mass: " << fAxionMass * units("eV") << " eV" << RESTendl;
+    RESTMetadata << "Axion mass range: (" << fAxionMassRange.X() * units("eV") << ", "
+                 << fAxionMassRange.Y() * units("eV") << ") eV" << RESTendl;
     RESTMetadata << "Target radius: " << fTargetRadius * units("cm") << " cm" << RESTendl;
     RESTMetadata << "Random seed: " << (UInt_t)fSeed << RESTendl;
     RESTMetadata << "Energy range: (" << fEnergyRange.X() << ", " << fEnergyRange.Y() << ") keV" << RESTendl;
