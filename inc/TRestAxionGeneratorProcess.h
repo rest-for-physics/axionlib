@@ -68,26 +68,19 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     void LoadDefaultConfig();
 
    public:
-    void InitProcess() override;
-
     RESTValue GetInputEvent() const override { return nullptr; }
     RESTValue GetOutputEvent() const override { return fOutputAxionEvent; }
 
+    void InitProcess() override;
     TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
-
-    void LoadConfig(std::string cfgFilename, std::string name = "");
 
     void PrintMetadata() override;
 
     /// Returns the name of this process
     const char* GetProcessName() const override { return "axionGenerator"; }
 
-    // Constructor
-    TRestAxionGeneratorProcess();
-    TRestAxionGeneratorProcess(char* cfgFileName);
-
-    // Destructor
-    ~TRestAxionGeneratorProcess();
+    TRestAxionGeneratorProcess();   // Constructor
+    ~TRestAxionGeneratorProcess();  // Destructor
 
     ClassDefOverride(TRestAxionGeneratorProcess, 3);
 };

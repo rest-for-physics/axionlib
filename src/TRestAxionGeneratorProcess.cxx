@@ -74,48 +74,9 @@ ClassImp(TRestAxionGeneratorProcess);
 TRestAxionGeneratorProcess::TRestAxionGeneratorProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
-/// \brief Constructor loading data from a config file
-///
-/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
-/// the path to the config file must be specified using full path, absolute or relative.
-///
-/// The default behaviour is that the config file must be specified with
-/// full path, absolute or relative.
-///
-/// \param cfgFileName A const char* giving the path to an RML file.
-///
-TRestAxionGeneratorProcess::TRestAxionGeneratorProcess(char* cfgFileName) {
-    Initialize();
-
-    LoadConfig(cfgFileName);
-}
-
-///////////////////////////////////////////////
 /// \brief Default destructor
 ///
 TRestAxionGeneratorProcess::~TRestAxionGeneratorProcess() { delete fOutputAxionEvent; }
-
-///////////////////////////////////////////////
-/// \brief Function to load the default config in absence of RML input
-///
-void TRestAxionGeneratorProcess::LoadDefaultConfig() {
-    SetName("axionGenerator-Default");
-    SetTitle("Default config");
-}
-
-///////////////////////////////////////////////
-/// \brief Function to load the configuration from an external configuration file.
-///
-/// If no configuration path is defined in TRestMetadata::SetConfigFilePath
-/// the path to the config file must be specified using full path, absolute or relative.
-///
-/// \param cfgFileName A const char* giving the path to an RML file.
-/// \param name The name of the specific metadata. It will be used to find the
-/// correspondig TRestGeant4AnalysisProcess section inside the RML.
-///
-void TRestAxionGeneratorProcess::LoadConfig(std::string cfgFilename, std::string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
-}
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define the section name
