@@ -82,6 +82,6 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     TRestAxionGeneratorProcess();   // Constructor
     ~TRestAxionGeneratorProcess();  // Destructor
 
-    ClassDefOverride(TRestAxionGeneratorProcess, 3);
+    ClassDefOverride(TRestAxionGeneratorProcess, 4);
 };
 #endif
