@@ -572,7 +572,7 @@ TH1F* TRestAxionSolarFlux::GetFluxHistogram(string fname, Double_t binSize) {
     TRestTools::ReadASCIITable(fullPathName, fluxData, 3);
 
     TH2F* originalHist =
-        new TH2F(Form("FluxTable", GetName()), "", 100, 0., 1., (Int_t)(20. / binSize), 0., 20.);
+        new TH2F(Form("FluxTable_%s", GetName()), "", 100, 0., 1., (Int_t)(20. / binSize), 0., 20.);
 
     for (const auto& data : fluxData) {
         Double_t r = 0.005 + data[0];
