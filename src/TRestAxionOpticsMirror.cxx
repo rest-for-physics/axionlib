@@ -322,8 +322,9 @@ Int_t TRestAxionOpticsMirror::ExportTables() {
     string path = REST_USER_PATH + "/export/";
 
     if (!TRestTools::fileExists(path)) {
-        cout << "Creating path: " << path << endl;
-        system(("mkdir -p " + path).c_str());
+        std::cout << "Creating path: " << path << std::endl;
+        int z = system(("mkdir -p " + path).c_str());
+        if (z != 0) RESTError << "Problem creating directory: " << path << RESTendl;
     }
 
     string fnameR = GetReflectivityFilename();
