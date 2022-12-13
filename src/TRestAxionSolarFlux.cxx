@@ -815,8 +815,9 @@ void TRestAxionSolarFlux::ExportTables(Bool_t ascii) {
     string path = REST_USER_PATH + "/export/";
 
     if (!TRestTools::fileExists(path)) {
-        cout << "Creating path: " << path << endl;
-        system(("mkdir -p " + path).c_str());
+        std::cout << "Creating path: " << path << std::endl;
+        int z = system(("mkdir -p " + path).c_str());
+        if (z == 0) RESTError << "Could not create directory " << path << RESTendl;
     }
 
     if (fFluxTable.size() > 0) {
