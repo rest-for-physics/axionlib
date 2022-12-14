@@ -335,7 +335,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 
     if (volIndex < 0) volIndex = 0;
 
-    if (volIndex >= GetNumberOfVolumes()) {
+    if ((unsigned int)volIndex >= GetNumberOfVolumes()) {
         RESTError << volIndex << " corresponds to none volume index " << RESTendl;
         RESTError << "Total number of volumes : " << GetNumberOfVolumes() << RESTendl;
         RESTError << "Setting volIndex to the first volume" << RESTendl;
@@ -378,8 +378,8 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
     Int_t nBinsY = (yMax - yMin) / step_y;
     Int_t nBinsZ = (zMax - zMin) / step_z;
 
-    Double_t x, y, z;
-    Double_t B;
+    Double_t x = -1, y = -1, z = -1;
+    Double_t B = 0;
     TVector3 Bvec;
 
     if (projection == "XY") {
@@ -705,13 +705,14 @@ TCanvas* TRestAxionMagneticField::DrawTracks(TVector3 vanishingPoint, Int_t divi
 void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
                                                     std::vector<std::vector<Float_t>> data) {
     mVol.field.resize(mVol.mesh.GetNodesX());
-    for (int n = 0; n < mVol.field.size(); n++) {
+    for (unsigned int n = 0; n < mVol.field.size(); n++) {
         mVol.field[n].resize(mVol.mesh.GetNodesY());
-        for (int m = 0; m < mVol.field[n].size(); m++) mVol.field[n][m].resize(mVol.mesh.GetNodesZ());
+        for (unsigned int m = 0; m < mVol.field[n].size(); m++)
+            mVol.field[n][m].resize(mVol.mesh.GetNodesZ());
     }
 
     RESTDebug << "TRestAxionMagneticField::LoadMagneticFieldData. Printing first 5 data rows" << RESTendl;
-    for (Int_t n = 0; n < data.size(); n++) {
+    for (unsigned int n = 0; n < data.size(); n++) {
         // The magnetic field map is centered at zero.
         // But the mesh definition contains the offset position
         // We shift the data to match the mesh node network.
@@ -1065,7 +1066,7 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos, Bool_t showWarn
 Int_t TRestAxionMagneticField::GetVolumeIndex(TVector3 pos) {
     if (!FieldLoaded()) LoadMagneticVolumes();
 
-    for (int n = 0; n < fMagneticFieldVolumes.size(); n++) {
+    for (unsigned int n = 0; n < fMagneticFieldVolumes.size(); n++) {
         if (fMagneticFieldVolumes[n].mesh.IsInside(pos)) return n;
     }
     return -1;
@@ -1088,7 +1089,7 @@ TVector3 TRestAxionMagneticField::GetVolumeCenter(Int_t id) { return GetVolumePo
 /// \brief it returns the volume position (or center) for the given volume `id`.
 ///
 TVector3 TRestAxionMagneticField::GetVolumePosition(Int_t id) {
-    if (GetNumberOfVolumes() > id)
+    if (id >= 0 && GetNumberOfVolumes() > (unsigned int)id)
         return fPositions[id];
     else {
         RESTWarning << "TRestAxionMagneticField::GetVolumePosition. Id : " << id << " out of range!"
@@ -1235,8 +1236,8 @@ TVector3 TRestAxionMagneticField::GetMagneticVolumeNode(MagneticFieldVolume mVol
 ///
 Bool_t TRestAxionMagneticField::CheckOverlaps() {
     RESTDebug << "Checking overlaps" << RESTendl;
-    for (int n = 0; n < GetNumberOfVolumes(); n++) {
-        for (int m = 0; m < GetNumberOfVolumes(); m++) {
+    for (unsigned int n = 0; n < GetNumberOfVolumes(); n++) {
+        for (unsigned int m = 0; m < GetNumberOfVolumes(); m++) {
             if (m == n) continue;
             RESTDebug << "Volume : " << m << RESTendl;
 
@@ -1401,7 +1402,7 @@ void TRestAxionMagneticField::PrintMetadata() {
 
     RESTMetadata << " - Number of magnetic volumes : " << GetNumberOfVolumes() << RESTendl;
     RESTMetadata << " ------------------------------------------------ " << RESTendl;
-    for (int p = 0; p < GetNumberOfVolumes(); p++) {
+    for (unsigned int p = 0; p < GetNumberOfVolumes(); p++) {
         if (p > 0) RESTMetadata << " ------------------------------------------------ " << RESTendl;
 
         Double_t centerX = fPositions[p][0];

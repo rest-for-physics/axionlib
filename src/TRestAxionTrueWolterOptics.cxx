@@ -261,20 +261,20 @@ Int_t TRestAxionTrueWolterOptics::FirstMirrorReflection(const TVector3& pos, con
         return -1;
     }
 
-    if (mirror >= fFrontVertex.size()) {
-        RESTError << "TRestAxionTrueWolterOptics::FirstMirrorReflection. Mirror index above number of mirrors!"
-                  << RESTendl;
+    if (mirror >= 0 && (unsigned int)mirror >= fFrontVertex.size()) {
+        RESTError
+            << "TRestAxionTrueWolterOptics::FirstMirrorReflection. Mirror index above number of mirrors!"
+            << RESTendl;
         return -1;
     }
 
     RESTDebug << "Vertex Z: " << fFrontVertex[mirror] << RESTendl;
     RESTDebug << "Cos Alpha: " << fCosAlpha[mirror] << RESTendl;
     TVector3 vertex(0, 0, fFrontVertex[mirror]);
-    Double_t cosA = fCosAlpha[mirror];
 
     //// Reflection on first mirror
-    fFirstInteractionPosition =
-        REST_Physics::GetParabolicVectorIntersection(pos, dir, fAlpha[mirror], fR3[mirror], fMirrorLength); //should add this: TVector3(0, 0, -1), vertex
+    fFirstInteractionPosition = REST_Physics::GetParabolicVectorIntersection(
+        pos, dir, fAlpha[mirror], fR3[mirror], fMirrorLength);  // should add this: TVector3(0, 0, -1), vertex
 
     if (fFirstInteractionPosition.Z() < GetEntrancePositionZ() || fFirstInteractionPosition.Z() > 0) {
         RESTDebug << "TRestAxionTrueWolterOptics::FirstMirrorReflection. No interaction!" << RESTendl;
@@ -284,9 +284,10 @@ Int_t TRestAxionTrueWolterOptics::FirstMirrorReflection(const TVector3& pos, con
         return 0;
     }
 
-    TVector3 paraNormal = REST_Physics::GetParabolicNormal(fFirstInteractionPosition, fAlpha[mirror], fR3[mirror]);
-    RESTDebug << "Parabolic normal: (" << paraNormal.X() << ", " << paraNormal.Y() << ", " << paraNormal.Z() << ")"
-              << RESTendl;
+    TVector3 paraNormal =
+        REST_Physics::GetParabolicNormal(fFirstInteractionPosition, fAlpha[mirror], fR3[mirror]);
+    RESTDebug << "Parabolic normal: (" << paraNormal.X() << ", " << paraNormal.Y() << ", " << paraNormal.Z()
+              << ")" << RESTendl;
 
     fMiddleDirection = GetVectorReflection(fEntranceDirection, paraNormal);
 
@@ -308,19 +309,20 @@ Int_t TRestAxionTrueWolterOptics::SecondMirrorReflection(const TVector3& pos, co
         return 0;
     }
 
-    if (mirror >= fFrontVertex.size()) {
-        RESTError << "TRestAxionTrueWolterOptics::FirstMirrorReflection. Mirror index above number of mirrors!"
-                  << RESTendl;
+    if (mirror >= 0 && (unsigned int)mirror >= fFrontVertex.size()) {
+        RESTError
+            << "TRestAxionTrueWolterOptics::FirstMirrorReflection. Mirror index above number of mirrors!"
+            << RESTendl;
         return 0;
     }
 
     TVector3 vertex(0, 0, fBackVertex[mirror]);
-    Double_t cosA = fCosAlpha_3[mirror];
     Double_t focal = fR3[mirror] / TMath::Tan(4 * fAlpha[mirror]);
 
     //// Reflection on first mirror
     fSecondInteractionPosition =
-        REST_Physics::GetHyperbolicVectorIntersection(pos, dir, fAlpha[mirror], fR3[mirror], fMirrorLength, focal); //should add this: TVector3(0, 0, -1), vertex,
+        REST_Physics::GetHyperbolicVectorIntersection(pos, dir, fAlpha[mirror], fR3[mirror], fMirrorLength,
+                                                      focal);  // should add this: TVector3(0, 0, -1), vertex,
 
     if (fSecondInteractionPosition.Z() > GetExitPositionZ() || fSecondInteractionPosition.Z() < 0) {
         RESTDebug << "TRestAxionTrueWolterOptics::SecondMirrorReflection. No interaction!" << RESTendl;
@@ -330,7 +332,8 @@ Int_t TRestAxionTrueWolterOptics::SecondMirrorReflection(const TVector3& pos, co
         return 0;
     }
 
-    TVector3 hyperNormal = REST_Physics::GetHyperbolicNormal(fSecondInteractionPosition, fAlpha[mirror], fR3[mirror], focal);
+    TVector3 hyperNormal =
+        REST_Physics::GetHyperbolicNormal(fSecondInteractionPosition, fAlpha[mirror], fR3[mirror], focal);
 
     fExitDirection = GetVectorReflection(fMiddleDirection, hyperNormal);
 

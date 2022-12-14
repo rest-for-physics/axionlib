@@ -313,9 +313,9 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
         RESTError << "Table will not be populated" << RESTendl;
     }
 
-    for (int n = 0; n < fluxTable.size(); n++) {
+    for (unsigned int n = 0; n < fluxTable.size(); n++) {
         TH1F* h = new TH1F(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), "", 200, 0, 20);
-        for (int m = 0; m < fluxTable[n].size(); m++) h->SetBinContent(m + 1, fluxTable[n][m]);
+        for (unsigned int m = 0; m < fluxTable[n].size(); m++) h->SetBinContent(m + 1, fluxTable[n][m]);
         fFluxTable.push_back(h);
     }
 }
@@ -355,10 +355,10 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
         return;
     }
 
-    for (int en = 0; en < asciiTable[0].size(); en++) {
+    for (unsigned int en = 0; en < asciiTable[0].size(); en++) {
         Float_t energy = asciiTable[0][en];
         TH1F* h = new TH1F(Form("%s_MonochromeFluxAtEnergy%6.4lf", GetName(), energy), "", 100, 0, 1);
-        for (int r = 1; r < asciiTable.size(); r++) h->SetBinContent(r, asciiTable[r][en]);
+        for (unsigned int r = 1; r < asciiTable.size(); r++) h->SetBinContent(r, asciiTable[r][en]);
         fFluxLines[energy] = h;
     }
 }
@@ -418,7 +418,6 @@ void TRestAxionSolarFlux::ReadFluxFile() {
         for (const auto& data : fluxData) {
             Float_t r = 0.005 + data[0];
             Float_t en = data[1] - 0.005;
-            Float_t flux = data[2];  // flux per cm-2 s-1 keV-1
 
             Int_t binR = continuumHist->GetXaxis()->FindBin(r);
             Int_t binE = continuumHist->GetYaxis()->FindBin(en);
@@ -665,15 +664,17 @@ void TRestAxionSolarFlux::IntegrateSolarFluxes() {
         fFluxLineIntegrals.push_back(fTotalMonochromaticFlux);
     }
 
-    for (int n = 0; n < fFluxLineIntegrals.size(); n++) fFluxLineIntegrals[n] /= fTotalMonochromaticFlux;
+    for (unsigned int n = 0; n < fFluxLineIntegrals.size(); n++)
+        fFluxLineIntegrals[n] /= fTotalMonochromaticFlux;
 
     fTotalContinuumFlux = 0.0;
-    for (int n = 0; n < fFluxTable.size(); n++) {
+    for (unsigned int n = 0; n < fFluxTable.size(); n++) {
         fTotalContinuumFlux += fFluxTable[n]->Integral() * 0.1;  // We integrate in 100eV steps
         fFluxTableIntegrals.push_back(fTotalContinuumFlux);
     }
 
-    for (int n = 0; n < fFluxTableIntegrals.size(); n++) fFluxTableIntegrals[n] /= fTotalContinuumFlux;
+    for (unsigned int n = 0; n < fFluxTableIntegrals.size(); n++)
+        fFluxTableIntegrals[n] /= fTotalContinuumFlux;
 
     fFluxRatio = fTotalMonochromaticFlux / (fTotalContinuumFlux + fTotalMonochromaticFlux);
 }
@@ -692,7 +693,7 @@ Double_t TRestAxionSolarFlux::IntegrateFluxInRange(TVector2 eRange) {
         if (line.first > eRange.X() && line.first < eRange.Y()) flux += line.second->Integral();
 
     fTotalContinuumFlux = 0.0;
-    for (int n = 0; n < fFluxTable.size(); n++) {
+    for (unsigned int n = 0; n < fFluxTable.size(); n++) {
         flux += fFluxTable[n]->Integral(fFluxTable[n]->FindFixBin(eRange.X()),
                                         fFluxTable[n]->FindFixBin(eRange.Y())) *
                 0.1;  // We integrate in 100eV steps
@@ -711,7 +712,7 @@ std::pair<Double_t, Double_t> TRestAxionSolarFlux::GetRandomEnergyAndRadius(TVec
     Double_t rnd = fRandom->Rndm();
     if (fTotalMonochromaticFlux == 0 || fRandom->Rndm() > fFluxRatio) {
         // Continuum
-        for (int r = 0; r < fFluxTableIntegrals.size(); r++) {
+        for (unsigned int r = 0; r < fFluxTableIntegrals.size(); r++) {
             if (rnd < fFluxTableIntegrals[r]) {
                 Double_t energy = fFluxTable[r]->GetRandom();
                 if (eRange.X() != -1 && eRange.Y() != -1) {
@@ -742,7 +743,7 @@ std::pair<Double_t, Double_t> TRestAxionSolarFlux::GetRandomEnergyAndRadius(TVec
 void TRestAxionSolarFlux::PrintContinuumSolarTable() {
     cout << "Continuum solar flux table: " << endl;
     cout << "--------------------------- " << endl;
-    for (int n = 0; n < fFluxTable.size(); n++) {
+    for (unsigned int n = 0; n < fFluxTable.size(); n++) {
         for (int m = 0; m < fFluxTable[n]->GetNbinsX(); m++)
             cout << fFluxTable[n]->GetBinContent(m + 1) << "\t";
         cout << endl;

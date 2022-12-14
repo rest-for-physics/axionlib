@@ -571,7 +571,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
 
     std::vector<TGraph*> ref_vs_ang_graph;
 
-    for (int n = 0; n < energies.size(); n++) {
+    for (unsigned int n = 0; n < energies.size(); n++) {
         string grname = "gr" + IntegerToString(n);
         TGraph* gr = new TGraph();
         gr->SetName(grname.c_str());
@@ -596,7 +596,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
     ref_vs_ang_graph[0]->GetYaxis()->SetLabelSize(0.05);
     pad1->cd(1)->SetLogy();
     ref_vs_ang_graph[0]->Draw("AL");
-    for (int n = 1; n < energies.size(); n++) ref_vs_ang_graph[n]->Draw("L");
+    for (unsigned int n = 1; n < energies.size(); n++) ref_vs_ang_graph[n]->Draw("L");
 
     Double_t lx1 = 0.6, ly1 = 0.75, lx2 = 0.9, ly2 = 0.95;
     if (eLegendCoords.size() > 0) {
@@ -609,7 +609,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
 
     legend->SetTextSize(0.03);
     legend->SetHeader("Energies", "C");  // option "C" allows to center the header
-    for (int n = 0; n < energies.size(); n++) {
+    for (unsigned int n = 0; n < energies.size(); n++) {
         std::string lname = "gr" + IntegerToString(n);
         std::string ltitle = DoubleToString(energies[n]) + " keV";
 
@@ -626,7 +626,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
 
     std::vector<TGraph*> ref_vs_en_graph;
 
-    for (int n = 0; n < angles.size(); n++) {
+    for (unsigned int n = 0; n < angles.size(); n++) {
         string grname = "agr" + IntegerToString(n);
         TGraph* gr = new TGraph();
         gr->SetName(grname.c_str());
@@ -651,7 +651,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
     ref_vs_en_graph[0]->GetYaxis()->SetLabelSize(0.05);
     pad1->cd(2)->SetLogy();
     ref_vs_en_graph[0]->Draw("AL");
-    for (int n = 1; n < angles.size(); n++) ref_vs_en_graph[n]->Draw("L");
+    for (unsigned int n = 1; n < angles.size(); n++) ref_vs_en_graph[n]->Draw("L");
 
     if (aLegendCoords.size() > 0) {
         lx1 = aLegendCoords[0];
@@ -662,7 +662,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
     TLegend* legendA = new TLegend(lx1, ly1, lx2, ly2);
     legendA->SetTextSize(0.03);
     legendA->SetHeader("Angles", "C");  // option "C" allows to center the header
-    for (int n = 0; n < angles.size(); n++) {
+    for (unsigned int n = 0; n < angles.size(); n++) {
         std::string lname = "agr" + IntegerToString(n);
         std::string ltitle = DoubleToString(angles[n]) + " degrees";
 
@@ -679,7 +679,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
     pad1->cd(3)->SetBottomMargin(0.15);
     // ref_vs_ang_graph[0]->GetHistogram()->SetMinimum(0);
     ref_vs_ang_graph[0]->Draw("AL");
-    for (int n = 1; n < energies.size(); n++) ref_vs_ang_graph[n]->Draw("L");
+    for (unsigned int n = 1; n < energies.size(); n++) ref_vs_ang_graph[n]->Draw("L");
 
     ////// Drawing reflectivity versus energy
     pad1->cd(4);
@@ -689,7 +689,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
 
     // ref_vs_en_graph[0]->GetHistogram()->SetMinimum(0);
     ref_vs_en_graph[0]->Draw("AL");
-    for (int n = 1; n < angles.size(); n++) ref_vs_en_graph[n]->Draw("L");
+    for (unsigned int n = 1; n < angles.size(); n++) ref_vs_en_graph[n]->Draw("L");
 
     /// Drawing a main title
     fCanvas->cd();  // c1 is the TCanvas
