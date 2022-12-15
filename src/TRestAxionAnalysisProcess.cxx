@@ -26,6 +26,7 @@
 ///
 /// Observable values defined by this process:
 /// - **energy**: The energy in keV.
+/// - **mass**: The axion mass in eV.
 /// - **posX**: The X-position in mm.
 /// - **posY**: The Y-position in mm.
 /// - **posZ**: The Z-position in mm.
@@ -123,6 +124,7 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
     RESTDebug << "TRestAxionAnalysisProcess::ProcessEvent : " << fAxionEvent->GetID() << RESTendl;
 
     SetObservableValue("energy", fAxionEvent->GetEnergy());
+    SetObservableValue("mass", fAxionEvent->GetMass() * units("eV"));
 
     Double_t x = fAxionEvent->GetPosition().X();
     Double_t y = fAxionEvent->GetPosition().Y();

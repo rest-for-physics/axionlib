@@ -74,48 +74,9 @@ ClassImp(TRestAxionGeneratorProcess);
 TRestAxionGeneratorProcess::TRestAxionGeneratorProcess() { Initialize(); }
 
 ///////////////////////////////////////////////
-/// \brief Constructor loading data from a config file
-///
-/// If no configuration path is defined using TRestMetadata::SetConfigFilePath
-/// the path to the config file must be specified using full path, absolute or relative.
-///
-/// The default behaviour is that the config file must be specified with
-/// full path, absolute or relative.
-///
-/// \param cfgFileName A const char* giving the path to an RML file.
-///
-TRestAxionGeneratorProcess::TRestAxionGeneratorProcess(char* cfgFileName) {
-    Initialize();
-
-    LoadConfig(cfgFileName);
-}
-
-///////////////////////////////////////////////
 /// \brief Default destructor
 ///
 TRestAxionGeneratorProcess::~TRestAxionGeneratorProcess() { delete fOutputAxionEvent; }
-
-///////////////////////////////////////////////
-/// \brief Function to load the default config in absence of RML input
-///
-void TRestAxionGeneratorProcess::LoadDefaultConfig() {
-    SetName("axionGenerator-Default");
-    SetTitle("Default config");
-}
-
-///////////////////////////////////////////////
-/// \brief Function to load the configuration from an external configuration file.
-///
-/// If no configuration path is defined in TRestMetadata::SetConfigFilePath
-/// the path to the config file must be specified using full path, absolute or relative.
-///
-/// \param cfgFileName A const char* giving the path to an RML file.
-/// \param name The name of the specific metadata. It will be used to find the
-/// correspondig TRestGeant4AnalysisProcess section inside the RML.
-///
-void TRestAxionGeneratorProcess::LoadConfig(std::string cfgFilename, std::string name) {
-    if (LoadConfigFromFile(cfgFilename, name)) LoadDefaultConfig();
-}
 
 ///////////////////////////////////////////////
 /// \brief Function to initialize input/output event members and define the section name
@@ -218,12 +179,13 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     r = TMath::Sqrt(r);
 
     axionPosition = axionPosition + TVector3(fTargetRadius * x, fTargetRadius * y, 0);
-    /// ///
+
+    Double_t mass = fRandom->Uniform(fAxionMassRange.X(), fAxionMassRange.Y());
 
     fOutputAxionEvent->SetEnergy(energy);
     fOutputAxionEvent->SetPosition(axionPosition);
     fOutputAxionEvent->SetDirection(axionDirection);
-    fOutputAxionEvent->SetMass(fAxionMass);
+    fOutputAxionEvent->SetMass(mass);
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug)
         fOutputAxionEvent->PrintEvent();
@@ -238,7 +200,8 @@ void TRestAxionGeneratorProcess::PrintMetadata() {
     TRestMetadata::PrintMetadata();
 
     RESTMetadata << "Generator type: " << fGeneratorType << RESTendl;
-    RESTMetadata << "Axion mass: " << fAxionMass * units("eV") << " eV" << RESTendl;
+    RESTMetadata << "Axion mass range: (" << fAxionMassRange.X() * units("eV") << ", "
+                 << fAxionMassRange.Y() * units("eV") << ") eV" << RESTendl;
     RESTMetadata << "Target radius: " << fTargetRadius * units("cm") << " cm" << RESTendl;
     RESTMetadata << "Random seed: " << (UInt_t)fSeed << RESTendl;
     RESTMetadata << "Energy range: (" << fEnergyRange.X() << ", " << fEnergyRange.Y() << ") keV" << RESTendl;

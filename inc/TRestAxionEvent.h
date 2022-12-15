@@ -44,7 +44,7 @@ class TRestAxionEvent : public TRestEvent {
     /// Initial energy of the axion.
     Double_t fEnergy = 0;  //<
 
-    /// Axion mass in eV
+    /// Axion mass in keV
     Double_t fMass = 0.;  //<
 
     /// It keeps track of efficiency introduced at different helioscope components
@@ -64,8 +64,9 @@ class TRestAxionEvent : public TRestEvent {
     Double_t GetDirectionY() { return fDirection.Y(); }  // returns normalized vector y-component
     Double_t GetDirectionZ() { return fDirection.Z(); }  // returns normalized vector z-component
 
-    Double_t GetEnergy() { return fEnergy; }            // returns value in keV
-    Double_t GetMass() { return fMass * units("eV"); }  // returns value in eV
+    Double_t GetEnergy() { return fEnergy; }                // returns value in keV
+    Double_t GetMass() { return fMass; }                    // returns value in keV
+    Double_t GetMassIneV() { return fMass * units("eV"); }  // returns value in eV
 
     //   Double_t GetEfficiency(std::string name) { return fEfficiencies[name]; }
 

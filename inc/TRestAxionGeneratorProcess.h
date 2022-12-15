@@ -45,8 +45,8 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     /// Internal process random generator
     TRandom3* fRandom = nullptr;  //!
 
-    /// The axion mass
-    Double_t fAxionMass = 0;  //<
+    /// The axion mass range in keV
+    TVector2 fAxionMassRange = TVector2(1.e-6, 1e-2);  //<
 
     /// The target size in mm (or generator source extension) for the generator.
     Double_t fTargetRadius = 800;  //<
@@ -68,27 +68,20 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     void LoadDefaultConfig();
 
    public:
-    void InitProcess() override;
-
     RESTValue GetInputEvent() const override { return nullptr; }
     RESTValue GetOutputEvent() const override { return fOutputAxionEvent; }
 
+    void InitProcess() override;
     TRestEvent* ProcessEvent(TRestEvent* eventInput) override;
-
-    void LoadConfig(std::string cfgFilename, std::string name = "");
 
     void PrintMetadata() override;
 
     /// Returns the name of this process
     const char* GetProcessName() const override { return "axionGenerator"; }
 
-    // Constructor
-    TRestAxionGeneratorProcess();
-    TRestAxionGeneratorProcess(char* cfgFileName);
+    TRestAxionGeneratorProcess();   // Constructor
+    ~TRestAxionGeneratorProcess();  // Destructor
 
-    // Destructor
-    ~TRestAxionGeneratorProcess();
-
-    ClassDefOverride(TRestAxionGeneratorProcess, 2);
+    ClassDefOverride(TRestAxionGeneratorProcess, 4);
 };
 #endif
