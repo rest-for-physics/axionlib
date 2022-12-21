@@ -173,7 +173,10 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
         fAxionField = new TRestAxionField();
 
         fBufferGas = (TRestAxionBufferGas*)this->GetMetadata("TRestAxionBufferGas");
-        if (fBufferGas) fAxionField->AssignBufferGas(fBufferGas);
+        if (fBufferGas)
+            fAxionField->AssignBufferGas(fBufferGas);
+        else
+            fBufferGasAdditionalLength = 0;
     }
 
     RESTDebug << "Axion-field : " << fAxionField << RESTendl;
@@ -190,7 +193,7 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
 
     Double_t prob = 0;
     Double_t lCoh = 0;
-    Double_t transmission = 0;
+    Double_t transmission = 1;
     Double_t fieldAverage = 0;
     if (trackBounds.size() == 2) {
         std::vector<Double_t> bProfile = fMagneticField->GetTransversalComponentAlongPath(
