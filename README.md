@@ -52,7 +52,7 @@ cmake -DRESTLIB_AXION=ON -DREST_MPFR=ON ../
 make -j4 install
 ```
 
-In case of problems it is recommended to have a look at the following [download](https://rest-for-physics.github.io/downloading.html) and [installation](https://rest-for-physics.github.io/installation) instructions.
+In case of problems it is recommended to have a look at the following complete [download](https://rest-for-physics.github.io/downloading.html) and [installation](https://rest-for-physics.github.io/installation) instructions.
 
 It is necessary to enable the `REST_MPFR` cmake option in order to benefit from the MPFR routines integration. If not, classes that use MPFR will not be compiled. `REST_MPFR` might be optionally disabled in case MPFR libraries are not available. However, this will lead to a non-complete installation of axionlib.
 
