@@ -285,7 +285,7 @@ if (fWindowType == "stripped") {
 /// \brief It returns the vector element index, from `fEnergy`, that is just below the given input energy.
 ///
 Int_t TRestAxionXrayWindow::GetEnergyIndex(Double_t energy) {
-    for (int n = 0; n < fEnergy.size(); n++)
+    for (unsigned int n = 0; n < fEnergy.size(); n++)
         if (energy < fEnergy[n]) return n - 1;
     return -1;
 }

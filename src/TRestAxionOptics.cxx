@@ -379,7 +379,6 @@ TVector3 TRestAxionOptics::GetLastGoodDirection() {
 ///
 Double_t TRestAxionOptics::PropagatePhoton(const TVector3& pos, const TVector3& dir, Double_t energy) {
     RESTDebug << " --> Entering TRestAxionOptics::PropagatePhoton" << RESTendl;
-    Double_t reflectivity = 1;
 
     RESTDebug << "Reseting positions" << RESTendl;
     ResetPositions();
@@ -607,7 +606,7 @@ Double_t TRestAxionOptics::GetPhotonReflectivity(Double_t energy) {
 TPad* TRestAxionOptics::DrawParticleTracks(Double_t deviation, Int_t particles) {
     DrawMirrors();
 
-    for (unsigned int n = 0; n < particles; n++) {
+    for (int n = 0; n < particles; n++) {
         Double_t r = fRandom->Uniform(GetRadialLimits().first, GetRadialLimits().second);
         Double_t angle = fRandom->Uniform(0, 2 * TMath::Pi());
         TVector3 origin(r * TMath::Cos(angle), r * TMath::Sin(angle), -3 * fMirrorLength);
@@ -739,7 +738,7 @@ Double_t TRestAxionOptics::CalculateSpotSize(Double_t energy, Double_t z, Int_t 
     Double_t sum = 0;
     Int_t nSum = 0;
     Double_t deviation = 0;
-    for (unsigned int n = 0; n < particles; n++) {
+    for (int n = 0; n < particles; n++) {
         Double_t reflectivity = PropagateMonteCarloPhoton(energy, deviation);
 
         if (reflectivity == 0) continue;
@@ -809,7 +808,7 @@ TPad* TRestAxionOptics::DrawScatterMaps(Double_t z, Double_t energy, Double_t de
 
     Double_t focal = FindFocal(focalHint - 500, focalHint + 500, energy, 1);
 
-    for (unsigned int n = 0; n < particles; n++) {
+    for (int n = 0; n < particles; n++) {
         Double_t reflectivity = PropagateMonteCarloPhoton(energy, deviation);
 
         if (fFirstInteractionPosition.Z() == 0) continue;  // The photon hits the entrance mask
@@ -934,7 +933,7 @@ TPad* TRestAxionOptics::DrawDensityMaps(Double_t z, Double_t energy, Double_t de
     std::string focalTitle = "Focal plane. Z = " + DoubleToString(focal) + "mm";
     TH2F* hFocal = new TH2F("focalH", focalTitle.c_str(), 500, -10, 10, 500, -10, 10);
 
-    for (unsigned int n = 0; n < particles; n++) {
+    for (int n = 0; n < particles; n++) {
         Double_t reflectivity = PropagateMonteCarloPhoton(energy, deviation);
 
         if (fFirstInteractionPosition.Z() == 0) continue;  // The photon hits the entrance mask

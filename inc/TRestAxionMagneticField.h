@@ -91,7 +91,7 @@ class TRestAxionMagneticField : public TRestMetadata {
     /// It returns a  pointer to the corresponding magnetic volume id
     MagneticFieldVolume* GetMagneticVolume(Int_t id) {
         if (!FieldLoaded()) LoadMagneticVolumes();
-        if (fMagneticFieldVolumes.size() > id)
+        if (id >= 0 && fMagneticFieldVolumes.size() > (unsigned int)id)
             return &fMagneticFieldVolumes[id];
         else {
             RESTError << "TRestAxionMagneticField::GetMagneticVolume. Id outside limits!" << RESTendl;
@@ -109,7 +109,7 @@ class TRestAxionMagneticField : public TRestMetadata {
     }
 
     /// The number of magnetic volumes loaded into the object
-    Int_t GetNumberOfVolumes() { return fPositions.size(); }
+    unsigned int GetNumberOfVolumes() { return fPositions.size(); }
 
     Bool_t CheckOverlaps();
 

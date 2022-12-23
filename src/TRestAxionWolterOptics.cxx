@@ -261,7 +261,7 @@ Int_t TRestAxionWolterOptics::FirstMirrorReflection(const TVector3& pos, const T
         return -1;
     }
 
-    if (mirror >= fFrontVertex.size()) {
+    if (mirror >= 0 && (unsigned int)mirror >= fFrontVertex.size()) {
         RESTError << "TRestAxionWolterOptics::FirstMirrorReflection. Mirror index above number of mirrors!"
                   << RESTendl;
         return -1;
@@ -308,7 +308,7 @@ Int_t TRestAxionWolterOptics::SecondMirrorReflection(const TVector3& pos, const 
         return 0;
     }
 
-    if (mirror >= fFrontVertex.size()) {
+    if (mirror >= 0 && (unsigned int)mirror >= fFrontVertex.size()) {
         RESTError << "TRestAxionWolterOptics::FirstMirrorReflection. Mirror index above number of mirrors!"
                   << RESTendl;
         return 0;

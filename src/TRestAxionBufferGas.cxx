@@ -181,7 +181,7 @@ void TRestAxionBufferGas::SetGasMixture(TString gasMixture, TString gasDensities
     std::vector<string> densities = Split((string)gasDensities, "+");
 
     if (names.size() == densities.size()) {
-        for (int n = 0; n < names.size(); n++) {
+        for (unsigned int n = 0; n < names.size(); n++) {
             Double_t density = GetValueInRESTUnits(densities[n]);
             SetGasDensity(names[n], density);
         }
