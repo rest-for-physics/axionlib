@@ -24,6 +24,8 @@ Int_t Validate(Double_t prob = 5.9978e-19, Double_t fieldAverage = 1.631) {
     Double_t probability = h->Integral() / run->GetEntries();
     std::cout << "Average axion-photon probability: " << probability << std::endl;
 
+    std::cout << "Tolerance: " << probTolerance << std::endl;
+    std::cout << "Low : " << prob - probTolerance << " high: " << prob + probTolerance << std::endl;
     if (probability < prob - probTolerance || probability > prob + probTolerance) {
         std::cout << "Wrong axion-photon probability!" << std::endl;
         return 3;
