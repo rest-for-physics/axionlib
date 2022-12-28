@@ -212,4 +212,4 @@ jobs:
         wget https://rest-for-physics.github.io/axionlib-data/bufferGas/bufferGases.rml
         restManager --c photonConversion.rml
         restRoot -b -q Validate.C'(5.86614e-19, 1.61288)'
-        python3 validateStramer.py
+        python3 validateStreamer.py
