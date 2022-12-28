@@ -42,6 +42,10 @@ Int_t Validate(Double_t prob = 5.86614e-19, Double_t fieldAverage = 1.61288) {
 
     Double_t field = h2->Integral() / run->GetEntries();
     std::cout << "Average magnetic field: " << field << " T" << std::endl;
+    std::cout << "Expected field: " << fieldAverage << std::endl;
+    std::cout << "Tolerance: " << fieldTolerance << std::endl;
+    std::cout << "Low : " << fieldAverage - fieldTolerance << " high: " << fieldAverage + fieldTolerance
+              << std::endl;
 
     if (field < fieldAverage - fieldTolerance || field > fieldAverage + fieldTolerance) {
         std::cout << "Wrong average field!" << std::endl;
