@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 include(ExternalProject)
 set(CMAKE_MACOSX_RPATH 1)
 
-set( LibraryVersion "1.0" )
+set( LibraryVersion "1.1" )
 add_definitions(-DLIBRARY_VERSION="${LibraryVersion}")
 
 find_path( MPFR_FOUND mpfr.h )
