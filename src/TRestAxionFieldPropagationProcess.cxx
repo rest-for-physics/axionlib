@@ -113,6 +113,7 @@
 /// <hr>
 ///
 #include "TRestAxionFieldPropagationProcess.h"
+
 #include <TVectorD.h>
 
 #include <numeric>

@@ -27,10 +27,9 @@
 
 #include "TMath.h"
 #include "TObject.h"
-#include "TVector3.h"
-
 #include "TRestEvent.h"
 #include "TRestSystemOfUnits.h"
+#include "TVector3.h"
 
 /// An event data class to define the parameters related to an axion particle
 class TRestAxionEvent : public TRestEvent {

@@ -27,10 +27,8 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TRandom3.h>
-
-#include <TRestMetadata.h>
-
 #include <TRestAxionSolarModel.h>
+#include <TRestMetadata.h>
 
 //! A metadata class to load tabulated solar axion fluxes
 class TRestAxionSolarFlux : public TRestMetadata {

@@ -23,12 +23,10 @@
 #ifndef RestCore_TRestAxionGeneratorProcess
 #define RestCore_TRestAxionGeneratorProcess
 
-#include "TRestAxionEvent.h"
-#include "TRestEventProcess.h"
-
-#include "TRestAxionSolarFlux.h"
-
 #include "TRandom3.h"
+#include "TRestAxionEvent.h"
+#include "TRestAxionSolarFlux.h"
+#include "TRestEventProcess.h"
 
 //! A process to initialize the axion event (mainly through TRestAxionSolarFlux)
 class TRestAxionGeneratorProcess : public TRestEventProcess {
