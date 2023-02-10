@@ -8,22 +8,26 @@
 #define RestTask_Axion_XMMAngleEffCSV
 
 //*******************************************************************************************************
-//*** Description: It creates an efficiency curve from different runs under different angles. 
+//*** Description: It creates an efficiency curve from different runs under different angles.
 //*** It's also possible to compare data from a csv file with this curve.
-//*** 
+//***
 //***
 //*** --------------
 //*** Usage: restManager XMMAngleEffCSV "./trueWolter/OpticsBench_Yaw_*_Dev_*_BabyIAXO_Run*.root" [csvFile]
 //***
 //*** Where the optional arguments are:
 //***
-//*** - The path and pattern name of the files that should be read in. The * is in the places where there is a difference in the file names.
+//*** - The path and pattern name of the files that should be read in. The * is in the places where there is a
+// difference in the file names.
 //***
-//*** - The path and name of the csv file with data to compare to the data from the prvious files. If not given it will be left out.
+//*** - The path and name of the csv file with data to compare to the data from the prvious files. If not
+// given it will be left out.
 //*******************************************************************************************************
-Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBench_Yaw_*_Dev_*_BabyIAXO_Run*.root", const string& csvFile = "") {
+Int_t REST_Axion_XMMAngleEffCSV(
+    TString pathAndPattern = "./trueWolter/OpticsBench_Yaw_*_Dev_*_BabyIAXO_Run*.root",
+    const string& csvFile = "") {
     vector<string> files = TRestTools::GetFilesMatchingPattern((string)pathAndPattern);
-    
+
     if (files.size() == 0) {
         RESTError << "Files not found!" << RESTendl;
         return -1;
@@ -43,7 +47,9 @@ Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBen
 
         Int_t obsID = run->GetAnalysisTree()->GetObservableID("optics_efficiency");
         if (obsID == -1) {
-            RESTError << "No observable \"" << "optics_efficiency" << "\" in file " << files[n] << RESTendl;
+            RESTError << "No observable \""
+                      << "optics_efficiency"
+                      << "\" in file " << files[n] << RESTendl;
             continue;
         }
         Double_t eff = 0;
@@ -52,9 +58,9 @@ Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBen
         Double_t dev = std::stod(run->GetMetadataMember("deviation::fDevAngle")) * 180. / 3.1415;
 
         for (int i = 0; i < run->GetEntries(); i++) {
-            run->GetAnalysisTree()->GetBranch((TString)"optics_efficiency")->GetEntry(i);
+            run->GetAnalysisTree()->GetBranch((TString) "optics_efficiency")->GetEntry(i);
             Double_t value = run->GetAnalysisTree()->GetDblObservableValue(obsID);
-            //std::cout << value << " for i " << i << std::endl;
+            // std::cout << value << " for i " << i << std::endl;
             counts++;
             eff += value;
         }
@@ -63,20 +69,19 @@ Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBen
         efficiencies[n] = eff;
         angles[n] = angle;
         totalCounts[n] = counts;
-        if (angle == 0 && dev == 0) eff0 = eff; // and dev 0
+        if (angle == 0 && dev == 0) eff0 = eff;  // and dev 0
     }
     Double_t angleMax = *max_element(angles.begin(), angles.end());
-
 
     delete run;
     std::vector<float> effError;
     for (int n = 0; n < files.size(); n++) {
         std::cout << "eff: " << efficiencies[n] << " total " << totalCounts[n] << std::endl;
         effError.push_back(TMath::Sqrt(efficiencies[n] + efficiencies[n] / eff0) / eff0);
-        std::cout << "eff: " << efficiencies[n] << " error " << (TMath::Sqrt(efficiencies[n] + efficiencies[n] / eff0) / eff0) << std::endl;
-        efficiencies[n] = efficiencies[n] / eff0;   
+        std::cout << "eff: " << efficiencies[n] << " error "
+                  << (TMath::Sqrt(efficiencies[n] + efficiencies[n] / eff0) / eff0) << std::endl;
+        efficiencies[n] = efficiencies[n] / eff0;
     }
-    
 
     TCanvas c("", "", 1200, 800);
 
@@ -89,20 +94,20 @@ Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBen
     effGraph.SetMarkerColor(kRed);
     effGraph.SetMarkerStyle(21);
     effGraph.Draw("AP");
-    
+
     effGraph.GetYaxis()->SetLimits(0.0, angleMax);
     effGraph.GetHistogram()->SetMaximum(1);
     effGraph.GetHistogram()->SetMinimum(0);
     TGraph expGraph;
     /// Add the csv file if given
-    if (csvFile != ""){
-        std::vector<std::vector <Double_t>> expData;
-        TRestTools::ReadCSVFile(csvFile, expData, 1); // angles at expData[n][0], effArea at expData[n][1]
-        
+    if (csvFile != "") {
+        std::vector<std::vector<Double_t>> expData;
+        TRestTools::ReadCSVFile(csvFile, expData, 1);  // angles at expData[n][0], effArea at expData[n][1]
+
         std::vector<float> anglesExp;
         std::vector<float> efficienciesExp;
         Double_t effExp0 = 0;
-        
+
         for (unsigned int n = 0; n < expData.size(); n++) {
             if (expData[n][0] < 0.01 && expData[n][0] > 0) effExp0 = expData[n][1];
         }
@@ -113,7 +118,7 @@ Int_t REST_Axion_XMMAngleEffCSV(TString pathAndPattern = "./trueWolter/OpticsBen
             expGraph.AddPoint(expData[n][0], expData[n][1] / effExp0);
         }
         std::cout << anglesExp[2000] << " " << efficienciesExp[2000] << std::endl;
-        
+
         expGraph.SetName("expGraph");
         expGraph.SetMarkerColor(kBlue);
         expGraph.SetMarkerStyle(2);

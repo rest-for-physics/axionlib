@@ -24,7 +24,6 @@
 #define RestCore_TRestAxionDeviationProcess
 
 #include "TRandom3.h"
-
 #include "TRestAxionEvent.h"
 #include "TRestAxionEventProcess.h"
 

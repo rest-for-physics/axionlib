@@ -25,12 +25,11 @@
 
 #include <TRestMetadata.h>
 
+#include "TRandom3.h"
 #include "TRestAxionBufferGas.h"
 #include "TRestAxionField.h"
 #include "TRestAxionSolarModel.h"
 #include "TRestAxionSpectrum.h"
-
-#include "TRandom3.h"
 
 //! A metadata class deninning a particular implementation of the likelihood to obtain the experimental
 //! sensitivity

@@ -21,7 +21,7 @@ defaults:
 jobs:
   framework-validation:
     uses: rest-for-physics/framework/.github/workflows/validation.yml@master
-  
+
   libCheck:
     name: Validate library
     runs-on: ubuntu-latest

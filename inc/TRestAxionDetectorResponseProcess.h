@@ -24,7 +24,6 @@
 #define RestCore_TRestAxionDetectorResponseProcess
 
 #include "TH2D.h"
-
 #include "TRestAxionEvent.h"
 #include "TRestEventProcess.h"
 
