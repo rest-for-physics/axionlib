@@ -26,6 +26,7 @@
 #include <TRestRingsMask.h>
 #include <TRestSpiderMask.h>
 #include <TRestTools.h>
+
 #include <iostream>
 
 /// A class that calculates the reflection path of X-rays through a Wolter 1 telescope

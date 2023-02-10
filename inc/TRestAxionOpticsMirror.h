@@ -23,10 +23,10 @@
 #ifndef _TRestAxionOpticsMirror
 #define _TRestAxionOpticsMirror
 
-#include <TRestMetadata.h>
-#include <iostream>
-
 #include <TCanvas.h>
+#include <TRestMetadata.h>
+
+#include <iostream>
 
 /// A metadata class accessing the Henke database to load reflectivity data
 class TRestAxionOpticsMirror : public TRestMetadata {
