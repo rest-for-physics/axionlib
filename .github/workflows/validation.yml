@@ -44,7 +44,9 @@ jobs:
           cmake-flags: "-DCMAKE_INSTALL_PREFIX=${{ env.REST_PATH }} -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} -DREST_WELCOME=ON -DRESTLIB_AXION=ON -DREST_MPFR=ON"
           branch: ${{ env.BRANCH_NAME }}
       - name: Verify pre-commit config files match
-        run: curl https://raw.githubusercontent.com/rest-for-physics/framework/master/scripts/validatePreCommitConfig.py | sudo python -
+        run: |
+          cd $GITHUB_WORKSPACE
+          curl https://raw.githubusercontent.com/rest-for-physics/framework/master/scripts/validatePreCommitConfig.py | python
       - name: Cache framework installation
         id: axionlib-install-cache
         uses: actions/cache@v3
