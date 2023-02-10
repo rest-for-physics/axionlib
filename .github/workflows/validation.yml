@@ -86,10 +86,10 @@ jobs:
     needs: [ build-axionlib ]
     steps:
     - uses: rest-for-physics/framework/.github/actions/checkout@submodule-validation
-        with:
-          branch: ${{ env.BRANCH_NAME }}
-          repository: rest-for-physics/axionlib
-          path: ${{ env.AXION_LIB_PATH }}
+      with:
+        branch: ${{ env.BRANCH_NAME }}
+        repository: rest-for-physics/axionlib
+        path: ${{ env.AXION_LIB_PATH }}
     - name: Restore cache
       uses: actions/cache@v3
       id: axionlib-install-cache
@@ -117,10 +117,10 @@ jobs:
     needs: [ build-axionlib ]
     steps:
     - uses: rest-for-physics/framework/.github/actions/checkout@submodule-validation
-        with:
-          branch: ${{ env.BRANCH_NAME }}
-          repository: rest-for-physics/axionlib
-          path: ${{ env.AXION_LIB_PATH }}
+      with:
+        branch: ${{ env.BRANCH_NAME }}
+        repository: rest-for-physics/axionlib
+        path: ${{ env.AXION_LIB_PATH }}
     - name: Restore cache
       uses: actions/cache@v3
       id: axionlib-install-cache
@@ -186,10 +186,10 @@ jobs:
     needs: [ build-axionlib ]
     steps:
     - uses: rest-for-physics/framework/.github/actions/checkout@submodule-validation
-        with:
-          branch: ${{ env.BRANCH_NAME }}
-          repository: rest-for-physics/axionlib
-          path: ${{ env.AXION_LIB_PATH }}
+      with:
+        branch: ${{ env.BRANCH_NAME }}
+        repository: rest-for-physics/axionlib
+        path: ${{ env.AXION_LIB_PATH }}
     - name: Restore cache
       uses: actions/cache@v3
       id: axionlib-install-cache
