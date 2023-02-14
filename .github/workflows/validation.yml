@@ -22,12 +22,12 @@ jobs:
     container:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     steps:
-      - uses: rest-for-physics/framework/.github/actions/checkout@submodule-validation
+      - uses: rest-for-physics/framework/.github/actions/checkout@master
         with:
           branch: ${{ env.BRANCH_NAME }}
           repository: rest-for-physics/axionlib
           path: ${{ env.AXION_LIB_PATH }}
-      - run: python3 ${{ env.AXION_LIB_PATH }}/pipeline/validateLibrary.py ..
+      - run: python3 ${{ env.AXION_LIB_PATH }}/pipeline/validateLibrary.py .
 
   precommit-config:
     name: Validate pre-commit config
@@ -36,7 +36,7 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     steps:
       - name: Checkout axionlib
-        uses: rest-for-physics/framework/.github/actions/checkout@submodule-validation
+        uses: rest-for-physics/framework/.github/actions/checkout@master
         with:
           branch: ${{ env.BRANCH_NAME }}
           repository: rest-for-physics/axionlib
@@ -71,7 +71,7 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ build-axionlib ]
     steps:
-      - uses: rest-for-physics/framework/.github/actions/checkout@submodule-validation
+      - uses: rest-for-physics/framework/.github/actions/checkout@master
         with:
           branch: ${{ env.BRANCH_NAME }}
           repository: rest-for-physics/axionlib
@@ -97,7 +97,7 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ build-axionlib ]
     steps:
-    - uses: rest-for-physics/framework/.github/actions/checkout@submodule-validation
+    - uses: rest-for-physics/framework/.github/actions/checkout@master
       with:
         branch: ${{ env.BRANCH_NAME }}
         repository: rest-for-physics/axionlib
@@ -128,7 +128,7 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ build-axionlib ]
     steps:
-    - uses: rest-for-physics/framework/.github/actions/checkout@submodule-validation
+    - uses: rest-for-physics/framework/.github/actions/checkout@master
       with:
         branch: ${{ env.BRANCH_NAME }}
         repository: rest-for-physics/axionlib
@@ -197,7 +197,7 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ build-axionlib ]
     steps:
-    - uses: rest-for-physics/framework/.github/actions/checkout@submodule-validation
+    - uses: rest-for-physics/framework/.github/actions/checkout@master
       with:
         branch: ${{ env.BRANCH_NAME }}
         repository: rest-for-physics/axionlib
