@@ -74,7 +74,7 @@
     <!--
 		<TRestAxionSolarModel name="sunPrimakoff" file="metadata.rml" verboseLevel="info" />
 
-		<addTask command="sunPrimakoff->PrintMetadata()" value="ON"/> 
+		<addTask command="sunPrimakoff->PrintMetadata()" value="ON"/>
 	-->
     <addTask command="EventProcess-&gt;RunProcess()" value="ON"/>
 </TRestManager>

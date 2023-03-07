@@ -24,6 +24,7 @@
 #define _TRestAxionMCPLOptics
 
 #include <TRestAxionOptics.h>
+
 #include <iostream>
 
 /// A class to load optics response using MCPL files

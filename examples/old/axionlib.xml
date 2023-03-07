@@ -1,7 +1,7 @@
 <!-- Created by Sebastian Hoof (8/2020) -->
 <!-- Example file with multiple 'TRestAxionSolarModel' tags -->
-</TRestAxionSolarModels>
-  <TRestAxionSolarModel name="SolarAxionLibTest" verboseLevel="debug">
-    <parameter name="solarAxionModel" value="external/solarAxionFlux/data/solar_models/SolarModel_B16-AGSS09.dat" />
-  </TRestAxionSolarModel>
+<TRestAxionSolarModels>
+    <TRestAxionSolarModel name="SolarAxionLibTest" verboseLevel="debug">
+        <parameter name="solarAxionModel" value="external/solarAxionFlux/data/solar_models/SolarModel_B16-AGSS09.dat"/>
+    </TRestAxionSolarModel>
 </TRestAxionSolarModels>

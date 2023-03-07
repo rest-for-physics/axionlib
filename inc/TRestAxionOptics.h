@@ -26,6 +26,7 @@
 #include <TRestAxionOpticsMirror.h>
 #include <TRestCombinedMask.h>
 #include <TRestMetadata.h>
+
 #include <iostream>
 
 #include "TRandom3.h"
