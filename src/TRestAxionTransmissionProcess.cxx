@@ -123,9 +123,6 @@ void TRestAxionTransmissionProcess::InitProcess() {
             fXrayWindows.push_back(w);
         }
     }
-
-    // fRandom = new TRandom3(fSeed);
-    // if (fSeed == 0) fSeed = fRandom->GetSeed();
 }
 
 ///////////////////////////////////////////////
