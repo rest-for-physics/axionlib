@@ -29,14 +29,23 @@
 /// A base class for any axion event process. Defines position, rotation and component displacement.
 class TRestAxionEventProcess : public TRestEventProcess {
    private:
-    /// The position respect which the rotation will be applied
+    /// The position around which the rotation will be applied
     TVector3 fCenter = TVector3(0, 0, 0);
 
-    /// The rotation angle respect to the Y-axis
+    /// The rotation angle with respect to the Y-axis
     Double_t fYaw = 0;
 
     /// The rotation angle with respect to X-axis
     Double_t fPitch = 0;
+   
+   /// The position (different than the center of the object) around which the rotation will be applied
+    TVector3 fCenterSetup = TVector3(0, 0, 0);
+
+    /// The rotation angle around CenterSetup with respect to the Y-axis
+    Double_t fYawSetup = 0;
+
+    /// The rotation angle around CenterSetup with respect to X-axis
+    Double_t fPitchSetup = 0;
 
     /// If enabled it will skip the end rotation that recovers the original axion trajectory direction
     Bool_t fSkipEndProcessRotation = false;  //!
