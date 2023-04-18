@@ -37,8 +37,8 @@ class TRestAxionEventProcess : public TRestEventProcess {
 
     /// The rotation angle with respect to X-axis
     Double_t fPitch = 0;
-   
-   /// The position (different than the center of the object) around which the rotation will be applied
+
+    /// The position (different than the center of the object) around which the rotation will be applied
     TVector3 fCenterSetup = TVector3(0, 0, 0);
 
     /// The rotation angle around CenterSetup with respect to the Y-axis
