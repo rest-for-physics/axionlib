@@ -15,6 +15,8 @@ Int_t Validate(Double_t prob = 5.86614e-19, Double_t fieldAverage = 1.61288) {
 
     run->GetAnalysisTree()->Draw("axionPhoton_probability", "axionPhoton_probability");
 
+    run->GetAnalysisTree()->Scan();
+
     TH1D* h = (TH1D*)run->GetAnalysisTree()->GetHistogram();
     if (h == nullptr) {
         std::cout << "Problems generating probability histogram" << std::endl;
