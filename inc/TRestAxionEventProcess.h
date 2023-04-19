@@ -76,6 +76,6 @@ class TRestAxionEventProcess : public TRestEventProcess {
     TRestAxionEventProcess();
     ~TRestAxionEventProcess();
 
-    ClassDefOverride(TRestAxionEventProcess, 1);
+    ClassDefOverride(TRestAxionEventProcess, 2);
 };
 #endif
