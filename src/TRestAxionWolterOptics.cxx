@@ -117,7 +117,9 @@ using namespace std;
 #include <TAxis.h>
 #include <TGraph.h>
 #include <TH1F.h>
+
 #include <cmath>
+
 #include "TRestPhysics.h"
 using namespace REST_Physics;
 ClassImp(TRestAxionWolterOptics);

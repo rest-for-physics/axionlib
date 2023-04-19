@@ -127,6 +127,7 @@
 ///
 
 #include "TRestAxionOpticsMirror.h"
+
 #include <TAxis.h>
 #include <TGraph.h>
 #include <TH1F.h>

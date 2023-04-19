@@ -23,14 +23,13 @@
 #ifndef RestCore_TRestAxionFieldPropagationProcess
 #define RestCore_TRestAxionFieldPropagationProcess
 
-#include "TVector3.h"
-#include "TVectorD.h"
-
 #include "TRestAxionEvent.h"
 #include "TRestAxionEventProcess.h"
 #include "TRestAxionField.h"
 #include "TRestAxionMagneticField.h"
 #include "TRestPhysics.h"
+#include "TVector3.h"
+#include "TVectorD.h"
 
 //! A process to introduce the magnetic field profile integration along the track
 class TRestAxionFieldPropagationProcess : public TRestAxionEventProcess {

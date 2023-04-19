@@ -1,17 +1,13 @@
 name: Validation
 
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-  release:
-
   workflow_dispatch:
+  workflow_call:
 
 env:
   CMAKE_BUILD_TYPE: Release
   REST_PATH: /rest/axionlib/install
+  AXION_LIB_PATH: axionlib
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 defaults:
@@ -19,17 +15,36 @@ defaults:
     shell: bash
 
 jobs:
-  framework-validation:
-    uses: rest-for-physics/framework/.github/workflows/validation.yml@master
-  
+
   libCheck:
     name: Validate library
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     steps:
-      - uses: actions/checkout@v3
-      - run:  python3 pipeline/validateLibrary.py .
+      - uses: rest-for-physics/framework/.github/actions/checkout@master
+        with:
+          branch: ${{ env.BRANCH_NAME }}
+          repository: rest-for-physics/axionlib
+          path: ${{ env.AXION_LIB_PATH }}
+      - run: python3 ${{ env.AXION_LIB_PATH }}/pipeline/validateLibrary.py .
+
+  precommit-config:
+    name: Validate pre-commit config
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    steps:
+      - name: Checkout axionlib
+        uses: rest-for-physics/framework/.github/actions/checkout@master
+        with:
+          branch: ${{ env.BRANCH_NAME }}
+          repository: rest-for-physics/axionlib
+          path: ${{ env.AXION_LIB_PATH }}
+      - name: Verify pre-commit config files match
+        run: |
+          cd ${{ env.AXION_LIB_PATH }}
+          curl https://raw.githubusercontent.com/rest-for-physics/framework/master/scripts/validatePreCommitConfig.py | python
 
   build-axionlib:
     name: Build only axionlib
@@ -37,7 +52,6 @@ jobs:
     container:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     steps:
-      - uses: actions/checkout@v3
       - name: Build and install
         uses: rest-for-physics/framework/.github/actions/build@master
         with:
@@ -57,7 +71,11 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ build-axionlib ]
     steps:
-      - uses: actions/checkout@v3
+      - uses: rest-for-physics/framework/.github/actions/checkout@master
+        with:
+          branch: ${{ env.BRANCH_NAME }}
+          repository: rest-for-physics/axionlib
+          path: ${{ env.AXION_LIB_PATH }}
       - name: Restore cache
         uses: actions/cache@v3
         id: axionlib-install-cache
@@ -67,7 +85,7 @@ jobs:
       - name: Load restRootMacros in axiolib standalone
         run: |
           source ${{ env.REST_PATH }}/thisREST.sh
-          cd pipeline
+          cd ${{ env.AXION_LIB_PATH }}/pipeline
           export DISPLAY=localhost:0.0
           echo "Running validation script"
           python3 validateMacros.py
@@ -79,7 +97,11 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ build-axionlib ]
     steps:
-    - uses: actions/checkout@v3
+    - uses: rest-for-physics/framework/.github/actions/checkout@master
+      with:
+        branch: ${{ env.BRANCH_NAME }}
+        repository: rest-for-physics/axionlib
+        path: ${{ env.AXION_LIB_PATH }}
     - name: Restore cache
       uses: actions/cache@v3
       id: axionlib-install-cache
@@ -89,7 +111,7 @@ jobs:
     - name: Basic physics tests
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
-        cd pipeline/physics/
+        cd ${{ env.AXION_LIB_PATH }}/pipeline/physics/
         wget https://sultan.unizar.es/axionlib-data/bufferGas/He.abs
         wget https://sultan.unizar.es/axionlib-data/bufferGas/He.nff
         wget https://sultan.unizar.es/axionlib-data/bufferGas/Ne.abs
@@ -106,7 +128,11 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ build-axionlib ]
     steps:
-    - uses: actions/checkout@v3
+    - uses: rest-for-physics/framework/.github/actions/checkout@master
+      with:
+        branch: ${{ env.BRANCH_NAME }}
+        repository: rest-for-physics/axionlib
+        path: ${{ env.AXION_LIB_PATH }}
     - name: Restore cache
       uses: actions/cache@v3
       id: axionlib-install-cache
@@ -116,7 +142,7 @@ jobs:
     - name: Magnetic field
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
-        cd pipeline/metadata/magneticField/
+        cd ${{ env.AXION_LIB_PATH }}/pipeline/metadata/magneticField/
         wget https://rest-for-physics.github.io/axionlib-data/magneticField/fields.rml
         wget https://rest-for-physics.github.io/axionlib-data/magneticField/Bykovskiy_201906.dat
         python magneticField.py
@@ -128,7 +154,7 @@ jobs:
     - name: Optics Mirrors
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
-        cd pipeline/metadata/optics/
+        cd ${{ env.AXION_LIB_PATH }}/pipeline/metadata/optics/
         wget https://rest-for-physics.github.io/axionlib-data/optics/optics.rml
         wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/mirrors.rml
         wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Reflectivity_Single_C_30_SiO2_0.N901f
@@ -139,13 +165,13 @@ jobs:
     - name: MCPL Optics
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
-        cd pipeline/metadata/optics/
+        cd ${{ env.AXION_LIB_PATH }}/pipeline/metadata/optics/
         wget https://rest-for-physics.github.io/axionlib-data/optics/optics.rml
         python mcpl.py
     - name: X-ray transmission
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
-        cd pipeline/metadata/transmission/
+        cd ${{ env.AXION_LIB_PATH }}/pipeline/metadata/transmission/
         wget https://rest-for-physics.github.io/axionlib-data/transmission/windows.rml
         wget https://rest-for-physics.github.io/axionlib-data/transmission/Al.sol
         wget https://rest-for-physics.github.io/axionlib-data/transmission/Si.sol
@@ -155,7 +181,7 @@ jobs:
     - name: Solar flux
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
-        cd pipeline/metadata/solarFlux/
+        cd ${{ env.AXION_LIB_PATH }}/pipeline/metadata/solarFlux/
         wget https://rest-for-physics.github.io/axionlib-data/solarFlux/fluxes.rml
         wget https://rest-for-physics.github.io/axionlib-data/solarFlux/Dummy_Galan_202202.spt
         wget https://rest-for-physics.github.io/axionlib-data/solarFlux/Primakoff_Gianotti_201904.dat
@@ -171,7 +197,11 @@ jobs:
       image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
     needs: [ build-axionlib ]
     steps:
-    - uses: actions/checkout@v3
+    - uses: rest-for-physics/framework/.github/actions/checkout@master
+      with:
+        branch: ${{ env.BRANCH_NAME }}
+        repository: rest-for-physics/axionlib
+        path: ${{ env.AXION_LIB_PATH }}
     - name: Restore cache
       uses: actions/cache@v3
       id: axionlib-install-cache
@@ -183,7 +213,7 @@ jobs:
         source ${{ env.REST_PATH }}/thisREST.sh
         export REST_NEVENTS=1000
         export REST_RUN=100
-        cd pipeline/ray-tracing/optics/
+        cd ${{ env.AXION_LIB_PATH }}/pipeline/ray-tracing/optics/
         wget https://rest-for-physics.github.io/axionlib-data/optics/xmm.rml
         wget https://rest-for-physics.github.io/axionlib-data/optics/XMM.Wolter
         wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
@@ -193,7 +223,7 @@ jobs:
     - name: Window transmission
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
-        cd pipeline/ray-tracing/transmission/
+        cd ${{ env.AXION_LIB_PATH }}/pipeline/ray-tracing/transmission/
         wget https://rest-for-physics.github.io/axionlib-data/transmission/Si.sol
         restManager --c emptyWindow.rml
         restRoot ValidateTransmission.C'("EmptyVacuumWindow.root", 0.07, 0.09)'
@@ -204,7 +234,7 @@ jobs:
     - name: Axion-field integration
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
-        cd pipeline/ray-tracing/axion-field/
+        cd ${{ env.AXION_LIB_PATH }}/pipeline/ray-tracing/axion-field/
         wget https://rest-for-physics.github.io/axionlib-data/magneticField/fields.rml
         wget https://rest-for-physics.github.io/axionlib-data/magneticField/Bykovskiy_201906.dat
         wget https://sultan.unizar.es/axionlib-data/bufferGas/He.abs

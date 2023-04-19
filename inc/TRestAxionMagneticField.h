@@ -24,14 +24,14 @@
 #define _TRestAxionMagneticField
 
 #include <TRestMetadata.h>
+
 #include <iostream>
 
 #include "TCanvas.h"
 #include "TH2D.h"
+#include "TRestMesh.h"
 #include "TVector3.h"
 #include "TVectorD.h"
-
-#include "TRestMesh.h"
 
 /// A structure to define the properties and store the field data of a single magnetic volume inside
 /// TRestAxionMagneticField
