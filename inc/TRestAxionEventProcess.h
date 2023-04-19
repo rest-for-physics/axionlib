@@ -57,7 +57,7 @@ class TRestAxionEventProcess : public TRestEventProcess {
     void BeginPrintProcess();
     void EndPrintProcess();
 
-    TVector3 GetCenter() const { return fCenter; }
+    TVector3 GetCenter() const { return fPosition; }
 
     void SkipEndProcessRotation(Bool_t value = true) { fSkipEndProcessRotation = value; }
 
