@@ -71,9 +71,9 @@ void TRestAxionEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
     RESTDebug << "BoEP: Initial Direction. X: " << fAxionEvent->GetDirection().X()
               << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z()
               << RESTendl;
-    fAxionEvent->RotateYX(fCenter, -fYaw, -fPitch);
-    fAxionEvent->RotateYX(fCenterSetup, -fYawSetup, -fPitchSetup);
-    fAxionEvent->Translate(TVector3(-fCenter.X(), -fCenter.Y(), -fCenter.Z()));
+    fAxionEvent->RotateYX(fPosition, -fInternalYaw, -fInternalPitch);
+    fAxionEvent->RotateYX(fExternalRotationCenter, -fExternalYaw, -fExternalPitch);
+    fAxionEvent->Translate(TVector3(-fPosition.X(), -fPosition.Y(), -fPosition.Z()));
     RESTDebug << " ---- " << RESTendl;
     RESTDebug << "BoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
               << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z()
@@ -98,9 +98,9 @@ void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
               << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z()
               << RESTendl;
     RESTDebug << " ---- " << RESTendl;
-    fAxionEvent->Translate(TVector3(fCenter.X(), fCenter.Y(), fCenter.Z()));
-    fAxionEvent->RotateYX(fCenterSetup, fYawSetup, fPitchSetup);
-    if (!fSkipEndProcessRotation) fAxionEvent->RotateXY(fCenter, fPitch, fYaw);
+    fAxionEvent->Translate(TVector3(fPosition.X(), fPosition.Y(), fPosition.Z()));
+    fAxionEvent->RotateYX(fExternalRotationCenter, fExternalYaw, fExternalPitch);
+    if (!fSkipEndProcessRotation) fAxionEvent->RotateXY(fPosition, fInternalPitch, fInternalYaw);
     RESTDebug << "EoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
               << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z()
               << RESTendl;
@@ -119,10 +119,10 @@ void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
 void TRestAxionEventProcess::BeginPrintProcess() {
     TRestEventProcess::BeginPrintProcess();
 
-    RESTMetadata << "Center: (" << fCenter.X() << ", " << fCenter.Y() << ", " << fCenter.Z() << ") mm"
+    RESTMetadata << "fPosition: (" << fPosition.X() << ", " << fPosition.Y() << ", " << fPosition.Z() << ") mm"
                  << RESTendl;
-    RESTMetadata << "Yaw angle (Y-axis): " << fYaw * units("degrees") << " degrees" << RESTendl;
-    RESTMetadata << "Pitch angle (X-axis): " << fPitch * units("degrees") << " degrees" << RESTendl;
+    RESTMetadata << "Yaw angle (Y-axis): " << fInternalYaw * units("degrees") << " degrees" << RESTendl;
+    RESTMetadata << "Pitch angle (X-axis): " << fInternalPitch * units("degrees") << " degrees" << RESTendl;
     RESTMetadata << " --------------------------- " << RESTendl;
     RESTMetadata << " " << RESTendl;
 }
