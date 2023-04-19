@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<gas>
+    <!-- It could be done using variables ${step}. However there are some issues that need to be fixed -->
+    <TRestAxionBufferGas name="helium_1" verboseLevel="warning">
+        <gas name="He" density="0.0167mg/cm^3"/>
+    </TRestAxionBufferGas>
+    <TRestAxionBufferGas name="helium_2" verboseLevel="warning">
+        <gas name="He" density="0.0334mg/cm^3"/>
+    </TRestAxionBufferGas>
+    <TRestAxionBufferGas name="helium_3" verboseLevel="warning">
+        <gas name="He" density="0.0501mg/cm^3"/>
+    </TRestAxionBufferGas>
+    <TRestAxionBufferGas name="helium_4" verboseLevel="warning">
+        <gas name="He" density="0.0668mg/cm^3"/>
+    </TRestAxionBufferGas>
+    <TRestAxionBufferGas name="helium_5" verboseLevel="warning">
+        <gas name="He" density="0.0835mg/cm^3"/>
+    </TRestAxionBufferGas>
+    <TRestAxionBufferGas name="helium_6" verboseLevel="warning">
+        <gas name="He" density="0.1002mg/cm^3"/>
+    </TRestAxionBufferGas>
+    <TRestAxionBufferGas name="helium_7" verboseLevel="warning">
+        <gas name="He" density="0.1169mg/cm^3"/>
+    </TRestAxionBufferGas>
+    <TRestAxionBufferGas name="helium_8" verboseLevel="warning">
+        <gas name="He" density="0.1336mg/cm^3"/>
+    </TRestAxionBufferGas>
+    <TRestAxionBufferGas name="helium_9" verboseLevel="warning">
+        <gas name="He" density="0.1503mg/cm^3"/>
+    </TRestAxionBufferGas>
+    <TRestAxionBufferGas name="helium_10" verboseLevel="warning">
+        <gas name="He" density="0.167mg/cm^3"/>
+    </TRestAxionBufferGas>
+</gas>

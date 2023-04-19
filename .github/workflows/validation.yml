@@ -243,3 +243,12 @@ jobs:
         restManager --c photonConversion.rml
         restRoot -b -q Validate.C'(5.86614e-19, 1.61288)'
         python3 validateStreamer.py
+    - name: Full ray-tracing
+      run: |
+        source ${{ env.REST_PATH }}/thisREST.sh
+        cd ${{ env.AXION_LIB_PATH }}/pipeline/ray-tracing/full-chain/
+        export REST_LOW_AXION_MASS=1e-2
+        export REST_HIGH_AXION_MASS=1e-1
+        export REST_GAS_STEP=2
+        restManager --c BabyIAXO_Micromegas_XMM.rml --o output.root
+        restRoot -q ValidateChain.C'("output.root")'
