@@ -119,8 +119,8 @@ void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
 void TRestAxionEventProcess::BeginPrintProcess() {
     TRestEventProcess::BeginPrintProcess();
 
-    RESTMetadata << "fPosition: (" << fPosition.X() << ", " << fPosition.Y() << ", " << fPosition.Z() << ") mm"
-                 << RESTendl;
+    RESTMetadata << "fPosition: (" << fPosition.X() << ", " << fPosition.Y() << ", " << fPosition.Z()
+                 << ") mm" << RESTendl;
     RESTMetadata << "Yaw angle (Y-axis): " << fInternalYaw * units("degrees") << " degrees" << RESTendl;
     RESTMetadata << "Pitch angle (X-axis): " << fInternalPitch * units("degrees") << " degrees" << RESTendl;
     RESTMetadata << " --------------------------- " << RESTendl;
