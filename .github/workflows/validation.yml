@@ -241,5 +241,5 @@ jobs:
         wget https://sultan.unizar.es/axionlib-data/bufferGas/He.nff
         wget https://rest-for-physics.github.io/axionlib-data/bufferGas/bufferGases.rml
         restManager --c photonConversion.rml
-        restRoot -b -q Validate.C'(5.86614e-19, 1.61288)'
+        restRoot -b -q Validate.C
         python3 validateStreamer.py
