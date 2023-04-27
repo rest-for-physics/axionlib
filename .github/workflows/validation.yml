@@ -245,6 +245,8 @@ jobs:
         python3 validateStreamer.py
     - name: Full ray-tracing
       run: |
+        source ${{ env.REST_PATH }}/thisREST.sh
+        cd ${{ env.AXION_LIB_PATH }}/pipeline/ray-tracing/full-chain/
         wget https://rest-for-physics.github.io/axionlib-data/solarFlux/fluxes.rml
         wget https://rest-for-physics.github.io/axionlib-data/transmission/windows.rml
         wget https://rest-for-physics.github.io/axionlib-data/transmission/Al.sol
@@ -253,8 +255,6 @@ jobs:
         wget https://rest-for-physics.github.io/axionlib-data/optics/xmmTrueWolter.rml
         wget https://rest-for-physics.github.io/axionlib-data/optics/XMM.Wolter
         wget https://rest-for-physics.github.io/axionlib-data/magneticField/fields.rml
-        source ${{ env.REST_PATH }}/thisREST.sh
-        cd ${{ env.AXION_LIB_PATH }}/pipeline/ray-tracing/full-chain/
         export REST_LOW_AXION_MASS=1e-2
         export REST_HIGH_AXION_MASS=1e-1
         export REST_GAS_STEP=2
