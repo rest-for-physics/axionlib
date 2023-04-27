@@ -112,13 +112,13 @@ jobs:
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
         cd ${{ env.AXION_LIB_PATH }}/pipeline/physics/
-        wget https://sultan.unizar.es/axionlib-data/bufferGas/He.abs
-        wget https://sultan.unizar.es/axionlib-data/bufferGas/He.nff
-        wget https://sultan.unizar.es/axionlib-data/bufferGas/Ne.abs
-        wget https://sultan.unizar.es/axionlib-data/bufferGas/Ne.nff
-        wget https://sultan.unizar.es/axionlib-data/bufferGas/bufferGases.rml
-        wget https://sultan.unizar.es/axionlib-data/magneticField/fields.rml
-        wget https://sultan.unizar.es/axionlib-data/magneticField/Bykovskiy_201906.dat
+        wget https://rest-for-physics.github.io/axionlib-data/bufferGas/He.abs
+        wget https://rest-for-physics.github.io/axionlib-data/bufferGas/He.nff
+        wget https://rest-for-physics.github.io/axionlib-data/bufferGas/Ne.abs
+        wget https://rest-for-physics.github.io/axionlib-data/bufferGas/Ne.nff
+        wget https://rest-for-physics.github.io/axionlib-data/bufferGas/bufferGases.rml
+        wget https://rest-for-physics.github.io/axionlib-data/magneticField/fields.rml
+        wget https://rest-for-physics.github.io/axionlib-data/magneticField/Bykovskiy_201906.dat
         restRoot -b -q AxionPhysicsValidation.C
 
   Metadata:
@@ -237,9 +237,26 @@ jobs:
         cd ${{ env.AXION_LIB_PATH }}/pipeline/ray-tracing/axion-field/
         wget https://rest-for-physics.github.io/axionlib-data/magneticField/fields.rml
         wget https://rest-for-physics.github.io/axionlib-data/magneticField/Bykovskiy_201906.dat
-        wget https://sultan.unizar.es/axionlib-data/bufferGas/He.abs
-        wget https://sultan.unizar.es/axionlib-data/bufferGas/He.nff
+        wget https://rest-for-physics.github.io/axionlib-data/bufferGas/He.abs
+        wget https://rest-for-physics.github.io/axionlib-data/bufferGas/He.nff
         wget https://rest-for-physics.github.io/axionlib-data/bufferGas/bufferGases.rml
         restManager --c photonConversion.rml
         restRoot -b -q Validate.C
         python3 validateStreamer.py
+    - name: Full ray-tracing
+      run: |
+        wget https://rest-for-physics.github.io/axionlib-data/solarFlux/fluxes.rml
+        wget https://rest-for-physics.github.io/axionlib-data/transmission/windows.rml
+        wget https://rest-for-physics.github.io/axionlib-data/transmission/Al.sol
+        wget https://rest-for-physics.github.io/axionlib-data/transmission/Cu.sol
+        wget https://rest-for-physics.github.io/axionlib-data/transmission/C10H8O4.sol
+        wget https://rest-for-physics.github.io/axionlib-data/optics/xmmTrueWolter.rml
+        wget https://rest-for-physics.github.io/axionlib-data/optics/XMM.Wolter
+        wget https://rest-for-physics.github.io/axionlib-data/magneticField/fields.rml
+        source ${{ env.REST_PATH }}/thisREST.sh
+        cd ${{ env.AXION_LIB_PATH }}/pipeline/ray-tracing/full-chain/
+        export REST_LOW_AXION_MASS=1e-2
+        export REST_HIGH_AXION_MASS=1e-1
+        export REST_GAS_STEP=2
+        restManager --c BabyIAXO_Micromegas_XMM.rml --o output.root
+        restRoot -q ValidateChain.C'("output.root")'
