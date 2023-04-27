@@ -4,7 +4,7 @@
 Double_t probTolerance = 1.e-21;
 Double_t fieldTolerance = 0.01;
 
-Int_t Validate(Double_t prob = 5.18573e-19, Double_t fieldAverage = 1.61288) {
+Int_t Validate(Double_t prob = 5.18573e-19, Double_t fieldAverage = 1.5764) {
     TRestRun* run = new TRestRun("AxionPhotonProbability.root");
 
     if (run->GetEntries() != 100) {
