@@ -255,6 +255,7 @@ jobs:
         wget https://rest-for-physics.github.io/axionlib-data/optics/xmmTrueWolter.rml
         wget https://rest-for-physics.github.io/axionlib-data/optics/XMM.Wolter
         wget https://rest-for-physics.github.io/axionlib-data/magneticField/fields.rml
+        wget https://rest-for-physics.github.io/axionlib-data/magneticField/Bykovskiy_201906.dat
         export REST_LOW_AXION_MASS=1e-2
         export REST_HIGH_AXION_MASS=1e-1
         export REST_GAS_STEP=2
