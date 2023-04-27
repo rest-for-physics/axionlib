@@ -253,6 +253,7 @@ jobs:
         wget https://rest-for-physics.github.io/axionlib-data/optics/xmmTrueWolter.rml
         wget https://rest-for-physics.github.io/axionlib-data/optics/XMM.Wolter
         wget https://rest-for-physics.github.io/axionlib-data/magneticField/fields.rml
+        wget https://rest-for-physics.github.io/axionlib-data/magneticField/Bykovskiy_201906.dat
         source ${{ env.REST_PATH }}/thisREST.sh
         cd ${{ env.AXION_LIB_PATH }}/pipeline/ray-tracing/full-chain/
         export REST_LOW_AXION_MASS=1e-2
