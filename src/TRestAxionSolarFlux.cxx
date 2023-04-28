@@ -296,7 +296,11 @@ void TRestAxionSolarFlux::LoadContinuumFluxTable() {
     std::vector<std::vector<Float_t>> fluxTable;
     if (TRestTools::GetFileNameExtension(fFluxDataFile) == "dat") {
         std::vector<std::vector<Double_t>> doubleTable;
-        TRestTools::ReadASCIITable(fullPathName, doubleTable);
+        if (!TRestTools::ReadASCIITable(fullPathName, doubleTable)) {
+            RESTError << "TRestAxionSolarFlux::LoadContinuumFluxTable. " << RESTendl;
+            RESTError << "Could not read solar flux table : " << fFluxDataFile << RESTendl;
+            return;
+        }
         for (const auto& row : doubleTable) {
             std::vector<Float_t> floatVec(row.begin(), row.end());
             fluxTable.push_back(floatVec);
@@ -342,7 +346,11 @@ void TRestAxionSolarFlux::LoadMonoChromaticFluxTable() {
     RESTDebug << "File : " << fullPathName << RESTendl;
 
     std::vector<std::vector<Double_t>> doubleTable;
-    TRestTools::ReadASCIITable(fullPathName, doubleTable);
+    if (!TRestTools::ReadASCIITable(fullPathName, doubleTable)) {
+        RESTError << "TRestAxionSolarFlux::LoadMonoChromaticFluxTable." << RESTendl;
+        RESTError << "Could not read solar flux table : " << fFluxSptFile << RESTendl;
+        return;
+    }
 
     std::vector<std::vector<Float_t>> asciiTable;
     for (const auto& row : doubleTable) {

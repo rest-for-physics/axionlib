@@ -259,7 +259,9 @@ void TRestAxionOpticsMirror::LoadTables() {
             string fname = DownloadHenkeFile();
 
             std::vector<std::vector<Double_t>> data;
-            TRestTools::ReadASCIITable(fname, data, 2);
+            if (!TRestTools::ReadASCIITable(fname, data, 2)) {
+                RESTError << "TRestAxionOpticsMirror. Error reading HenkeFile table" << RESTendl;
+            }
 
             // we skip the last point if we are not at the latest angles file
             Int_t N = data.size() - 1;

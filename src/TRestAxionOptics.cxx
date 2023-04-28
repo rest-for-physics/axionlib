@@ -192,7 +192,9 @@ void TRestAxionOptics::Initialize() {
     if (fOpticsFile != "") {
         std::string fullPathFileName = SearchFile(fOpticsFile);
 
-        TRestTools::ReadASCIITable(fullPathFileName, fOpticsData, 3);
+        if (!TRestTools::ReadASCIITable(fullPathFileName, fOpticsData, 3)) {
+            RESTError << "TRestAxionOptics. Error reading optics file : " << fOpticsFile << RESTendl;
+        }
 
         // std::cout << "Reading table" << std::endl;
         // TRestTools::PrintTable(fOpticsData, 6, 9);

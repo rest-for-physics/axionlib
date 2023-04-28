@@ -115,10 +115,6 @@ void TRestAxionGeneratorProcess::InitProcess() {
         fRandom = nullptr;
     }
 
-    if (fRandom != nullptr) {
-        delete fRandom;
-        fRandom = nullptr;
-    }
     fRandom = new TRandom3(fSeed);
     fSeed = fRandom->TRandom::GetSeed();
 }
