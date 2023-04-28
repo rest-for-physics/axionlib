@@ -215,7 +215,7 @@ jobs:
         export REST_RUN=100
         cd ${{ env.AXION_LIB_PATH }}/pipeline/ray-tracing/optics/
         wget https://rest-for-physics.github.io/axionlib-data/optics/xmm.rml
-        wget https://rest-for-physics.github.io/axionlib-data/optics/XMM.Wolter
+        wget https://rest-for-physics.github.io/axionlib-data/optics/XMM.trueWolter
         wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
         wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
         restManager --c opticsBench.rml
@@ -248,6 +248,7 @@ jobs:
         source ${{ env.REST_PATH }}/thisREST.sh
         cd ${{ env.AXION_LIB_PATH }}/pipeline/ray-tracing/full-chain/
         wget https://rest-for-physics.github.io/axionlib-data/solarFlux/fluxes.rml
+        wget https://rest-for-physics.github.io/axionlib-data/solarFlux/Primakoff_LennertHoof_202203.dat
         wget https://rest-for-physics.github.io/axionlib-data/transmission/windows.rml
         wget https://rest-for-physics.github.io/axionlib-data/transmission/Al.sol
         wget https://rest-for-physics.github.io/axionlib-data/transmission/Cu.sol
