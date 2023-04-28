@@ -255,6 +255,8 @@ jobs:
         wget https://rest-for-physics.github.io/axionlib-data/transmission/C10H8O4.sol
         wget https://rest-for-physics.github.io/axionlib-data/optics/xmmTrueWolter.rml
         wget https://rest-for-physics.github.io/axionlib-data/optics/XMM.trueWolter
+        wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Reflectivity_Single_Au_250_Ni_0.4.N901f
+        wget https://rest-for-physics.github.io/axionlib-data/opticsMirror/Transmission_Single_Au_250_Ni_0.4.N901f
         wget https://rest-for-physics.github.io/axionlib-data/magneticField/fields.rml
         wget https://rest-for-physics.github.io/axionlib-data/magneticField/Bykovskiy_201906.dat
         wget https://rest-for-physics.github.io/axionlib-data/bufferGas/He.abs
