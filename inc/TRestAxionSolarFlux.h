@@ -27,18 +27,11 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TRandom3.h>
-#include <TRestAxionSolarModel.h>
 #include <TRestMetadata.h>
 
 //! A metadata class to load tabulated solar axion fluxes
 class TRestAxionSolarFlux : public TRestMetadata {
    private:
-    /// The filename containning the solar flux table with continuum spectrum
-    std::string fFluxDataFile = "";  //<
-
-    /// The filename containning the solar flux spectra for monochromatic spectrum
-    std::string fFluxSptFile = "";  //<
-
     /// Axion coupling. Defines coupling type and strength.
     std::string fCouplingType = "";  //<
 
@@ -48,101 +41,53 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// Seed used in random generator
     Int_t fSeed = 0;  //<
 
-    /// It will be used when loading `.flux` files to define the input file energy binsize in eV.
-    Double_t fBinSize = 0;  //<
-
-    /// It will be used when loading `.flux` files to define the threshold for peak identification
-    Double_t fPeakSigma = 0;  //<
-
-    /// The tabulated solar flux continuum spectra TH1F(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
-    std::vector<TH1F*> fFluxTable;  //!
-
-    /// The tabulated solar flux in cm-2 s-1 for a number of monochromatic energies versus solar radius
-    std::map<Double_t, TH1F*> fFluxLines;  //!
-
-    /// Accumulative integrated solar flux for each solar ring for continuum spectrum (renormalized to unity)
-    std::vector<Double_t> fFluxTableIntegrals;  //!
-
-    /// Accumulative integrated solar flux for each monochromatic energy (renormalized to unity)
-    std::vector<Double_t> fFluxLineIntegrals;  //!
-
-    /// Total solar flux for monochromatic contributions
-    Double_t fTotalMonochromaticFlux = 0;  //!
-
-    /// Total solar flux for monochromatic contributions
-    Double_t fTotalContinuumFlux = 0;  //!
-
-    /// The ratio between monochromatic and total flux
-    Double_t fFluxRatio = 0;  //!
-
-    /// Random number generator
-    TRandom3* fRandom = nullptr;  //!
-
-    /// A canvas pointer for drawing
-    TCanvas* fCanvas = nullptr;  //!
-
-    /// A pointer to the continuum spectrum histogram
-    TH1F* fContinuumHist = nullptr;  //!
-
-    /// A pointer to the monochromatic spectrum histogram
-    TH1F* fMonoHist = nullptr;  //!
-
-    /// A pointer to the superposed monochromatic and continuum spectrum histogram
-    TH1F* fTotalHist = nullptr;  //!
-
-    /// A metadata member to control if the tables have been loaded
+    /// A metadata member to control if this class has been initialized
     Bool_t fTablesLoaded = false;  //!
 
     void Initialize();
 
-    void ReadFluxFile();
-    void LoadContinuumFluxTable();
-    void LoadMonoChromaticFluxTable();
-    void IntegrateSolarFluxes();
+   protected:
+    /// A canvas pointer for drawing
+    TCanvas* fCanvas = nullptr;  //!
+
+    /// Random number generator
+    TRandom3* fRandom = nullptr;  //!
 
    public:
-    /// It returns true if continuum flux spectra was loaded
-    Bool_t isSolarTableLoaded() { return fFluxTable.size() > 0; }
-
-    /// It returns true if monochromatic flux spectra was loaded
-    Bool_t isSolarSpectrumLoaded() { return fFluxLines.size() > 0; }
-
     /// It returns the integrated flux at earth in cm-2 s-1 for the given energy range
-    Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1));
+    virtual Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1), Double_t mass = 0) = 0;
 
     /// It returns the total integrated flux at earth in cm-2 s-1
-    Double_t GetTotalFlux() { return fTotalContinuumFlux + fTotalMonochromaticFlux; }
+    virtual Double_t GetTotalFlux(Double_t mass = 0) = 0;
 
-    std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1));
+    /// It defines how to generate Monte Carlo energy and radius values to reproduce the flux
+    virtual std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1),
+                                                                   Double_t mass = 0) = 0;
 
-    void LoadTables();
+    /// It defines how to read the solar tables at the inhereted class
+    virtual Bool_t LoadTables() = 0;
 
-    TH1F* GetContinuumSpectrum();
-    TH1F* GetMonochromaticSpectrum();
-    TH1F* GetTotalSpectrum();
+    /// It returns an energy integrated spectrum in cm-2 s-1 keV-1
+    virtual TH1F* GetEnergySpectrum(Double_t m = 0) = 0;
+
+    virtual TCanvas* DrawSolarFlux();
+
+    virtual void ExportTables(Bool_t ascii = false) {
+        RESTWarning << "TRestAxionSolarFlux::ExportTables must be re-implemented in the inherited class"
+                    << RESTendl;
+    }
+
+    Bool_t AreTablesLoaded() { return fTablesLoaded; }
 
     TH1F* GetFluxHistogram(std::string fname, Double_t binSize = 0.01);
     TCanvas* DrawFluxFile(std::string fname, Double_t binSize = 0.01);
-    TCanvas* DrawSolarFlux();
-
-    /// Tables might be loaded using a solar model description by TRestAxionSolarModel
-    void InitializeSolarTable(TRestAxionSolarModel* model) {
-        // TOBE implemented
-        // This method should initialize the tables fFluxTable and fFluxLines
-    }
-
-    void ExportTables(Bool_t ascii = false);
 
     void PrintMetadata();
-
-    void PrintContinuumSolarTable();
-    void PrintIntegratedRingFlux();
-    void PrintMonoChromaticFlux();
 
     TRestAxionSolarFlux();
     TRestAxionSolarFlux(const char* cfgFileName, std::string name = "");
     ~TRestAxionSolarFlux();
 
-    ClassDef(TRestAxionSolarFlux, 1);
+    ClassDef(TRestAxionSolarFlux, 2);
 };
 #endif
