@@ -20,7 +20,7 @@ jobs:
     name: Validate library
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root:latest
     steps:
       - uses: rest-for-physics/framework/.github/actions/checkout@master
         with:
@@ -33,7 +33,7 @@ jobs:
     name: Validate pre-commit config
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root:latest
     steps:
       - name: Checkout axionlib
         uses: rest-for-physics/framework/.github/actions/checkout@master
@@ -50,7 +50,7 @@ jobs:
     name: Build only axionlib
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root:latest
     steps:
       - name: Build and install
         uses: rest-for-physics/framework/.github/actions/build@master
@@ -68,7 +68,7 @@ jobs:
     name: "Macros with clean error output"
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root:latest
     needs: [ build-axionlib ]
     steps:
       - uses: rest-for-physics/framework/.github/actions/checkout@master
@@ -94,7 +94,7 @@ jobs:
     name: Check physics
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root:latest
     needs: [ build-axionlib ]
     steps:
     - uses: rest-for-physics/framework/.github/actions/checkout@master
@@ -125,7 +125,7 @@ jobs:
     name: Check metadata
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root:latest
     needs: [ build-axionlib ]
     steps:
     - uses: rest-for-physics/framework/.github/actions/checkout@master
@@ -194,7 +194,7 @@ jobs:
     name: Check ray-tracing processing chain
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+      image: ghcr.io/rest-for-physics/root:latest
     needs: [ build-axionlib ]
     steps:
     - uses: rest-for-physics/framework/.github/actions/checkout@master
