@@ -237,11 +237,11 @@ jobs:
           cd ${{ env.AXION_LIB_PATH }}/pipeline/ray-tracing/axion-field/
           wget https://rest-for-physics.github.io/axionlib-data/magneticField/fields.rml
           wget https://rest-for-physics.github.io/axionlib-data/magneticField/Bykovskiy_201906.dat
-          wget https://sultan.unizar.es/axionlib-data/bufferGas/He.abs
-          wget https://sultan.unizar.es/axionlib-data/bufferGas/He.nff
+          wget https://rest-for-physics.github.io/axionlib-data/bufferGas/He.abs
+          wget https://rest-for-physics.github.io/axionlib-data/bufferGas/He.nff
           wget https://rest-for-physics.github.io/axionlib-data/bufferGas/bufferGases.rml
           restManager --c photonConversion.rml
-          restRoot -b -q Validate.C'(5.86614e-19, 1.61288)'
+          restRoot -b -q Validate.C
           python3 validateStreamer.py
       - name: Full ray-tracing
         run: |
