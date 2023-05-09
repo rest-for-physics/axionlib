@@ -44,8 +44,6 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// A metadata member to control if this class has been initialized
     Bool_t fTablesLoaded = false;  //!
 
-    void Initialize();
-
    protected:
     /// A canvas pointer for drawing
     TCanvas* fCanvas = nullptr;  //!
@@ -56,7 +54,13 @@ class TRestAxionSolarFlux : public TRestMetadata {
     TRestAxionSolarFlux();
     TRestAxionSolarFlux(const char* cfgFileName, std::string name = "");
 
+    /// It defines how to read the solar tables at the inhereted class
+    virtual Bool_t LoadTables() = 0;
+
    public:
+    /// It is required in order to load solar flux tables into memory
+    void Initialize();
+
     /// It returns the integrated flux at earth in cm-2 s-1 for the given energy range
     virtual Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1), Double_t mass = 0) = 0;
 
@@ -66,9 +70,6 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// It defines how to generate Monte Carlo energy and radius values to reproduce the flux
     virtual std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1),
                                                                    Double_t mass = 0) = 0;
-
-    /// It defines how to read the solar tables at the inhereted class
-    virtual Bool_t LoadTables() = 0;
 
     /// It returns an energy integrated spectrum in cm-2 s-1 keV-1
     virtual TH1F* GetEnergySpectrum(Double_t m = 0) = 0;
