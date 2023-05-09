@@ -23,8 +23,20 @@
 //////////////////////////////////////////////////////////////////////////
 /// TRestAxionSolarQCDFlux will use a file in ASCII or binary format to initialize
 /// a solar flux table that will describe the solar flux spectrum as a function
-/// of the solar radius. It will be also possible to generate the solar table
-/// by other means.
+/// of the solar radius.
+///
+/// This class may serve to load any generic flux definition that is independent
+/// from the axion mass. However, since the design of the class was motivated to
+/// reproduce the standard QCD axion flux, therefore the name of the class.
+///
+/// Another scenario arises when the axion or an axion-like particle production
+/// mechanism depends on its mass, and we may need to introduce a flux description
+/// as the given in the class TRestAxionSolarHiddenPhotonFlux. Both classes are
+/// prototyped by a pure base class TRestAxionSolarFlux that defines common methods
+/// used to evaluate the flux, and generate Monte-Carlo events inside
+/// TRestAxionGeneratorProcess.
+///
+/// ### Basic use
 ///
 /// Once the class has been initialized, the main use of this class will be provided
 /// by the method TRestAxionSolarQCDFlux::GetRandomEnergyAndRadius. This method will
@@ -107,7 +119,7 @@
 /// location with the help of the method TRestAxionSolarQCDFlux::GetRandomEnergyAndRadius.
 ///
 /// \code
-/// python3 solarPlot.py --fluxname LennertHoofABC --N 1000000
+/// python3 solarPlotQCD.py --fluxname LennertHoofABC --N 1000000
 /// \endcode
 ///
 /// By default, it will load the flux definition found at `fluxes.rml` from the
@@ -152,7 +164,7 @@
 ///
 /// \code
 ///    TRestAxionSolarQCDFlux *sFlux = new TRestAxionSolarQCDFlux("fluxes.rml", "LennertHoofABC")
-///    sFlux->LoadTables()
+///    sFlux->Initialize()
 ///    TCanvas *c = sFlux->DrawSolarFluxes()
 ///    c->Print("ABC_FluxTable.png" )
 /// \endcode
@@ -170,7 +182,7 @@
 ///
 /// \code
 ///    TRestAxionSolarQCDFlux *sFlux = new TRestAxionSolarQCDFlux("fluxes.rml", "LennertHoofABC")
-///    sFlux->LoadTables()
+///    sFlux->Initialize()
 ///    sFlux->ExportTables()
 /// \endcode
 ///
