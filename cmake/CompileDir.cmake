@@ -232,7 +232,7 @@ macro (COMPILEDIR libname)
             RUNTIME DESTINATION bin
             LIBRARY DESTINATION bin
             ARCHIVE DESTINATION lib)
-    elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
         target_link_libraries(${libname} ${rest_libraries} ${external_libs})
         install(
             TARGETS ${libname}
