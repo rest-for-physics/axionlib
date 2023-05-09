@@ -105,7 +105,7 @@ void TRestAxionGeneratorProcess::InitProcess() {
     }
 
     if (fAxionFlux) {
-        fAxionFlux->LoadTables();
+        fAxionFlux->Initialize();
 
         fTotalFlux = fAxionFlux->IntegrateFluxInRange(fEnergyRange);
     }
