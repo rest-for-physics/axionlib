@@ -94,7 +94,9 @@ class TRestAxionSolarQCDFlux : public TRestAxionSolarFlux {
     Bool_t LoadTables() override;
 
     /// It returns the total integrated flux at earth in cm-2 s-1
-    Double_t GetTotalFlux() { return fTotalContinuumFlux + fTotalMonochromaticFlux; }
+    Double_t GetTotalFlux(Double_t mass = 0) override {
+        return fTotalContinuumFlux + fTotalMonochromaticFlux;
+    }
 
     /// It returns an energy integrated spectrum in cm-2 s-1 keV-1
     TH1F* GetEnergySpectrum(Double_t m = 0) override { return GetTotalSpectrum(); }
