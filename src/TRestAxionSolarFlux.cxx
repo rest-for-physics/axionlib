@@ -225,9 +225,8 @@ TRestAxionSolarFlux::TRestAxionSolarFlux() : TRestMetadata() {}
 /// corresponding TRestAxionMagneticField section inside the RML.
 ///
 TRestAxionSolarFlux::TRestAxionSolarFlux(const char* cfgFileName, string name) : TRestMetadata(cfgFileName) {
-    LoadConfigFromFile(fConfigFileName, name);
-
-    if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
+    RESTDebug << "Entering TRestAxionSolarFlux constructor( cfgFileName, name )" << RESTendl;
+    RESTDebug << "File: " << cfgFileName << " Name: " << name << RESTendl;
 }
 
 ///////////////////////////////////////////////
@@ -239,7 +238,6 @@ TRestAxionSolarFlux::~TRestAxionSolarFlux() {}
 /// \brief Initialization of TRestAxionSolarFlux members
 ///
 void TRestAxionSolarFlux::Initialize() {
-    SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
 
     fTablesLoaded = false;
