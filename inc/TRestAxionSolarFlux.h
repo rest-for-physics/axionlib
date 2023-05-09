@@ -53,6 +53,9 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// Random number generator
     TRandom3* fRandom = nullptr;  //!
 
+    TRestAxionSolarFlux();
+    TRestAxionSolarFlux(const char* cfgFileName, std::string name = "");
+
    public:
     /// It returns the integrated flux at earth in cm-2 s-1 for the given energy range
     virtual Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1), Double_t mass = 0) = 0;
@@ -84,8 +87,6 @@ class TRestAxionSolarFlux : public TRestMetadata {
 
     void PrintMetadata();
 
-    TRestAxionSolarFlux();
-    TRestAxionSolarFlux(const char* cfgFileName, std::string name = "");
     ~TRestAxionSolarFlux();
 
     ClassDef(TRestAxionSolarFlux, 2);
