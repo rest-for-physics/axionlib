@@ -19,7 +19,7 @@
         <parameter name="user" value="pipeline"/>
         <parameter name="verboseLevel" value="2"/>
 		<parameter name="outputFileName" value="run_[fRunNumber]_[fRunType]_[fRunTag]_V[fVersion].root"/>
-        <TRestAxionSolarFlux file="fluxes.rml" name="LennertHoofPrimakoff"/>
+        <TRestAxionSolarQCDFlux file="fluxes.rml" name="LennertHoofPrimakoff"/>
         <TRestAxionMagneticField file="fields.rml" name="babyIAXO"/>
 		<TRestAxionBufferGas file="bufferGases.rml" name="helium_${REST_GAS_STEP}"/>
         <TRestAxionTrueWolterOptics file="xmmTrueWolter.rml" name="xmm"/>
