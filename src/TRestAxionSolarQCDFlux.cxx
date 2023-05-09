@@ -203,7 +203,7 @@
 ///
 /// History of developments:
 ///
-/// 2022-February: Recovered from original TRestAxionSolarModel implementation
+/// 2023-May: Specific methods extracted from TRestAxionSolarFlux
 ///                Javier Galan
 ///
 /// \class      TRestAxionSolarQCDFlux
