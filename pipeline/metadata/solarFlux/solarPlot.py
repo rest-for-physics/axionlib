@@ -165,15 +165,15 @@ print("Generated file : " + outfname)
 
 print("\nMaximum energy bin is " + str(enSpt.GetMaximumBin()))
 if validation:
-    if enSpt.GetMaximumBin() != 1996:
-        print("\nMaximum Bin is not the expected one (1996)! Exit code : 1")
+    if enSpt.GetMaximumBin() != 8001:
+        print("\nMaximum Bin is not the expected one (8001)! Exit code : 1")
         exit(1)
 
 print("\nMaximum radius bin is " + str(rSpt.GetMaximumBin()))
 
 if validation:
-    if rSpt.GetMaximumBin() != 7:
-        print("\nMaximum Bin is not the expected one (7)! Exit code : 2")
+    if rSpt.GetMaximumBin() != 25:
+        print("\nMaximum Bin is not the expected one (25)! Exit code : 2")
         exit(2)
 
 exit(0)
