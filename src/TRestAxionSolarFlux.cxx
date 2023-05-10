@@ -28,7 +28,21 @@
 /// At present, two different implemenations exist: TRestAxionSolarQCDFlux and
 /// TRestAxionSolarHiddenPhotonFlux.
 ///
-/// Pre-generated solar axion flux tables will be available at the
+/// ### Common metadata members defined by this class
+///
+/// In order to trace the nature and intensity of the coupling in
+/// future ray-tracking results we need to define the parameters `couplingType` and
+/// `couplingStrength`. The ray-tracing processing will be done for different
+/// coupling components in different event processing chains that will be combined
+/// in a final sensitivity plot.
+///
+/// - *couplingType:* A string describing the coupling type, i.e. g_ag, g_ae, g_an, ...
+/// - *couplingStrength:* The intensity of the coupling used to calculate the values
+/// given in the solar flux tables.
+///
+/// ### Pre-generated solar axion flux tables
+///
+/// Some tables  will be available at the
 /// [axionlib-data](https://github.com/rest-for-physics/axionlib-data/tree/master)
 /// repository. The different RML flux definitions used to load those tables
 /// will be found at the
@@ -39,7 +53,10 @@
 /// installation directory, and it will be located automatically by the
 /// TRestMetadata::SearchFile method when initializing a TRestAxionSolarFlux class.
 ///
+/// ### Re-implementing a specific TRestAxionSolarXYZFlux class
+///
 /// Different pure virtual methods must be re-implemented in the inherited class:
+///
 /// - **IntegratedFluxInRange**: It should return a double value with the total integrated
 /// flux in cm-2 s-1 for a given energy range.
 /// - **GetTotalFlux**: It should return the total flux in cm-2 s-1

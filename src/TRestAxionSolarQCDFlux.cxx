@@ -43,15 +43,7 @@
 /// return a random axion energy and position inside the solar radius following the
 /// distributions given by the solar flux tables.
 ///
-/// For the moment, in order to trace the nature and intensity of the coupling in
-/// future ray-tracking results we need to define the parameters `couplingType` and
-/// `couplingStrength`. The ray-tracing processing will be done for different
-/// coupling components in different event processing chains.
-///
-/// Description of the parameters accepted by this metadata class.
-/// - *couplingType:* A string describing the coupling type, i.e. g_ag, g_ae, g_an, ...
-/// - *couplingStrength:* The intensity of the coupling used to calculate the values
-/// given in the solar flux tables.
+/// Description of the specific parameters accepted by this metadata class.
 /// - *fluxDataFile:* A table with 100 rows representing the solar ring flux from the
 /// center to the corona, and 200 columns representing the flux, measured in cm-2 s-1 keV-1,
 /// for the range (0,20)keV in steps of 100eV. The table could be provided in ASCII format,
@@ -99,10 +91,15 @@
 ///
 /// \code
 ///     <TRestAxionSolarQCDFlux name="sunPrimakoff" verboseLevel="debug" >
+///
+///         <!-- Common parameters that belong to TRestAxionSolarFlux -->
 ///			<parameter name="couplingType" value="g_ag"/>
 ///			<parameter name="couplingStrength" value="1.e-10"/>
+///
+///         <!-- Specific parameters that belong to TRestAxionSolarQCDFlux -->
 ///			<parameter name="fluxDataFile" value="Primakoff_Gianotti_201904.dat"/>
 ///			<parameter name="fluxSptFile" value="Dummy_Galan_202202.spt"/>
+///
 ///     </TRestAxionSolarQCDFlux>
 /// \endcode
 ///
