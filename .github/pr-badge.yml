@@ -15,5 +15,5 @@
   when: "$additions < 100"
 - imageUrl: "https://gitlab.cern.ch/rest-for-physics/axionlib/badges/$branchName/pipeline.svg"
   url: "https://gitlab.cern.ch/rest-for-physics/axionlib/-/commits/$branchName"
-- imageUrl: "https://github.com/rest-for-physics/axionlib/actions/workflows/validation.yml/badge.svg?branch=$branchName"
-  url: "https://github.com/rest-for-physics/axionlib/commits/$branchName"
+- imageUrl: "https://github.com/rest-for-physics/framework/actions/workflows/validation.yml/badge.svg?branch=$branchName"
+  url: "https://github.com/rest-for-physics/framework/commits/$branchName"
