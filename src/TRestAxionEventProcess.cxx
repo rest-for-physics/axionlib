@@ -119,10 +119,20 @@ void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
 void TRestAxionEventProcess::BeginPrintProcess() {
     TRestEventProcess::BeginPrintProcess();
 
-    RESTMetadata << "fPosition: (" << fPosition.X() << ", " << fPosition.Y() << ", " << fPosition.Z()
-                 << ") mm" << RESTendl;
-    RESTMetadata << "Yaw angle (Y-axis): " << fInternalYaw * units("degrees") << " degrees" << RESTendl;
-    RESTMetadata << "Pitch angle (X-axis): " << fInternalPitch * units("degrees") << " degrees" << RESTendl;
+    RESTMetadata << "Position: (" << fPosition.X() << ", " << fPosition.Y() << ", " << fPosition.Z() << ") mm"
+                 << RESTendl;
+    RESTMetadata << " " << RESTendl;
+    RESTMetadata << "Internal Yaw angle (Y-axis): " << fInternalYaw * units("degrees") << " degrees"
+                 << RESTendl;
+    RESTMetadata << "Internal Pitch angle (X-axis): " << fInternalPitch * units("degrees") << " degrees"
+                 << RESTendl;
+    RESTMetadata << " " << RESTendl;
+    RESTMetadata << "External rotation center: (" << fExternalRotationCenter.X() << ", "
+                 << fExternalRotationCenter.Y() << ", " << fExternalRotationCenter.Z() << ") mm" << RESTendl;
+    RESTMetadata << "External Yaw angle (Y-axis): " << fExternalYaw * units("degrees") << " degrees"
+                 << RESTendl;
+    RESTMetadata << "External Pitch angle (X-axis): " << fExternalPitch * units("degrees") << " degrees"
+                 << RESTendl;
     RESTMetadata << " --------------------------- " << RESTendl;
     RESTMetadata << " " << RESTendl;
 }
