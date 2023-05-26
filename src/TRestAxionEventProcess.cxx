@@ -101,7 +101,7 @@ void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
     fAxionEvent->Translate(TVector3(fPosition.X(), fPosition.Y(), fPosition.Z()));
     if (!fSkipEndProcessRotation) {
         fAxionEvent->RotateXY(fExternalRotationCenter, fExternalYaw, fExternalPitch);
-        fAxionEvent->RotateXY(fPosition, fInternalPitch, fInternalYaw);                             
+        fAxionEvent->RotateXY(fPosition, fInternalPitch, fInternalYaw);
     }
     RESTDebug << "EoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
               << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z()
