@@ -20,10 +20,11 @@ const std::string BabyIAXOFlux = "SolarFlux*GeneratorArea*(1000*MassInterval)/Ns
 //*** columns.
 //***
 //*** --------------
-//*** Usage: restManager RayTracingNGamma dataset.root [weight1,weight2] [normalizationFactor]
+//*** Usage: restManager RayTracingNGamma dataset.root [outputPath] [weight1,weight2] [normalizationFactor]
 //***
 //*******************************************************************************************************
-Int_t REST_Axion_RayTracingNGamma(const std::string& fname, const std::string& weights = BabyIAXOWeights,
+Int_t REST_Axion_RayTracingNGamma(const std::string& fname, const std::string& outputPath = "",
+                                  const std::string& weights = BabyIAXOWeights,
                                   const std::string& mcFlux = BabyIAXOFlux) {
     std::vector<std::string> ws = REST_StringHelper::Split(weights, ",");
 
@@ -54,7 +55,9 @@ Int_t REST_Axion_RayTracingNGamma(const std::string& fname, const std::string& w
 
     std::cout << "Writting to file: "
               << "DataSet_RayTracing_Ngamma_" << tag << ".root" << std::endl;
-    d.Export("DataSet_RayTracing_Ngamma_" + tag + ".root");
+    if (!outputPath.empty()) std::cout << "Output path: " << outputPath << std::endl;
+
+    d.Export(outputPath + "DataSet_RayTracing_Ngamma_" + tag + ".root");
 
     return 0;
 }
