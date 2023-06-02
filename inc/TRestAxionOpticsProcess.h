@@ -45,18 +45,6 @@ class TRestAxionOpticsProcess : public TRestAxionEventProcess {
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
 
-    /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() override {
-        BeginPrintProcess();
-
-        if (fOpticalAxis)
-            RESTMetadata << "Output particle is described respect to the optical axis" << RESTendl;
-        else
-            RESTMetadata << "Output particle is described respect to the universal axis" << RESTendl;
-
-        EndPrintProcess();
-    }
-
     /// Returns the name of this process
     const char* GetProcessName() const override { return "axionOptics"; }
 
