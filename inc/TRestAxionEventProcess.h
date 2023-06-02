@@ -59,8 +59,6 @@ class TRestAxionEventProcess : public TRestEventProcess {
 
     TVector3 GetCenter() const { return fPosition; }
 
-    void SkipEndProcessRotation(Bool_t value = true) { fSkipEndProcessRotation = value; }
-
    public:
     RESTValue GetInputEvent() const override { return fAxionEvent; }
     RESTValue GetOutputEvent() const override { return fAxionEvent; }
