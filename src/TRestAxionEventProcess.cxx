@@ -99,7 +99,7 @@ void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
               << RESTendl;
     RESTDebug << " ---- " << RESTendl;
     fAxionEvent->Translate(TVector3(fPosition.X(), fPosition.Y(), fPosition.Z()));
-    if (!fLocalAxis) {
+    if (fLocalAxis) {
         fAxionEvent->RotateXY(fExternalRotationCenter, fExternalPitch, fExternalYaw);
         fAxionEvent->RotateXY(fPosition, fInternalPitch, fInternalYaw);
     }
