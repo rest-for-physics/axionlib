@@ -30,9 +30,6 @@
 //! A process to introduce the response from optics in the axion signal generation chain
 class TRestAxionOpticsProcess : public TRestAxionEventProcess {
    private:
-    /// A variable to determine if the new axis will be optical or universal axis
-    Bool_t fOpticalAxis = false;  //<
-
     /// A pointer to the optics description defined inside TRestRun
     TRestAxionOptics* fOptics;  //!
 
@@ -43,17 +40,6 @@ class TRestAxionOpticsProcess : public TRestAxionEventProcess {
    protected:
    public:
     void InitProcess() override;
-
-    /// This InitFromConfigFile could be removed as soon as PR rest-for-physics/framework#275
-    /// is solved
-    void InitFromConfigFile() override {
-        TRestEventProcess::InitFromConfigFile();
-
-        if (ToUpper(GetParameter("opticalAxis", "false")) == "TRUE")
-            fOpticalAxis = true;
-        else
-            fOpticalAxis = false;
-    }
 
     TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
