@@ -64,7 +64,7 @@ class TRestAxionEventProcess : public TRestEventProcess {
     RESTValue GetOutputEvent() const override { return fAxionEvent; }
 
     virtual void InitProcess() override {}
-	
+
     /// It prints out the process parameters stored in the metadata structure
     virtual void PrintMetadata() override {
         BeginPrintProcess();
