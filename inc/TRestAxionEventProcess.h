@@ -30,22 +30,22 @@
 class TRestAxionEventProcess : public TRestEventProcess {
    private:
     /// The position of the component around which the rotation will be applied
-    TVector3 fPosition = TVector3(0, 0, 0); //<
+    TVector3 fPosition = TVector3(0, 0, 0);  //<
 
     /// The rotation angle with respect to the Y-axis
-    Double_t fInternalYaw = 0; //<
+    Double_t fInternalYaw = 0;  //<
 
     /// The rotation angle with respect to X-axis
-    Double_t fInternalPitch = 0; //<
+    Double_t fInternalPitch = 0;  //<
 
     /// The position (different than the center of the object) around which the rotation will be applied
-    TVector3 fExternalRotationCenter = TVector3(0, 0, 0); //<
+    TVector3 fExternalRotationCenter = TVector3(0, 0, 0);  //<
 
     /// The rotation angle around CenterSetup with respect to the Y-axis
-    Double_t fExternalYaw = 0; //<
+    Double_t fExternalYaw = 0;  //<
 
     /// The rotation angle around CenterSetup with respect to X-axis
-    Double_t fExternalPitch = 0; //<
+    Double_t fExternalPitch = 0;  //<
 
     /// If enabled it will skip the end rotation that recovers the original axion trajectory direction
     Bool_t fLocalAxis = true;  //<
