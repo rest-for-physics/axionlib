@@ -135,10 +135,10 @@ void TRestAxionEventProcess::BeginPrintProcess() {
                  << RESTendl;
     RESTMetadata << "External Pitch angle (X-axis): " << fExternalPitch * units("degrees") << " degrees"
                  << RESTendl;
-	if( fLocalAxis ) 
-		RESTMetadata << "Local axis is true " << RESTendl;
-	else
-		RESTMetadata << "Universal axis is true " << RESTendl;
+    if (fLocalAxis)
+        RESTMetadata << "Local axis is true " << RESTendl;
+    else
+        RESTMetadata << "Universal axis is true " << RESTendl;
     RESTMetadata << " --------------------------- " << RESTendl;
     RESTMetadata << " " << RESTendl;
 }
