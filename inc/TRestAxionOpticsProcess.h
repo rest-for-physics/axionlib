@@ -55,6 +55,6 @@ class TRestAxionOpticsProcess : public TRestAxionEventProcess {
     // Destructor
     ~TRestAxionOpticsProcess();
 
-    ClassDefOverride(TRestAxionOpticsProcess, 1);
+    ClassDefOverride(TRestAxionOpticsProcess, 2);
 };
 #endif
