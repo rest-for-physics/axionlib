@@ -30,9 +30,6 @@
 //! A process to introduce the response from optics in the axion signal generation chain
 class TRestAxionOpticsProcess : public TRestAxionEventProcess {
    private:
-    /// A variable to determine if the new axis will be optical or universal axis
-    Bool_t fOpticalAxis = false;  //<
-
     /// A pointer to the optics description defined inside TRestRun
     TRestAxionOptics* fOptics;  //!
 
@@ -44,32 +41,9 @@ class TRestAxionOpticsProcess : public TRestAxionEventProcess {
    public:
     void InitProcess() override;
 
-    /// This InitFromConfigFile could be removed as soon as PR rest-for-physics/framework#275
-    /// is solved
-    void InitFromConfigFile() override {
-        TRestEventProcess::InitFromConfigFile();
-
-        if (ToUpper(GetParameter("opticalAxis", "false")) == "TRUE")
-            fOpticalAxis = true;
-        else
-            fOpticalAxis = false;
-    }
-
     TRestEvent* ProcessEvent(TRestEvent* evInput) override;
 
     void LoadConfig(std::string cfgFilename, std::string name = "");
-
-    /// It prints out the process parameters stored in the metadata structure
-    void PrintMetadata() override {
-        BeginPrintProcess();
-
-        if (fOpticalAxis)
-            RESTMetadata << "Output particle is described respect to the optical axis" << RESTendl;
-        else
-            RESTMetadata << "Output particle is described respect to the universal axis" << RESTendl;
-
-        EndPrintProcess();
-    }
 
     /// Returns the name of this process
     const char* GetProcessName() const override { return "axionOptics"; }
@@ -81,6 +55,6 @@ class TRestAxionOpticsProcess : public TRestAxionEventProcess {
     // Destructor
     ~TRestAxionOpticsProcess();
 
-    ClassDefOverride(TRestAxionOpticsProcess, 1);
+    ClassDefOverride(TRestAxionOpticsProcess, 2);
 };
 #endif

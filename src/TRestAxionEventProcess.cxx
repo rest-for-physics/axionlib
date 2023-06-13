@@ -99,8 +99,8 @@ void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
               << RESTendl;
     RESTDebug << " ---- " << RESTendl;
     fAxionEvent->Translate(TVector3(fPosition.X(), fPosition.Y(), fPosition.Z()));
-    if (!fSkipEndProcessRotation) {
-        fAxionEvent->RotateXY(fExternalRotationCenter, fExternalYaw, fExternalPitch);
+    if (fLocalAxis) {
+        fAxionEvent->RotateXY(fExternalRotationCenter, fExternalPitch, fExternalYaw);
         fAxionEvent->RotateXY(fPosition, fInternalPitch, fInternalYaw);
     }
     RESTDebug << "EoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
@@ -135,6 +135,11 @@ void TRestAxionEventProcess::BeginPrintProcess() {
                  << RESTendl;
     RESTMetadata << "External Pitch angle (X-axis): " << fExternalPitch * units("degrees") << " degrees"
                  << RESTendl;
+    RESTMetadata << " " << RESTendl;
+    if (fLocalAxis)
+        RESTMetadata << "Local axis is true " << RESTendl;
+    else
+        RESTMetadata << "Universal axis is true " << RESTendl;
     RESTMetadata << " --------------------------- " << RESTendl;
     RESTMetadata << " " << RESTendl;
 }

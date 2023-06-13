@@ -115,17 +115,6 @@ void TRestAxionOpticsProcess::InitProcess() {
     } else {
         RESTError << "TRestAxionOptics::InitProcess. No sucess instantiating optics." << RESTendl;
     }
-
-    if (fOpticalAxis) {
-        // The outgoing particle will be referenced to the optical axis.
-        // The particle will not be counter-rotated when the process ends
-        SkipEndProcessRotation();
-    } else {
-        // The outgoing particle will be referenced to the universal axis
-        // The optics will apply a deflection angle, but the main axis will be kept aligned with the previous
-        // axis reference
-        SkipEndProcessRotation(false);
-    }
 }
 
 ///////////////////////////////////////////////
