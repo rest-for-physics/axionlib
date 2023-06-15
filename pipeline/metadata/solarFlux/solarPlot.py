@@ -63,7 +63,7 @@ samples = 20000
 if args.samples != None:
     samples = args.samples
 
-validation = False
+validation = True
 if (
     rmlfile == "fluxes.rml"
     and fluxname == "combined"
@@ -83,8 +83,8 @@ pad1 = TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97)
 pad1.Divide(2, 2)
 pad1.Draw()
 
-combinedFlux = ROOT.TRestAxionSolarFlux(rmlfile, fluxname)
-combinedFlux.LoadTables()
+combinedFlux = ROOT.TRestAxionSolarQCDFlux(rmlfile, fluxname)
+combinedFlux.Initialize()
 combinedFlux.PrintMetadata()
 
 if combinedFlux.GetError():
@@ -166,14 +166,14 @@ print("Generated file : " + outfname)
 print("\nMaximum energy bin is " + str(enSpt.GetMaximumBin()))
 if validation:
     if enSpt.GetMaximumBin() != 8001:
-        print("\nMaximum Bin is not the expected one! Exit code : 1")
+        print("\nMaximum Bin is not the expected one (8001)! Exit code : 1")
         exit(1)
 
 print("\nMaximum radius bin is " + str(rSpt.GetMaximumBin()))
 
 if validation:
     if rSpt.GetMaximumBin() != 25:
-        print("\nMaximum Bin is not the expected one! Exit code : 2")
+        print("\nMaximum Bin is not the expected one (25)! Exit code : 2")
         exit(2)
 
 exit(0)

@@ -47,7 +47,7 @@ class TRestAxionEventProcess : public TRestEventProcess {
     /// The rotation angle around CenterSetup with respect to X-axis
     Double_t fExternalPitch = 0;  //<
 
-    /// If enabled it will skip the end rotation that recovers the original axion trajectory direction
+    /// If enabled it skips the end rotation that recovers the original axion trajectory direction
     Bool_t fLocalAxis = true;  //<
 
    protected:

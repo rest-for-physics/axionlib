@@ -29,8 +29,8 @@ from ROOT import (
 ROOT.gSystem.Load("libRestFramework.so")
 ROOT.gSystem.Load("libRestAxion.so")
 
-monoFlux = ROOT.TRestAxionSolarFlux("fluxes.rml", "mono")
-monoFlux.LoadTables()
+monoFlux = ROOT.TRestAxionSolarQCDFlux("fluxes.rml", "mono")
+monoFlux.Initialize()
 monoFlux.PrintMetadata()
 
 if monoFlux.GetError():
@@ -47,7 +47,7 @@ if int(x[0] * 100) != 800 or int(x[1] * 100) != 83:
 
 print("[\033[92m OK \x1b[0m]")
 
-continuumFlux = ROOT.TRestAxionSolarFlux("fluxes.rml", "Gianotti")
+continuumFlux = ROOT.TRestAxionSolarQCDFlux("fluxes.rml", "Gianotti")
 continuumFlux.LoadTables()
 continuumFlux.PrintMetadata()
 

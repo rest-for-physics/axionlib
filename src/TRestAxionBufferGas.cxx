@@ -313,7 +313,8 @@ Double_t TRestAxionBufferGas::GetFormFactor(TString gasName, Double_t energy) {
     RESTDebug << "Energy index : " << energyIndex << RESTendl;
 
     if (energyIndex == -1) {
-        RESTError << "TRestAxionBufferGas::GetFormFactor. Energy out of range" << RESTendl;
+        RESTError << "TRestAxionBufferGas::GetFormFactor. Energy (" << energy << " keV) out of range"
+                  << RESTendl;
         exit(1);
     }
 

@@ -187,7 +187,7 @@ jobs:
         wget https://rest-for-physics.github.io/axionlib-data/solarFlux/Primakoff_Gianotti_201904.dat
         wget https://rest-for-physics.github.io/axionlib-data/solarFlux/Primakoff_LennertHoof_202203.dat
         python solarTests.py
-        python solarPlot.py
+        python solarPlotQCD.py
         python compare.py
 
   Ray-tracing:
