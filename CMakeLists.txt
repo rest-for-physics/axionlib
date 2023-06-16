@@ -4,7 +4,15 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 include(ExternalProject)
 set(CMAKE_MACOSX_RPATH 1)
 
-set(LibraryVersion "1.2")
+### Perhaps this could be a common cmake macro inside framework
+execute_process(
+    COMMAND git describe --abbrev=0 --tags
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+    OUTPUT_VARIABLE LibraryVersion
+    ERROR_VARIABLE gitstatuserr)
+
+string(REPLACE "\n" "" LibraryVersion ${LibraryVersion})
+message( "Axion library version: ${LibraryVersion}")
 add_definitions(-DLIBRARY_VERSION="${LibraryVersion}")
 
 if (${REST_MPFR} MATCHES "ON")
