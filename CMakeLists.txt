@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 include(ExternalProject)
 set(CMAKE_MACOSX_RPATH 1)
 
-set(LibraryVersion "1.2")
+set_library_version(LibraryVersion)
 add_definitions(-DLIBRARY_VERSION="${LibraryVersion}")
 
 if (${REST_MPFR} MATCHES "ON")
