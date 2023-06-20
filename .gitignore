@@ -1,3 +1,4 @@
 build
 *.root
 **/.DS_Store
+*.json
