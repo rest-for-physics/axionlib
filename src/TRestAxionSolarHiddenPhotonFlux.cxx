@@ -21,19 +21,14 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionSolarQCDFlux will use a file in ASCII or binary format to initialize
-/// a solar flux table that will describe the solar flux spectrum as a function
+/// TRestAxionSolarHiddenPhotonFlux will use a file in ASCII or binary format to initialize
+/// a solar flux table that will describe the solar hidden photon flux spectrum as a function
 /// of the solar radius.
 ///
-/// This class may serve to load any generic flux definition that is independent
-/// from the axion mass. However, since the design of the class was motivated to
-/// reproduce the standard QCD axion flux, therefore the name of the class.
-///
-/// Another scenario arises when the axion or an axion-like particle production
-/// mechanism depends on its mass, and we may need to introduce a flux description
-/// as the given in the class TRestAxionSolarHiddenPhotonFlux. Both classes are
-/// prototyped by a pure base class TRestAxionSolarFlux that defines common methods
-/// used to evaluate the flux, and generate Monte-Carlo events inside
+/// This class loads the hidden photon flux that depends on the mass and kinetic mixing parameter.
+/// For axion-like particle prodution independent of mass there is the class
+/// TRestAxionSolarQCDFlux. Both classes are prototyped by a pure base class TRestAxionSolarFlux
+/// that defines common methods used to evaluate the flux, and generate Monte-Carlo events inside
 /// TRestAxionGeneratorProcess.
 ///
 /// ### Basic use
@@ -143,7 +138,7 @@
 /// 2023-June: TRestAxionSolarHiddenPhotonFlux created by editing TRestAxionSolarQCDFlux
 ///                Tomas O'Shea
 ///
-/// \class      TRestAxionSolarQCDFlux
+/// \class      TRestAxionSolarHiddenPhotonFlux
 /// \author     Javier Galan
 ///
 /// <hr>
@@ -364,7 +359,7 @@ void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
 /// \brief It builds a histogram with the continuum spectrum component.
 /// The flux will be expressed in cm-2 s-1 keV-1. Binned in 100eV steps.
 ///
-TH1F* TRestAxionSolarQCDFlux::GetContinuumSpectrum() {
+TH1F* TRestAxionSolarHiddenPhotonFlux::GetContinuumSpectrum() {
     if (fContinuumHist != nullptr) {
         delete fContinuumHist;
         fContinuumHist = nullptr;
@@ -390,7 +385,7 @@ TH1F* TRestAxionSolarQCDFlux::GetContinuumSpectrum() {
 /// \brief It builds a histogram with the monochromatic spectrum component.
 /// The flux will be expressed in cm-2 s-1 eV-1. Binned in 1eV steps.
 ///
-TH1F* TRestAxionSolarQCDFlux::GetMonochromaticSpectrum() {
+TH1F* TRestAxionSolarHiddenPhotonFlux::GetMonochromaticSpectrum() {
     if (fMonoHist != nullptr) {
         delete fMonoHist;
         fMonoHist = nullptr;
@@ -417,7 +412,7 @@ TH1F* TRestAxionSolarQCDFlux::GetMonochromaticSpectrum() {
 /// spectrum component. The flux will be expressed in cm-2 s-1 keV-1.
 /// Binned in 1eV steps.
 ///
-TH1F* TRestAxionSolarQCDFlux::GetTotalSpectrum() {
+TH1F* TRestAxionSolarHiddenPhotonFlux::GetTotalSpectrum() {
     TH1F* hm = GetMonochromaticSpectrum();
     TH1F* hc = GetContinuumSpectrum();
 
@@ -451,7 +446,7 @@ TH1F* TRestAxionSolarQCDFlux::GetTotalSpectrum() {
 ///////////////////////////////////////////////
 /// \brief It draws the contents of a .flux file. This method just receives the
 ///
-TCanvas* TRestAxionSolarQCDFlux::DrawSolarFlux() {
+TCanvas* TRestAxionSolarHiddenPhotonFlux::DrawSolarFlux() {
     if (fCanvas != nullptr) {
         delete fCanvas;
         fCanvas = nullptr;
@@ -494,9 +489,9 @@ TCanvas* TRestAxionSolarQCDFlux::DrawSolarFlux() {
 
 ///////////////////////////////////////////////
 /// \brief A helper method to initialize the internal class data members with the
-/// integrated flux for each solar ring. It will be called by TRestAxionSolarQCDFlux::Initialize.
+/// integrated flux for each solar ring. It will be called by TRestAxionSolarHiddenPhotonFlux::Initialize.
 ///
-void TRestAxionSolarQCDFlux::IntegrateSolarFluxes() {
+void TRestAxionSolarHiddenPhotonFlux::IntegrateSolarFluxes() {
     fFluxLineIntegrals.clear();
     fTotalMonochromaticFlux = 0;
 
@@ -523,7 +518,7 @@ void TRestAxionSolarQCDFlux::IntegrateSolarFluxes() {
 ///////////////////////////////////////////////
 /// \brief It returns the integrated flux at earth in cm-2 s-1 for the given energy range
 ///
-Double_t TRestAxionSolarQCDFlux::IntegrateFluxInRange(TVector2 eRange, Double_t mass) {
+Double_t TRestAxionSolarHiddenPhotonFlux::IntegrateFluxInRange(TVector2 eRange, Double_t mass) {
     if (eRange.X() == -1 && eRange.Y() == -1) {
         if (GetTotalFlux() == 0) IntegrateSolarFluxes();
         return GetTotalFlux();
@@ -547,7 +542,7 @@ Double_t TRestAxionSolarQCDFlux::IntegrateFluxInRange(TVector2 eRange, Double_t 
 /// \brief It returns a random solar radius position and energy according to the
 /// flux distributions defined inside the solar tables loaded in the class
 ///
-std::pair<Double_t, Double_t> TRestAxionSolarQCDFlux::GetRandomEnergyAndRadius(TVector2 eRange,
+std::pair<Double_t, Double_t> TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAndRadius(TVector2 eRange,
                                                                                Double_t mass) {
     std::pair<Double_t, Double_t> result = {0, 0};
     if (!AreTablesLoaded()) return result;
@@ -582,7 +577,7 @@ std::pair<Double_t, Double_t> TRestAxionSolarQCDFlux::GetRandomEnergyAndRadius(T
 ///////////////////////////////////////////////
 /// \brief It prints on screen the table that has been loaded in memory
 ///
-void TRestAxionSolarQCDFlux::PrintContinuumSolarTable() {
+void TRestAxionSolarHiddenPhotonFlux::PrintContinuumSolarTable() {
     cout << "Continuum solar flux table: " << endl;
     cout << "--------------------------- " << endl;
     for (unsigned int n = 0; n < fFluxTable.size(); n++) {
@@ -597,7 +592,7 @@ void TRestAxionSolarQCDFlux::PrintContinuumSolarTable() {
 ///////////////////////////////////////////////
 /// \brief It prints on screen the integrated solar flux per solar ring
 ///
-void TRestAxionSolarQCDFlux::PrintIntegratedRingFlux() {
+void TRestAxionSolarHiddenPhotonFlux::PrintIntegratedRingFlux() {
     cout << "Integrated solar flux per solar ring: " << endl;
     cout << "--------------------------- " << endl;
     /*
@@ -610,7 +605,7 @@ void TRestAxionSolarQCDFlux::PrintIntegratedRingFlux() {
 ///////////////////////////////////////////////
 /// \brief It prints on screen the spectral lines loaded in memory
 ///
-void TRestAxionSolarQCDFlux::PrintMonoChromaticFlux() {
+void TRestAxionSolarHiddenPhotonFlux::PrintMonoChromaticFlux() {
     //   cout << "Number of monochromatic lines: " << fFluxPerRadius.size() << endl;
     cout << "+++++++++++++++++++++++++++++++++++" << endl;
     for (auto const& line : fFluxLines) {
@@ -623,9 +618,9 @@ void TRestAxionSolarQCDFlux::PrintMonoChromaticFlux() {
 }
 
 ///////////////////////////////////////////////
-/// \brief Prints on screen the information about the metadata members of TRestAxionSolarQCDFlux
+/// \brief Prints on screen the information about the metadata members of TRestAxionSolarHiddenPhotonFlux
 ///
-void TRestAxionSolarQCDFlux::PrintMetadata() {
+void TRestAxionSolarHiddenPhotonFlux::PrintMetadata() {
     TRestAxionSolarFlux::PrintMetadata();
 
     if (fFluxDataFile != "")
@@ -648,7 +643,7 @@ void TRestAxionSolarQCDFlux::PrintMetadata() {
 /// \brief It will create files with the continuum and spectral flux components to be used
 /// in a later ocasion.
 ///
-void TRestAxionSolarQCDFlux::ExportTables(Bool_t ascii) {
+void TRestAxionSolarHiddenPhotonFlux::ExportTables(Bool_t ascii) {
     string rootFilename = TRestTools::GetFileNameRoot(fFluxDataFile);
 
     string path = REST_USER_PATH + "/export/";

@@ -20,8 +20,8 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef _TRestAxionSolarQCDFlux
-#define _TRestAxionSolarQCDFlux
+#ifndef _TRestAxionSolarHiddenPhotonFlux
+#define _TRestAxionSolarHiddenPhotonFlux
 
 #include <TRestAxionSolarFlux.h>
 #include <TRestAxionSolarModel.h>
@@ -125,10 +125,10 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
     void PrintIntegratedRingFlux();
     void PrintMonoChromaticFlux();
 
-    TRestAxionSolarQCDFlux();
-    TRestAxionSolarQCDFlux(const char* cfgFileName, std::string name = "");
-    ~TRestAxionSolarQCDFlux();
+    TRestAxionSolarHiddenPhotonFlux();
+    TRestAxionSolarHiddenPhotonFlux(const char* cfgFileName, std::string name = "");
+    ~TRestAxionSolarHiddenPhotonFlux();
 
-    ClassDefOverride(TRestAxionSolarQCDFlux, 1);
+    ClassDefOverride(TRestAxionSolarHiddenPhotonFlux, 1);
 };
 #endif
