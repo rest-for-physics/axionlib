@@ -112,9 +112,8 @@
 /// standard format to be used in later occasions.
 ///
 /// \code
-///    TRestAxionSolarHiddenPhotonFlux *sFlux = new TRestAxionSolarHiddenPhotonFlux("fluxes.rml", "HiddenPhoton")
-///    sFlux->Initialize()
-///    sFlux->ExportTables()
+///    TRestAxionSolarHiddenPhotonFlux *sFlux = new TRestAxionSolarHiddenPhotonFlux("fluxes.rml",
+///    "HiddenPhoton") sFlux->Initialize() sFlux->ExportTables()
 /// \endcode
 ///
 /// which will produce a binary table `.N200f` with the continuum flux. The filename root will be
@@ -185,8 +184,7 @@ TRestAxionSolarHiddenPhotonFlux::~TRestAxionSolarHiddenPhotonFlux() {}
 /// inside the metadata members.
 ///
 Bool_t TRestAxionSolarHiddenPhotonFlux::LoadTables() {
-    if (fFluxDataFile == "" || fWidthDataFile == "" ||
-         fPlasmaFreqDataFile == "") return false;
+    if (fFluxDataFile == "" || fWidthDataFile == "" || fPlasmaFreqDataFile == "") return false;
 
     LoadContinuumFluxTable();
     LoadWidthTable();
@@ -203,8 +201,9 @@ Bool_t TRestAxionSolarHiddenPhotonFlux::LoadTables() {
 ///
 void TRestAxionSolarHiddenPhotonFlux::LoadContinuumTable() {
     if (fFluxDataFile == "") {
-        RESTDebug << "TRestAxionSolarHiddenPhotonFlux::LoadContinuumFluxTable. No solar flux table was defined"
-                  << RESTendl;
+        RESTDebug
+            << "TRestAxionSolarHiddenPhotonFlux::LoadContinuumFluxTable. No solar flux table was defined"
+            << RESTendl;
         return;
     }
 
@@ -217,9 +216,9 @@ void TRestAxionSolarHiddenPhotonFlux::LoadContinuumTable() {
 
     if (!TRestTools::IsBinaryFile(fFluxDataFile)) {
         fluxTable.clear();
-        RESTError << "File is not in binary format!" << RESTendl;        
+        RESTError << "File is not in binary format!" << RESTendl;
     }
-    
+
     TRestTools::ReadBinaryTable(fullPathName, fluxTable);
 
     if (fluxTable.size() != 1000 && fluxTable[0].size() != 200) {
@@ -235,7 +234,6 @@ void TRestAxionSolarHiddenPhotonFlux::LoadContinuumTable() {
         fContinuumTable.push_back(h);
     }
 }
-
 
 ///////////////////////////////////////////////
 /// \brief A helper method to load the data file containing resonance width as a
@@ -257,9 +255,9 @@ void TRestAxionSolarHiddenPhotonFlux::LoadWidthTable() {
 
     if (!TRestTools::IsBinaryFile(fWidthDataFile)) {
         fluxTable.clear();
-        RESTError << "File is not in binary format!" << RESTendl;        
+        RESTError << "File is not in binary format!" << RESTendl;
     }
-    
+
     TRestTools::ReadBinaryTable(fullPathName, fluxTable);
 
     if (fluxTable.size() != 1000 && fluxTable[0].size() != 200) {
@@ -276,15 +274,15 @@ void TRestAxionSolarHiddenPhotonFlux::LoadWidthTable() {
     }
 }
 
-
 ///////////////////////////////////////////////
 /// \brief A helper method to load the data file containing resonance width as a
 /// function of the solar radius. It will be called by TRestAxionSolarHiddenPhotonFlux::Initialize.
 ///
 void TRestAxionSolarHiddenPhotonFlux::LoadPlasmaFreqTable() {
     if (fFluxDataFile == "") {
-        RESTDebug << "TRestAxionSolarHiddenPhotonFlux::LoadPlasmaFreqTable. No plasma frequency table was defined"
-                  << RESTendl;
+        RESTDebug
+            << "TRestAxionSolarHiddenPhotonFlux::LoadPlasmaFreqTable. No plasma frequency table was defined"
+            << RESTendl;
         return;
     }
 
@@ -297,9 +295,9 @@ void TRestAxionSolarHiddenPhotonFlux::LoadPlasmaFreqTable() {
 
     if (!TRestTools::IsBinaryFile(fWidthDataFile)) {
         fluxTable.clear();
-        RESTError << "File is not in binary format!" << RESTendl;        
+        RESTError << "File is not in binary format!" << RESTendl;
     }
-    
+
     TRestTools::ReadBinaryTable(fullPathName, fluxTable);
 
     if (fluxTable.size() != 1000 && fluxTable[0].size() != 1) {
@@ -316,9 +314,8 @@ void TRestAxionSolarHiddenPhotonFlux::LoadPlasmaFreqTable() {
     }
 }
 
-
 ///////////////////////////////////////////////
-/// \brief A helper method to calculate the real solar flux spectrum from the 3 tables, the 
+/// \brief A helper method to calculate the real solar flux spectrum from the 3 tables, the
 /// kinetic mixing parameter and the hidden photon mass.
 ///
 void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
@@ -330,30 +327,28 @@ void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
     for (unsigned int n = 0; n < fluxTable.size(); n++) {
         // m4 * chi2 * wG * flux / ( (m2 - wp2)^2 + (wG)^2 )
 
-        std::vector<float> mass2Vector(200, pow(HiddenPhotonMass,2));
+        std::vector<float> mass2Vector(200, pow(HiddenPhotonMass, 2));
         float wp = fPlasmaFreqTable[n].GetBinContent(1);
-        std::vector<float> wp2Vector(200, pow(wp,2));
+        std::vector<float> wp2Vector(200, pow(wp, 2));
 
-        TH1F* hMass = new TH1D("hMass", "hMass", 200, 0, 20)
-        TH1F* hWp = new TH1D("hWp", "hWp", 200, 0, 20)
-        TH1F* hWg2 = (TH1F*)fWidthTable[n]->Clone();
+        TH1F* hMass = new TH1D("hMass", "hMass", 200, 0, 20) TH1F* hWp =
+            new TH1D("hWp", "hWp", 200, 0, 20) TH1F* hWg2 = (TH1F*)fWidthTable[n]->Clone();
 
-        hMass->FillN(200, massVector);  // m^2 hist
-        hWp->FillN(200, wpVector);      // wp^2 hist
-        TH1F* hWg2 = fWidthTable[n] * fWidthTable[n]; // (omega Gamma)^2
+        hMass->FillN(200, massVector);                 // m^2 hist
+        hWp->FillN(200, wpVector);                     // wp^2 hist
+        TH1F* hWg2 = fWidthTable[n] * fWidthTable[n];  // (omega Gamma)^2
 
-        hMass->Add(hWp, -1);            // (m2 - wp2)
-        hMass->Multiply(hMass);         // (m2 - wp2)^2
-        hmass->Add(hWg2);               // (m2 - wp2)^2 - (wG)^2
+        hMass->Add(hWp, -1);     // (m2 - wp2)
+        hMass->Multiply(hMass);  // (m2 - wp2)^2
+        hmass->Add(hWg2);        // (m2 - wp2)^2 - (wG)^2
 
         TH1F* h = fWidthTable[n] * fContinuumTable[n];
         h->Divide(hMass);
-        h->Scale(pow(HiddenPhotonMass,4) * pow(HiddenPhotonKineticMixing,2));
+        h->Scale(pow(HiddenPhotonMass, 4) * pow(HiddenPhotonKineticMixing, 2));
 
         fFluxTable.push_back(h);
     }
 }
-
 
 ///////////////////////////////////////////////
 /// \brief It builds a histogram with the continuum spectrum component.
@@ -543,7 +538,7 @@ Double_t TRestAxionSolarHiddenPhotonFlux::IntegrateFluxInRange(TVector2 eRange, 
 /// flux distributions defined inside the solar tables loaded in the class
 ///
 std::pair<Double_t, Double_t> TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAndRadius(TVector2 eRange,
-                                                                               Double_t mass) {
+                                                                                        Double_t mass) {
     std::pair<Double_t, Double_t> result = {0, 0};
     if (!AreTablesLoaded()) return result;
     Double_t rnd = fRandom->Rndm();

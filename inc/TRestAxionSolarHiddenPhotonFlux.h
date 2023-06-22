@@ -26,7 +26,6 @@
 #include <TRestAxionSolarFlux.h>
 #include <TRestAxionSolarModel.h>
 
-
 //! A metadata class to load tabulated solar hidden photon fluxes. Mass and coupling set to 1.
 class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
    private:
