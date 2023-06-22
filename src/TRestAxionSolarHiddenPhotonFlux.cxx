@@ -376,7 +376,6 @@ TH1F* TRestAxionSolarHiddenPhotonFlux::GetContinuumSpectrum() {
     return fContinuumHist;
 }
 
-
 ///////////////////////////////////////////////
 /// \brief Same as GetContinuumSpectrum, the flux will be
 /// expressed in cm-2 s-1 keV-1. Binned in 1eV steps.
@@ -407,7 +406,6 @@ TH1F* TRestAxionSolarHiddenPhotonFlux::GetTotalSpectrum() {
     return fTotalHist;
 }
 
-
 ///////////////////////////////////////////////
 /// \brief A helper method to initialize the internal class data members with the
 /// integrated flux for each solar ring. It will be called by TRestAxionSolarHiddenPhotonFlux::Initialize.
@@ -421,7 +419,6 @@ void TRestAxionSolarHiddenPhotonFlux::IntegrateSolarFluxes() {
 
     for (unsigned int n = 0; n < fFluxTableIntegrals.size(); n++)
         fFluxTableIntegrals[n] /= fTotalContinuumFlux;
-
 }
 
 ///////////////////////////////////////////////
@@ -497,7 +494,6 @@ void TRestAxionSolarHiddenPhotonFlux::PrintIntegratedRingFlux() {
     cout << endl;
     */
 }
-
 
 ///////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionSolarHiddenPhotonFlux
