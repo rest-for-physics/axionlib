@@ -39,38 +39,22 @@
 /// ### Basic use
 ///
 /// Once the class has been initialized, the main use of this class will be provided
-/// by the method TRestAxionSolarQCDFlux::GetRandomEnergyAndRadius. This method will
+/// by the method TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAndRadius. This method will
 /// return a random axion energy and position inside the solar radius following the
 /// distributions given by the solar flux tables.
 ///
 /// Description of the specific parameters accepted by this metadata class.
-/// - *fluxDataFile:* A table with 100 rows representing the solar ring flux from the
+/// - *fluxDataFile:* A table with 1000 rows representing the solar ring flux from the
 /// center to the corona, and 200 columns representing the flux, measured in cm-2 s-1 keV-1,
-/// for the range (0,20)keV in steps of 100eV. The table could be provided in ASCII format,
-/// using `.dat` extension, or it might be a binary table using `.N200f` extension.
-/// - *fluxSptFile:* A table where each column represents a monochromatic energy. The
-/// column contains 101 rows, the first element is the energy of the monochromatic line
-/// while the next 100 elements contain the flux, measured in cm-2 s-1, integrated to
-/// each solar ring, being the second element the ring in the center of the sun.
-///
-/// Additionally this class will be able to read `.flux` files that are the original files
-/// produced in 3-columns format (inner radius [solar units] / energy [keV] /
-/// flux [cm-2 s-1 keV-1]). The `.flux` files may contain the full information,
-/// continuum and spectral components. Those components will be splited into two independent
-/// contributions by TRestAxionSolarQCDFlux::ReadFluxFile to be managed internally. Two
-/// additional parameters *will be required* to translate the `.flux` files into the tables
-/// that are understood by this class.
-/// - *binSize:* The energy binning used on the `.flux` file and inside the histogram used
-/// for monochromatic lines identification.
-/// - *peakSigma:* The ratio between the flux provided at the `.flux` file and the
-/// average flux calculated in the peak surroundings. If the flux ratio is higher than
-/// this value, the flux at that particular bin will be considered a peak.
-///
-/// Optionally, if we want to consider a different binning on the monochromatic/continuum
-/// histogram used internally for the calculation we may specify optionally a new parameter.
-/// In that case, `fBinSize` will be the binning of the internal histogram, while the new
-/// parameter will be the binning given inside the `.flux` file.
-/// - *fluxBinSize:* The bin size used on the `.flux` table.
+/// for the range (0,20)keV in steps of 100eV. The table is provided as a binary table using
+/// `.N200f` extension.
+/// - *widthDataFile:* A table with 1000 rows representing the width of the hidden photon
+/// resonant production for each solar ring from the center to the corona, and 200 columns
+/// representing the width, measured in eV2, for the range (0,20)keV in steps of 100eV. The
+/// table is provided as a binary table using `.N200f` extension.
+/// - *plasmaFreqDataFile:* A table with 1000 rows and only 1 column representing the solar
+/// plasma frequency for each solar ring from the center to the corona, measured in eV. The
+/// table is provided as a binary table using `.N1f` extension.
 ///
 /// Pre-generated solar axion flux tables will be available at the
 /// [axionlib-data](https://github.com/rest-for-physics/axionlib-data/tree/master)
@@ -105,7 +89,7 @@
 ///
 /// \warning When the flux is loaded manually inside the `restRoot` interactive
 /// shell, or inside a macro or script, after metadata initialization, it is necessary
-/// to call the method TRestAxionSolarQCDFlux::LoadTables to trigger the tables
+/// to call the method TRestAxionSolarHiddenPhotonFlux::LoadTables to trigger the tables
 /// initialization.
 ///
 /// ### Performing MonteCarlo tests using pre-loaded tables
@@ -113,10 +97,10 @@
 /// In order to test the response of different solar flux definitions we may use the script
 /// `solarPlot.py` found at `pipeline/metadata/solarFlux/`. This script will generate a
 /// number of particles and it will assign to each particle an energy and solar disk
-/// location with the help of the method TRestAxionSolarQCDFlux::GetRandomEnergyAndRadius.
+/// location with the help of the method TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAndRadius.
 ///
 /// \code
-/// python3 solarPlotQCD.py --fluxname LennertHoofABC --N 1000000
+/// python3 solarPlotHiddenPhoton.py --fluxname HiddenPhoton --N 1000000
 /// \endcode
 ///
 /// By default, it will load the flux definition found at `fluxes.rml` from the
@@ -127,67 +111,21 @@
 ///
 /// ![Solar flux distributions MC-generated with TRestAxionSolarQCDFlux.](ABC_flux_MC.png)
 ///
-/// ### Reading solar flux tables from `.flux` files
-///
-/// In a similar way we may initialize the class using a `.flux` file. The `.flux` described
-/// previously will contain a high definition flux table measured in `cm-2 s-1 keV-1` as a
-/// function of the energy (from 0 to 20keV) and the inner solar radius (from 0 to 1). The
-/// binning of this table will be typically between 1eV and 10eV.
-///
-/// The class TRestAxionSolarQCDFlux will be initialized directly using the `.flux` file
-/// provided under the `fluxDataFile` parameter. During the initialization, the flux will be
-/// splitted into two independent flux components. One smooth continuum component integrated
-/// in 100 eV steps, and a monochromatic peak components.
-///
-/// In order to help with the identification of peaks we need to define the `binSize` used in
-/// the `.flux` table and the `peakSigma` defining the number of sigmas over the average for
-/// a bin to be considered a peak.
-///
-/// \code
-///    <TRestAxionSolarQCDFlux name="LennertHoofABC_Flux" verboseLevel="warning" >
-///        <parameter name="couplingType" value="g_ae"/>
-///        <parameter name="couplingStrength" value="1.e-13"/>
-///        <parameter name="fluxDataFile" value="ABC_LennertHoof_202203.flux"/>
-///
-///        <parameter name="binSize" value="10eV" />
-///        <parameter name="peakSigma" value="10" />
-///
-///        <parameter name="seed" value="137" />
-///    </TRestAxionSolarQCDFlux>
-/// \endcode
-///
-/// We will be able to load this file as usual, using the following recipe inside
-/// `restRoot`,
-///
-/// \code
-///    TRestAxionSolarQCDFlux *sFlux = new TRestAxionSolarQCDFlux("fluxes.rml", "LennertHoofABC")
-///    sFlux->Initialize()
-///    TCanvas *c = sFlux->DrawSolarFluxes()
-///    c->Print("ABC_FluxTable.png" )
-/// \endcode
-///
-/// will generate the following figure.
-///
-/// \htmlonly <style>div.image img[src="ABC_FluxTable.png"]{width:750px;}</style> \endhtmlonly
-///
-/// ![Solar flux distributions generated with TRestAxionSolarQCDFlux::DrawSolarFlux.](ABC_FluxTable.png)
-///
 /// ### Exporting the solar flux tables
 ///
-/// On top of that, we will be able to export those tables to the TRestAxionSolarQCDFlux standard
-/// format to be used in later occasions.
+/// On top of that, we will be able to export those tables to the TRestAxionSolarHiddenPhotonFlux
+/// standard format to be used in later occasions.
 ///
 /// \code
-///    TRestAxionSolarQCDFlux *sFlux = new TRestAxionSolarQCDFlux("fluxes.rml", "LennertHoofABC")
+///    TRestAxionSolarHiddenPhotonFlux *sFlux = new TRestAxionSolarHiddenPhotonFlux("fluxes.rml", "HiddenPhoton")
 ///    sFlux->Initialize()
 ///    sFlux->ExportTables()
 /// \endcode
 ///
-/// which will produce two files, a binary table `.N200f` with the continuum flux, and an ASCII
-/// table containning the `.spt` monochromatic lines. The filename root will be extracted from
-/// the original `.flux` file. Optionally we may export the continuum flux to an ASCII file by
-/// indicating it at the TRestAxionSolarQCDFlux::ExportTables method call. The files will be placed
-/// at the REST user space, at `$HOME/.rest/export/` directory.
+/// which will produce a binary table `.N200f` with the continuum flux. The filename root will be
+/// extracted from the original `.flux` file. Optionally we may export the continuum flux to an
+/// ASCII file by indicating it at the TRestAxionSolarHiddenPhotonFlux::ExportTables method call.
+/// The files will be placed at the REST user space, at `$HOME/.rest/export/` directory.
 ///
 /// TODO Implement the method TRestAxionSolarQCDFlux::InitializeSolarTable using
 /// a solar model description by TRestAxionSolarModel.
@@ -202,6 +140,8 @@
 ///
 /// 2023-May: Specific methods extracted from TRestAxionSolarFlux
 ///                Javier Galan
+/// 2023-June: TRestAxionSolarHiddenPhotonFlux created by editing TRestAxionSolarQCDFlux
+///                Tomas O'Shea
 ///
 /// \class      TRestAxionSolarQCDFlux
 /// \author     Javier Galan
@@ -250,14 +190,12 @@ TRestAxionSolarHiddenPhotonFlux::~TRestAxionSolarHiddenPhotonFlux() {}
 /// inside the metadata members.
 ///
 Bool_t TRestAxionSolarHiddenPhotonFlux::LoadTables() {
-    if (fFluxDataFile == "" && fFluxSptFile == "") return false;
+    if (fFluxDataFile == "" || fWidthDataFile == "" ||
+         fPlasmaFreqDataFile == "") return false;
 
-    if (TRestTools::GetFileNameExtension(fFluxDataFile) == "flux") {
-        ReadFluxFile();
-    } else {
-        LoadContinuumFluxTable();
-        LoadMonoChromaticFluxTable();
-    }
+    LoadContinuumFluxTable();
+    LoadWidthTable();
+    LoadPlasmaFreqTable();
 
     IntegrateSolarFluxes();
 
@@ -266,11 +204,11 @@ Bool_t TRestAxionSolarHiddenPhotonFlux::LoadTables() {
 
 ///////////////////////////////////////////////
 /// \brief A helper method to load the data file containing continuum spectra as a
-/// function of the solar radius. It will be called by TRestAxionSolarFlux::Initialize.
+/// function of the solar radius. It will be called by TRestAxionSolarHiddenPhotonFlux::Initialize.
 ///
-void TRestAxionSolarHiddenPhotonFlux::LoadContinuumFluxTable() {
+void TRestAxionSolarHiddenPhotonFlux::LoadContinuumTable() {
     if (fFluxDataFile == "") {
-        RESTDebug << "TRestAxionSolarHiddenPhotonflux::LoadContinuumFluxTable. No solar flux table was defined"
+        RESTDebug << "TRestAxionSolarHiddenPhotonFlux::LoadContinuumFluxTable. No solar flux table was defined"
                   << RESTendl;
         return;
     }
@@ -280,26 +218,14 @@ void TRestAxionSolarHiddenPhotonFlux::LoadContinuumFluxTable() {
     RESTDebug << "Loading table from file : " << RESTendl;
     RESTDebug << "File : " << fullPathName << RESTendl;
 
-    std::vector<std::vector<Float_t>> fluxTable;
-    if (TRestTools::GetFileNameExtension(fFluxDataFile) == "dat") {
-        std::vector<std::vector<Double_t>> doubleTable;
-        if (!TRestTools::ReadASCIITable(fullPathName, doubleTable)) {
-            RESTError << "TRestAxionSolarHiddenPhotonFlux::LoadContinuumFluxTable. " << RESTendl;
-            RESTError << "Could not read solar flux table : " << fFluxDataFile << RESTendl;
-            return;
-        }
-        for (const auto& row : doubleTable) {
-            std::vector<Float_t> floatVec(row.begin(), row.end());
-            fluxTable.push_back(floatVec);
-        }
-    } else if (TRestTools::IsBinaryFile(fFluxDataFile))
-        TRestTools::ReadBinaryTable(fullPathName, fluxTable);
-    else {
+    std::vector<std::vector<float>> fluxTable;
+
+    if (!TRestTools::IsBinaryFile(fFluxDataFile)) {
         fluxTable.clear();
-        RESTError << "Filename extension was not recognized!" << RESTendl;
-        RESTError << "Solar flux table will not be populated" << RESTendl;
-        RESTError << "Filename extension: " << TRestTools::GetFileNameExtension(fFluxDataFile) << RESTendl;
+        RESTError << "File is not in binary format!" << RESTendl;        
     }
+    
+    TRestTools::ReadBinaryTable(fullPathName, fluxTable);
 
     if (fluxTable.size() != 1000 && fluxTable[0].size() != 200) {
         fluxTable.clear();
@@ -311,13 +237,54 @@ void TRestAxionSolarHiddenPhotonFlux::LoadContinuumFluxTable() {
     for (unsigned int n = 0; n < fluxTable.size(); n++) {
         TH1F* h = new TH1F(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), "", 200, 0, 20);
         for (unsigned int m = 0; m < fluxTable[n].size(); m++) h->SetBinContent(m + 1, fluxTable[n][m]);
-        fFluxTable.push_back(h);
+        fContinuumTable.push_back(h);
     }
 }
 
+
 ///////////////////////////////////////////////
-/// \brief A helper method to load the data file containing the plasma frequency as a
-/// function of the solar radius. It will be called by TRestAxionPhotonFlux::Initialize.
+/// \brief A helper method to load the data file containing resonance width as a
+/// function of the solar radius. It will be called by TRestAxionSolarHiddenPhotonFlux::Initialize.
+///
+void TRestAxionSolarHiddenPhotonFlux::LoadWidthTable() {
+    if (fFluxDataFile == "") {
+        RESTDebug << "TRestAxionSolarHiddenPhotonFlux::LoadWidthTable. No width table was defined"
+                  << RESTendl;
+        return;
+    }
+
+    string fullPathName = SearchFile((string)fWidthDataFile);
+
+    RESTDebug << "Loading table from file : " << RESTendl;
+    RESTDebug << "File : " << fullPathName << RESTendl;
+
+    std::vector<std::vector<float>> fluxTable;
+
+    if (!TRestTools::IsBinaryFile(fWidthDataFile)) {
+        fluxTable.clear();
+        RESTError << "File is not in binary format!" << RESTendl;        
+    }
+    
+    TRestTools::ReadBinaryTable(fullPathName, fluxTable);
+
+    if (fluxTable.size() != 1000 && fluxTable[0].size() != 200) {
+        fluxTable.clear();
+        RESTError << "LoadWidthTable. The table does not contain the right number of rows or columns"
+                  << RESTendl;
+        RESTError << "Table will not be populated" << RESTendl;
+    }
+
+    for (unsigned int n = 0; n < fluxTable.size(); n++) {
+        TH1F* h = new TH1F(Form("%s_ResonanceWidthAtRadius%d", GetName(), n), "", 200, 0, 20);
+        for (unsigned int m = 0; m < fluxTable[n].size(); m++) h->SetBinContent(m + 1, fluxTable[n][m]);
+        fWidthTable.push_back(h);
+    }
+}
+
+
+///////////////////////////////////////////////
+/// \brief A helper method to load the data file containing resonance width as a
+/// function of the solar radius. It will be called by TRestAxionSolarHiddenPhotonFlux::Initialize.
 ///
 void TRestAxionSolarHiddenPhotonFlux::LoadPlasmaFreqTable() {
     if (fFluxDataFile == "") {
@@ -326,89 +293,69 @@ void TRestAxionSolarHiddenPhotonFlux::LoadPlasmaFreqTable() {
         return;
     }
 
-    string fullPathName = SearchFile((string)fFluxDataFile);
+    string fullPathName = SearchFile((string)fPlasmaFreqDataFile);
 
     RESTDebug << "Loading table from file : " << RESTendl;
     RESTDebug << "File : " << fullPathName << RESTendl;
 
-    std::vector<std::vector<Float_t>> fluxTable;
-    if (TRestTools::GetFileNameExtension(fFluxDataFile) == "dat") {
-        std::vector<std::vector<Double_t>> doubleTable;
-        if (!TRestTools::ReadASCIITable(fullPathName, doubleTable)) {
-            RESTError << "TRestAxionSolarHiddenPhotonFlux::LoadPlasmaFreqTable. " << RESTendl;
-            RESTError << "Could not read solar flux table : " << fFluxDataFile << RESTendl;
-            return;
-        }
-        for (const auto& row : doubleTable) {
-            fluxTable.push_back(row);
-        }
-    } else if (TRestTools::IsBinaryFile(fFluxDataFile))
-        TRestTools::ReadBinaryTable(fullPathName, fluxTable);
-    else {
-        fluxTable.clear();
-        RESTError << "Filename extension was not recognized!" << RESTendl;
-        RESTError << "Solar flux table will not be populated" << RESTendl;
-        RESTError << "Filename extension: " << TRestTools::GetFileNameExtension(fFluxDataFile) << RESTendl;
-    }
+    std::vector<std::vector<float>> fluxTable;
 
-    if (fluxTable.size() != 1000) {
+    if (!TRestTools::IsBinaryFile(fWidthDataFile)) {
         fluxTable.clear();
-        RESTError << "LoadContinuumFluxTable. The table does not contain the right number of rows"
+        RESTError << "File is not in binary format!" << RESTendl;        
+    }
+    
+    TRestTools::ReadBinaryTable(fullPathName, fluxTable);
+
+    if (fluxTable.size() != 1000 && fluxTable[0].size() != 1) {
+        fluxTable.clear();
+        RESTError << "LoadWidthTable. The table does not contain the right number of rows or columns"
                   << RESTendl;
         RESTError << "Table will not be populated" << RESTendl;
     }
 
     for (unsigned int n = 0; n < fluxTable.size(); n++) {
         TH1F* h = new TH1F(Form("%s_PlasmaFreqAtRadius%d", GetName(), n), "", 1, 0, 20);
-        h->SetBinContent(1, fluxTable[n][0]);
-        fWpTable.push_back(h);
+        for (unsigned int m = 0; m < fluxTable[n].size(); m++) h->SetBinContent(m + 1, fluxTable[n][m]);
+        fPlasmaFreqTable.push_back(h);
     }
 }
 
+
 ///////////////////////////////////////////////
-/// \brief A helper method to load the data file containning monochromatic spectral
-/// lines as a function of the solar radius. It will be called by TRestAxionSolarQCDFlux::Initialize.
+/// \brief A helper method to calculate the real solar flux spectrum from the 3 tables, the 
+/// kinetic mixing parameter and the hidden photon mass.
 ///
-void TRestAxionSolarQCDFlux::LoadMonoChromaticFluxTable() {
-    if (fFluxSptFile == "") {
-        RESTDebug << "TRestAxionSolarflux::LoadMonoChromaticFluxTable. No solar flux monochromatic table was "
-                     "defined"
-                  << RESTendl;
+void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
+    if (!LoadTables()) {
+        RESTError << "CalculateSolarFlux. The component tables cannot be loaded." << RESTendl;
         return;
     }
 
-    string fullPathName = SearchFile((string)fFluxSptFile);
+    for (unsigned int n = 0; n < fluxTable.size(); n++) {
+        // m4 * chi2 * wG * flux / ( (m2 - wp2)^2 + (wG)^2 )
 
-    RESTDebug << "Loading monochromatic lines from file : " << RESTendl;
-    RESTDebug << "File : " << fullPathName << RESTendl;
+        std::vector<float> mass2Vector(200, pow(HiddenPhotonMass,2));
+        float wp = fPlasmaFreqTable[n].GetBinContent(1);
+        std::vector<float> wp2Vector(200, pow(wp,2));
 
-    std::vector<std::vector<Double_t>> doubleTable;
-    if (!TRestTools::ReadASCIITable(fullPathName, doubleTable)) {
-        RESTError << "TRestAxionSolarQCDFlux::LoadMonoChromaticFluxTable." << RESTendl;
-        RESTError << "Could not read solar flux table : " << fFluxSptFile << RESTendl;
-        return;
-    }
+        TH1F* hMass = new TH1D("hMass", "hMass", 200, 0, 20)
+        TH1F* hWp = new TH1D("hWp", "hWp", 200, 0, 20)
+        TH1F* hWg2 = (TH1F*)fWidthTable[n]->Clone();
 
-    std::vector<std::vector<Float_t>> asciiTable;
-    for (const auto& row : doubleTable) {
-        std::vector<Float_t> floatVec(row.begin(), row.end());
-        asciiTable.push_back(floatVec);
-    }
+        hMass->FillN(200, massVector);  // m^2 hist
+        hWp->FillN(200, wpVector);      // wp^2 hist
+        TH1F* hWg2 = fWidthTable[n] * fWidthTable[n]; // (omega Gamma)^2
 
-    fFluxLines.clear();
+        hMass->Add(hWp, -1);            // (m2 - wp2)
+        hMass->Multiply(hMass);         // (m2 - wp2)^2
+        hmass->Add(hWg2);               // (m2 - wp2)^2 - (wG)^2
 
-    if (asciiTable.size() != 101) {
-        RESTError << "LoadMonoChromaticFluxTable. The table does not contain the right number of rows"
-                  << RESTendl;
-        RESTError << "Table will not be populated" << RESTendl;
-        return;
-    }
+        TH1F* h = fWidthTable[n] * fContinuumTable[n];
+        h->Divide(hMass);
+        h->Scale(pow(HiddenPhotonMass,4) * pow(HiddenPhotonKineticMixing,2));
 
-    for (unsigned int en = 0; en < asciiTable[0].size(); en++) {
-        Float_t energy = asciiTable[0][en];
-        TH1F* h = new TH1F(Form("%s_MonochromeFluxAtEnergy%6.4lf", GetName(), energy), "", 100, 0, 1);
-        for (unsigned int r = 1; r < asciiTable.size(); r++) h->SetBinContent(r, asciiTable[r][en]);
-        fFluxLines[energy] = h;
+        fFluxTable.push_back(h);
     }
 }
 
@@ -499,6 +446,50 @@ TH1F* TRestAxionSolarQCDFlux::GetTotalSpectrum() {
     fTotalHist->GetYaxis()->SetLabelSize(0.05);
 
     return fTotalHist;
+}
+
+///////////////////////////////////////////////
+/// \brief It draws the contents of a .flux file. This method just receives the
+///
+TCanvas* TRestAxionSolarQCDFlux::DrawSolarFlux() {
+    if (fCanvas != nullptr) {
+        delete fCanvas;
+        fCanvas = nullptr;
+    }
+    fCanvas = new TCanvas("canv", "This is the canvas title", 1200, 500);
+    fCanvas->Draw();
+
+    TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
+    pad1->Divide(2, 1);
+    pad1->Draw();
+
+    pad1->cd(1);
+    pad1->cd(1)->SetLogy();
+    pad1->cd(1)->SetRightMargin(0.09);
+    pad1->cd(1)->SetLeftMargin(0.15);
+    pad1->cd(1)->SetBottomMargin(0.15);
+
+    TH1F* ht = GetTotalSpectrum();
+    ht->SetLineColor(kBlack);
+    ht->SetFillStyle(4050);
+    ht->SetFillColor(kBlue - 10);
+
+    TH1F* hm = GetMonochromaticSpectrum();
+    hm->SetLineColor(kBlack);
+    hm->Scale(100);  // renormalizing per 100eV-1
+
+    ht->Draw("hist");
+    hm->Draw("hist same");
+
+    pad1->cd(2);
+    pad1->cd(2)->SetRightMargin(0.09);
+    pad1->cd(2)->SetLeftMargin(0.15);
+    pad1->cd(2)->SetBottomMargin(0.15);
+
+    ht->Draw("hist");
+    hm->Draw("hist same");
+
+    return fCanvas;
 }
 
 ///////////////////////////////////////////////

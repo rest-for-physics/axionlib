@@ -30,14 +30,20 @@
 //! A metadata class to load tabulated solar hidden photon fluxes. Mass and coupling set to 1.
 class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
    private:
+    /// The hidden photon mass used for calculation
+    double HiddenPhotonMass;
+
+    /// The value of the kinetic mixing parameter used for calculation
+    double HiddenPhotonKineticMixing;
+
     /// The filename containing the solar flux table with continuum spectrum
     std::string fFluxDataFile = "";  //<
 
     /// The filename containing the resonance width (wGamma)
-    std::string fWGammaDataFile = "";  //<
+    std::string fWidthDataFile = "";  //<
 
     /// The filename containing the plasma freqency (wp) table
-    std::string fWpDataFile = "";  //<
+    std::string fPlasmaFreqDataFile = "";  //<
 
     /// It will be used when loading `.flux` files to define the input file energy binsize in eV.
     Double_t fBinSize = 0;  //<
@@ -49,10 +55,13 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
     std::vector<TH1F*> fFluxTable;  //!
 
     /// The tabulated resonance width TH1F(200,0,20)keV in eV2 versus solar radius
-    std::vector<TH1F*> fWGammaTable;  //!
+    std::vector<TH1F*> fWidthTable;  //!
 
     /// The solar plasma frequency vector in eV versus solar radius
-    std::vector<TH1F*> fWpTable;  //!
+    std::vector<TH1F*> fPlasmaFreqTable;  //!
+
+    /// The total solar flux TH1F(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
+    std::vector<TH1F*> fFullFluxTable;  //!
 
     /// Accumulative integrated solar flux for each solar ring for continuum spectrum (renormalized to unity)
     std::vector<Double_t> fFluxTableIntegrals;  //!
