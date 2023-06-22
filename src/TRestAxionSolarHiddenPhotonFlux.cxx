@@ -356,7 +356,7 @@ void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
 
 
 ///////////////////////////////////////////////
-/// \brief It builds a histogram with the continuum spectrum component.
+/// \brief It builds a histogram with the continuum spectrum.
 /// The flux will be expressed in cm-2 s-1 keV-1. Binned in 100eV steps.
 ///
 TH1F* TRestAxionSolarHiddenPhotonFlux::GetContinuumSpectrum() {
@@ -381,39 +381,12 @@ TH1F* TRestAxionSolarHiddenPhotonFlux::GetContinuumSpectrum() {
     return fContinuumHist;
 }
 
-///////////////////////////////////////////////
-/// \brief It builds a histogram with the monochromatic spectrum component.
-/// The flux will be expressed in cm-2 s-1 eV-1. Binned in 1eV steps.
-///
-TH1F* TRestAxionSolarHiddenPhotonFlux::GetMonochromaticSpectrum() {
-    if (fMonoHist != nullptr) {
-        delete fMonoHist;
-        fMonoHist = nullptr;
-    }
-
-    fMonoHist = new TH1F("MonochromaticHist", "", 20000, 0, 20);
-    for (const auto& x : fFluxLines) {
-        fMonoHist->Fill(x.first, x.second->Integral());  // cm-2 s-1 eV-1
-    }
-
-    fMonoHist->SetStats(0);
-    fMonoHist->GetXaxis()->SetTitle("Energy [keV]");
-    fMonoHist->GetXaxis()->SetTitleSize(0.05);
-    fMonoHist->GetXaxis()->SetLabelSize(0.05);
-    fMonoHist->GetYaxis()->SetTitle("Flux [cm-2 s-1 eV-1]");
-    fMonoHist->GetYaxis()->SetTitleSize(0.05);
-    fMonoHist->GetYaxis()->SetLabelSize(0.05);
-
-    return fMonoHist;
-}
 
 ///////////////////////////////////////////////
-/// \brief It builds a histogram adding the continuum and the monochromatic
-/// spectrum component. The flux will be expressed in cm-2 s-1 keV-1.
-/// Binned in 1eV steps.
+/// \brief Same as GetContinuumSpectrum, the flux will be
+/// expressed in cm-2 s-1 keV-1. Binned in 1eV steps.
 ///
 TH1F* TRestAxionSolarHiddenPhotonFlux::GetTotalSpectrum() {
-    TH1F* hm = GetMonochromaticSpectrum();
     TH1F* hc = GetContinuumSpectrum();
 
     if (fTotalHist != nullptr) {
@@ -428,10 +401,6 @@ TH1F* TRestAxionSolarHiddenPhotonFlux::GetTotalSpectrum() {
         }
     }
 
-    for (int n = 0; n < hm->GetNbinsX(); n++)
-        // 1e-2 is the renormalization from 20000 bins to 200 bins
-        fTotalHist->SetBinContent(n + 1, fTotalHist->GetBinContent(n + 1) + 100 * hm->GetBinContent(n + 1));
-
     fTotalHist->SetStats(0);
     fTotalHist->GetXaxis()->SetTitle("Energy [keV]");
     fTotalHist->GetXaxis()->SetTitleSize(0.05);
@@ -443,66 +412,12 @@ TH1F* TRestAxionSolarHiddenPhotonFlux::GetTotalSpectrum() {
     return fTotalHist;
 }
 
-///////////////////////////////////////////////
-/// \brief It draws the contents of a .flux file. This method just receives the
-///
-TCanvas* TRestAxionSolarHiddenPhotonFlux::DrawSolarFlux() {
-    if (fCanvas != nullptr) {
-        delete fCanvas;
-        fCanvas = nullptr;
-    }
-    fCanvas = new TCanvas("canv", "This is the canvas title", 1200, 500);
-    fCanvas->Draw();
-
-    TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
-    pad1->Divide(2, 1);
-    pad1->Draw();
-
-    pad1->cd(1);
-    pad1->cd(1)->SetLogy();
-    pad1->cd(1)->SetRightMargin(0.09);
-    pad1->cd(1)->SetLeftMargin(0.15);
-    pad1->cd(1)->SetBottomMargin(0.15);
-
-    TH1F* ht = GetTotalSpectrum();
-    ht->SetLineColor(kBlack);
-    ht->SetFillStyle(4050);
-    ht->SetFillColor(kBlue - 10);
-
-    TH1F* hm = GetMonochromaticSpectrum();
-    hm->SetLineColor(kBlack);
-    hm->Scale(100);  // renormalizing per 100eV-1
-
-    ht->Draw("hist");
-    hm->Draw("hist same");
-
-    pad1->cd(2);
-    pad1->cd(2)->SetRightMargin(0.09);
-    pad1->cd(2)->SetLeftMargin(0.15);
-    pad1->cd(2)->SetBottomMargin(0.15);
-
-    ht->Draw("hist");
-    hm->Draw("hist same");
-
-    return fCanvas;
-}
 
 ///////////////////////////////////////////////
 /// \brief A helper method to initialize the internal class data members with the
 /// integrated flux for each solar ring. It will be called by TRestAxionSolarHiddenPhotonFlux::Initialize.
 ///
 void TRestAxionSolarHiddenPhotonFlux::IntegrateSolarFluxes() {
-    fFluxLineIntegrals.clear();
-    fTotalMonochromaticFlux = 0;
-
-    for (const auto& line : fFluxLines) {
-        fTotalMonochromaticFlux += line.second->Integral();
-        fFluxLineIntegrals.push_back(fTotalMonochromaticFlux);
-    }
-
-    for (unsigned int n = 0; n < fFluxLineIntegrals.size(); n++)
-        fFluxLineIntegrals[n] /= fTotalMonochromaticFlux;
-
     fTotalContinuumFlux = 0.0;
     for (unsigned int n = 0; n < fFluxTable.size(); n++) {
         fTotalContinuumFlux += fFluxTable[n]->Integral() * 0.1;  // We integrate in 100eV steps
@@ -512,7 +427,6 @@ void TRestAxionSolarHiddenPhotonFlux::IntegrateSolarFluxes() {
     for (unsigned int n = 0; n < fFluxTableIntegrals.size(); n++)
         fFluxTableIntegrals[n] /= fTotalContinuumFlux;
 
-    fFluxRatio = fTotalMonochromaticFlux / (fTotalContinuumFlux + fTotalMonochromaticFlux);
 }
 
 ///////////////////////////////////////////////
@@ -525,9 +439,6 @@ Double_t TRestAxionSolarHiddenPhotonFlux::IntegrateFluxInRange(TVector2 eRange, 
     }
 
     Double_t flux = 0;
-    for (const auto& line : fFluxLines)
-        if (line.first > eRange.X() && line.first < eRange.Y()) flux += line.second->Integral();
-
     fTotalContinuumFlux = 0.0;
     for (unsigned int n = 0; n < fFluxTable.size(); n++) {
         flux += fFluxTable[n]->Integral(fFluxTable[n]->FindFixBin(eRange.X()),
@@ -547,7 +458,7 @@ std::pair<Double_t, Double_t> TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAn
     std::pair<Double_t, Double_t> result = {0, 0};
     if (!AreTablesLoaded()) return result;
     Double_t rnd = fRandom->Rndm();
-    if (fTotalMonochromaticFlux == 0 || fRandom->Rndm() > fFluxRatio) {
+    if (fRandom->Rndm() > fFluxRatio) {
         // Continuum
         for (unsigned int r = 0; r < fFluxTableIntegrals.size(); r++) {
             if (rnd < fFluxTableIntegrals[r]) {
@@ -559,16 +470,6 @@ std::pair<Double_t, Double_t> TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAn
                 std::pair<Double_t, Double_t> p = {energy, radius};
                 return p;
             }
-        }
-    } else {
-        // Monochromatic
-        int n = 0;
-        for (const auto& line : fFluxLines) {
-            if (rnd < fFluxLineIntegrals[n]) {
-                std::pair<Double_t, Double_t> p = {line.first, line.second->GetRandom()};
-                return p;
-            }
-            n++;
         }
     }
     return result;
@@ -602,20 +503,6 @@ void TRestAxionSolarHiddenPhotonFlux::PrintIntegratedRingFlux() {
     */
 }
 
-///////////////////////////////////////////////
-/// \brief It prints on screen the spectral lines loaded in memory
-///
-void TRestAxionSolarHiddenPhotonFlux::PrintMonoChromaticFlux() {
-    //   cout << "Number of monochromatic lines: " << fFluxPerRadius.size() << endl;
-    cout << "+++++++++++++++++++++++++++++++++++" << endl;
-    for (auto const& line : fFluxLines) {
-        cout << "Energy : " << line.first << " keV" << endl;
-        cout << "-----------------" << endl;
-        for (int n = 0; n < line.second->GetNbinsX(); n++)
-            cout << "R : " << line.second->GetBinCenter(n + 1)
-                 << " flux : " << line.second->GetBinContent(n + 1) << " cm-2 s-1" << endl;
-    }
-}
 
 ///////////////////////////////////////////////
 /// \brief Prints on screen the information about the metadata members of TRestAxionSolarHiddenPhotonFlux
@@ -634,13 +521,12 @@ void TRestAxionSolarHiddenPhotonFlux::PrintMetadata() {
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Debug) {
         PrintContinuumSolarTable();
-        PrintMonoChromaticFlux();
         PrintIntegratedRingFlux();
     }
 }
 
 ///////////////////////////////////////////////
-/// \brief It will create files with the continuum and spectral flux components to be used
+/// \brief It will create files with spectra to be used
 /// in a later ocasion.
 ///
 void TRestAxionSolarHiddenPhotonFlux::ExportTables(Bool_t ascii) {
@@ -667,20 +553,5 @@ void TRestAxionSolarHiddenPhotonFlux::ExportTables(Bool_t ascii) {
             TRestTools::ExportBinaryTable(path + "/" + rootFilename + ".N200f", table);
         else
             TRestTools::ExportASCIITable(path + "/" + rootFilename + ".dat", table);
-    }
-
-    if (fFluxLines.size() > 0) {
-        std::vector<std::vector<Float_t>> table;
-        for (const auto& x : fFluxLines) {
-            std::vector<Float_t> row;
-            row.push_back(x.first);
-            for (int n = 0; n < x.second->GetNbinsX(); n++) row.push_back(x.second->GetBinContent(n + 1));
-
-            table.push_back(row);
-        }
-
-        TRestTools::TransposeTable(table);
-
-        TRestTools::ExportASCIITable(path + "/" + rootFilename + ".spt", table);
     }
 }

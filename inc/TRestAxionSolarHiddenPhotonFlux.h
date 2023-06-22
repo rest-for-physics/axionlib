@@ -42,14 +42,11 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
     /// The filename containing the resonance width (wGamma)
     std::string fWidthDataFile = "";  //<
 
-    /// The filename containing the plasma freqency (wp) table
+    /// The filename containing the plasma frequency (wp) table
     std::string fPlasmaFreqDataFile = "";  //<
 
     /// It will be used when loading `.flux` files to define the input file energy binsize in eV.
     Double_t fBinSize = 0;  //<
-
-    /// It will be used when loading `.flux` files to define the threshold for peak identification
-    Double_t fPeakSigma = 0;  //<
 
     /// The tabulated solar flux continuum spectra TH1F(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
     std::vector<TH1F*> fFluxTable;  //!
@@ -99,14 +96,13 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
 
     /// It returns the total integrated flux at earth in cm-2 s-1
     Double_t GetTotalFlux(Double_t mass = 0) override {
-        return fTotalContinuumFlux + fTotalMonochromaticFlux;
+        return fTotalContinuumFlux;
     }
 
     /// It returns an energy integrated spectrum in cm-2 s-1 keV-1
     TH1F* GetEnergySpectrum(Double_t m = 0) override { return GetTotalSpectrum(); }
 
     TH1F* GetContinuumSpectrum();
-    TH1F* GetMonochromaticSpectrum();
     TH1F* GetTotalSpectrum();
 
     virtual TCanvas* DrawSolarFlux() override;
@@ -123,7 +119,6 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
 
     void PrintContinuumSolarTable();
     void PrintIntegratedRingFlux();
-    void PrintMonoChromaticFlux();
 
     TRestAxionSolarHiddenPhotonFlux();
     TRestAxionSolarHiddenPhotonFlux(const char* cfgFileName, std::string name = "");
