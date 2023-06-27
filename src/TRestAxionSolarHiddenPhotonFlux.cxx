@@ -21,7 +21,7 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionSolarHiddenPhotonFlux will use a file in ASCII or binary format to initialize
+/// TRestAxionSolarHiddenPhotonFlux will use a file in binary format to initialize
 /// a solar flux table that will describe the solar hidden photon flux spectrum as a function
 /// of the solar radius.
 ///
@@ -44,11 +44,11 @@
 /// for the range (0,20)keV in steps of 100eV. The table is provided as a binary table using
 /// `.N200f` extension.
 /// - *widthDataFile:* A table with 1000 rows representing the width of the hidden photon
-/// resonant production for each solar ring from the center to the corona, and 200 columns
+/// resonant production (wG) for each solar ring from the center to the corona, and 200 columns
 /// representing the width, measured in eV2, for the range (0,20)keV in steps of 100eV. The
 /// table is provided as a binary table using `.N200f` extension.
 /// - *plasmaFreqDataFile:* A table with 1000 rows and only 1 column representing the solar
-/// plasma frequency for each solar ring from the center to the corona, measured in eV. The
+/// plasma frequency (wp) for each solar ring from the center to the corona, measured in eV. The
 /// table is provided as a binary table using `.N1f` extension.
 ///
 /// Pre-generated solar axion flux tables will be available at the
@@ -428,9 +428,7 @@ void TRestAxionSolarHiddenPhotonFlux::IntegrateSolarFluxes() {
 ///////////////////////////////////////////////
 /// \brief It returns the integrated flux at earth in cm-2 s-1 for the given energy range
 ///
-Double_t TRestAxionSolarHiddenPhotonFlux::IntegrateFluxInRange(TVector2 eRange, Double_t mass) {
-    SetMass(mass);
-
+Double_t TRestAxionSolarHiddenPhotonFlux::IntegrateFluxInRange(TVector2 eRange) {
     if (eRange.X() == -1 && eRange.Y() == -1) {
         if (GetTotalFlux() == 0) IntegrateSolarFluxes();
         return GetTotalFlux();
@@ -451,11 +449,8 @@ Double_t TRestAxionSolarHiddenPhotonFlux::IntegrateFluxInRange(TVector2 eRange, 
 /// \brief It returns a random solar radius position and energy according to the
 /// flux distributions defined inside the solar tables loaded in the class
 ///
-std::pair<Double_t, Double_t> TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAndRadius(TVector2 eRange,
-                                                                                        Double_t mass) {
-    SetMass(mass);
-
-    std::pair<Double_t, Double_t> result = {0, 0};
+std::pair<Double_t, Double_t> TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAndRadius(TVector2 eRange) {
+   std::pair<Double_t, Double_t> result = {0, 0};
     if (!AreTablesLoaded()) return result;
     Double_t rnd = fRandom->Rndm();
     if (fRandom->Rndm() > fFluxRatio) {

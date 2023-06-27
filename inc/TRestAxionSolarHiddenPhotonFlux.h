@@ -26,14 +26,9 @@
 #include <TRestAxionSolarFlux.h>
 #include <TRestAxionSolarModel.h>
 
-//! A metadata class to load tabulated solar hidden photon fluxes. Mass and coupling set to 1.
+//! A metadata class to load tabulated solar hidden photon fluxes. Kinetic mixing set to 1.
 class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
    private:
-    /// The hidden photon mass used for calculation
-    double HiddenPhotonMass;
-
-    /// The value of the kinetic mixing parameter used for calculation
-    double HiddenPhotonKineticMixing;
 
     /// The filename containing the solar flux table with continuum spectrum
     std::string fFluxDataFile = "";  //<
@@ -84,20 +79,19 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
     Bool_t isPlasmaFreqLoaded() { return fWpTable.size() > 0; }
 
     /// It returns the integrated flux at earth in cm-2 s-1 for the given energy range
-    Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1), Double_t mass = 0) override;
+    Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1)) override;
 
     /// It defines how to generate Monte Carlo energy and radius values to reproduce the flux
-    std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1),
-                                                           Double_t mass = 0) override;
+    std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1)) override;
 
-    /// It defines how to read the solar tables at the inhereted class
-    Bool_t LoadTables() override;
+    /// It defines how to read the solar tables at the inhereted class for a given mass in eV
+    Bool_t LoadTables(Double_t mass) override;
 
     /// It returns the total integrated flux at earth in cm-2 s-1
-    Double_t GetTotalFlux(Double_t mass = 0) override { return fTotalContinuumFlux; }
+    Double_t GetTotalFlux() override { return fTotalContinuumFlux; }
 
     /// It returns an energy integrated spectrum in cm-2 s-1 keV-1
-    TH1F* GetEnergySpectrum(Double_t m = 0) override { return GetTotalSpectrum(); }
+    TH1F* GetEnergySpectrum() override { return GetTotalSpectrum(); }
 
     TH1F* GetContinuumSpectrum();
     TH1F* GetTotalSpectrum();
