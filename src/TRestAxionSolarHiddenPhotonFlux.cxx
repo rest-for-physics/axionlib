@@ -450,7 +450,7 @@ Double_t TRestAxionSolarHiddenPhotonFlux::IntegrateFluxInRange(TVector2 eRange) 
 /// flux distributions defined inside the solar tables loaded in the class
 ///
 std::pair<Double_t, Double_t> TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAndRadius(TVector2 eRange) {
-   std::pair<Double_t, Double_t> result = {0, 0};
+    std::pair<Double_t, Double_t> result = {0, 0};
     if (!AreTablesLoaded()) return result;
     Double_t rnd = fRandom->Rndm();
     if (fRandom->Rndm() > fFluxRatio) {

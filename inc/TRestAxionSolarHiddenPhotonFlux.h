@@ -29,7 +29,6 @@
 //! A metadata class to load tabulated solar hidden photon fluxes. Kinetic mixing set to 1.
 class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
    private:
-
     /// The filename containing the solar flux table with continuum spectrum
     std::string fFluxDataFile = "";  //<
 
