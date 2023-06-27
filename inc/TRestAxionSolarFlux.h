@@ -39,7 +39,7 @@ class TRestAxionSolarFlux : public TRestMetadata {
     Double_t fCouplingStrength = 0;  //<
 
     /// Mass parameter
-    Double_t fMass = 0; //!
+    Double_t fMass = 0;  //!
 
     /// Seed used in random generator
     Int_t fSeed = 0;  //<
@@ -87,7 +87,7 @@ class TRestAxionSolarFlux : public TRestMetadata {
     Bool_t AreTablesLoaded() { return fTablesLoaded; }
 
     Double_t GetMass() { return fMass; }
-    void SetMass(const Double_t &m ){ fMass = m; }
+    void SetMass(const Double_t& m) { fMass = m; }
 
     TH1F* GetFluxHistogram(std::string fname, Double_t binSize = 0.01);
     TCanvas* DrawFluxFile(std::string fname, Double_t binSize = 0.01);
