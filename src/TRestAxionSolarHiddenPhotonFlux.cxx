@@ -84,7 +84,7 @@
 ///
 /// \warning When the flux is loaded manually inside the `restRoot` interactive
 /// shell, or inside a macro or script, after metadata initialization, it is necessary
-/// to call the method TRestAxionSolarHiddenPhotonFlux::LoadTables to trigger the tables
+/// to call the method TRestAxionSolarHiddenPhotonFlux::LoadTables(mass) to trigger the tables
 /// initialization.
 ///
 /// ### Performing MonteCarlo tests using pre-loaded tables
@@ -181,14 +181,18 @@ TRestAxionSolarHiddenPhotonFlux::~TRestAxionSolarHiddenPhotonFlux() {}
 
 ///////////////////////////////////////////////
 /// \brief It will load the tables in memory by using the filename information provided
-/// inside the metadata members.
+/// inside the metadata members, and calculate the solar flux for a given m.
 ///
-Bool_t TRestAxionSolarHiddenPhotonFlux::LoadTables() {
+Bool_t TRestAxionSolarHiddenPhotonFlux::LoadTables(Double_t mass) {
     if (fFluxDataFile == "" || fWidthDataFile == "" || fPlasmaFreqDataFile == "") return false;
+
+    SetMass(mass);
 
     LoadContinuumFluxTable();
     LoadWidthTable();
     LoadPlasmaFreqTable();
+
+    CalculateSolarFlux();
 
     IntegrateSolarFluxes();
 
@@ -316,18 +320,18 @@ void TRestAxionSolarHiddenPhotonFlux::LoadPlasmaFreqTable() {
 
 ///////////////////////////////////////////////
 /// \brief A helper method to calculate the real solar flux spectrum from the 3 tables, the
-/// kinetic mixing parameter and the hidden photon mass.
+/// and the hidden photon mass for chi=1.
 ///
 void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
-    if (!LoadTables()) {
-        RESTError << "CalculateSolarFlux. The component tables cannot be loaded." << RESTendl;
+    if (fMass == 0) {
+        RESTError << "CalculateSolarFlux. The hidden photon mass is set to zero!" << RESTendl;
         return;
     }
 
     for (unsigned int n = 0; n < fluxTable.size(); n++) {
-        // m4 * chi2 * wG * flux / ( (m2 - wp2)^2 + (wG)^2 )
+        // m4 * chi2 * wG * flux / ( (m2 - wp2)^2 + (w G)^2 )
 
-        std::vector<float> mass2Vector(200, pow(HiddenPhotonMass, 2));
+        std::vector<float> mass2Vector(200, pow(fMass, 2));
         float wp = fPlasmaFreqTable[n].GetBinContent(1);
         std::vector<float> wp2Vector(200, pow(wp, 2));
 
@@ -336,15 +340,15 @@ void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
 
         hMass->FillN(200, massVector);                 // m^2 hist
         hWp->FillN(200, wpVector);                     // wp^2 hist
-        TH1F* hWg2 = fWidthTable[n] * fWidthTable[n];  // (omega Gamma)^2
+        TH1F* hWg2 = fWidthTable[n] * fWidthTable[n];  // (w G)^2
 
         hMass->Add(hWp, -1);     // (m2 - wp2)
         hMass->Multiply(hMass);  // (m2 - wp2)^2
-        hmass->Add(hWg2);        // (m2 - wp2)^2 - (wG)^2
+        hmass->Add(hWg2);        // (m2 - wp2)^2 + (w G)^2
 
         TH1F* h = fWidthTable[n] * fContinuumTable[n];
         h->Divide(hMass);
-        h->Scale(pow(HiddenPhotonMass, 4) * pow(HiddenPhotonKineticMixing, 2));
+        h->Scale(pow(fMass, 4));
 
         fFluxTable.push_back(h);
     }
@@ -425,6 +429,8 @@ void TRestAxionSolarHiddenPhotonFlux::IntegrateSolarFluxes() {
 /// \brief It returns the integrated flux at earth in cm-2 s-1 for the given energy range
 ///
 Double_t TRestAxionSolarHiddenPhotonFlux::IntegrateFluxInRange(TVector2 eRange, Double_t mass) {
+    SetMass(mass);
+
     if (eRange.X() == -1 && eRange.Y() == -1) {
         if (GetTotalFlux() == 0) IntegrateSolarFluxes();
         return GetTotalFlux();
@@ -447,6 +453,8 @@ Double_t TRestAxionSolarHiddenPhotonFlux::IntegrateFluxInRange(TVector2 eRange, 
 ///
 std::pair<Double_t, Double_t> TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAndRadius(TVector2 eRange,
                                                                                         Double_t mass) {
+    SetMass(mass);
+
     std::pair<Double_t, Double_t> result = {0, 0};
     if (!AreTablesLoaded()) return result;
     Double_t rnd = fRandom->Rndm();
