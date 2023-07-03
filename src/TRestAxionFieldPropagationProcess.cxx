@@ -197,6 +197,11 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
     Double_t transmission = 1;
     Double_t fieldAverage = 0;
     if (trackBounds.size() == 2) {
+        RESTDebug << "-- Track bounds" << RESTendl;
+        RESTDebug << "X1:" << trackBounds[0].X() << " Y1: " << trackBounds[0].Y()
+                  << " Z1: " << trackBounds[0].Z() << RESTendl;
+        RESTDebug << "X2:" << trackBounds[1].X() << " Y2: " << trackBounds[1].Y()
+                  << " Z2: " << trackBounds[1].Z() << RESTendl;
         std::vector<Double_t> bProfile = fMagneticField->GetTransversalComponentAlongPath(
             trackBounds[0], trackBounds[1], fIntegrationStep);
 
@@ -214,7 +219,15 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
             Double_t GammaL = Gamma * lCoh * units("cm");
             transmission = exp(-GammaL);
         }
+    } else {
+        SetWarning("TRestAxionFieldPropagationProcess. Track does not cross the field volume!", false);
     }
+
+    RESTDebug << " --- Process observables: " << RESTendl;
+    RESTDebug << "Field average: " << fieldAverage << " T" << RESTendl;
+    RESTDebug << "Probability: " << prob << " T" << RESTendl;
+    RESTDebug << "Coherence length: " << lCoh << " mm" << RESTendl;
+    RESTDebug << "Transmission: " << transmission << " mm" << RESTendl;
 
     SetObservableValue("fieldAverage", fieldAverage);
     SetObservableValue("probability", prob);
