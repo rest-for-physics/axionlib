@@ -182,7 +182,7 @@ void TRestAxionTrueWolterOptics::Initialize() {
 
     fCosAlpha_3.clear();
     for (const auto& a : fAlpha) fCosAlpha_3.push_back(TMath::Cos(3 * a));
-    
+
     fFrontVertex.clear();
     for (unsigned int n = 0; n < fAlpha.size(); n++) fFrontVertex.push_back(fR3[n] / TMath::Tan(fAlpha[n]));
 
