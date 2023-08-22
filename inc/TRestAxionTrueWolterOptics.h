@@ -113,13 +113,13 @@ class TRestAxionTrueWolterOptics : public TRestAxionOptics {
 
     /// It returns the entrance Z-position defined by the optical axis.
     Double_t GetEntrancePositionZ() override {
-        if (fCosAlpha.size() > 0) return -fMirrorLength * fCosAlpha[0];
+        if (fCosAlpha.size() > 0) return -fMirrorLength * fCosAlpha[0] - 0.5 * fXSep[0];
         return 0;
     }
 
     /// It returns the exit Z-position defined by the optical axis
     Double_t GetExitPositionZ() override {
-        if (fCosAlpha_3.size() > 0) return fMirrorLength * fCosAlpha_3[0];
+        if (fCosAlpha_3.size() > 0) return fMirrorLength * fCosAlpha_3[0] + 0.5 * fXSep[0];
         return 0;
     }
 
