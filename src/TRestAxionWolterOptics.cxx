@@ -173,7 +173,7 @@ void TRestAxionWolterOptics::Initialize() {
     fR5 = GetR5();
     fAlpha = GetAlpha();
     fThickness = GetThickness();
-    
+
     fXSep.clear();
     for (const auto& a : fAlpha)
         fXSep.push_back(2 * (fR1 - fR3 - fMirrorLength * TMath::Sin(a)) / TMath::Tan(a));
