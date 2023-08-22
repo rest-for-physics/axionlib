@@ -48,7 +48,7 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
     std::vector<Double_t> fThickness;  //!
 
     /// Distance between mirror stacks in mm. See schematic figure.
-    std::vector<Double_t> fxSep;  //!
+    std::vector<Double_t> fXSep;  //!
 
     /// The spider structure to be used as an optical opaque mask (common to all planes)
     TRestSpiderMask* fSpiderMask = nullptr;  //<
