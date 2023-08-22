@@ -173,6 +173,7 @@ void TRestAxionTrueWolterOptics::Initialize() {
     fR5 = GetR5();
     fAlpha = GetAlpha();
     fThickness = GetThickness();
+    fXSep = 2 * (fR1 - fR3 - fMirrorLength * TMath::Sin(fAlpha)) / TMath::Tan(fAlpha);
 
     if (fAlpha.size() == 0) return;
 
@@ -181,7 +182,7 @@ void TRestAxionTrueWolterOptics::Initialize() {
 
     fCosAlpha_3.clear();
     for (const auto& a : fAlpha) fCosAlpha_3.push_back(TMath::Cos(3 * a));
-
+    
     fFrontVertex.clear();
     for (unsigned int n = 0; n < fAlpha.size(); n++) fFrontVertex.push_back(fR3[n] / TMath::Tan(fAlpha[n]));
 
