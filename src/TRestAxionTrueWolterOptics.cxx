@@ -176,7 +176,8 @@ void TRestAxionTrueWolterOptics::Initialize() {
 
     fXSep.clear();
     for (unsigned int n = 0; n < fAlpha.size(); n++)
-        fXSep.push_back(2 * (fR1[n] - fR3[n] - fMirrorLength * TMath::Sin(fAlpha[n])) / TMath::Tan(fAlpha[n]));
+        fXSep.push_back(2 * (fR1[n] - fR3[n] - fMirrorLength * TMath::Sin(fAlpha[n])) /
+                        TMath::Tan(fAlpha[n]));
 
     if (fAlpha.size() == 0) return;
 
