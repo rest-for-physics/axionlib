@@ -449,8 +449,9 @@ Double_t TRestAxionSolarHiddenPhotonFlux::IntegrateFluxInRange(TVector2 eRange) 
 /// \brief It returns a random solar radius position and energy according to the
 /// flux distributions defined inside the solar tables loaded in the class
 ///
-std::pair<Double_t, Double_t> TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAndRadius(TVector2 eRange, Double_t HPmass) {
-	LoadTables(HPmass);	// load tables with specified hidden photon mass
+std::pair<Double_t, Double_t> TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAndRadius(TVector2 eRange,
+                                                                                        Double_t HPmass) {
+    LoadTables(HPmass);  // load tables with specified hidden photon mass
     std::pair<Double_t, Double_t> result = {0, 0};
     if (!AreTablesLoaded()) return result;
     Double_t rnd = fRandom->Rndm();
