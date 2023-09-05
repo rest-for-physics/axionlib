@@ -47,7 +47,9 @@ parser.add_argument(
 parser.add_argument("--m", dest="mass", type=float, help="Hidden photon mass")
 args = parser.parse_args()
 
-if mass == 0:
+if args.mass != None:
+	mass = args.mass
+else:
     print("Hidden photon mass not specified!!")
     print("Specify with argument --m")
     quit()
