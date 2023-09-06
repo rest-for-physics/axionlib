@@ -327,7 +327,7 @@ void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
         RESTError << "CalculateSolarFlux. The hidden photon mass is set to zero!" << RESTendl;
         return;
     }
-	Double_t mass = GetMass()
+	Double_t mass = GetMass();
     for (unsigned int n = 0; n < fluxTable.size(); n++) {
         // m4 * chi2 * wG * flux / ( (m2 - wp2)^2 + (w G)^2 )
 
