@@ -56,7 +56,8 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
     /// Accumulative integrated solar flux for each solar ring for continuum spectrum (renormalized to unity)
     std::vector<Double_t> fFluxTableIntegrals;  //!
 
-    std::vector<Double_t> fTotalContinuumFlux;  //!
+    /// Total solar flux for monochromatic contributions
+    Double_t fTotalContinuumFlux = 0;  //!
 
     /// A pointer to the continuum spectrum histogram
     TH1F* fContinuumHist = nullptr;  //!
