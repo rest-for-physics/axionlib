@@ -323,20 +323,21 @@ void TRestAxionSolarHiddenPhotonFlux::LoadPlasmaFreqTable() {
 /// and the hidden photon mass for chi=1.
 ///
 void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
-    if (fMass == 0) {
+    if (GetMass() == 0) {
         RESTError << "CalculateSolarFlux. The hidden photon mass is set to zero!" << RESTendl;
         return;
     }
-
+	Double_t mass = GetMass()
     for (unsigned int n = 0; n < fluxTable.size(); n++) {
         // m4 * chi2 * wG * flux / ( (m2 - wp2)^2 + (w G)^2 )
 
-        std::vector<float> mass2Vector(200, pow(fMass, 2));
+        std::vector<float> mass2Vector(200, pow(mass, 2));
         float wp = fPlasmaFreqTable[n].GetBinContent(1);
         std::vector<float> wp2Vector(200, pow(wp, 2));
 
-        TH1F* hMass = new TH1D("hMass", "hMass", 200, 0, 20) TH1F* hWp =
-            new TH1D("hWp", "hWp", 200, 0, 20) TH1F* hWg2 = (TH1F*)fWidthTable[n]->Clone();
+        TH1F* hMass = new TH1D("hMass", "hMass", 200, 0, 20);
+        TH1F* hWp = new TH1D("hWp", "hWp", 200, 0, 20);
+        TH1F* hWg2 = (TH1F*)fWidthTable[n]->Clone();
 
         hMass->FillN(200, massVector);                 // m^2 hist
         hWp->FillN(200, wpVector);                     // wp^2 hist
@@ -348,7 +349,7 @@ void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
 
         TH1F* h = fWidthTable[n] * fContinuumTable[n];
         h->Divide(hMass);
-        h->Scale(pow(fMass, 4));
+        h->Scale(pow(mass, 4));
 
         fFluxTable.push_back(h);
     }

@@ -43,12 +43,15 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
 
     /// The tabulated solar flux continuum spectra TH1F(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
     std::vector<TH1F*> fFluxTable;  //!
+    
+    /// The tabulated solar flux continuum spectra TH1F(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
+    std::vector<TH1F*> fContinuumTable;  //!
 
     /// The tabulated resonance width TH1F(200,0,20)keV in eV2 versus solar radius
-    std::vector<TH1F*> fWGammaTable;  //!
+    std::vector<TH1F*> fWidthTable;  //!
 
     /// The solar plasma frequency vector in eV versus solar radius
-    std::vector<TH1F*> fWpTable;  //!
+    std::vector<TH1F*> fPlasmaFreqTable;  //!
 
     /// The total solar flux TH1F(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
     std::vector<TH1F*> fFullFluxTable;  //!
@@ -75,10 +78,10 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
     Bool_t isSolarTableLoaded() { return fFluxTable.size() > 0; }
 
     /// It returns true if width table was loaded
-    Bool_t isWidthTableLoaded() { return fWGammaTable.size() > 0; }
+    Bool_t isWidthTableLoaded() { return fWidthTable.size() > 0; }
 
     /// It returns true if plasma frequency table was loaded
-    Bool_t isPlasmaFreqLoaded() { return fWpTable.size() > 0; }
+    Bool_t isPlasmaFreqLoaded() { return fPlasmaFreqTable.size() > 0; }
 
     /// It returns the integrated flux at earth in cm-2 s-1 for the given energy range
     Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1), Double_t mass = 0) override;
