@@ -328,7 +328,7 @@ void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
         return;
     }
 	Double_t mass = GetMass();
-    for (unsigned int n = 0; n < fluxTable.size(); n++) {
+    for (unsigned int n = 0; n < fContinuumTable.size(); n++) {
         // m4 * chi2 * wG * flux / ( (m2 - wp2)^2 + (w G)^2 )
 
         std::vector<float> mass2Vector(200, pow(mass, 2));
