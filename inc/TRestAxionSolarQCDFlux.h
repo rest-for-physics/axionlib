@@ -91,7 +91,7 @@ class TRestAxionSolarQCDFlux : public TRestAxionSolarFlux {
                                                            Double_t mass = 0) override;
 
     /// It defines how to read the solar tables at the inhereted class
-    Bool_t LoadTables() override;
+    Bool_t LoadTables(Double_t mass = 0) override;
 
     /// It returns the total integrated flux at earth in cm-2 s-1
     Double_t GetTotalFlux(Double_t mass = 0) override {

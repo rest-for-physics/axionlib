@@ -45,16 +45,18 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
     std::vector<TH1F*> fFluxTable;  //!
 
     /// The tabulated resonance width TH1F(200,0,20)keV in eV2 versus solar radius
-    std::vector<TH1F*> fWidthTable;  //!
+    std::vector<TH1F*> fWGammaTable;  //!
 
     /// The solar plasma frequency vector in eV versus solar radius
-    std::vector<TH1F*> fPlasmaFreqTable;  //!
+    std::vector<TH1F*> fWpTable;  //!
 
     /// The total solar flux TH1F(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
     std::vector<TH1F*> fFullFluxTable;  //!
 
     /// Accumulative integrated solar flux for each solar ring for continuum spectrum (renormalized to unity)
     std::vector<Double_t> fFluxTableIntegrals;  //!
+    
+    std::vector<Double_t> fTotalContinuumFlux;  //!
 
     /// A pointer to the continuum spectrum histogram
     TH1F* fContinuumHist = nullptr;  //!
@@ -78,19 +80,19 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
     Bool_t isPlasmaFreqLoaded() { return fWpTable.size() > 0; }
 
     /// It returns the integrated flux at earth in cm-2 s-1 for the given energy range
-    Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1)) override;
+    Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1), Double_t mass = 0) override;
 
     /// It defines how to generate Monte Carlo energy and radius values to reproduce the flux
-    std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1)) override;
+    std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1), Double_t mass = 0) override;
 
     /// It defines how to read the solar tables at the inhereted class for a given mass in eV
     Bool_t LoadTables(Double_t mass) override;
 
     /// It returns the total integrated flux at earth in cm-2 s-1
-    Double_t GetTotalFlux() override { return fTotalContinuumFlux; }
+    Double_t GetTotalFlux(Double_t mass = 0) override { return fTotalContinuumFlux; }
 
     /// It returns an energy integrated spectrum in cm-2 s-1 keV-1
-    TH1F* GetEnergySpectrum() override { return GetTotalSpectrum(); }
+    TH1F* GetEnergySpectrum(Double_t m = 0) override { return GetTotalSpectrum(); }
 
     TH1F* GetContinuumSpectrum();
     TH1F* GetTotalSpectrum();

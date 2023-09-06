@@ -58,7 +58,7 @@ class TRestAxionSolarFlux : public TRestMetadata {
     TRestAxionSolarFlux(const char* cfgFileName, std::string name = "");
 
     /// It defines how to read the solar tables at the inhereted class
-    virtual Bool_t LoadTables() = 0;
+    virtual Bool_t LoadTables(Double_t mass = 0) = 0;
 
    public:
     /// It is required in order to load solar flux tables into memory
