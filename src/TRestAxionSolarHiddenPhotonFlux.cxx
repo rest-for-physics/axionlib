@@ -455,15 +455,15 @@ std::pair<Double_t, Double_t> TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAn
     std::pair<Double_t, Double_t> result = {0, 0};
     if (!AreTablesLoaded()) return result;
     Double_t rnd = fRandom->Rndm();
-        for (unsigned int r = 0; r < fFluxTableIntegrals.size(); r++) {
-            if (rnd < fFluxTableIntegrals[r]) {
-                Double_t energy = fFluxTable[r]->GetRandom();
-                if (eRange.X() != -1 && eRange.Y() != -1) {
-                    if (energy < eRange.X() || energy > eRange.Y()) return GetRandomEnergyAndRadius(eRange);
-                }
-                Double_t radius = ((Double_t)r + fRandom->Rndm()) * 0.01;
-                std::pair<Double_t, Double_t> p = {energy, radius};
-                return p;
+    for (unsigned int r = 0; r < fFluxTableIntegrals.size(); r++) {
+        if (rnd < fFluxTableIntegrals[r]) {
+            Double_t energy = fFluxTable[r]->GetRandom();
+            if (eRange.X() != -1 && eRange.Y() != -1) {
+                if (energy < eRange.X() || energy > eRange.Y()) return GetRandomEnergyAndRadius(eRange);
+            }
+            Double_t radius = ((Double_t)r + fRandom->Rndm()) * 0.01;
+            std::pair<Double_t, Double_t> p = {energy, radius};
+            return p;
         }
     }
     return result;
