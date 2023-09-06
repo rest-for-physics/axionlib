@@ -428,7 +428,7 @@ void TRestAxionSolarHiddenPhotonFlux::IntegrateSolarFluxes() {
 ///////////////////////////////////////////////
 /// \brief It returns the integrated flux at earth in cm-2 s-1 for the given energy range
 ///
-Double_t TRestAxionSolarHiddenPhotonFlux::IntegrateFluxInRange(TVector2 eRange) {
+Double_t TRestAxionSolarHiddenPhotonFlux::IntegrateFluxInRange(TVector2 eRange, Double_t mass) {
     if (eRange.X() == -1 && eRange.Y() == -1) {
         if (GetTotalFlux() == 0) IntegrateSolarFluxes();
         return GetTotalFlux();
@@ -455,8 +455,6 @@ std::pair<Double_t, Double_t> TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAn
     std::pair<Double_t, Double_t> result = {0, 0};
     if (!AreTablesLoaded()) return result;
     Double_t rnd = fRandom->Rndm();
-    if (fRandom->Rndm() > fFluxRatio) {
-        // Continuum
         for (unsigned int r = 0; r < fFluxTableIntegrals.size(); r++) {
             if (rnd < fFluxTableIntegrals[r]) {
                 Double_t energy = fFluxTable[r]->GetRandom();
@@ -466,7 +464,6 @@ std::pair<Double_t, Double_t> TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAn
                 Double_t radius = ((Double_t)r + fRandom->Rndm()) * 0.01;
                 std::pair<Double_t, Double_t> p = {energy, radius};
                 return p;
-            }
         }
     }
     return result;
@@ -506,12 +503,7 @@ void TRestAxionSolarHiddenPhotonFlux::PrintIntegratedRingFlux() {
 void TRestAxionSolarHiddenPhotonFlux::PrintMetadata() {
     TRestAxionSolarFlux::PrintMetadata();
 
-    if (fFluxDataFile != "")
-        RESTMetadata << " - Solar axion flux datafile (continuum) : " << fFluxDataFile << RESTendl;
-    if (fFluxSptFile != "")
-        RESTMetadata << " - Solar axion flux datafile (monochromatic) : " << fFluxSptFile << RESTendl;
     RESTMetadata << "-------" << RESTendl;
-    RESTMetadata << " - Total monochromatic flux : " << fTotalMonochromaticFlux << " cm-2 s-1" << RESTendl;
     RESTMetadata << " - Total continuum flux : " << fTotalContinuumFlux << " cm-2 s-1" << RESTendl;
     RESTMetadata << "++++++++++++++++++" << RESTendl;
 

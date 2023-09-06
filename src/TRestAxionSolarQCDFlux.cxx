@@ -249,7 +249,7 @@ TRestAxionSolarQCDFlux::~TRestAxionSolarQCDFlux() {}
 /// \brief It will load the tables in memory by using the filename information provided
 /// inside the metadata members.
 ///
-Bool_t TRestAxionSolarQCDFlux::LoadTables() {
+Bool_t TRestAxionSolarQCDFlux::LoadTables(Double_t mass) {
     if (fFluxDataFile == "" && fFluxSptFile == "") return false;
 
     if (TRestTools::GetFileNameExtension(fFluxDataFile) == "flux") {
