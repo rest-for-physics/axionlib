@@ -331,23 +331,27 @@ void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
     for (unsigned int n = 0; n < fContinuumTable.size(); n++) {
         // m4 * chi2 * wG * flux / ( (m2 - wp2)^2 + (w G)^2 )
 
-        std::vector<float> mass2Vector(200, pow(mass, 2));
-        float wp = fPlasmaFreqTable[n].GetBinContent(1);
-        std::vector<float> wp2Vector(200, pow(wp, 2));
+        vector<double> mass2Vector(200, pow(mass, 2));
+        double wp = fPlasmaFreqTable[n]->GetBinContent(1);
+        vector<double> wp2Vector(200, pow(wp, 2));
+        vector<double> weights(200, 1);
 
-        TH1F* hMass = new TH1D("hMass", "hMass", 200, 0, 20);
-        TH1F* hWp = new TH1D("hWp", "hWp", 200, 0, 20);
+        TH1F* hMass = new TH1F("hMass", "hMass", 200, 0, 20);
+        TH1F* hWp = new TH1F("hWp", "hWp", 200, 0, 20);
         TH1F* hWg2 = (TH1F*)fWidthTable[n]->Clone();
+        hWg2->Multiply(hWg2);							// (w G)^2
 
-        hMass->FillN(200, massVector);                 // m^2 hist
-        hWp->FillN(200, wpVector);                     // wp^2 hist
-        TH1F* hWg2 = fWidthTable[n] * fWidthTable[n];  // (w G)^2
+        //hMass->FillN(200, mass2Vector);                 // m^2 hist
+        hMass->FillN(200, mass2Vector.data(), weights.data());                 // m^2 hist
+        //hWp->FillN(200, wp2Vector);                     // wp^2 hist
+        hWp->FillN(200, wp2Vector.data(), weights.data());                     // wp^2 hist
 
         hMass->Add(hWp, -1);     // (m2 - wp2)
         hMass->Multiply(hMass);  // (m2 - wp2)^2
-        hmass->Add(hWg2);        // (m2 - wp2)^2 + (w G)^2
+        hMass->Add(hWg2);        // (m2 - wp2)^2 + (w G)^2
 
-        TH1F* h = fWidthTable[n] * fContinuumTable[n];
+        TH1F* h = (TH1F*)fWidthTable[n]->Clone();
+        h->Multiply(fContinuumTable[n]);
         h->Divide(hMass);
         h->Scale(pow(mass, 4));
 
@@ -544,3 +548,42 @@ void TRestAxionSolarHiddenPhotonFlux::ExportTables(Bool_t ascii) {
             TRestTools::ExportASCIITable(path + "/" + rootFilename + ".dat", table);
     }
 }
+
+///////////////////////////////////////////////
+/// \brief It draws the contents of a .flux file. This method just receives the
+///
+TCanvas* TRestAxionSolarHiddenPhotonFlux::DrawSolarFlux() {
+    if (fCanvas != nullptr) {
+        delete fCanvas;
+        fCanvas = nullptr;
+    }
+    fCanvas = new TCanvas("canv", "This is the canvas title", 1200, 500);
+    fCanvas->Draw();
+
+    TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
+    pad1->Divide(2, 1);
+    pad1->Draw();
+
+    pad1->cd(1);
+    pad1->cd(1)->SetLogy();
+    pad1->cd(1)->SetRightMargin(0.09);
+    pad1->cd(1)->SetLeftMargin(0.15);
+    pad1->cd(1)->SetBottomMargin(0.15);
+
+    TH1F* ht = GetTotalSpectrum();
+    ht->SetLineColor(kBlack);
+    ht->SetFillStyle(4050);
+    ht->SetFillColor(kBlue - 10);
+
+    ht->Draw("hist");
+
+    pad1->cd(2);
+    pad1->cd(2)->SetRightMargin(0.09);
+    pad1->cd(2)->SetLeftMargin(0.15);
+    pad1->cd(2)->SetBottomMargin(0.15);
+
+    ht->Draw("hist");
+
+    return fCanvas;
+}
+
