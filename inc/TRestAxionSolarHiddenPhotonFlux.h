@@ -43,7 +43,7 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
 
     /// The tabulated solar flux continuum spectra TH1F(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
     std::vector<TH1F*> fFluxTable;  //!
-    
+
     /// The tabulated solar flux continuum spectra TH1F(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
     std::vector<TH1F*> fContinuumTable;  //!
 
@@ -92,11 +92,11 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
 
     /// It defines how to read the solar tables at the inhereted class for a given mass in eV
     Bool_t LoadTables(Double_t mass) override;
-    
+
     void LoadContinuumTable();
     void LoadWidthTable();
     void LoadPlasmaFreqTable();
-    
+
     // calculate solar HP flux from the 3 tables and mass
     void CalculateSolarFlux();
     /// It returns the total integrated flux at earth in cm-2 s-1

@@ -339,12 +339,12 @@ void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
         TH1F* hMass = new TH1F("hMass", "hMass", 200, 0, 20);
         TH1F* hWp = new TH1F("hWp", "hWp", 200, 0, 20);
         TH1F* hWg2 = (TH1F*)fWidthTable[n]->Clone();
-        hWg2->Multiply(hWg2);							// (w G)^2
+        hWg2->Multiply(hWg2);  // (w G)^2
 
-        //hMass->FillN(200, mass2Vector);                 // m^2 hist
-        hMass->FillN(200, mass2Vector.data(), weights.data());                 // m^2 hist
-        //hWp->FillN(200, wp2Vector);                     // wp^2 hist
-        hWp->FillN(200, wp2Vector.data(), weights.data());                     // wp^2 hist
+        // hMass->FillN(200, mass2Vector);                 // m^2 hist
+        hMass->FillN(200, mass2Vector.data(), weights.data());  // m^2 hist
+        // hWp->FillN(200, wp2Vector);                     // wp^2 hist
+        hWp->FillN(200, wp2Vector.data(), weights.data());  // wp^2 hist
 
         hMass->Add(hWp, -1);     // (m2 - wp2)
         hMass->Multiply(hMass);  // (m2 - wp2)^2
@@ -586,4 +586,3 @@ TCanvas* TRestAxionSolarHiddenPhotonFlux::DrawSolarFlux() {
 
     return fCanvas;
 }
-
