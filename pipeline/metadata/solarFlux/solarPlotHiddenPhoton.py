@@ -44,13 +44,11 @@ parser.add_argument(
 parser.add_argument(
     "--N", dest="samples", type=int, help="The number of generated particles"
 )
-parser.add_argument(
-	"--mass", dest="mass", type=float, help="Hidden photon mass [eV]"
-)
+parser.add_argument("--mass", dest="mass", type=float, help="Hidden photon mass [eV]")
 
 args = parser.parse_args()
 
-mass = 10	# eV
+mass = 10  # eV
 if args.mass != None:
     mass = args.mass
 
@@ -94,14 +92,14 @@ if combinedFlux.GetError():
 
 comb_spt = TH2D("comb_spt", "Energy versus solar radius", 20000, 0, 20, 100, 0, 1)
 for x in range(samples):
-    x = combinedFlux.GetRandomEnergyAndRadius((-1,-1))
+    x = combinedFlux.GetRandomEnergyAndRadius((-1, -1))
     comb_spt.Fill(x[0], x[1])
 
 rnd = TRandom3(0)
 solarDisk = TH2D("solar_disk", "SolarDisk", 120, -1.2, 1.2, 120, -1.2, 1.2)
 for x in range(samples):
     angle = rnd.Rndm() * 2 * math.pi
-    x = combinedFlux.GetRandomEnergyAndRadius((-1,-1))
+    x = combinedFlux.GetRandomEnergyAndRadius((-1, -1))
     solarDisk.Fill(x[1] * math.cos(angle), x[1] * math.sin(angle))
 
 pad1.cd(1)
