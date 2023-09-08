@@ -44,15 +44,15 @@ parser.add_argument(
 parser.add_argument(
     "--N", dest="samples", type=int, help="The number of generated particles"
 )
-parser.add_argument("--m", dest="mass", type=float, help="Hidden photon mass")
+parser.add_argument(
+	"--mass", dest="mass", type=float, help="Hidden photon mass [eV]"
+)
+
 args = parser.parse_args()
 
+mass = 10	# eV
 if args.mass != None:
     mass = args.mass
-else:
-    print("Hidden photon mass not specified!!")
-    print("Specify with argument --m")
-    quit()
 
 rmlfile = "fluxes.rml"
 if args.rmlfile != None:
@@ -62,23 +62,15 @@ outfname = "flux.png"
 if args.outfname != None:
     outfname = args.outfname
 
-fluxname = "combined"
+fluxname = "HiddenPhoton"
 if args.fluxname != None:
     fluxname = args.fluxname
-
 
 samples = 20000
 if args.samples != None:
     samples = args.samples
 
 validation = True
-if (
-    rmlfile == "fluxes.rml"
-    and fluxname == "combined"
-    and outfname == "flux.png"
-    and samples == 20000
-):
-    validation = True
 
 ROOT.gSystem.Load("libRestFramework.so")
 ROOT.gSystem.Load("libRestAxion.so")
@@ -92,7 +84,7 @@ pad1.Divide(2, 2)
 pad1.Draw()
 
 combinedFlux = ROOT.TRestAxionSolarHiddenPhotonFlux(rmlfile, fluxname)
-combinedFlux.Initialize()
+combinedFlux.Initialize(mass)
 combinedFlux.PrintMetadata()
 
 if combinedFlux.GetError():
@@ -102,15 +94,14 @@ if combinedFlux.GetError():
 
 comb_spt = TH2D("comb_spt", "Energy versus solar radius", 20000, 0, 20, 100, 0, 1)
 for x in range(samples):
-    x = combinedFlux.GetRandomEnergyAndRadius(mass)
+    x = combinedFlux.GetRandomEnergyAndRadius((-1,-1))
     comb_spt.Fill(x[0], x[1])
 
 rnd = TRandom3(0)
 solarDisk = TH2D("solar_disk", "SolarDisk", 120, -1.2, 1.2, 120, -1.2, 1.2)
 for x in range(samples):
     angle = rnd.Rndm() * 2 * math.pi
-    x = combinedFlux.GetRandomEnergyAndRadius(mass)
-
+    x = combinedFlux.GetRandomEnergyAndRadius((-1,-1))
     solarDisk.Fill(x[1] * math.cos(angle), x[1] * math.sin(angle))
 
 pad1.cd(1)
