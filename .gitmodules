@@ -1,6 +1,6 @@
 [submodule "data"]
 	path = data
-	url = https://github.com/rest-for-physics/axionlib-data.git
+	url = https://github.com/rest-for-physics/axionlib-data
 [submodule "external/solarAxionFlux"]
 	path = external/solarAxionFlux
 	url = https://github.com/sebhoof/SolarAxionFlux.git
