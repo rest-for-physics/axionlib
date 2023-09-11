@@ -71,8 +71,7 @@ class TRestAxionSolarFlux : public TRestMetadata {
     virtual Double_t GetTotalFlux(Double_t mass = 0) = 0;
 
     /// It defines how to generate Monte Carlo energy and radius values to reproduce the flux
-    virtual std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1),
-                                                                   Double_t mass = 0) = 0;
+    virtual std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1)) = 0;
 
     /// It returns an energy integrated spectrum in cm-2 s-1 keV-1
     virtual TH1F* GetEnergySpectrum(Double_t m = 0) = 0;

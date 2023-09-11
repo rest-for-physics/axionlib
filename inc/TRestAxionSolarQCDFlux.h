@@ -87,8 +87,7 @@ class TRestAxionSolarQCDFlux : public TRestAxionSolarFlux {
     Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1), Double_t mass = 0) override;
 
     /// It defines how to generate Monte Carlo energy and radius values to reproduce the flux
-    std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1),
-                                                           Double_t mass = 0) override;
+    std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1)) override;
 
     /// It defines how to read the solar tables at the inhereted class
     Bool_t LoadTables(Double_t mass = 0) override;
