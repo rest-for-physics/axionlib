@@ -249,7 +249,7 @@ TRestAxionSolarQCDFlux::~TRestAxionSolarQCDFlux() {}
 /// \brief It will load the tables in memory by using the filename information provided
 /// inside the metadata members.
 ///
-Bool_t TRestAxionSolarQCDFlux::LoadTables(Double_t mass) {
+Bool_t TRestAxionSolarQCDFlux::LoadTables() {
     if (fFluxDataFile == "" && fFluxSptFile == "") return false;
 
     if (TRestTools::GetFileNameExtension(fFluxDataFile) == "flux") {
@@ -265,7 +265,7 @@ Bool_t TRestAxionSolarQCDFlux::LoadTables(Double_t mass) {
 }
 
 ///////////////////////////////////////////////
-/// \brief A helper method to load the data file containning continuum spectra as a
+/// \brief A helper method to load the data file containing continuum spectra as a
 /// function of the solar radius. It will be called by TRestAxionSolarQCDFlux::Initialize.
 ///
 void TRestAxionSolarQCDFlux::LoadContinuumFluxTable() {
@@ -280,7 +280,7 @@ void TRestAxionSolarQCDFlux::LoadContinuumFluxTable() {
     RESTDebug << "Loading table from file : " << RESTendl;
     RESTDebug << "File : " << fullPathName << RESTendl;
 
-    std::vector<std::vector<Float_t>> fluxTable;
+    std::vector<std::vector<Double_t>> fluxTable;
     if (TRestTools::GetFileNameExtension(fFluxDataFile) == "dat") {
         std::vector<std::vector<Double_t>> doubleTable;
         if (!TRestTools::ReadASCIITable(fullPathName, doubleTable)) {
@@ -289,8 +289,8 @@ void TRestAxionSolarQCDFlux::LoadContinuumFluxTable() {
             return;
         }
         for (const auto& row : doubleTable) {
-            std::vector<Float_t> floatVec(row.begin(), row.end());
-            fluxTable.push_back(floatVec);
+            std::vector<Double_t> doubleVec(row.begin(), row.end());
+            fluxTable.push_back(doubleVec);
         }
     } else if (TRestTools::IsBinaryFile(fFluxDataFile))
         TRestTools::ReadBinaryTable(fullPathName, fluxTable);
@@ -309,14 +309,14 @@ void TRestAxionSolarQCDFlux::LoadContinuumFluxTable() {
     }
 
     for (unsigned int n = 0; n < fluxTable.size(); n++) {
-        TH1F* h = new TH1F(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), "", 200, 0, 20);
+        TH1D* h = new TH1D(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), "", 200, 0, 20);
         for (unsigned int m = 0; m < fluxTable[n].size(); m++) h->SetBinContent(m + 1, fluxTable[n][m]);
         fFluxTable.push_back(h);
     }
 }
 
 ///////////////////////////////////////////////
-/// \brief A helper method to load the data file containning monochromatic spectral
+/// \brief A helper method to load the data file containing monochromatic spectral
 /// lines as a function of the solar radius. It will be called by TRestAxionSolarQCDFlux::Initialize.
 ///
 void TRestAxionSolarQCDFlux::LoadMonoChromaticFluxTable() {
@@ -339,10 +339,10 @@ void TRestAxionSolarQCDFlux::LoadMonoChromaticFluxTable() {
         return;
     }
 
-    std::vector<std::vector<Float_t>> asciiTable;
+    std::vector<std::vector<Double_t>> asciiTable;
     for (const auto& row : doubleTable) {
-        std::vector<Float_t> floatVec(row.begin(), row.end());
-        asciiTable.push_back(floatVec);
+        std::vector<Double_t> doubleVec(row.begin(), row.end());
+        asciiTable.push_back(doubleVec);
     }
 
     fFluxLines.clear();
@@ -355,8 +355,8 @@ void TRestAxionSolarQCDFlux::LoadMonoChromaticFluxTable() {
     }
 
     for (unsigned int en = 0; en < asciiTable[0].size(); en++) {
-        Float_t energy = asciiTable[0][en];
-        TH1F* h = new TH1F(Form("%s_MonochromeFluxAtEnergy%6.4lf", GetName(), energy), "", 100, 0, 1);
+        Double_t energy = asciiTable[0][en];
+        TH1D* h = new TH1D(Form("%s_MonochromeFluxAtEnergy%6.4lf", GetName(), energy), "", 100, 0, 1);
         for (unsigned int r = 1; r < asciiTable.size(); r++) h->SetBinContent(r, asciiTable[r][en]);
         fFluxLines[energy] = h;
     }
@@ -399,12 +399,12 @@ void TRestAxionSolarQCDFlux::ReadFluxFile() {
     Double_t fluxBinSize = TRestTools::GetLowestIncreaseFromTable(fluxData, 1);
 
     for (const auto& data : fluxData) {
-        Float_t r = 0.005 + data[0];
-        Float_t en = data[1] - 0.005;
-        Float_t flux = data[2] * fluxBinSize;  // flux in cm-2 s-1 bin-1
+        Double_t r = 0.005 + data[0];
+        Double_t en = data[1] - 0.005;
+        Double_t flux = data[2] * fluxBinSize;  // flux in cm-2 s-1 bin-1
 
-        originalHist->Fill(r, en, (Float_t)flux);
-        continuumHist->Fill(r, en, (Float_t)flux);
+        originalHist->Fill(r, en, (Double_t)flux);
+        continuumHist->Fill(r, en, (Double_t)flux);
     }
     RESTDebug << "Histograms filled" << RESTendl;
 
@@ -415,8 +415,8 @@ void TRestAxionSolarQCDFlux::ReadFluxFile() {
         const int smearPoints = (Int_t)(5 / (fBinSize * 100));
         const int excludePoints = smearPoints / 5;
         for (const auto& data : fluxData) {
-            Float_t r = 0.005 + data[0];
-            Float_t en = data[1] - 0.005;
+            Double_t r = 0.005 + data[0];
+            Double_t en = data[1] - 0.005;
 
             Int_t binR = continuumHist->GetXaxis()->FindBin(r);
             Int_t binE = continuumHist->GetYaxis()->FindBin(en);
@@ -430,8 +430,8 @@ void TRestAxionSolarQCDFlux::ReadFluxFile() {
             }
             avgFlux /= n;
 
-            Float_t targetBinFlux = continuumHist->GetBinContent(binR, binE);
-            Float_t thrFlux = avgFlux + fPeakSigma * TMath::Sqrt(avgFlux);
+            Double_t targetBinFlux = continuumHist->GetBinContent(binR, binE);
+            Double_t thrFlux = avgFlux + fPeakSigma * TMath::Sqrt(avgFlux);
             if (targetBinFlux > 0 && targetBinFlux > thrFlux) {
                 continuumHist->SetBinContent(binR, binE, avgFlux);
                 peaks++;
@@ -441,8 +441,8 @@ void TRestAxionSolarQCDFlux::ReadFluxFile() {
 
     for (int n = 0; n < originalHist->GetNbinsX(); n++)
         for (int m = 0; m < originalHist->GetNbinsY(); m++) {
-            Float_t orig = originalHist->GetBinContent(n + 1, m + 1);
-            Float_t cont = continuumHist->GetBinContent(n + 1, m + 1);
+            Double_t orig = originalHist->GetBinContent(n + 1, m + 1);
+            Double_t cont = continuumHist->GetBinContent(n + 1, m + 1);
 
             spectrumHist->SetBinContent(n + 1, m + 1, orig - cont);
         }
@@ -453,8 +453,8 @@ void TRestAxionSolarQCDFlux::ReadFluxFile() {
 
     fFluxTable.clear();
     for (int n = 0; n < continuumHist->GetNbinsX(); n++) {
-        TH1F* hc =
-            (TH1F*)continuumHist->ProjectionY(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), n + 1, n + 1);
+        TH1D* hc =
+            (TH1D*)continuumHist->ProjectionY(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), n + 1, n + 1);
         fFluxTable.push_back(hc);
     }
 
@@ -462,7 +462,7 @@ void TRestAxionSolarQCDFlux::ReadFluxFile() {
     for (int n = 0; n < spectrumHist->GetNbinsY(); n++) {
         if (spectrumHist->ProjectionX("", n + 1, n + 1)->Integral() > 0) {
             Double_t energy = spectrumHist->ProjectionY()->GetBinCenter(n + 1);
-            TH1F* hm = (TH1F*)spectrumHist->ProjectionX(
+            TH1D* hm = (TH1D*)spectrumHist->ProjectionX(
                 Form("%s_MonochromeFluxAtEnergy%5.3lf", GetName(), energy), n + 1, n + 1);
             fFluxLines[energy] = hm;
         }
@@ -475,13 +475,13 @@ void TRestAxionSolarQCDFlux::ReadFluxFile() {
 /// \brief It builds a histogram with the continuum spectrum component.
 /// The flux will be expressed in cm-2 s-1 keV-1. Binned in 100eV steps.
 ///
-TH1F* TRestAxionSolarQCDFlux::GetContinuumSpectrum() {
+TH1D* TRestAxionSolarQCDFlux::GetContinuumSpectrum() {
     if (fContinuumHist != nullptr) {
         delete fContinuumHist;
         fContinuumHist = nullptr;
     }
 
-    fContinuumHist = new TH1F("ContinuumHist", "", 200, 0, 20);
+    fContinuumHist = new TH1D("ContinuumHist", "", 200, 0, 20);
     for (const auto& x : fFluxTable) {
         fContinuumHist->Add(x);
     }
@@ -501,13 +501,13 @@ TH1F* TRestAxionSolarQCDFlux::GetContinuumSpectrum() {
 /// \brief It builds a histogram with the monochromatic spectrum component.
 /// The flux will be expressed in cm-2 s-1 eV-1. Binned in 1eV steps.
 ///
-TH1F* TRestAxionSolarQCDFlux::GetMonochromaticSpectrum() {
+TH1D* TRestAxionSolarQCDFlux::GetMonochromaticSpectrum() {
     if (fMonoHist != nullptr) {
         delete fMonoHist;
         fMonoHist = nullptr;
     }
 
-    fMonoHist = new TH1F("MonochromaticHist", "", 20000, 0, 20);
+    fMonoHist = new TH1D("MonochromaticHist", "", 20000, 0, 20);
     for (const auto& x : fFluxLines) {
         fMonoHist->Fill(x.first, x.second->Integral());  // cm-2 s-1 eV-1
     }
@@ -528,16 +528,16 @@ TH1F* TRestAxionSolarQCDFlux::GetMonochromaticSpectrum() {
 /// spectrum component. The flux will be expressed in cm-2 s-1 keV-1.
 /// Binned in 1eV steps.
 ///
-TH1F* TRestAxionSolarQCDFlux::GetTotalSpectrum() {
-    TH1F* hm = GetMonochromaticSpectrum();
-    TH1F* hc = GetContinuumSpectrum();
+TH1D* TRestAxionSolarQCDFlux::GetTotalSpectrum() {
+    TH1D* hm = GetMonochromaticSpectrum();
+    TH1D* hc = GetContinuumSpectrum();
 
     if (fTotalHist != nullptr) {
         delete fTotalHist;
         fTotalHist = nullptr;
     }
 
-    fTotalHist = new TH1F("fTotalHist", "", 20000, 0, 20);
+    fTotalHist = new TH1D("fTotalHist", "", 20000, 0, 20);
     for (int n = 0; n < hc->GetNbinsX(); n++) {
         for (int m = 0; m < 100; m++) {
             fTotalHist->SetBinContent(n * 100 + 1 + m, hc->GetBinContent(n + 1));
@@ -580,12 +580,12 @@ TCanvas* TRestAxionSolarQCDFlux::DrawSolarFlux() {
     pad1->cd(1)->SetLeftMargin(0.15);
     pad1->cd(1)->SetBottomMargin(0.15);
 
-    TH1F* ht = GetTotalSpectrum();
+    TH1D* ht = GetTotalSpectrum();
     ht->SetLineColor(kBlack);
     ht->SetFillStyle(4050);
     ht->SetFillColor(kBlue - 10);
 
-    TH1F* hm = GetMonochromaticSpectrum();
+    TH1D* hm = GetMonochromaticSpectrum();
     hm->SetLineColor(kBlack);
     hm->Scale(100);  // renormalizing per 100eV-1
 
@@ -634,7 +634,7 @@ void TRestAxionSolarQCDFlux::IntegrateSolarFluxes() {
 ///////////////////////////////////////////////
 /// \brief It returns the integrated flux at earth in cm-2 s-1 for the given energy range
 ///
-Double_t TRestAxionSolarQCDFlux::IntegrateFluxInRange(TVector2 eRange, Double_t mass) {
+Double_t TRestAxionSolarQCDFlux::IntegrateFluxInRange(TVector2 eRange) {
     if (eRange.X() == -1 && eRange.Y() == -1) {
         if (GetTotalFlux() == 0) IntegrateSolarFluxes();
         return GetTotalFlux();
@@ -770,9 +770,9 @@ void TRestAxionSolarQCDFlux::ExportTables(Bool_t ascii) {
     }
 
     if (fFluxTable.size() > 0) {
-        std::vector<std::vector<Float_t>> table;
+        std::vector<std::vector<Double_t>> table;
         for (const auto& x : fFluxTable) {
-            std::vector<Float_t> row;
+            std::vector<Double_t> row;
             for (int n = 0; n < x->GetNbinsX(); n++) row.push_back(x->GetBinContent(n + 1));
 
             table.push_back(row);
@@ -785,9 +785,9 @@ void TRestAxionSolarQCDFlux::ExportTables(Bool_t ascii) {
     }
 
     if (fFluxLines.size() > 0) {
-        std::vector<std::vector<Float_t>> table;
+        std::vector<std::vector<Double_t>> table;
         for (const auto& x : fFluxLines) {
-            std::vector<Float_t> row;
+            std::vector<Double_t> row;
             row.push_back(x.first);
             for (int n = 0; n < x.second->GetNbinsX(); n++) row.push_back(x.second->GetBinContent(n + 1));
 

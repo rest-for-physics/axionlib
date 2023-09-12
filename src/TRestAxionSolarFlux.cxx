@@ -64,7 +64,7 @@
 /// on the flux distribution initialized.
 /// - **LoadTables**: It is called by TRestAxionSolarFlux::Initialize to allow the inherited
 /// class to load all the necessary tables in memory.
-/// - **GetEnergySpectrum**: It should return a TH1F pointer with a energy spectrum histogram.
+/// - **GetEnergySpectrum**: It should return a TH1D pointer with a energy spectrum histogram.
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -125,12 +125,7 @@ void TRestAxionSolarFlux::Initialize() {
     fTablesLoaded = false;
     if (LoadTables()) fTablesLoaded = true;
 
-    if (!fRandom) {
-        delete fRandom;
-        fRandom = nullptr;
-    }
-
-    if (fRandom != nullptr) {
+    if (fRandom) {
         delete fRandom;
         fRandom = nullptr;
     }
@@ -139,11 +134,18 @@ void TRestAxionSolarFlux::Initialize() {
     fSeed = fRandom->TRandom::GetSeed();
 }
 
+
+///////////////////////////////////////////////
+/// \brief Initialization of TRestAxionSolarFlux members with specific mass
+///
+//void TRestAxionSolarFlux::InitializeMass( Double_t mass ) { SetMass(mass); RESTMetadata << GetMass() << RESTendl; }    // SetMass calls Initialize
+
+
 ///////////////////////////////////////////////
 /// \brief It builds a histogram using the contents of the .flux file given
 /// in the argument.
 ///
-TH1F* TRestAxionSolarFlux::GetFluxHistogram(string fname, Double_t binSize) {
+TH1D* TRestAxionSolarFlux::GetFluxHistogram(string fname, Double_t binSize) {
     string fullPathName = SearchFile(fname);
 
     std::vector<std::vector<Double_t>> fluxData;
@@ -160,7 +162,7 @@ TH1F* TRestAxionSolarFlux::GetFluxHistogram(string fname, Double_t binSize) {
         originalHist->Fill(r, en, flux);
     }
 
-    return (TH1F*)originalHist->ProjectionY();
+    return (TH1D*)originalHist->ProjectionY();
 }
 
 ///////////////////////////////////////////////
@@ -206,7 +208,7 @@ TCanvas* TRestAxionSolarFlux::DrawSolarFlux() {
     pad1->SetLeftMargin(0.15);
     pad1->SetBottomMargin(0.15);
 
-    TH1F* ht = GetEnergySpectrum();
+    TH1D* ht = GetEnergySpectrum();
     ht->SetLineColor(kBlack);
     ht->SetFillStyle(4050);
     ht->SetFillColor(kBlue - 10);

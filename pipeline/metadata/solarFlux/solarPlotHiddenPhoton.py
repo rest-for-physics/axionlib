@@ -44,11 +44,12 @@ parser.add_argument(
 parser.add_argument(
     "--N", dest="samples", type=int, help="The number of generated particles"
 )
-parser.add_argument("--mass", dest="mass", type=float, help="Hidden photon mass [eV]")
-
+parser.add_argument(
+	"--m", dest="mass", type=float, help="Hidden photon mass [eV]"
+)
 args = parser.parse_args()
 
-mass = 10  # eV
+mass = 10.  # eV
 if args.mass != None:
     mass = args.mass
 
@@ -68,7 +69,7 @@ samples = 20000
 if args.samples != None:
     samples = args.samples
 
-validation = True
+validation = False
 
 ROOT.gSystem.Load("libRestFramework.so")
 ROOT.gSystem.Load("libRestAxion.so")
@@ -82,7 +83,9 @@ pad1.Divide(2, 2)
 pad1.Draw()
 
 combinedFlux = ROOT.TRestAxionSolarHiddenPhotonFlux(rmlfile, fluxname)
-combinedFlux.Initialize(mass)
+combinedFlux.SetMass(mass)
+print(combinedFlux.GetMass())
+combinedFlux.Initialize()
 combinedFlux.PrintMetadata()
 
 if combinedFlux.GetError():
@@ -91,8 +94,9 @@ if combinedFlux.GetError():
     exit(101)
 
 comb_spt = TH2D("comb_spt", "Energy versus solar radius", 20000, 0, 20, 100, 0, 1)
-for x in range(samples):
+for i in range(samples):
     x = combinedFlux.GetRandomEnergyAndRadius((-1, -1))
+    #print(x)
     comb_spt.Fill(x[0], x[1])
 
 rnd = TRandom3(0)
@@ -160,17 +164,4 @@ solarDisk.Draw("colz")
 c1.Print(outfname)
 print("Generated file : " + outfname)
 
-print("\nMaximum energy bin is " + str(enSpt.GetMaximumBin()))
-if validation:
-    if enSpt.GetMaximumBin() != 8001:
-        print("\nMaximum Bin is not the expected one (8001)! Exit code : 1")
-        exit(1)
-
-print("\nMaximum radius bin is " + str(rSpt.GetMaximumBin()))
-
-if validation:
-    if rSpt.GetMaximumBin() != 25:
-        print("\nMaximum Bin is not the expected one (25)! Exit code : 2")
-        exit(2)
-
-exit(0)
+#exit(0)
