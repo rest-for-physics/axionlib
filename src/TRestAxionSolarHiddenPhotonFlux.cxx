@@ -230,18 +230,26 @@ void TRestAxionSolarHiddenPhotonFlux::LoadContinuumFluxTable() {
     RESTDebug << "Loading table from file : " << RESTendl;
     RESTDebug << "File : " << fullPathName << RESTendl;
 
+    std::vector<std::vector<Double_t>> fluxTable;
+
     if (!TRestTools::IsBinaryFile(fFluxDataFile)) {
-        fContinuumTable.clear();
+        fluxTable.clear();
         RESTError << "File is not in binary format!" << RESTendl;
     }
 
-    TRestTools::ReadBinaryTable(fullPathName, fContinuumTable);
+    TRestTools::ReadBinaryTable(fullPathName, fluxTable);
 
-    if (fContinuumTable.size() != 1000 || fContinuumTable[0].size() != 200) {
+    if (fluxTable.size() != 1000 || fluxTable[0].size() != 200) {
+        fluxTable.clear();
         RESTError << "LoadContinuumFluxTable. The table does not contain the right number of rows or columns"
                   << RESTendl;
         RESTError << "Table will not be populated" << RESTendl;
-        fContinuumTable.clear();
+    }
+
+    for (unsigned int n = 0; n < fluxTable.size(); n++) {
+        TH1D* h = new TH1D(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), "", 200, 0, 20);
+        for (unsigned int m = 0; m < fluxTable[n].size(); m++) { h->SetBinContent(m + 1, fluxTable[n][m]); }
+        fContinuumTable.push_back(h);
     }
 }
 
@@ -261,18 +269,27 @@ void TRestAxionSolarHiddenPhotonFlux::LoadWidthTable() {
     RESTDebug << "Loading table from file : " << RESTendl;
     RESTDebug << "File : " << fullPathName << RESTendl;
 
+    std::vector<std::vector<Double_t>> fluxTable;
+
     if (!TRestTools::IsBinaryFile(fWidthDataFile)) {
-        fWidthTable.clear();
+        fluxTable.clear();
         RESTError << "File is not in binary format!" << RESTendl;
     }
 
-    TRestTools::ReadBinaryTable(fullPathName, fWidthTable);
+    TRestTools::ReadBinaryTable(fullPathName, fluxTable);
+    //RESTMetadata << "Width table rows / columns: " <<  fluxTable.size() << "	" << fluxTable[0].size() << RESTendl;
     
-    if (fWidthTable.size() != 1000 || fWidthTable[0].size() != 200) {
+    if (fluxTable.size() != 1000 || fluxTable[0].size() != 200) {
+        fluxTable.clear();
         RESTError << "LoadWidthTable. The table does not contain the right number of rows or columns"
                   << RESTendl;
         RESTError << "Table will not be populated" << RESTendl;
-        fWidthTable.clear();
+    }
+
+    for (unsigned int n = 0; n < fluxTable.size(); n++) {
+        TH1D* h = new TH1D(Form("%s_ResonanceWidthAtRadius%d", GetName(), n), "", 200, 0, 20);
+        for (unsigned int m = 0; m < fluxTable[n].size(); m++) { h->SetBinContent(m + 1, fluxTable[n][m]); }
+        fWidthTable.push_back(h);
     }
 }
 
@@ -293,18 +310,26 @@ void TRestAxionSolarHiddenPhotonFlux::LoadPlasmaFreqTable() {
     RESTDebug << "Loading table from file : " << RESTendl;
     RESTDebug << "File : " << fullPathName << RESTendl;
 
+    std::vector<std::vector<Double_t>> fluxTable;
+
     if (!TRestTools::IsBinaryFile(fWidthDataFile)) {
+        fluxTable.clear();
         RESTError << "File is not in binary format!" << RESTendl;
-        fPlasmaFreqTable.clear();
     }
 
-    TRestTools::ReadBinaryTable(fullPathName, fPlasmaFreqTable);
+    TRestTools::ReadBinaryTable(fullPathName, fluxTable);
     
-    if (fPlasmaFreqTable.size() != 1000 || fPlasmaFreqTable[0].size() != 1) {
+    if (fluxTable.size() != 1000 || fluxTable[0].size() != 1) {
+        fluxTable.clear();
         RESTError << "LoadPlasmaFreqTable. The table does not contain the right number of rows or columns"
                   << RESTendl;
         RESTError << "Table will not be populated" << RESTendl;
-        fPlasmaFreqTable.clear();
+    }
+
+    for (unsigned int n = 0; n < fluxTable.size(); n++) {
+        TH1D* h = new TH1D(Form("%s_PlasmaFreqAtRadius%d", GetName(), n), "", 1, 0, 20);
+        for (unsigned int m = 0; m < fluxTable[n].size(); m++) { h->SetBinContent(m + 1, fluxTable[n][m]); }
+        fPlasmaFreqTable.push_back(h);
     }
 }
 
@@ -331,22 +356,27 @@ void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
     }
     
     Double_t mass = GetMass();
+    cout << mass << endl;
     for (unsigned int n = 0; n < fContinuumTable.size(); n++) {
         // m4 * chi2 * wG * flux / ( (m2 - wp2)^2 + (w G)^2 )
 
-        Double_t wp = fPlasmaFreqTable[n][0];
-        vector<Double_t> wG = fWidthTable[n];
-        vector<Double_t> flux = fContinuumTable[n];
-		vector<Double_t> v;
-		for( unsigned int c; c < wG.size(); c++ ) {
-			Double_t d1 = ( wG[c] * flux[c] * pow(mass,4) );					// m4 * wG * flux
-			Double_t d2 = ( pow( pow(mass,2) - pow(wp,2) , 2 ) + pow(wG[c],2) ); // m4 * wG * flux / ( (m2 - wp2)^2 + (w G)^2 )
-			v.push_back(d1/d2);
-		}
+        Double_t wp = fPlasmaFreqTable[n]->GetBinContent(1);
+        TH1D* hMass = new TH1D(Form("%s_hMass%d", GetName(), n), "hMass", 200, 0, 20);
+        TH1D* hWg2 = (TH1D*)fWidthTable[n]->Clone();
+        hWg2->Multiply(hWg2);					// (w G)^2
 
-	    TH1D* h = new TH1D(Form("%s_TotalFluxTable%d", GetName(), n), "", 200, 0, 20);
-	    for (unsigned int c = 0; c < v.size(); c++) { h->SetBinContent(c + 1, v[c]); }
-	    //for (unsigned int c = 0; c < v.size(); c++) { h->Fill(v[c]); }
+		for ( unsigned int c = 0; c < 200; c++ ) {
+			Double_t wG = fWidthTable[n]->GetBinContent(c+1);
+			hMass->SetBinContent( c+1, pow(mass,-4) * ( pow( pow(mass,2) - pow(wp,2) , 2 )));// + pow(wG,2) ) );	// m2
+		}
+		
+        hMass->Add(hWg2);        // (m2 - wp2)^2 + (w G)^2
+
+        TH1D* h = (TH1D*)fWidthTable[n]->Clone();	// wG
+        h->Multiply(fContinuumTable[n]);			// wG * flux
+        h->Divide(hMass);							// wG * flux / ( (m2 - wp2)^2 + (w G)^2 )
+        //h->Scale(pow(mass, 4));						// m4 * wG * flux / ( (m2 - wp2)^2 + (w G)^2 )
+
         fFluxTable.push_back(h);
     }
 }

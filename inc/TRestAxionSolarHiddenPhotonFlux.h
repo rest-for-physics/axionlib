@@ -45,13 +45,13 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
     std::vector<TH1D*> fFluxTable;  //!
 
     /// The tabulated solar flux continuum spectra TH1D(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
-    std::vector<std::vector<Double_t>> fContinuumTable;  //!
+    std::vector<TH1D*> fContinuumTable;  //!
 
     /// The tabulated resonance width TH1D(200,0,20)keV in eV2 versus solar radius
-    std::vector<std::vector<Double_t>> fWidthTable;  //!
+    std::vector<TH1D*> fWidthTable;  //!
 
     /// The solar plasma frequency vector in eV versus solar radius
-    std::vector<std::vector<Double_t>> fPlasmaFreqTable;  //!
+    std::vector<TH1D*> fPlasmaFreqTable;  //!
 
     /// The total solar flux TH1D(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
     std::vector<TH1D*> fFullFluxTable;  //!
