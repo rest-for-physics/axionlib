@@ -184,23 +184,28 @@ TRestAxionSolarHiddenPhotonFlux::~TRestAxionSolarHiddenPhotonFlux() {}
 /// inside the metadata members, and calculate the solar flux for a given m.
 ///
 Bool_t TRestAxionSolarHiddenPhotonFlux::LoadTables() {
-
-    if (GetMass() <= 0 ) {
-    RESTWarning << "TRestAxionSolarHiddenPhotonFlux::LoadTables - hidden photon mass not yet defined" << RESTendl;
-    RESTWarning << "TRestAxionSolarHiddenPhotonFlux::LoadTables - mass given as " << GetMass() << " eV" << RESTendl;
-    return false;
+    if (GetMass() <= 0) {
+        RESTWarning << "TRestAxionSolarHiddenPhotonFlux::LoadTables - hidden photon mass not yet defined"
+                    << RESTendl;
+        RESTWarning << "TRestAxionSolarHiddenPhotonFlux::LoadTables - mass given as " << GetMass() << " eV"
+                    << RESTendl;
+        return false;
     }
-    if ( fFluxDataFile == "" ){
-    RESTWarning << "TRestAxionSolarHiddenPhotonFlux::LoadTables - flux table not found!!\n	" << fFluxDataFile << RESTendl;
-    return false;
+    if (fFluxDataFile == "") {
+        RESTWarning << "TRestAxionSolarHiddenPhotonFlux::LoadTables - flux table not found!!\n	"
+                    << fFluxDataFile << RESTendl;
+        return false;
     }
-    if ( fWidthDataFile == "") {
-    RESTWarning << "TRestAxionSolarHiddenPhotonFlux::LoadTables - width table not found!!\n	" << fWidthDataFile << RESTendl;
-    return false;
-    }    
-    if ( fPlasmaFreqDataFile == "" ) {
-    RESTWarning << "TRestAxionSolarHiddenPhotonFlux::LoadTables - plasma frequency table not found!!\n	" << fPlasmaFreqDataFile  << RESTendl;
-    return false;
+    if (fWidthDataFile == "") {
+        RESTWarning << "TRestAxionSolarHiddenPhotonFlux::LoadTables - width table not found!!\n	"
+                    << fWidthDataFile << RESTendl;
+        return false;
+    }
+    if (fPlasmaFreqDataFile == "") {
+        RESTWarning
+            << "TRestAxionSolarHiddenPhotonFlux::LoadTables - plasma frequency table not found!!\n	"
+            << fPlasmaFreqDataFile << RESTendl;
+        return false;
     }
 
     LoadContinuumFluxTable();
@@ -248,7 +253,9 @@ void TRestAxionSolarHiddenPhotonFlux::LoadContinuumFluxTable() {
 
     for (unsigned int n = 0; n < fluxTable.size(); n++) {
         TH1D* h = new TH1D(Form("%s_ContinuumFluxAtRadius%d", GetName(), n), "", 200, 0, 20);
-        for (unsigned int m = 0; m < fluxTable[n].size(); m++) { h->SetBinContent(m + 1, fluxTable[n][m]); }
+        for (unsigned int m = 0; m < fluxTable[n].size(); m++) {
+            h->SetBinContent(m + 1, fluxTable[n][m]);
+        }
         fContinuumTable.push_back(h);
     }
 }
@@ -277,8 +284,9 @@ void TRestAxionSolarHiddenPhotonFlux::LoadWidthTable() {
     }
 
     TRestTools::ReadBinaryTable(fullPathName, fluxTable);
-    //RESTMetadata << "Width table rows / columns: " <<  fluxTable.size() << "	" << fluxTable[0].size() << RESTendl;
-    
+    // RESTMetadata << "Width table rows / columns: " <<  fluxTable.size() << "	" << fluxTable[0].size() <<
+    // RESTendl;
+
     if (fluxTable.size() != 1000 || fluxTable[0].size() != 200) {
         fluxTable.clear();
         RESTError << "LoadWidthTable. The table does not contain the right number of rows or columns"
@@ -288,7 +296,9 @@ void TRestAxionSolarHiddenPhotonFlux::LoadWidthTable() {
 
     for (unsigned int n = 0; n < fluxTable.size(); n++) {
         TH1D* h = new TH1D(Form("%s_ResonanceWidthAtRadius%d", GetName(), n), "", 200, 0, 20);
-        for (unsigned int m = 0; m < fluxTable[n].size(); m++) { h->SetBinContent(m + 1, fluxTable[n][m]); }
+        for (unsigned int m = 0; m < fluxTable[n].size(); m++) {
+            h->SetBinContent(m + 1, fluxTable[n][m]);
+        }
         fWidthTable.push_back(h);
     }
 }
@@ -318,7 +328,7 @@ void TRestAxionSolarHiddenPhotonFlux::LoadPlasmaFreqTable() {
     }
 
     TRestTools::ReadBinaryTable(fullPathName, fluxTable);
-    
+
     if (fluxTable.size() != 1000 || fluxTable[0].size() != 1) {
         fluxTable.clear();
         RESTError << "LoadPlasmaFreqTable. The table does not contain the right number of rows or columns"
@@ -328,7 +338,9 @@ void TRestAxionSolarHiddenPhotonFlux::LoadPlasmaFreqTable() {
 
     for (unsigned int n = 0; n < fluxTable.size(); n++) {
         TH1D* h = new TH1D(Form("%s_PlasmaFreqAtRadius%d", GetName(), n), "", 1, 0, 20);
-        for (unsigned int m = 0; m < fluxTable[n].size(); m++) { h->SetBinContent(m + 1, fluxTable[n][m]); }
+        for (unsigned int m = 0; m < fluxTable[n].size(); m++) {
+            h->SetBinContent(m + 1, fluxTable[n][m]);
+        }
         fPlasmaFreqTable.push_back(h);
     }
 }
@@ -341,20 +353,21 @@ void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
     if (GetMass() == 0) {
         RESTError << "CalculateSolarFlux. The hidden photon mass is set to zero!" << RESTendl;
         return;
-    }   
-    if (fContinuumTable.size() == 0 ) {
-    	RESTError << "TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux - empty flux table!" << RESTendl;
-    	return;
     }
-    if (fPlasmaFreqTable.size() == 0 ) {
-    	RESTError << "TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux - empty plasma freq table!" << RESTendl;
-    	return;
+    if (fContinuumTable.size() == 0) {
+        RESTError << "TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux - empty flux table!" << RESTendl;
+        return;
     }
-    if (fWidthTable.size() == 0 ) {
-    	RESTError << "TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux - empty width table!" << RESTendl;
-    	return;
+    if (fPlasmaFreqTable.size() == 0) {
+        RESTError << "TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux - empty plasma freq table!"
+                  << RESTendl;
+        return;
     }
-    
+    if (fWidthTable.size() == 0) {
+        RESTError << "TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux - empty width table!" << RESTendl;
+        return;
+    }
+
     Double_t mass = GetMass();
     cout << mass << endl;
     for (unsigned int n = 0; n < fContinuumTable.size(); n++) {
@@ -363,19 +376,21 @@ void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
         Double_t wp = fPlasmaFreqTable[n]->GetBinContent(1);
         TH1D* hMass = new TH1D(Form("%s_hMass%d", GetName(), n), "hMass", 200, 0, 20);
         TH1D* hWg2 = (TH1D*)fWidthTable[n]->Clone();
-        hWg2->Multiply(hWg2);					// (w G)^2
+        hWg2->Multiply(hWg2);  // (w G)^2
 
-		for ( unsigned int c = 0; c < 200; c++ ) {
-			//Double_t wG = fWidthTable[n]->GetBinContent(c+1);
-			hMass->SetBinContent( c+1, pow(mass,-4) * ( pow( pow(mass,2) - pow(wp,2) , 2 )));// + pow(wG,2) ) );	// m2
-		}
-		
-        hMass->Add(hWg2);        // (m2 - wp2)^2 + (w G)^2
+        for (unsigned int c = 0; c < 200; c++) {
+            // Double_t wG = fWidthTable[n]->GetBinContent(c+1);
+            hMass->SetBinContent(
+                c + 1, pow(mass, -4) * (pow(pow(mass, 2) - pow(wp, 2), 2)));  // + pow(wG,2) ) );	// m2
+        }
 
-        TH1D* h = (TH1D*)fWidthTable[n]->Clone();	// wG
-        h->Multiply(fContinuumTable[n]);			// wG * flux
-        h->Divide(hMass);							// wG * flux / ( (m2 - wp2)^2 + (w G)^2 )
-        //h->Scale(pow(mass, 4));						// m4 * wG * flux / ( (m2 - wp2)^2 + (w G)^2 )
+        hMass->Add(hWg2);  // (m2 - wp2)^2 + (w G)^2
+
+        TH1D* h = (TH1D*)fWidthTable[n]->Clone();  // wG
+        h->Multiply(fContinuumTable[n]);           // wG * flux
+        h->Divide(hMass);                          // wG * flux / ( (m2 - wp2)^2 + (w G)^2 )
+        // h->Scale(pow(mass, 4));						// m4 * wG * flux / ( (m2 - wp2)^2 + (w G)^2
+        // )
 
         fFluxTable.push_back(h);
     }
@@ -477,9 +492,11 @@ Double_t TRestAxionSolarHiddenPhotonFlux::IntegrateFluxInRange(TVector2 eRange) 
 /// flux distributions defined inside the solar tables loaded in the class
 ///
 std::pair<Double_t, Double_t> TRestAxionSolarHiddenPhotonFlux::GetRandomEnergyAndRadius(TVector2 eRange) {
-
     std::pair<Double_t, Double_t> result = {0, 0};
-    if (!AreTablesLoaded()) { RESTWarning << "Tables not loaded!!" << RESTendl; return result; }
+    if (!AreTablesLoaded()) {
+        RESTWarning << "Tables not loaded!!" << RESTendl;
+        return result;
+    }
     Double_t rnd = fRandom->Rndm();
     for (unsigned int r = 0; r < fFluxTableIntegrals.size(); r++) {
         if (rnd < fFluxTableIntegrals[r]) {
@@ -529,9 +546,9 @@ void TRestAxionSolarHiddenPhotonFlux::PrintIntegratedRingFlux() {
 void TRestAxionSolarHiddenPhotonFlux::PrintMetadata() {
     TRestAxionSolarFlux::PrintMetadata();
 
-        RESTMetadata << " - Solar hidden photon datafile (flux) : " << fFluxDataFile << RESTendl;
-        RESTMetadata << " - Solar hidden photon datafile (width) : " << fWidthDataFile << RESTendl;
-        RESTMetadata << " - Solar hidden photon datafile (plasma freq) : " << fPlasmaFreqDataFile << RESTendl;
+    RESTMetadata << " - Solar hidden photon datafile (flux) : " << fFluxDataFile << RESTendl;
+    RESTMetadata << " - Solar hidden photon datafile (width) : " << fWidthDataFile << RESTendl;
+    RESTMetadata << " - Solar hidden photon datafile (plasma freq) : " << fPlasmaFreqDataFile << RESTendl;
     RESTMetadata << "-------" << RESTendl;
     RESTMetadata << " - Total continuum flux : " << fTotalContinuumFlux << " cm-2 s-1" << RESTendl;
     RESTMetadata << "++++++++++++++++++" << RESTendl;
@@ -610,4 +627,3 @@ TCanvas* TRestAxionSolarHiddenPhotonFlux::DrawSolarFlux() {
 
     return fCanvas;
 }
-
