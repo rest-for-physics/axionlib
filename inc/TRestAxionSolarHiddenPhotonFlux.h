@@ -73,7 +73,7 @@ class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
     void LoadMonoChromaticFluxTable();
     void IntegrateSolarFluxes();
 
-   public:    
+   public:
     /// It returns true if continuum flux spectra was loaded
     Bool_t isSolarTableLoaded() { return fFluxTable.size() > 0; }
 

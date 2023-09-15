@@ -65,10 +65,13 @@ class TRestAxionSolarFlux : public TRestMetadata {
     void Initialize();
 
     /// It is required in order to load solar flux tables into memory for specific mass
-    void InitializeMass( Double_t mass ) { SetMass(mass); Initialize(); }
-    
+    void InitializeMass(Double_t mass) {
+        SetMass(mass);
+        Initialize();
+    }
+
     /// Set mass and reinitialise
-	void SetMass( Double_t m ) { fMass = m; }	//Initialize(); }	
+    void SetMass(Double_t m) { fMass = m; }  // Initialize(); }
 
     /// It returns the integrated flux at earth in cm-2 s-1 for the given energy range
     virtual Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1)) = 0;

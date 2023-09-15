@@ -134,12 +134,11 @@ void TRestAxionSolarFlux::Initialize() {
     fSeed = fRandom->TRandom::GetSeed();
 }
 
-
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestAxionSolarFlux members with specific mass
 ///
-//void TRestAxionSolarFlux::InitializeMass( Double_t mass ) { SetMass(mass); RESTMetadata << GetMass() << RESTendl; }    // SetMass calls Initialize
-
+// void TRestAxionSolarFlux::InitializeMass( Double_t mass ) { SetMass(mass); RESTMetadata << GetMass() <<
+// RESTendl; }    // SetMass calls Initialize
 
 ///////////////////////////////////////////////
 /// \brief It builds a histogram using the contents of the .flux file given
