@@ -20,13 +20,13 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef _TRestAxionField
-#define _TRestAxionField
+#ifndef _TRestAxionHiddenPhotonField
+#define _TRestAxionHiddenPhotonField
 
 #include "TRestAxionBufferGas.h"
 
 //! A basic class to define analytical axion-photon conversion calculations for axion helioscopes
-class TRestAxionField : public TObject {
+class TRestAxionHiddenPhotonField : public TObject {
    private:
     Bool_t fDebug = false;  //!
 
@@ -36,8 +36,10 @@ class TRestAxionField : public TObject {
     TRestAxionBufferGas* fBufferGas = NULL;  //!
 
    public:
-    Double_t BL(Double_t Bmag, Double_t Lcoh);
-    Double_t BLHalfSquared(Double_t Bmag, Double_t Lcoh);
+	///	momentum difference q, useful in all calculations
+	Double_t TRestAxionHiddenPhotonField::momentumTransfer( Double_t Ea, Double_t ma, Double_t mg ) {
+	return sqrt(Ea*Ea - mg*mg) - sqrt(Ea*Ea - ma*ma);
+	}
 
     /// It enables/disables debug mode
     void SetDebug(Bool_t v) { fDebug = v; }
@@ -48,18 +50,15 @@ class TRestAxionField : public TObject {
     /// It assigns a gas buffer medium to the calculation
     void SetBufferGas(TRestAxionBufferGas* buffGas) { fBufferGas = buffGas; }
 
-    Double_t GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+    Double_t GammaTransmissionProbability(Double_t Lcoh, Double_t Ea, Double_t ma,
                                           Double_t mg = 0, Double_t absLength = 0);
 
-    Double_t GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL, Double_t Ea,
-                                          Double_t ma, Double_t mg = 0, Double_t absLength = 0);
+    //Double_t PhotonAbsorptionProbability(Double_t Lcoh, Double_t Ea, Double_t ma,
+      //                                  Double_t mg = 0, Double_t absLength = 0);
 
-    Double_t AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
-                                        Double_t mg = 0, Double_t absLength = 0);
+    TRestAxionHiddenPhotonField();
+    ~TRestAxionHiddenPhotonField();
 
-    TRestAxionField();
-    ~TRestAxionField();
-
-    ClassDef(TRestAxionField, 2);
+    ClassDef(TRestAxionHiddenPhotonField, 2);
 };
 #endif

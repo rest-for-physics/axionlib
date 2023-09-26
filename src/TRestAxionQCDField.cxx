@@ -21,7 +21,7 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionField is a class used to calculate the axion-photon mixing
+/// TRestAxionQCDField is a class used to calculate the axion-photon mixing
 /// and determine the probability of the particle being in an axion or photon
 /// state.
 ///
@@ -35,15 +35,17 @@
 ///
 /// History of developments:
 ///
-/// 2019-March: First concept and implementation of TRestAxionField class.
+/// 2019-March: First concept and implementation of TRestAxionQCDField class.
 ///             Javier Galan
+/// 2023-September: Separation of QCD and HiddenPhoton classes.
+///             Tom O'Shea
 ///
-/// \class      TRestAxionField
+/// \class      TRestAxionQCDField
 /// \author     Javier Galan
 ///
 /// <hr>
 ///
-#include "TRestAxionField.h"
+#include "TRestAxionQCDField.h"
 
 #include <TVectorD.h>
 
@@ -57,32 +59,32 @@
 
 using namespace std;
 
-ClassImp(TRestAxionField);
+ClassImp(TRestAxionQCDField);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestAxionField::TRestAxionField() { Initialize(); }
+TRestAxionQCDField::TRestAxionQCDField() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionField::~TRestAxionField() {}
+TRestAxionQCDField::~TRestAxionQCDField() {}
 
 ///////////////////////////////////////////////
-/// \brief Initialization of TRestAxionField class
+/// \brief Initialization of TRestAxionQCDField class
 ///
 /// It sets the default real precision to be used with mpfr types. Now it is 30 digits.
 /// So that we can still calculate numbers such as : 1.0 - 1.e-30
 ///
-void TRestAxionField::Initialize() {
+void TRestAxionQCDField::Initialize() {
 #ifdef USE_MPFR
     TRestComplex::SetPrecision(30);
 #endif
 
     fBufferGas = NULL;
 
-    /// MOVED TO TRestAxionFieldPropagationProcess class
+    /// MOVED TO TRestAxionQCDFieldPropagationProcess class
     /// faxion = SetComplexReal(1, 0);
     /// fAem = SetComplexReal(0, 0);
 }
@@ -93,7 +95,7 @@ void TRestAxionField::Initialize() {
 /// `Lcoh` should be expressed in `mm`, and `Bmag` in `T`.
 /// The result will be given for an axion-photon coupling of 10^{-10} GeV^{-1}
 ///
-double TRestAxionField::BL(Double_t Bmag, Double_t Lcoh) {
+double TRestAxionQCDField::BL(Double_t Bmag, Double_t Lcoh) {
     Double_t lengthInMeters = Lcoh / 1000.;
 
     Double_t tm = REST_Physics::lightSpeed / REST_Physics::naturalElectron * 1.0e-9;  // GeV
@@ -109,7 +111,7 @@ double TRestAxionField::BL(Double_t Bmag, Double_t Lcoh) {
 /// `Lcoh` should be expressed in `mm`, and `Bmag` in `T`.
 /// The result will be given for an axion-photon coupling of 10^{-10} GeV^{-1}
 ///
-double TRestAxionField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**2
+double TRestAxionQCDField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**2
 {
     Double_t lengthInMeters = Lcoh / 1000.;
 
@@ -134,13 +136,13 @@ double TRestAxionField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+Double_t TRestAxionQCDField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                                        Double_t mg, Double_t absLength) {
 #ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
         << RESTendl;
-    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
+    RESTWarning << "TRestAxionQCDField::GammaTransmissionProbability will return 0" << RESTendl;
     return 0;
 #else
     mpfr::mpreal axionMass = ma;
@@ -151,7 +153,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t L
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
 
     RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
-    RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << RESTendl;
+    RESTDebug << " TRestAxionQCDField::GammaTransmissionProbability. Parameter summary" << RESTendl;
     RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
     RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
     RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
@@ -218,14 +220,14 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t L
 /// to solve the problem with a density profile. TOBE implemented in a new method if needed, where
 /// Gamma is not constant and \integral{q(z)} is integrated at each step.
 ///
-Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL,
+Double_t TRestAxionQCDField::GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL,
                                                        Double_t Ea, Double_t ma, Double_t mg,
                                                        Double_t absLength) {
 #ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
         << RESTendl;
-    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
+    RESTWarning << "TRestAxionQCDField::GammaTransmissionProbability will return 0" << RESTendl;
     return 0;
 #else
     mpfr::mpreal axionMass = ma;
@@ -242,7 +244,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
     if (Bmag.size() > 0) fieldAverage = std::accumulate(Bmag.begin(), Bmag.end(), 0.0) / Bmag.size();
 
     RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
-    RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << RESTendl;
+    RESTDebug << " TRestAxionQCDField::GammaTransmissionProbability. Parameter summary" << RESTendl;
     RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
     RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
     RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
@@ -317,6 +319,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
 #endif
 }
 
+/*
 ///////////////////////////////////////////////
 /// \brief Performs the calculation of axion-photon absorption probability using directly
 /// equation (18) from van Bibber, Phys Rev D Part Fields. 1989.
@@ -330,13 +333,13 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+Double_t TRestAxionQCDField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                                      Double_t mg, Double_t absLength) {
 #ifndef USE_MPFR
     RESTWarning
-        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFr=ON to your REST compilation"
+        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
         << RESTendl;
-    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
+    RESTWarning << "TRestAxionQCDField::AxionAbsorptionProbability will return 0" << RESTendl;
     return 0;
 #else
     mpfr::mpreal axionMass = ma;
@@ -348,7 +351,7 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
     if (fDebug) {
         RESTDebug << "+--------------------------------------------------------------------------+"
                   << RESTendl;
-        RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << RESTendl;
+        RESTDebug << " TRestAxionQCDField::GammaTransmissionProbability. Parameter summary" << RESTendl;
         RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
         RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
         RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
@@ -397,9 +400,11 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 #endif
 }
 
-/// Commented because it uses ComplexReal structure that is moved to TRestAxionFieldPropagationProcess class
+*/
+
+/// Commented because it uses ComplexReal structure that is moved to TRestAxionQCDFieldPropagationProcess class
 /*
-void TRestAxionField::PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+void TRestAxionQCDField::PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                                 Double_t mg, Double_t absLength) {
     mpfr::mpreal axionMass = ma;
     mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
@@ -409,7 +414,7 @@ void TRestAxionField::PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, 
 
     if (fDebug) {
         RESTDebug << "+--------------------------------------------------------------------------+" <<
-RESTendl; RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" <<
+RESTendl; RESTDebug << " TRestAxionQCDField::GammaTransmissionProbability. Parameter summary" <<
 RESTendl; RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl; RESTDebug << " Axion mass : " <<
 ma << " eV" << RESTendl; RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl; RESTDebug << " Lcoh : "
 << Lcoh << " mm" << RESTendl; RESTDebug << " Bmag : " << Bmag << " T" << RESTendl; RESTDebug <<
