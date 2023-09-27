@@ -25,8 +25,8 @@
 
 #include "TRestAxionEvent.h"
 #include "TRestAxionEventProcess.h"
-#include "TRestAxionQCDField.h"
 #include "TRestAxionMagneticField.h"
+#include "TRestAxionQCDField.h"
 #include "TRestPhysics.h"
 #include "TVector3.h"
 #include "TVectorD.h"

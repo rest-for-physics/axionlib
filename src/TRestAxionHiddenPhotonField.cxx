@@ -87,29 +87,25 @@ void TRestAxionHiddenPhotonField::Initialize() {
     /// MOVED TO TRestAxionHiddenPhotonFieldPropagationProcess class
     /// faxion = SetComplexReal(1, 0);
     /// fAem = SetComplexReal(0, 0);
-	}
-
+}
 
 ///////////////////////////////////////////////
 ///	momentum difference q in eV, useful in all calculations
 ///	Ea in keV, ma in eV, mg in eV
-Double_t TRestAxionHiddenPhotonField::momentumTransfer( Double_t Ea, Double_t ma, Double_t mg ) {
-	Ea *= 1000;		// [eV] Ea is given in keV
-	return sqrt(Ea*Ea - mg*mg) - sqrt(Ea*Ea - ma*ma);	//[eV]
+Double_t TRestAxionHiddenPhotonField::momentumTransfer(Double_t Ea, Double_t ma, Double_t mg) {
+    Ea *= 1000;                                                // [eV] Ea is given in keV
+    return sqrt(Ea * Ea - mg * mg) - sqrt(Ea * Ea - ma * ma);  //[eV]
 }
-
 
 ///////////////////////////////////////////////
 ///	vacuum conversion probability
 /// ie. when photonMass = 0
 ///	Ea in keV, ma in eV, Lcoh in mm
 Double_t TRestAxionHiddenPhotonField::VacuumConversion(Double_t Lcoh, Double_t Ea, Double_t ma) {
-	Lcoh *= REST_Physics::PhMeterIneV / 1000;	// [eV-1]
-	Double_t q = momentumTransfer(Ea, ma, 0.);	// [eV]
-	return pow(2*sin(q*Lcoh/2), 2);
+    Lcoh *= REST_Physics::PhMeterIneV / 1000;   // [eV-1]
+    Double_t q = momentumTransfer(Ea, ma, 0.);  // [eV]
+    return pow(2 * sin(q * Lcoh / 2), 2);
 }
-
-
 
 ///////////////////////////////////////////////
 /// \brief Performs the calculation of hidden photon - photon conversion probability.
@@ -123,7 +119,7 @@ Double_t TRestAxionHiddenPhotonField::VacuumConversion(Double_t Lcoh, Double_t E
 /// The returned value is given for chi = 1
 ///
 Double_t TRestAxionHiddenPhotonField::GammaTransmissionProbability(Double_t Lcoh, Double_t Ea, Double_t ma,
-                                                       Double_t mg, Double_t absLength) {
+                                                                   Double_t mg, Double_t absLength) {
 #ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
@@ -131,10 +127,10 @@ Double_t TRestAxionHiddenPhotonField::GammaTransmissionProbability(Double_t Lcoh
     RESTWarning << "TRestAxionHiddenPhotonField::GammaTransmissionProbability will return 0" << RESTendl;
     return 0;
 #else
-    mpfr::mpreal hiddenPhotonMass = ma;		// [eV]
+    mpfr::mpreal hiddenPhotonMass = ma;     // [eV]
     mpfr::mpreal cohLength = Lcoh / 1000.;  // [m] Default REST units are mm
 
-    mpfr::mpreal photonMass = mg;			// [eV]
+    mpfr::mpreal photonMass = mg;  // [eV]
 
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
 
@@ -148,43 +144,41 @@ Double_t TRestAxionHiddenPhotonField::GammaTransmissionProbability(Double_t Lcoh
 
     if (photonMass == 0.0) return VacuumConversion(Lcoh, Ea, ma);
 
-    mpfr::mpreal q = momentumTransfer(Ea, ma, mg);			// eV
-    mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;		// eV-1
+    mpfr::mpreal q = momentumTransfer(Ea, ma, mg);           // eV
+    mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;  // eV-1
 
-    mpfr::mpreal Gamma = absLength;		// cm-1
+    mpfr::mpreal Gamma = absLength;                                                       // cm-1
     if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
     mpfr::mpreal GammaL = Gamma * cohLength * 100;
-	Gamma *= 100 / REST_Physics::PhMeterIneV;	// eV
+    Gamma *= 100 / REST_Physics::PhMeterIneV;  // eV
 
     if (fDebug) {
         RESTDebug << "+------------------------+" << RESTendl;
         RESTDebug << " Intermediate calculations" << RESTendl;
         RESTDebug << " q : " << q << " eV" << RESTendl;
         RESTDebug << " l : " << l << " eV-1" << RESTendl;
-        RESTDebug << " ql : " << q*l << RESTendl;
+        RESTDebug << " ql : " << q * l << RESTendl;
         RESTDebug << "Gamma : " << Gamma << " eV" << RESTendl;
         RESTDebug << "GammaL : " << GammaL << RESTendl;
         RESTDebug << "+------------------------+" << RESTendl;
     }
 
-    mpfr::mpreal MFactor = pow(ma,4)/(pow(ma*ma - mg*mg, 2) + pow(Ea*Gamma, 2));	// all should be in eV
-
+    mpfr::mpreal MFactor =
+        pow(ma, 4) / (pow(ma * ma - mg * mg, 2) + pow(Ea * Gamma, 2));  // all should be in eV
 
     if (fDebug) {
         RESTDebug << "Mfactor : " << MFactor << RESTendl;
-        RESTDebug << "cos(ql) : " << cos(q*l) << RESTendl;
+        RESTDebug << "cos(ql) : " << cos(q * l) << RESTendl;
         RESTDebug << "Exp(-GammaL) : " << exp(-GammaL) << RESTendl;
     }
 
-    double sol =
-        (double)(MFactor * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(q*l)));
+    double sol = (double)(MFactor * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(q * l)));
 
     RESTDebug << "Axion-photon transmission probability : " << sol << RESTendl;
 
     return sol;
 #endif
 }
-
 
 /*
 ///////////////////////////////////////////////
@@ -197,10 +191,8 @@ Double_t TRestAxionHiddenPhotonField::GammaTransmissionProbability(Double_t Lcoh
 ///
 /// The returned value is given for chi = 1
 ///
-Double_t TRestAxionHiddenPhotonField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
-                                                     Double_t mg, Double_t absLength) {
-#ifndef USE_MPFR
-    RESTWarning
+Double_t TRestAxionHiddenPhotonField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea,
+Double_t ma, Double_t mg, Double_t absLength) { #ifndef USE_MPFR RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFr=ON to your REST compilation"
         << RESTendl;
     RESTWarning << "TRestAxionHiddenPhotonField::GammaTransmissionProbability will return 0" << RESTendl;
@@ -215,13 +207,11 @@ Double_t TRestAxionHiddenPhotonField::AxionAbsorptionProbability(Double_t Bmag, 
     if (fDebug) {
         RESTDebug << "+--------------------------------------------------------------------------+"
                   << RESTendl;
-        RESTDebug << " TRestAxionHiddenPhotonField::GammaTransmissionProbability. Parameter summary" << RESTendl;
-        RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
-        RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
-        RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
-        RESTDebug << " Lcoh : " << Lcoh << " mm" << RESTendl;
-        RESTDebug << " Bmag : " << Bmag << " T" << RESTendl;
-        RESTDebug << "+--------------------------------------------------------------------------+"
+        RESTDebug << " TRestAxionHiddenPhotonField::GammaTransmissionProbability. Parameter summary" <<
+RESTendl; RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl; RESTDebug << " Axion mass : " <<
+ma << " eV" << RESTendl; RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl; RESTDebug << " Lcoh : "
+<< Lcoh << " mm" << RESTendl; RESTDebug << " Bmag : " << Bmag << " T" << RESTendl; RESTDebug <<
+"+--------------------------------------------------------------------------+"
                   << RESTendl;
     }
 
@@ -265,7 +255,8 @@ Double_t TRestAxionHiddenPhotonField::AxionAbsorptionProbability(Double_t Bmag, 
 }
 */
 
-/// Commented because it uses ComplexReal structure that is moved to TRestAxionHiddenPhotonFieldPropagationProcess class
+/// Commented because it uses ComplexReal structure that is moved to
+/// TRestAxionHiddenPhotonFieldPropagationProcess class
 /*
 void TRestAxionHiddenPhotonField::PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                                 Double_t mg, Double_t absLength) {

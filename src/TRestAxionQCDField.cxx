@@ -136,8 +136,8 @@ double TRestAxionQCDField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-Double_t TRestAxionQCDField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
-                                                       Double_t mg, Double_t absLength) {
+Double_t TRestAxionQCDField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea,
+                                                          Double_t ma, Double_t mg, Double_t absLength) {
 #ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
@@ -221,8 +221,8 @@ Double_t TRestAxionQCDField::GammaTransmissionProbability(Double_t Bmag, Double_
 /// Gamma is not constant and \integral{q(z)} is integrated at each step.
 ///
 Double_t TRestAxionQCDField::GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL,
-                                                       Double_t Ea, Double_t ma, Double_t mg,
-                                                       Double_t absLength) {
+                                                          Double_t Ea, Double_t ma, Double_t mg,
+                                                          Double_t absLength) {
 #ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
@@ -319,7 +319,6 @@ Double_t TRestAxionQCDField::GammaTransmissionProbability(std::vector<Double_t> 
 #endif
 }
 
-
 ///////////////////////////////////////////////
 /// \brief Performs the calculation of axion-photon absorption probability using directly
 /// equation (18) from van Bibber, Phys Rev D Part Fields. 1989.
@@ -333,8 +332,8 @@ Double_t TRestAxionQCDField::GammaTransmissionProbability(std::vector<Double_t> 
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-Double_t TRestAxionQCDField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
-                                                     Double_t mg, Double_t absLength) {
+Double_t TRestAxionQCDField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea,
+                                                        Double_t ma, Double_t mg, Double_t absLength) {
 #ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
@@ -400,9 +399,8 @@ Double_t TRestAxionQCDField::AxionAbsorptionProbability(Double_t Bmag, Double_t 
 #endif
 }
 
-
-
-/// Commented because it uses ComplexReal structure that is moved to TRestAxionQCDFieldPropagationProcess class
+/// Commented because it uses ComplexReal structure that is moved to TRestAxionQCDFieldPropagationProcess
+/// class
 /*
 void TRestAxionQCDField::PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                                 Double_t mg, Double_t absLength) {

@@ -389,8 +389,8 @@ void TRestAxionSolarHiddenPhotonFlux::CalculateSolarFlux() {
         TH1D* h = (TH1D*)fWidthTable[n]->Clone();  // wG
         h->Multiply(fContinuumTable[n]);           // wG * flux
         h->Divide(hMass);                          // wG * flux / ( (m2 - wp2)^2 + (w G)^2 )
-        // h->Scale(pow(mass, 4));						// m4 * wG * flux / ( (m2 - wp2)^2 + (w
-        // G)^2
+        // h->Scale(pow(mass, 4));						// m4 * wG * flux / ( (m2 - wp2)^2 +
+        // (w G)^2
         // )
 
         fFluxTable.push_back(h);

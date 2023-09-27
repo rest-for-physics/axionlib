@@ -62,7 +62,7 @@ class TRestAxionLikelihood : public TRestMetadata {
 
     Double_t fLastStepDensity = 0.;  //->
 
-    TRestAxionQCDField* fAxionField;        //!
+    TRestAxionQCDField* fAxionField;     //!
     TRestAxionBufferGas* fBufferGas;     //!
     TRestAxionSpectrum* fAxionSpectrum;  //!
 

@@ -36,11 +36,11 @@ class TRestAxionHiddenPhotonField : public TObject {
     TRestAxionBufferGas* fBufferGas = NULL;  //!
 
    public:
-	///	momentum difference q
-	Double_t momentumTransfer( Double_t Ea, Double_t ma, Double_t mg );
+    ///	momentum difference q
+    Double_t momentumTransfer(Double_t Ea, Double_t ma, Double_t mg);
 
-	/// vacuum conversion probability
-	Double_t VacuumConversion(Double_t Lcoh, Double_t Ea, Double_t ma);
+    /// vacuum conversion probability
+    Double_t VacuumConversion(Double_t Lcoh, Double_t Ea, Double_t ma);
 
     /// It enables/disables debug mode
     void SetDebug(Bool_t v) { fDebug = v; }
@@ -51,11 +51,11 @@ class TRestAxionHiddenPhotonField : public TObject {
     /// It assigns a gas buffer medium to the calculation
     void SetBufferGas(TRestAxionBufferGas* buffGas) { fBufferGas = buffGas; }
 
-    Double_t GammaTransmissionProbability(Double_t Lcoh, Double_t Ea, Double_t ma,
-                                          Double_t mg = 0, Double_t absLength = 0);
+    Double_t GammaTransmissionProbability(Double_t Lcoh, Double_t Ea, Double_t ma, Double_t mg = 0,
+                                          Double_t absLength = 0);
 
-    //Double_t PhotonAbsorptionProbability(Double_t Lcoh, Double_t Ea, Double_t ma,
-      //                                  Double_t mg = 0, Double_t absLength = 0);
+    // Double_t PhotonAbsorptionProbability(Double_t Lcoh, Double_t Ea, Double_t ma,
+    //                                   Double_t mg = 0, Double_t absLength = 0);
 
     TRestAxionHiddenPhotonField();
     ~TRestAxionHiddenPhotonField();
