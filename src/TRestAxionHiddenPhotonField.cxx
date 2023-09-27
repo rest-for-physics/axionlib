@@ -87,14 +87,25 @@ void TRestAxionHiddenPhotonField::Initialize() {
     /// MOVED TO TRestAxionHiddenPhotonFieldPropagationProcess class
     /// faxion = SetComplexReal(1, 0);
     /// fAem = SetComplexReal(0, 0);
+	}
+
+
+///////////////////////////////////////////////
+///	momentum difference q in eV, useful in all calculations
+///	Ea in keV, ma in eV, mg in eV
+Double_t TRestAxionHiddenPhotonField::momentumTransfer( Double_t Ea, Double_t ma, Double_t mg ) {
+	Ea *= 1000;		// [eV] Ea is given in keV
+	return sqrt(Ea*Ea - mg*mg) - sqrt(Ea*Ea - ma*ma);	//[eV]
 }
 
 
 ///////////////////////////////////////////////
 ///	vacuum conversion probability
 /// ie. when photonMass = 0
+///	Ea in keV, ma in eV, Lcoh in mm
 Double_t TRestAxionHiddenPhotonField::VacuumConversion(Double_t Lcoh, Double_t Ea, Double_t ma) {
-	Double_t q = momentumTransfer(Ea, ma, 0.);
+	Lcoh *= REST_Physics::PhMeterIneV / 1000;	// [eV-1]
+	Double_t q = momentumTransfer(Ea, ma, 0.);	// [eV]
 	return pow(2*sin(q*Lcoh/2), 2);
 }
 
@@ -120,10 +131,10 @@ Double_t TRestAxionHiddenPhotonField::GammaTransmissionProbability(Double_t Lcoh
     RESTWarning << "TRestAxionHiddenPhotonField::GammaTransmissionProbability will return 0" << RESTendl;
     return 0;
 #else
-    mpfr::mpreal hiddenPhotonMass = ma;
-    mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
+    mpfr::mpreal hiddenPhotonMass = ma;		// [eV]
+    mpfr::mpreal cohLength = Lcoh / 1000.;  // [m] Default REST units are mm
 
-    mpfr::mpreal photonMass = mg;
+    mpfr::mpreal photonMass = mg;			// [eV]
 
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
 
@@ -133,12 +144,11 @@ Double_t TRestAxionHiddenPhotonField::GammaTransmissionProbability(Double_t Lcoh
     RESTDebug << " Hidden photon mass : " << ma << " eV" << RESTendl;
     RESTDebug << " Hidden photon energy : " << Ea << " keV" << RESTendl;
     RESTDebug << " Lcoh : " << Lcoh << " mm" << RESTendl;
-    RESTDebug << " Bmag : " << Bmag << " T" << RESTendl;
     RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
 
     if (photonMass == 0.0) return VacuumConversion(Lcoh, Ea, ma);
 
-    mpfr::mpreal q = momentumTransfer(Ea, ma, mg)			// eV
+    mpfr::mpreal q = momentumTransfer(Ea, ma, mg);			// eV
     mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;		// eV-1
 
     mpfr::mpreal Gamma = absLength;		// cm-1
@@ -152,7 +162,7 @@ Double_t TRestAxionHiddenPhotonField::GammaTransmissionProbability(Double_t Lcoh
         RESTDebug << " q : " << q << " eV" << RESTendl;
         RESTDebug << " l : " << l << " eV-1" << RESTendl;
         RESTDebug << " ql : " << q*l << RESTendl;
-        RESTDebug << "Gamma : " << Gamma << RESTendl;
+        RESTDebug << "Gamma : " << Gamma << " eV" << RESTendl;
         RESTDebug << "GammaL : " << GammaL << RESTendl;
         RESTDebug << "+------------------------+" << RESTendl;
     }
@@ -176,7 +186,7 @@ Double_t TRestAxionHiddenPhotonField::GammaTransmissionProbability(Double_t Lcoh
 }
 
 
-
+/*
 ///////////////////////////////////////////////
 /// \brief Performs the calculation of the photon absorbtion probability in the buffer gas.
 ///
@@ -253,6 +263,7 @@ Double_t TRestAxionHiddenPhotonField::AxionAbsorptionProbability(Double_t Bmag, 
     return sol;
 #endif
 }
+*/
 
 /// Commented because it uses ComplexReal structure that is moved to TRestAxionHiddenPhotonFieldPropagationProcess class
 /*

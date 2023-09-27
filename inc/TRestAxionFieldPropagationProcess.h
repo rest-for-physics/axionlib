@@ -25,7 +25,7 @@
 
 #include "TRestAxionEvent.h"
 #include "TRestAxionEventProcess.h"
-#include "TRestAxionField.h"
+#include "TRestAxionQCDField.h"
 #include "TRestAxionMagneticField.h"
 #include "TRestPhysics.h"
 #include "TVector3.h"
@@ -44,7 +44,7 @@ class TRestAxionFieldPropagationProcess : public TRestAxionEventProcess {
     TRestAxionMagneticField* fMagneticField = nullptr;  //!
 
     /// A pointer to TRestAxionField that implements probability calculations
-    TRestAxionField* fAxionField = nullptr;  //!
+    TRestAxionQCDField* fAxionField = nullptr;  //!
 
     /// A pointer to TRestBufferGas given to TRestAxionField to perform calculations in a particular gas
     TRestAxionBufferGas* fBufferGas = nullptr;  //!

@@ -36,10 +36,11 @@ class TRestAxionHiddenPhotonField : public TObject {
     TRestAxionBufferGas* fBufferGas = NULL;  //!
 
    public:
-	///	momentum difference q, useful in all calculations
-	Double_t TRestAxionHiddenPhotonField::momentumTransfer( Double_t Ea, Double_t ma, Double_t mg ) {
-	return sqrt(Ea*Ea - mg*mg) - sqrt(Ea*Ea - ma*ma);
-	}
+	///	momentum difference q
+	Double_t momentumTransfer( Double_t Ea, Double_t ma, Double_t mg );
+
+	/// vacuum conversion probability
+	Double_t VacuumConversion(Double_t Lcoh, Double_t Ea, Double_t ma);
 
     /// It enables/disables debug mode
     void SetDebug(Bool_t v) { fDebug = v; }

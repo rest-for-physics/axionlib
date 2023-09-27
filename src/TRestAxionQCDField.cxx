@@ -319,7 +319,7 @@ Double_t TRestAxionQCDField::GammaTransmissionProbability(std::vector<Double_t> 
 #endif
 }
 
-/*
+
 ///////////////////////////////////////////////
 /// \brief Performs the calculation of axion-photon absorption probability using directly
 /// equation (18) from van Bibber, Phys Rev D Part Fields. 1989.
@@ -400,7 +400,7 @@ Double_t TRestAxionQCDField::AxionAbsorptionProbability(Double_t Bmag, Double_t 
 #endif
 }
 
-*/
+
 
 /// Commented because it uses ComplexReal structure that is moved to TRestAxionQCDFieldPropagationProcess class
 /*
