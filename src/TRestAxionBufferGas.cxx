@@ -48,7 +48,7 @@
 /// \code
 /// TRestAxionBufferGas *gas = new TRestAxionBufferGas();
 ///
-/// gas->SetGasMixture( "He+Xe", "2.6e-6g/dm3+5.6mg/m3" );
+/// gas->SetGasMixture( "He+Xe", "2.6e-6g/dm^3+5.6mg/m^3" );
 /// \endcode
 ///
 /// The corresponding RML section for initialization through a configuration
