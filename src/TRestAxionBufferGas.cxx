@@ -38,7 +38,7 @@
 /// \code
 /// TRestAxionBufferGas *gas = new TRestAxionBufferGas();
 ///
-/// //Density units must be expressed here in g/cm3
+/// //Density units must be expressed here in the default REST units, `kg/mm3`.
 /// gas->SetGasDensity( "He", 2.6e-9 );
 /// gas->SetGasDensity( "Xe", 5.6e-9 );
 /// \endcode
@@ -48,7 +48,7 @@
 /// \code
 /// TRestAxionBufferGas *gas = new TRestAxionBufferGas();
 ///
-/// gas->SetGasMixture( "He+Xe", "2.6e-6g/dm3+5.6mg/m3" );
+/// gas->SetGasMixture( "He+Xe", "2.6e-6g/dm^3+5.6mg/m^3" );
 /// \endcode
 ///
 /// The corresponding RML section for initialization through a configuration
@@ -57,7 +57,7 @@
 /// \code
 ///	<TRestAxionBufferGas name="heliumAndXenon" verboseLevel="warning" >
 ///		<gas name="He" density="2.6e-9"/>
-///		<gas name="Xe" density="5.6mg/cm3"/>
+///		<gas name="Xe" density="5.6mg/cm^3"/>
 ///	</TRestAxionBufferGas>
 /// \endcode
 ///
