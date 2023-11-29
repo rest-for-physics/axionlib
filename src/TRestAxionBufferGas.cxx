@@ -38,7 +38,7 @@
 /// \code
 /// TRestAxionBufferGas *gas = new TRestAxionBufferGas();
 ///
-/// //Density units must be expressed here in g/cm3
+/// //Density units must be expressed here in kg/mm3
 /// gas->SetGasDensity( "He", 2.6e-9 );
 /// gas->SetGasDensity( "Xe", 5.6e-9 );
 /// \endcode
