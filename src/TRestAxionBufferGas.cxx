@@ -57,7 +57,7 @@
 /// \code
 ///	<TRestAxionBufferGas name="heliumAndXenon" verboseLevel="warning" >
 ///		<gas name="He" density="2.6e-9"/>
-///		<gas name="Xe" density="5.6mg/cm3"/>
+///		<gas name="Xe" density="5.6mg/cm^3"/>
 ///	</TRestAxionBufferGas>
 /// \endcode
 ///
