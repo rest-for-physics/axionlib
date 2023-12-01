@@ -425,7 +425,7 @@ Double_t TRestAxionBufferGas::GetMassDensity(double m_gamma) {
             Z_value = 54;
         }
         if (W_value == 0) {
-            RESTError << "Gas name : " << fBufferGasName[n] << " is not implemented in TRestBufferGas!!"
+            RESTError << "Gas name : " << fBufferGasName[n] << " is not implemented in TRestAxionBufferGas!!"
                       << RESTendl;
             RESTError << "W value must be defined in TRestAxionBufferGas::GetPhotonMass" << RESTendl;
             RESTError << "This gas will not contribute to the calculation of the photon mass!" << RESTendl;
