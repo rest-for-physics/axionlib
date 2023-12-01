@@ -403,7 +403,7 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
 /// previously the gas type.
 //	The resulting density will be expressed in kg/mm^3, which are the standar REST Units.
 ///
-//
+///
 //
 
 Double_t TRestAxionBufferGas::GetMassDensity(double m_gamma) {
