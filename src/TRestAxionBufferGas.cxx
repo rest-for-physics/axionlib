@@ -405,7 +405,6 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
 ///
 ///
 ///
-
 Double_t TRestAxionBufferGas::GetMassDensity(double m_gamma) {
     Double_t massDensity = 0;
     for (unsigned int n = 0; n < fBufferGasName.size(); n++) {
