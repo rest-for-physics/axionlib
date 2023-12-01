@@ -402,7 +402,7 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
 /// \brief It returns the equivalent gas density for a given photon mass expressed in eV. You have to define
 /// previously the gas type.
 //	The resulting density will be expressed in kg/mm^3, which are the standar REST Units.
-//
+///
 //
 //
 
