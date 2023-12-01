@@ -398,6 +398,45 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
     return 28.77 * TMath::Sqrt(photonMass);
 }
 
+////////////////////////////////////////////
+/// \brief It returns the equivalent gas density for a given photon mass expressed in eV. You have to define previously the gas type. 
+//	The resulting density will be expressed in kg/mm^3, which are the standar REST Units.
+//
+//	 
+//    
+
+Double_t TRestAxionBufferGas::GetMassDensity(double m_gamma) {
+    Double_t massDensity = 0;
+    for (unsigned int n = 0; n < fBufferGasName.size(); n++) {
+        Double_t W_value = 0;
+        Double_t Z_value = 0;
+        if (fBufferGasName[n] == "H") {
+            W_value = 1.00794;   // g/mol
+            Z_value = 1;
+        } else if (fBufferGasName[n] == "He") {
+            W_value = 4.002602;  // g/mol
+            Z_value = 2;
+        } else if (fBufferGasName[n] == "Ne") {
+            W_value = 20.179;   // g/mol
+            Z_value = 10;
+        } else if (fBufferGasName[n] == "Ar") {
+            W_value = 39.948;   // g/mol
+            Z_value = 18;
+        } else if (fBufferGasName[n] == "Xe") {
+            W_value = 131.293;  // g/mol
+            Z_value = 54;
+        }
+        if (W_value == 0) {
+            RESTError << "Gas name : " << fBufferGasName[n] << " is not implemented in TRestBufferGas!!" << RESTendl;
+            RESTError << "W value must be defined in TRestAxionBufferGas::GetPhotonMass" << RESTendl;
+            RESTError << "This gas will not contribute to the calculation of the photon mass!" << RESTendl;
+        } else {
+            massDensity += pow(m_gamma, 2) * W_value / (Z_value * pow(28.77, 2));
+        }
+    }
+    return massDensity / units("g/cm^3");
+}
+
 ///////////////////////////////////////////////
 /// \brief It returns the absorption coefficient, in cm2/g, for the given gas component and
 /// energy in keV.
