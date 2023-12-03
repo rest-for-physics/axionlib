@@ -398,7 +398,7 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 }
 
 ///////////////////////////////////////////////
-/// \brief Performs the calculation of the FWHM for the axion-photon conversion probability 
+/// \brief Performs the calculation of the FWHM for the axion-photon conversion probability
 /// computed in `TRestAxionField::GammaTransmissionProbability`.
 ///
 /// If m_gamma (mg) is not given as an argument, i.e. it is equal to zero, then m_gamma
@@ -411,8 +411,8 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
 
-double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t Bmag, Double_t Lcoh, 
-                                                       Double_t mg, Double_t step, int n) {
+double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t Bmag, Double_t Lcoh,
+                                              Double_t mg, Double_t step, int n) {
 #ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
@@ -425,8 +425,8 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
         photonMass = fBufferGas->GetPhotonMass(Ea);
     } else {
         RESTError << " No gas buffer gass defined. Please define it in order to get the FHWM" << RESTendl;
-        return 0; 
-    }   
+        return 0;
+    }
     double center_plus = 0;
     double center_minus = 0;
     double max_prob = GammaTransmissionProbability(Bmag, Lcoh, Ea, photonMass);
@@ -451,12 +451,14 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
     }
     if (center_minus <= 0) {
         center_minus = photonMass;
-        cout << "WARNING: The left value  for the condition P_a = P_amax/2 is zero or negative, redifinning it to P_amax. " << endl;
+        cout << "WARNING: The left value  for the condition P_a = P_amax/2 is zero or negative, redifinning "
+                "it to P_amax. "
+             << endl;
     }
     Double_t FWHM = center_plus - center_minus;
-    if (FWHM > 0.015){
+    if (FWHM > 0.015) {
         cout << "WARNING: The FWHM is greater than 0.01 ev, redifinning the FWHM= FWHM/2 " << endl;
-        return FWHM/2;
+        return FWHM / 2;
     } else {
         return FWHM;
     }
