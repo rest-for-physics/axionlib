@@ -397,6 +397,72 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 #endif
 }
 
+///////////////////////////////////////////////
+/// \brief Performs the calculation of the FWHM for the axion-photon conversion probability 
+/// computed in `TRestAxionField::GammaTransmissionProbability`.
+///
+/// If m_gamma (mg) is not given as an argument, i.e. it is equal to zero, then m_gamma
+/// will be obtainned from the buffer gas definition. If no buffer gas has been assigned
+/// the method will return 0, since it is not possible to calculate the FWHM.
+///
+/// Ea in keV, ma in eV, mgamma in eV, deltaL in mm, Bmag in T
+///
+///
+/// The returned value is given for g_ag = 10^-10 GeV-1
+///
+
+double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t Bmag, Double_t Lcoh, 
+                                                       Double_t mg, Double_t step, int n) {
+#ifndef USE_MPFR
+    RESTWarning
+        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
+        << RESTendl;
+    RESTWarning << "TRestAxionField::GammaTransmissionFWHM will return 0" << RESTendl;
+    return 0;
+#else
+    Double_t photonMass;
+    if (mg == 0 && fBufferGas) {
+        photonMass = fBufferGas->GetPhotonMass(Ea);
+    } else {
+        RESTError << " No gas buffer gass defined. Please define it in order to get the FHWM" << RESTendl;
+        return 0; 
+    }   
+    double center_plus = 0;
+    double center_minus = 0;
+    double max_prob = GammaTransmissionProbability(Bmag, Lcoh, Ea, photonMass);
+    double center = photonMass;
+    for (int i = 0; i < n; i++) {
+        if (GammaTransmissionProbability(Bmag, Lcoh, Ea, center) > max_prob / 2) {
+            center += step;
+        } else {
+            center_plus = center;
+            center = photonMass;
+            break;
+        }
+    }
+    for (int i = 0; i < n; i++) {
+        if (GammaTransmissionProbability(Bmag, Lcoh, Ea, center) > max_prob / 2) {
+            center -= step;
+        } else {
+            center_minus = center;
+            center = photonMass;
+            break;
+        }
+    }
+    if (center_minus <= 0) {
+        center_minus = photonMass;
+        cout << "WARNING: The left value  for the condition P_a = P_amax/2 is zero or negative, redifinning it to P_amax. " << endl;
+    }
+    Double_t FWHM = center_plus - center_minus;
+    if (FWHM > 0.015){
+        cout << "WARNING: The FWHM is greater than 0.01 ev, redifinning the FWHM= FWHM/2 " << endl;
+        return FWHM/2;
+    } else {
+        return FWHM;
+    }
+#endif
+}
+
 /// Commented because it uses ComplexReal structure that is moved to TRestAxionFieldPropagationProcess class
 /*
 void TRestAxionField::PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
