@@ -56,6 +56,9 @@ class TRestAxionField : public TObject {
 
     Double_t AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                         Double_t mg = 0, Double_t absLength = 0);
+	
+	Double_t GammaTransmissionFWHM(Double_t m_a, Double_t Ea = 4, Double_t Bmag = 2.5, Double_t Lcoh = 10000,
+		   						   Double_t mg = 0, Double_t step = 0.00001, int n = 10000); 
 
     TRestAxionField();
     ~TRestAxionField();
