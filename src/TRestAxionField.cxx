@@ -402,7 +402,7 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 /// computed in `TRestAxionField::GammaTransmissionProbability`.
 ///
 /// If m_gamma (mg) is not given as an argument, i.e. it is equal to zero, then m_gamma
-/// will be obtainned from the buffer gas definition. If no buffer gas has been assigned
+/// will be obtained from the buffer gas definition. If no buffer gas has been assigned
 /// the method will return 0, since it is not possible to calculate the FWHM.
 ///
 /// Ea in keV, ma in eV, mgamma in eV, deltaL in mm, Bmag in T
