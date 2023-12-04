@@ -405,11 +405,13 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 /// will be obtained from the buffer gas definition. If no buffer gas has been assigned
 /// the method will return 0, since it is not possible to calculate the FWHM.
 ///
-/// Ea in keV, ma in eV, mgamma in eV, deltaL in mm, Bmag in T
+/// Ea in keV, ma in eV, mgamma in eV, deltaL in mm, Bmag in T. The returned value is given for g_ag = 10^-10 GeV-1
 ///
-///
-/// The returned value is given for g_ag = 10^-10 GeV-1
-///
+/// Default value for the parameters are: Bmag = 2.5 T, Lcoh = 10000 mm, Ea = 4 keV, ma = 0.00025 eV, mg = 0 eV,
+/// 
+/// IMPORTANT: In the case that the buffer gas is not defined, the method will return the point where the 
+/// probability is equal to the half of the maximum probability for the vacuum case. Then, the first argument, 
+/// ma will reffears to the minimum axion mass that the algorithm will consider to get the point. 
 
 double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t Bmag, Double_t Lcoh,
                                               Double_t mg, Double_t step, int n) {
@@ -420,47 +422,54 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
     RESTWarning << "TRestAxionField::GammaTransmissionFWHM will return 0" << RESTendl;
     return 0;
 #else
-    Double_t photonMass;
-    if (mg == 0 && fBufferGas) {
-        photonMass = fBufferGas->GetPhotonMass(Ea);
-    } else {
-        RESTError << " No gas buffer gass defined. Please define it in order to get the FHWM" << RESTendl;
-        return 0;
-    }
-    double center_plus = 0;
-    double center_minus = 0;
-    double max_prob = GammaTransmissionProbability(Bmag, Lcoh, Ea, photonMass);
-    double center = photonMass;
-    for (int i = 0; i < n; i++) {
-        if (GammaTransmissionProbability(Bmag, Lcoh, Ea, center) > max_prob / 2) {
-            center += step;
-        } else {
-            center_plus = center;
-            center = photonMass;
-            break;
+   if(!fBufferGas){
+        double ma_max=3;
+        double ma_step=(ma_max-ma)/n;
+        double ma_start=ma;
+        for (int i = 0; i < n; i++) {
+            if (GammaTransmissionProbability(Bmag, Lcoh, Ea, ma_start) > GammaTransmissionProbability(Bmag, Lcoh, Ea, ma)/2) {
+                ma_start += step;
+            } else {
+                break;
+            }
+
         }
-    }
-    for (int i = 0; i < n; i++) {
-        if (GammaTransmissionProbability(Bmag, Lcoh, Ea, center) > max_prob / 2) {
-            center -= step;
-        } else {
-            center_minus = center;
-            center = photonMass;
-            break;
-        }
-    }
-    if (center_minus <= 0) {
-        center_minus = photonMass;
-        cout << "WARNING: The left value  for the condition P_a = P_amax/2 is zero or negative, redifinning "
-                "it to P_amax. "
-             << endl;
-    }
-    Double_t FWHM = center_plus - center_minus;
-    if (FWHM > 0.015) {
-        cout << "WARNING: The FWHM is greater than 0.01 ev, redifinning the FWHM= FWHM/2 " << endl;
-        return FWHM / 2;
+        RESTWarning << "No buffer gas defined, assuming vacuum an the resulting point is the m_a where P_ag=Pagmax/2  " << RESTendl;
+        return ma_start;
     } else {
-        return FWHM;
+        Double_t photonMass;
+        if (mg == 0 && fBufferGas) {
+            photonMass = fBufferGas->GetPhotonMass(Ea);
+        }
+        double center_plus = 0;
+        double center_minus = 0;
+        double max_prob = GammaTransmissionProbability(Bmag, Lcoh, Ea, photonMass);
+        double center = photonMass;
+        for (int i = 0; i < n; i++) {
+            if (GammaTransmissionProbability(Bmag, Lcoh, Ea, center) > max_prob / 2) {
+                center += step;
+            } else {
+                center_plus = center;
+                center = photonMass;
+                break;
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            if (GammaTransmissionProbability(Bmag, Lcoh, Ea, center) > max_prob / 2) {
+                center -= step;
+            } else {
+                center_minus = center;
+                center = photonMass;
+                break;
+            }
+        }
+        if (center_minus <= 0) {
+            center_minus = photonMass;
+            cout << "WARNING: The left value  for the condition P_a = P_amax/2 is zero or negative, redifinning "
+                    "it to P_amax. "
+                << endl;
+        }
+        return center_plus - center_minus;
     }
 #endif
 }
