@@ -436,8 +436,9 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
                 break;
             }
         }
-        RESTWarning << "No buffer gas defined, assuming vacuum an the resulting point is the m_a where P_ag=Pagmax/2 "
-                    << RESTendl;
+        RESTWarning
+            << "No buffer gas defined, assuming vacuum an the resulting point is the m_a where P_ag=Pagmax/2 "
+            << RESTendl;
         return ma_start;
     } else {
         Double_t photonMass;
@@ -468,7 +469,8 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
         }
         if (center_minus <= 0) {
             center_minus = photonMass;
-            cout << "WARNING: The left value  for the condition P_a = P_amax/2 is zero or negative,redifinning it to P_amax."
+            cout << "WARNING: The left value  for the condition P_a = P_amax/2 is zero or "
+                    "negative,redifinning it to P_amax."
                  << endl;
         }
         return center_plus - center_minus;
