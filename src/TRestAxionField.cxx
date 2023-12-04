@@ -405,13 +405,15 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 /// will be obtained from the buffer gas definition. If no buffer gas has been assigned
 /// the method will return 0, since it is not possible to calculate the FWHM.
 ///
-/// Ea in keV, ma in eV, mgamma in eV, deltaL in mm, Bmag in T. The returned value is given for g_ag = 10^-10 GeV-1
+/// Ea in keV, ma in eV, mgamma in eV, deltaL in mm, Bmag in T. The returned value is given for g_ag = 10^-10
+/// GeV-1
 ///
-/// Default value for the parameters are: Bmag = 2.5 T, Lcoh = 10000 mm, Ea = 4 keV, ma = 0.00025 eV, mg = 0 eV,
-/// 
-/// IMPORTANT: In the case that the buffer gas is not defined, the method will return the point where the 
-/// probability is equal to the half of the maximum probability for the vacuum case. Then, the first argument, 
-/// ma will reffears to the minimum axion mass that the algorithm will consider to get the point. 
+/// Default value for the parameters are: Bmag = 2.5 T, Lcoh = 10000 mm, Ea = 4 keV, ma = 0.00025 eV, mg = 0
+/// eV,
+///
+/// IMPORTANT: In the case that the buffer gas is not defined, the method will return the point where the
+/// probability is equal to the half of the maximum probability for the vacuum case. Then, the first argument,
+/// ma will reffears to the minimum axion mass that the algorithm will consider to get the point.
 
 double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t Bmag, Double_t Lcoh,
                                               Double_t mg, Double_t step, int n) {
@@ -422,19 +424,21 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
     RESTWarning << "TRestAxionField::GammaTransmissionFWHM will return 0" << RESTendl;
     return 0;
 #else
-   if(!fBufferGas){
-        double ma_max=3;
-        double ma_step=(ma_max-ma)/n;
-        double ma_start=ma;
+    if (!fBufferGas) {
+        double ma_max = 3;
+        double ma_step = (ma_max - ma) / n;
+        double ma_start = ma;
         for (int i = 0; i < n; i++) {
-            if (GammaTransmissionProbability(Bmag, Lcoh, Ea, ma_start) > GammaTransmissionProbability(Bmag, Lcoh, Ea, ma)/2) {
+            if (GammaTransmissionProbability(Bmag, Lcoh, Ea, ma_start) >
+                GammaTransmissionProbability(Bmag, Lcoh, Ea, ma) / 2) {
                 ma_start += step;
             } else {
                 break;
             }
-
         }
-        RESTWarning << "No buffer gas defined, assuming vacuum an the resulting point is the m_a where P_ag=Pagmax/2  " << RESTendl;
+        RESTWarning << "No buffer gas defined, assuming vacuum an the resulting point is the m_a where "
+                       "P_ag=Pagmax/2  "
+                    << RESTendl;
         return ma_start;
     } else {
         Double_t photonMass;
@@ -465,9 +469,10 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
         }
         if (center_minus <= 0) {
             center_minus = photonMass;
-            cout << "WARNING: The left value  for the condition P_a = P_amax/2 is zero or negative, redifinning "
+            cout << "WARNING: The left value  for the condition P_a = P_amax/2 is zero or negative, "
+                    "redifinning "
                     "it to P_amax. "
-                << endl;
+                 << endl;
         }
         return center_plus - center_minus;
     }
