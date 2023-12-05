@@ -424,56 +424,52 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
     RESTWarning << "TRestAxionField::GammaTransmissionFWHM will return 0" << RESTendl;
     return 0;
 #else
-    if (!fBufferGas) {
-        double ma_max = 3;
-        double ma_step = (ma_max - ma) / n;
-        double ma_start = ma;
+   if(!fBufferGas){
+        double ma_start=ma; 
         for (int i = 0; i < n; i++) {
-            if (GammaTransmissionProbability(Bmag, Lcoh, Ea, ma_start) >
-                GammaTransmissionProbability(Bmag, Lcoh, Ea, ma) / 2) {
+            if (GammaTransmissionProbability(Bmag, Lcoh, Ea, ma_start) > GammaTransmissionProbability(Bmag, Lcoh, Ea, ma)/2) {
                 ma_start += step;
             } else {
                 break;
             }
+
         }
-        RESTWarning
-            << "No buffer gas defined, assuming vacuum an the resulting point is the m_a where P_ag=Pagmax/2 "
-            << RESTendl;
+        RESTWarning << "No buffer gas defined, assuming vacuum an the resulting point is the m_a where P_ag=Pagmax/2  " << RESTendl;
         return ma_start;
     } else {
         Double_t photonMass;
         if (mg == 0 && fBufferGas) {
             photonMass = fBufferGas->GetPhotonMass(Ea);
-        }
-        double center_plus = 0;
-        double center_minus = 0;
-        double max_prob = GammaTransmissionProbability(Bmag, Lcoh, Ea, photonMass);
-        double center = photonMass;
-        for (int i = 0; i < n; i++) {
-            if (GammaTransmissionProbability(Bmag, Lcoh, Ea, center) > max_prob / 2) {
-                center += step;
-            } else {
-                center_plus = center;
-                center = photonMass;
-                break;
+            double center_plus = 0;
+            double center_minus = 0;
+            double max_prob = GammaTransmissionProbability(Bmag, Lcoh, Ea, photonMass);
+            double center = photonMass;
+            for (int i = 0; i < n; i++) {
+                if (GammaTransmissionProbability(Bmag, Lcoh, Ea, center) > max_prob / 2) {
+                    center += step;
+                } else {
+                    center_plus = center;
+                    center = photonMass;
+                    break;
+                }
             }
-        }
-        for (int i = 0; i < n; i++) {
-            if (GammaTransmissionProbability(Bmag, Lcoh, Ea, center) > max_prob / 2) {
-                center -= step;
-            } else {
-                center_minus = center;
-                center = photonMass;
-                break;
+            for (int i = 0; i < n; i++) {
+                if (GammaTransmissionProbability(Bmag, Lcoh, Ea, center) > max_prob / 2) {
+                    center -= step;
+                } else {
+                    center_minus = center;
+                    center = photonMass;
+                    break;
+                }
             }
-        }
-        if (center_minus <= 0) {
-            center_minus = photonMass;
-            cout << "WARNING: The left value  for the condition P_a = P_amax/2 is zero or "
-                    "negative,redifinning it to P_amax."
-                 << endl;
-        }
-        return center_plus - center_minus;
+            if (center_minus <= 0) {
+                center_minus = photonMass;
+                cout << "WARNING: The left value  for the condition P_a = P_amax/2 is zero or negative, redifinning "
+                        "it to P_amax. "
+                    << endl;
+            }
+            return center_plus - center_minus;
+            }
     }
 #endif
 }
