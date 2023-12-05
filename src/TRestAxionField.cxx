@@ -486,17 +486,7 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
 /// It returns a pair of vectors with the values for the scan, the first one is the axion mass and the second
 /// one is the density.
 
-std::pair<std::vector<double>, std::vector<double>> TRestAxionField::GetMassDensityScanning(
-    std::string gasName, double ma_max, double Ea) {
-#ifndef USE_MPFR
-    RESTWarning
-        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
-        << RESTendl;
-    RESTWarning << "TRestAxionField::GetMassDensityScanning will return 0" << RESTendl;
-    std::vector<double> uno = {0};
-    std::vector<double> dos = {0};
-    return std::make_pair(uno, dos);
-#else
+std::pair<std::vector<double>, std::vector<double>> TRestAxionField::GetMassDensityScanning(std::string gasName, double ma_max, double Ea) {
     std::vector<double> photonMass;
     std::vector<double> density;
     TRestAxionField* ax = new TRestAxionField();
@@ -528,7 +518,6 @@ std::pair<std::vector<double>, std::vector<double>> TRestAxionField::GetMassDens
     } while (photonMass[i] < ma_max);
     // Define the first step of the parametersof the density
     return std::make_pair(photonMass, density);
-#endif
 }
 
 /// Commented because it uses ComplexReal structure that is moved to TRestAxionFieldPropagationProcess class
