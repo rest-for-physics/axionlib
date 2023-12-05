@@ -475,7 +475,8 @@ if (!fBufferGas) {
 /// It returns a pair of vectors with the values for the scan, the first one is the axion mass and the second
 /// one is the density.
 
-std::pair<std::vector<double>, std::vector<double>> TRestAxionField::GetMassDensityScanning(std::string gasName, double ma_max, double Ea) {
+std::pair<std::vector<double>, std::vector<double>> TRestAxionField::GetMassDensityScanning(
+    std::string gasName, double ma_max, double Ea) {
     std::vector<double> photonMass;
     std::vector<double> density;
     TRestAxionField* ax = new TRestAxionField();
