@@ -478,6 +478,57 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
 #endif
 }
 
+///////////////////////////////////////////////
+/// \brief Performs the calculation of the density scan. The starter point is P_agmax/2 from vacuum, from there 
+/// the method calculates the FWHM for the first density, then moves the axion mass from the start plus the FWHM,
+/// and calculates the FWHM for the new axion mass. The method stops when the axion mass is bigger than the maximum
+/// axion mass given as an argument.
+///
+/// Default gasName="He", ma_max=0.15 eV, Ea=4.2 keV.
+/// It returns a pair of vectors with the values for the scan, the first one is the axion mass and the second one is the density.
+
+std::pair<std::vector<double>, std::vector<double>> TRestAxionField::GetMassDensityScanning(std::string gasName, double ma_max, double Ea){
+#ifndef USE_MPFR
+    RESTWarning
+        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
+        << RESTendl;
+    RESTWarning << "TRestAxionField::GetMassDensityScanning will return 0" << RESTendl;
+    return 0;
+#else
+        std::vector<double> photonMass;
+        std::vector<double> density;
+        TRestAxionField *ax = new TRestAxionField();
+        double start = ax -> GammaTransmissionFWHM();
+        TRestAxionBufferGas *gas = new TRestAxionBufferGas();
+        gas->SetGasDensity(gasName,0);
+        photonMass.push_back(start);
+        density.push_back(gas->GetMassDensity(start));
+        int i = 0;
+        delete ax;
+        delete gas;
+        do {
+            TRestAxionBufferGas *gas = new TRestAxionBufferGas();
+            gas->SetGasDensity(gasName, density[i]);
+            TRestAxionField *ax = new TRestAxionField();
+            ax->AssignBufferGas(gas);
+            double ma_max = gas->GetPhotonMass(Ea);
+            double FWHM = ax->GammaTransmissionFWHM();
+            if (FWHM >0.015) {
+                RESTWarning << "FWHM bigger than 0.015, redifinning it to FWHM=FWHMW/2" << RESTendl;
+                FWHM=FWHM/2;
+            }
+            photonMass.push_back(ma_max + FWHM);
+            // Call the density function
+            density.push_back(gas->GetMassDensity(photonMass[i + 1]));
+            i++;
+            delete gas;
+            delete ax;
+        } while (photonMass[i] < ma_max);
+        // Define the first step of the parametersof the density
+        return std::make_pair(photonMass, density);
+#endif
+}
+
 /// Commented because it uses ComplexReal structure that is moved to TRestAxionFieldPropagationProcess class
 /*
 void TRestAxionField::PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
