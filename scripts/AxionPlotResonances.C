@@ -6,7 +6,7 @@ int AxionPlotResonances() {
     int n_ma = 100000;
     int vacio = 1;  // 1 if you want to include the vacuum probability, 0 if not
     std::string gasName = "He";
-    std::pair<std::vector<double>, std::vector<double>> pair = ax->GetMassDensityScanning();
+    std::pair<std::vector<double>, std::vector<double>> pair = ax->GetMassDensityScanning(gasName,ma_max,Ea);
     std::vector<double> photonMass = pair.first;
     std::vector<double> density = pair.second;
     std::vector<double> m_a;
