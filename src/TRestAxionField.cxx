@@ -422,21 +422,23 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
         << RESTendl;
     RESTWarning << "TRestAxionField::GammaTransmissionFWHM will return 0" << RESTendl;
-    std::vector<double> uno={0};
-    std::vector<double> dos={0};
-    return std::make_pair(uno,dos);
+    std::vector<double> uno = {0};
+    std::vector<double> dos = {0};
+    return std::make_pair(uno, dos);
 #else
-   if(!fBufferGas){
-        double ma_start=ma; 
+    if (!fBufferGas) {
+        double ma_start = ma;
         for (int i = 0; i < n; i++) {
-            if (GammaTransmissionProbability(Bmag, Lcoh, Ea, ma_start) > GammaTransmissionProbability(Bmag, Lcoh, Ea, ma)/2) {
+            if (GammaTransmissionProbability(Bmag, Lcoh, Ea, ma_start) >
+                GammaTransmissionProbability(Bmag, Lcoh, Ea, ma) / 2) {
                 ma_start += step;
             } else {
                 break;
             }
-
         }
-        RESTWarning << "No buffer gas defined, assuming vacuum an the resulting point is the m_a where P_ag=Pagmax/2  " << RESTendl;
+        RESTWarning << "No buffer gas defined, assuming vacuum an the resulting point is the m_a where "
+                       "P_ag=Pagmax/2  "
+                    << RESTendl;
         return ma_start;
     } else {
         Double_t photonMass;
@@ -466,11 +468,12 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
             }
             if (center_minus <= 0) {
                 center_minus = photonMass;
-                cout << "WARNING: The left value  for the condition P_a = P_amax/2 is zero or negative, redifinning it to P_amax. "
-                    << endl;
+                cout << "WARNING: The left value  for the condition P_a = P_amax/2 is zero or negative, "
+                        "redifinning it to P_amax. "
+                     << endl;
             }
             return center_plus - center_minus;
-            }
+        }
     }
 #endif
 }
@@ -492,9 +495,9 @@ std::pair<std::vector<double>, std::vector<double>> TRestAxionField::GetMassDens
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
         << RESTendl;
     RESTWarning << "TRestAxionField::GetMassDensityScanning will return 0" << RESTendl;
-    std::vector<double> uno={0};
-    std::vector<double> dos={0};
-    return std::make_pair(uno,dos);
+    std::vector<double> uno = {0};
+    std::vector<double> dos = {0};
+    return std::make_pair(uno, dos);
 #else
     std::vector<double> photonMass;
     std::vector<double> density;
