@@ -415,18 +415,8 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 /// probability is equal to the half of the maximum probability for the vacuum case. Then, the first argument,
 /// ma will reffears to the minimum axion mass that the algorithm will consider to get the point.
 
-double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t Bmag, Double_t Lcoh,
-                                              Double_t mg, Double_t step, int n) {
-#ifndef USE_MPFR
-    RESTWarning
-        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
-        << RESTendl;
-    RESTWarning << "TRestAxionField::GammaTransmissionFWHM will return 0" << RESTendl;
-    std::vector<double> uno = {0};
-    std::vector<double> dos = {0};
-    return std::make_pair(uno, dos);
-#else
-    if (!fBufferGas) {
+double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t Bmag, Double_t Lcoh, Double_t mg, Double_t step, int n) {
+if (!fBufferGas) {
         double ma_start = ma;
         for (int i = 0; i < n; i++) {
             if (GammaTransmissionProbability(Bmag, Lcoh, Ea, ma_start) >
@@ -473,7 +463,6 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
         }
         return center_plus - center_minus;
     }
-#endif
 }
 
 ///////////////////////////////////////////////
