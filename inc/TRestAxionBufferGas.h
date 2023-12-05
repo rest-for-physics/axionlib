@@ -59,7 +59,7 @@ class TRestAxionBufferGas : public TRestMetadata {
     void SetGasDensity(TString gasName, Double_t density);
     Double_t GetGasDensity(TString gasName);
 
-    void SetGasMixture(TString gasMixture, TString gasDensities);
+    void SetGasMixture(TString gasMixture, TString gasDensities = "0");
 
     /// It returns the number of gases in the mixture
     Int_t GetNumberOfGases() { return (Int_t)fBufferGasName.size(); }

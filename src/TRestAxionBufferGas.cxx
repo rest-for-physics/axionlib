@@ -174,16 +174,28 @@ void TRestAxionBufferGas::SetGasDensity(TString gasName, Double_t density) {
 ///
 /// Example : SetGasMixture("Ne+Xe", "2e-3g/cm3+3mg/cm3" );
 ///
+/// If the second argument with densities is not given, the buffer gas will
+/// add the gas components with zero density.
+///
 void TRestAxionBufferGas::SetGasMixture(TString gasMixture, TString gasDensities) {
     Initialize();
 
     std::vector<string> names = Split((string)gasMixture, "+");
-    std::vector<string> densities = Split((string)gasDensities, "+");
+    std::vector<string> densities;
+	if( gasDensities == "0")
+		densities.clear();
+	else
+		densities = Split((string)gasDensities, "+");
 
-    if (names.size() == densities.size()) {
+    if (!densities.empty() && names.size() == densities.size()) {
         for (unsigned int n = 0; n < names.size(); n++) {
             Double_t density = GetValueInRESTUnits(densities[n]);
             SetGasDensity(names[n], density);
+        }
+	}
+	else if (densities.empty()) {
+        for (unsigned int n = 0; n < names.size(); n++) {
+            SetGasDensity(names[n], 0);
         }
     } else {
         this->SetError("SetGasMixture. Number of gases does not match the densities!");
