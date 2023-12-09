@@ -20,7 +20,7 @@ python3 pull-submodules.py --onlylibs
 
 ### Prerequisites
 
-As any REST library, this library requires a running installion of REST-for-Physics Framework. But on top of that, some calculations require higher precision arithmetics and we need to use a external library named `mpfr`. 
+As any REST library, this library requires a running installion of REST-for-Physics Framework. But on top of that, some calculations require higher precision arithmetics and we need to use a external library named `mpfr`.
 
 All you need to be able to compile `axionlib` is to install the [mpfr](https://www.mpfr.org) library. Download the source, compile, and install.  Usually as simple as running `./configure`, `make` and `make install` at the downloaded source directory.
 
