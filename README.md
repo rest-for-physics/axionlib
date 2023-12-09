@@ -20,10 +20,9 @@ python3 pull-submodules.py --onlylibs
 
 ### Prerequisites
 
-As any REST library, this library requires a running installion of REST-for-Physics Framework. But on top of that, some calculations require higher precision arithmetics and we need to use a external library named `mpfr`.  We use a c++ wrapper that is available at the [following site](http://www.holoborodko.com/pavel/mpfr/#intro). This wrapper (mpreal.h) is already available/uploaded to this repository.
+As any REST library, this library requires a running installion of REST-for-Physics Framework. But on top of that, some calculations require higher precision arithmetics and we need to use a external library named `mpfr`. 
 
-All you need to be able to compile `axionlib` is to install the [mpfr](https://www.mpfr.org) and [mpir](http://mpir.org) libraries. Download the source, compile, and install.
-Usually as simple as running `./configure`, `make` and `make install` at the downloaded source directory.
+All you need to be able to compile `axionlib` is to install the [mpfr](https://www.mpfr.org) library. Download the source, compile, and install.  Usually as simple as running `./configure`, `make` and `make install` at the downloaded source directory.
 
 #### mpfr installation:
 
@@ -49,6 +48,14 @@ Once you have all the prerequisites installed you need to add the library at the
 ```
 cd framework/build
 cmake -DRESTLIB_AXION=ON -DREST_MPFR=ON ../
+make -j4 install
+```
+
+If you have installed MPFR from source you may need to specify the path where the installation files are located at the `cmake` stage:
+
+```
+cd framework/build
+cmake -DRESTLIB_AXION=ON -DREST_MPFR=ON -DMPFR_PATH=/full/path/to/mpfr/ ../
 make -j4 install
 ```
 
