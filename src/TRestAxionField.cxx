@@ -480,6 +480,8 @@ std::pair<std::vector<double>, std::vector<double>> TRestAxionField::GetMassDens
     std::string gasName, double ma_max, double Ea) {
     std::vector<double> photonMass;
     std::vector<double> density;
+    std::vector<double> FWHM;
+    std::vector<double> ma;
     TRestAxionField* ax = new TRestAxionField();
     double start = ax->GammaTransmissionFWHM();
     TRestAxionBufferGas* gas = new TRestAxionBufferGas();
@@ -494,13 +496,33 @@ std::pair<std::vector<double>, std::vector<double>> TRestAxionField::GetMassDens
         gas->SetGasDensity(gasName, density[i]);
         TRestAxionField* ax = new TRestAxionField();
         ax->AssignBufferGas(gas);
-        double ma_max = gas->GetPhotonMass(Ea);
-        double FWHM = ax->GammaTransmissionFWHM();
-        if (FWHM > 0.015) {
-            RESTWarning << "FWHM bigger than 0.015, redifinning it to FWHM=FWHMW/2" << RESTendl;
-            FWHM = FWHM / 2;
+        ma.push_back(gas->GetPhotonMass(Ea));
+        FWHM.push_back(ax->GammaTransmissionFWHM());
+        cout << "FWHM " << i << " : " << FWHM[i] << endl;
+        if ( i !=0  && FWHM[i-1] > 2*FWHM[i]) {
+            delete gas;
+            delete ax;
+            RESTWarning << "FWHM[" << (i-1) << "] bigger tthan 2*FWHM["<< (i)<< "], redifinning it to FWHM["<< (i-1) << "]/2" << RESTendl;
+            FWHM[i-1] = FWHM[i-1] / 2;
+            photonMass[i] = ma[i-1] + FWHM[i-1];
+            TRestAxionBufferGas* gas2 = new TRestAxionBufferGas();
+            gas2->SetGasDensity(gasName, density[i-1]);
+            density[i] = gas2->GetMassDensity(photonMass[i]);
+            // Computes again the FWHM 
+            delete gas2;
+            TRestAxionBufferGas* gas = new TRestAxionBufferGas();
+            gas->SetGasDensity(gasName, density[i]);
+            TRestAxionField* ax = new TRestAxionField();
+            ax->AssignBufferGas(gas);
+            ma[i] = gas->GetPhotonMass(Ea);
+            FWHM[i] = ax->GammaTransmissionFWHM();
+            photonMass.push_back(ma[i] + FWHM[i]);
+            // Call the density function
+            density.push_back(gas->GetMassDensity(photonMass[i + 1]));
+            i++;
+            continue;
         }
-        photonMass.push_back(ma_max + FWHM);
+        photonMass.push_back(ma[i] + FWHM[i]);
         // Call the density function
         density.push_back(gas->GetMassDensity(photonMass[i + 1]));
         i++;
