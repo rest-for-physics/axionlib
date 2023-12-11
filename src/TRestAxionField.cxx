@@ -499,16 +499,17 @@ std::pair<std::vector<double>, std::vector<double>> TRestAxionField::GetMassDens
         ma.push_back(gas->GetPhotonMass(Ea));
         FWHM.push_back(ax->GammaTransmissionFWHM());
         cout << "FWHM " << i << " : " << FWHM[i] << endl;
-        if ( i !=0  && FWHM[i-1] > 2*FWHM[i]) {
+        if (i != 0 && FWHM[i - 1] > 2 * FWHM[i]) {
             delete gas;
             delete ax;
-            RESTWarning << "FWHM[" << (i-1) << "] bigger tthan 2*FWHM["<< (i)<< "], redifinning it to FWHM["<< (i-1) << "]/2" << RESTendl;
-            FWHM[i-1] = FWHM[i-1] / 2;
-            photonMass[i] = ma[i-1] + FWHM[i-1];
+            RESTWarning << "FWHM[" << (i - 1) << "] bigger tthan 2*FWHM[" << (i)
+                        << "], redifinning it to FWHM[" << (i - 1) << "]/2" << RESTendl;
+            FWHM[i - 1] = FWHM[i - 1] / 2;
+            photonMass[i] = ma[i - 1] + FWHM[i - 1];
             TRestAxionBufferGas* gas2 = new TRestAxionBufferGas();
-            gas2->SetGasDensity(gasName, density[i-1]);
+            gas2->SetGasDensity(gasName, density[i - 1]);
             density[i] = gas2->GetMassDensity(photonMass[i]);
-            // Computes again the FWHM 
+            // Computes again the FWHM
             delete gas2;
             TRestAxionBufferGas* gas = new TRestAxionBufferGas();
             gas->SetGasDensity(gasName, density[i]);
