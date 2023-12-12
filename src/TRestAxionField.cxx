@@ -476,8 +476,8 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
 /// It returns a vector of pair with the values for the scan, the first one is the axion mass and the second
 /// one is the density.
 
-std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanning(
-    std::string gasName, double ma_max, double Ea) {
+std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanning(std::string gasName,
+                                                                                   double ma_max, double Ea) {
     std::vector<std::pair<Double_t, Double_t>> massDensityPairs;
     std::vector<double> FWHM;
     std::vector<double> ma;
@@ -500,8 +500,8 @@ std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanni
         if (i != 0 && FWHM[i - 1] > 2 * FWHM[i]) {
             delete gas;
             delete ax;
-            RESTWarning << "FWHM[" << (i - 1) << "] bigger than 2*FWHM[" << (i)
-                        << "], redefining it to FWHM[" << (i - 1) << "]/2" << RESTendl;
+            RESTWarning << "FWHM[" << (i - 1) << "] bigger than 2*FWHM[" << (i) << "], redefining it to FWHM["
+                        << (i - 1) << "]/2" << RESTendl;
             FWHM[i - 1] = FWHM[i - 1] / 2;
             Double_t newPhotonMass = ma[i - 1] + FWHM[i - 1];
             TRestAxionBufferGas* gas2 = new TRestAxionBufferGas();

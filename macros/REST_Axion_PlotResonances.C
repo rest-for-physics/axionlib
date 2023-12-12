@@ -7,7 +7,7 @@
 #include "TRestAxionField.h"
 //*******************************************************************************************************
 //*** Description: This script plots the transmission probability as a function of the axion mass for a given
-//gas and an
+// gas and an
 //*** axion energy until a maximum axion mass.
 //***
 //*** Arguments by default are (in order):

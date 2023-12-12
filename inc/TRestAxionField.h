@@ -62,8 +62,7 @@ class TRestAxionField : public TObject {
                                    int n = 10000);
 
     std::vector<std::pair<Double_t, Double_t>> GetMassDensityScanning(std::string gasName = "He",
-                                                                                   Double_t ma_max = 1,
-                                                                                   Double_t Ea = 4.2);
+                                                                      Double_t ma_max = 1, Double_t Ea = 4.2);
 
     TRestAxionField();
     ~TRestAxionField();
