@@ -508,7 +508,7 @@ std::pair<std::vector<double>, std::vector<double>> TRestAxionField::GetMassDens
             TRestAxionBufferGas* gas2 = new TRestAxionBufferGas();
             gas2->SetGasDensity(gasName, density[i-1]);
             density[i] = gas2->GetMassDensity(photonMass[i]);
-            // Computes again the FWHM 
+            // Computes again the FWHM
             delete gas2;
             TRestAxionBufferGas* gas = new TRestAxionBufferGas();
             gas->SetGasDensity(gasName, density[i]);
