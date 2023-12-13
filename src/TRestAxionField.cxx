@@ -134,7 +134,7 @@ double TRestAxionField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-Double_t TRestAxionField::GammaTransmissionProbability( Double_t ma, Double_t mg, Double_t absLength) {
+Double_t TRestAxionField::GammaTransmissionProbability(Double_t ma, Double_t mg, Double_t absLength) {
 #ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
@@ -189,8 +189,8 @@ Double_t TRestAxionField::GammaTransmissionProbability( Double_t ma, Double_t mg
         RESTDebug << "Exp(-GammaL) : " << exp(-GammaL) << RESTendl;
     }
 
-    double sol =
-        (double)(MFactor * BLHalfSquared(fBmag, fLcoh) * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
+    double sol = (double)(MFactor * BLHalfSquared(fBmag, fLcoh) *
+                          (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
 
     RESTDebug << "Axion-photon transmission probability : " << sol << RESTendl;
 
@@ -202,13 +202,13 @@ Double_t TRestAxionField::GammaTransmissionProbability( Double_t ma, Double_t mg
 /// \brief On top of calculating the gamma transmission probability it will assign new values
 /// for the magnetic field (Bmag/T), coherence length (Lcoh/mm) and axion energy (Ea/keV).
 ///
-Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma, Double_t mg, Double_t absLength)
-{
-	fBmag = Bmag;
-	fLcoh = Lcoh;
-	fEa = Ea;
+Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+                                                       Double_t mg, Double_t absLength) {
+    fBmag = Bmag;
+    fLcoh = Lcoh;
+    fEa = Ea;
 
-	return GammaTransmissionProbability( ma, mg, absLength );
+    return GammaTransmissionProbability(ma, mg, absLength);
 }
 
 ///////////////////////////////////////////////
@@ -413,13 +413,12 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, D
 /// for the magnetic field (Bmag/T), coherence length (Lcoh/mm) and axion energy (Ea/keV).
 ///
 Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
-									Double_t mg, Double_t absLength)
-{
-	fBmag = Bmag;
-	fLcoh = Lcoh;
-	fEa = Ea;
+                                                     Double_t mg, Double_t absLength) {
+    fBmag = Bmag;
+    fLcoh = Lcoh;
+    fEa = Ea;
 
-	return AxionAbsorptionProbability( ma, mg, absLength );
+    return AxionAbsorptionProbability(ma, mg, absLength);
 }
 
 ///////////////////////////////////////////////
@@ -435,41 +434,41 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 /// probability reaches half of the maximum **vacuum** probability.
 ///
 Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
+    Double_t maxMass = 10;  // 10eV is the maximum mass (exit condition)
 
-	Double_t maxMass = 10; // 10eV is the maximum mass (exit condition)
+    Double_t resonanceMass = 0;
+    if (fBufferGas) resonanceMass = fBufferGas->GetPhotonMass(fEa);
 
-	Double_t resonanceMass = 0;
-	if( fBufferGas ) resonanceMass = fBufferGas->GetPhotonMass(fEa);
+    /// Scanning towards the right (valid also for vacuum)
+    Double_t scanMass = resonanceMass;
+    Double_t Pmax = GammaTransmissionProbability(resonanceMass);
+    while (Pmax / 2 > GammaTransmissionProbability(scanMass)) {
+        scanMass += step;
+        if (scanMass > maxMass) {
+            RESTError
+                << "TRestAxionField::GammaTransmissionProbability. Something went wrong when calculating FWHM"
+                << RESTendl;
+            return maxMass;
+        }
+    }
 
-	/// Scanning towards the right (valid also for vacuum)
-	Double_t scanMass = resonanceMass;
-	Double_t Pmax = GammaTransmissionProbability(resonanceMass);
-	while( Pmax/2 > GammaTransmissionProbability(scanMass)) 
-	{
-		scanMass += step;
-		if ( scanMass > maxMass ) 
-		{
-			RESTError << "TRestAxionField::GammaTransmissionProbability. Something went wrong when calculating FWHM" << RESTendl;
-			return maxMass;
-		}
-	}
-
-	return scanMass;
+    return scanMass;
 }
 
 ///////////////////////////////////////////////
 /// \brief This method determines the proper densities to be used in an axion helioscope experiment in order
-/// to achieve a continuous axion mass scan. 
+/// to achieve a continuous axion mass scan.
 ///
-/// The first scanning density is placed where the axion-photon vacuum probability reaches half the value, 
-/// `P_ag(max)/2`. Once the first density, or step, has been obtained, the method calculates the FWHM resonance
-/// probability for each density/mass and moves the next scanning axion mass by a step of amplitude `FWHM/2`.
+/// The first scanning density is placed where the axion-photon vacuum probability reaches half the value,
+/// `P_ag(max)/2`. Once the first density, or step, has been obtained, the method calculates the FWHM
+/// resonance probability for each density/mass and moves the next scanning axion mass by a step of amplitude
+/// `FWHM/2`.
 ///
 /// The method stops when the axion mass is bigger than the maximum axion mass given as an argument, `ma_max`.
 ///
 /// Default arguments: gasName="He", ma_max=0.15 eV, Ea=4.2 keV.
-/// \return It returns a vector of pair with the values for the scan, the first one is the axion mass and the second
-/// one is the density.
+/// \return It returns a vector of pair with the values for the scan, the first one is the axion mass and the
+/// second one is the density.
 ///
 /// For additional info see PR: https://github.com/rest-for-physics/axionlib/pull/78
 ///
