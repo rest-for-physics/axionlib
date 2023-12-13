@@ -467,15 +467,21 @@ double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t
 }
 
 ///////////////////////////////////////////////
-/// \brief Performs the calculation of the density scan. The starter point is P_agmax/2 from vacuum, from
-/// there the method calculates the FWHM for the first density, then moves the axion mass from the start plus
-/// the FWHM, and calculates the FWHM for the new axion mass. The method stops when the axion mass is bigger
-/// than the maximum axion mass given as an argument.
+/// \brief This method determines the proper densities to be used in an axion helioscope experiment in order
+/// to achieve a continuous axion mass scan. 
 ///
-/// Default gasName="He", ma_max=0.15 eV, Ea=4.2 keV.
-/// It returns a vector of pair with the values for the scan, the first one is the axion mass and the second
+/// The first scanning density is placed where the axion-photon vacuum probability reaches half the value, 
+/// `P_ag(max)/2`. Once the first density, or step, has been obtained, the method calculates the FWHM resonance
+/// probability for each density/mass and moves the next scanning axion mass by a step of amplitude `FWHM/2`.
+///
+/// The method stops when the axion mass is bigger than the maximum axion mass given as an argument, `ma_max`.
+///
+/// Default arguments: gasName="He", ma_max=0.15 eV, Ea=4.2 keV.
+/// \return It returns a vector of pair with the values for the scan, the first one is the axion mass and the second
 /// one is the density.
-
+///
+/// For additional info see PR: https://github.com/rest-for-physics/axionlib/pull/78
+///
 std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanning(std::string gasName,
                                                                                    double ma_max, double Ea) {
     std::vector<std::pair<Double_t, Double_t>> massDensityPairs;
