@@ -401,69 +401,35 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 /// \brief Performs the calculation of the FWHM for the axion-photon conversion probability
 /// computed in `TRestAxionField::GammaTransmissionProbability`.
 ///
-/// If m_gamma (mg) is not given as an argument, i.e. it is equal to zero, then m_gamma
-/// will be obtained from the buffer gas definition. If no buffer gas has been assigned
-/// the method will return 0, since it is not possible to calculate the FWHM.
+/// Ea in keV, ma in eV, mgamma in eV, deltaL in mm, Bmag in T.
 ///
-/// Ea in keV, ma in eV, mgamma in eV, deltaL in mm, Bmag in T. The returned value is given for g_ag = 10^-10
-/// GeV-1
-///
-/// Default value for the parameters are: Bmag = 2.5 T, Lcoh = 10000 mm, Ea = 4 keV, ma = 0.00025 eV, mg = 0
+/// Default value for the parameters are: Bmag = 2.5 T, Lcoh = 10000 mm, Ea = 4 keV
 /// eV,
 ///
-/// IMPORTANT: In the case that the buffer gas is not defined, the method will return the point where the
-/// probability is equal to the half of the maximum probability for the vacuum case. Then, the first argument,
-/// ma will reffears to the minimum axion mass that the algorithm will consider to get the point.
+/// IMPORTANT: In the case that the buffer gas is not defined, this method will return the mass at which the
+/// probability reaches half of the maximum **vacuum** probability.
+///
+Double_t TRestAxionField::GammaTransmissionFWHM(Double_t Ea, Double_t Bmag, Double_t Lcoh, Double_t step) {
 
-double TRestAxionField::GammaTransmissionFWHM(Double_t ma, Double_t Ea, Double_t Bmag, Double_t Lcoh,
-                                              Double_t mg, Double_t step, int n) {
-    if (!fBufferGas) {
-        double ma_start = ma;
-        for (int i = 0; i < n; i++) {
-            if (GammaTransmissionProbability(Bmag, Lcoh, Ea, ma_start) >
-                GammaTransmissionProbability(Bmag, Lcoh, Ea, ma) / 2) {
-                ma_start += step;
-            } else {
-                break;
-            }
-        }
-        RESTWarning << "No buffer gas defined, assuming vacuum an the resulting point is the m_a where "
-                       "P_ag=Pagmax/2  "
-                    << RESTendl;
-        return ma_start;
-    } else {
-        Double_t photonMass;
-        photonMass = fBufferGas->GetPhotonMass(Ea);
-        double center_plus = 0;
-        double center_minus = 0;
-        double max_prob = GammaTransmissionProbability(Bmag, Lcoh, Ea, photonMass);
-        double center = photonMass;
-        for (int i = 0; i < n; i++) {
-            if (GammaTransmissionProbability(Bmag, Lcoh, Ea, center) > max_prob / 2) {
-                center += step;
-            } else {
-                center_plus = center;
-                center = photonMass;
-                break;
-            }
-        }
-        for (int i = 0; i < n; i++) {
-            if (GammaTransmissionProbability(Bmag, Lcoh, Ea, center) > max_prob / 2) {
-                center -= step;
-            } else {
-                center_minus = center;
-                center = photonMass;
-                break;
-            }
-        }
-        if (center_minus <= 0) {
-            center_minus = photonMass;
-            cout << "WARNING: The left value  for the condition P_a = P_amax/2 is zero or negative, "
-                    "redifinning it to P_amax. "
-                 << endl;
-        }
-        return center_plus - center_minus;
-    }
+	Double_t maxMass = 10; // 10eV is the maximum mass (exit condition)
+
+	Double_t resonanceMass = 0;
+	if( fBufferGas ) resonanceMass = fBufferGas->GetPhotonMass(Ea);
+
+	/// Scanning towards the right (valid also for vacuum)
+	Double_t scanMass = resonanceMass;
+	Double_t Pmax = GammaTransmissionProbability(Bmag, Lcoh, Ea, resonanceMass);
+	while( Pmax/2 > GammaTransmissionProbability(Bmag, Lcoh, Ea, scanMass)) 
+	{
+		scanMass += step;
+		if ( scanMass > maxMass ) 
+		{
+			RESTError << "TRestAxionField::GammaTransmissionProbability. Something went wrong when calculating FWHM" << RESTendl;
+			return maxMass;
+		}
+	}
+
+	return scanMass;
 }
 
 ///////////////////////////////////////////////
