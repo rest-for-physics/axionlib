@@ -134,8 +134,7 @@ double TRestAxionField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
-                                                       Double_t mg, Double_t absLength) {
+Double_t TRestAxionField::GammaTransmissionProbability( Double_t ma, Double_t mg, Double_t absLength) {
 #ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
@@ -144,29 +143,29 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t L
     return 0;
 #else
     mpfr::mpreal axionMass = ma;
-    mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
+    mpfr::mpreal cohLength = fLcoh / 1000.;  // Default REST units are mm;
 
     mpfr::mpreal photonMass = mg;
 
-    if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
+    if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(fEa);
 
     RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
     RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << RESTendl;
     RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
     RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
-    RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
-    RESTDebug << " Lcoh : " << Lcoh << " mm" << RESTendl;
-    RESTDebug << " Bmag : " << Bmag << " T" << RESTendl;
+    RESTDebug << " Axion energy : " << fEa << " keV" << RESTendl;
+    RESTDebug << " Lcoh : " << fLcoh << " mm" << RESTendl;
+    RESTDebug << " Bmag : " << fBmag << " T" << RESTendl;
     RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
 
-    if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(Bmag, Lcoh);
+    if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(fBmag, fLcoh);
 
-    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
+    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / fEa / 1000.0;
     mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
     mpfr::mpreal phi = q * l;
 
     mpfr::mpreal Gamma = absLength;
-    if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
+    if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(fEa);  // cm-1
     mpfr::mpreal GammaL = Gamma * cohLength * 100;
 
     if (fDebug) {
@@ -185,18 +184,31 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t L
 
     if (fDebug) {
         RESTDebug << "Mfactor : " << MFactor << RESTendl;
-        RESTDebug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << RESTendl;
+        RESTDebug << "(BL/2)^2 : " << BLHalfSquared(fBmag, fLcoh) << RESTendl;
         RESTDebug << "cos(phi) : " << cos(phi) << RESTendl;
         RESTDebug << "Exp(-GammaL) : " << exp(-GammaL) << RESTendl;
     }
 
     double sol =
-        (double)(MFactor * BLHalfSquared(Bmag, Lcoh) * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
+        (double)(MFactor * BLHalfSquared(fBmag, fLcoh) * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
 
     RESTDebug << "Axion-photon transmission probability : " << sol << RESTendl;
 
     return sol;
 #endif
+}
+
+///////////////////////////////////////////////
+/// \brief On top of calculating the gamma transmission probability it will assign new values
+/// for the magnetic field (Bmag/T), coherence length (Lcoh/mm) and axion energy (Ea/keV).
+///
+Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma, Double_t mg, Double_t absLength)
+{
+	fBmag = Bmag;
+	fLcoh = Lcoh;
+	fEa = Ea;
+
+	return GammaTransmissionProbability( ma, mg, absLength );
 }
 
 ///////////////////////////////////////////////
@@ -330,8 +342,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
-                                                     Double_t mg, Double_t absLength) {
+Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, Double_t absLength) {
 #ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFr=ON to your REST compilation"
@@ -340,10 +351,10 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
     return 0;
 #else
     mpfr::mpreal axionMass = ma;
-    mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
+    mpfr::mpreal cohLength = fLcoh / 1000.;  // Default REST units are mm;
 
     mpfr::mpreal photonMass = mg;
-    if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
+    if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(fEa);
 
     if (fDebug) {
         RESTDebug << "+--------------------------------------------------------------------------+"
@@ -351,21 +362,21 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
         RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << RESTendl;
         RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
         RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
-        RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
-        RESTDebug << " Lcoh : " << Lcoh << " mm" << RESTendl;
-        RESTDebug << " Bmag : " << Bmag << " T" << RESTendl;
+        RESTDebug << " Axion energy : " << fEa << " keV" << RESTendl;
+        RESTDebug << " Lcoh : " << fLcoh << " mm" << RESTendl;
+        RESTDebug << " Bmag : " << fBmag << " T" << RESTendl;
         RESTDebug << "+--------------------------------------------------------------------------+"
                   << RESTendl;
     }
 
-    if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(Bmag, Lcoh);
+    if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(fBmag, fLcoh);
 
-    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
+    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / fEa / 1000.0;
     mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
     mpfr::mpreal phi = q * l;
 
     mpfr::mpreal Gamma = absLength;
-    if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
+    if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(fEa);  // cm-1
     mpfr::mpreal GammaL = Gamma * cohLength * 100;
 
     if (fDebug) {
@@ -384,17 +395,31 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 
     if (fDebug) {
         RESTDebug << "Mfactor : " << MFactor << RESTendl;
-        RESTDebug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << RESTendl;
+        RESTDebug << "(BL/2)^2 : " << BLHalfSquared(fBmag, fLcoh) << RESTendl;
         RESTDebug << "cos(phi) : " << cos(phi) << RESTendl;
         RESTDebug << "Exp(-GammaL) : " << exp(-GammaL) << RESTendl;
     }
 
-    double sol = (double)(MFactor * BLHalfSquared(Bmag, Lcoh) * GammaL);
+    double sol = (double)(MFactor * BLHalfSquared(fBmag, fLcoh) * GammaL);
 
     if (fDebug) RESTDebug << "Axion-photon absorption probability : " << sol << RESTendl;
 
     return sol;
 #endif
+}
+
+///////////////////////////////////////////////
+/// \brief On top of calculating the axion absorption probability it will assign new values
+/// for the magnetic field (Bmag/T), coherence length (Lcoh/mm) and axion energy (Ea/keV).
+///
+Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+									Double_t mg, Double_t absLength)
+{
+	fBmag = Bmag;
+	fLcoh = Lcoh;
+	fEa = Ea;
+
+	return AxionAbsorptionProbability( ma, mg, absLength );
 }
 
 ///////////////////////////////////////////////
@@ -409,17 +434,17 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 /// IMPORTANT: In the case that the buffer gas is not defined, this method will return the mass at which the
 /// probability reaches half of the maximum **vacuum** probability.
 ///
-Double_t TRestAxionField::GammaTransmissionFWHM(Double_t Ea, Double_t Bmag, Double_t Lcoh, Double_t step) {
+Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
 
 	Double_t maxMass = 10; // 10eV is the maximum mass (exit condition)
 
 	Double_t resonanceMass = 0;
-	if( fBufferGas ) resonanceMass = fBufferGas->GetPhotonMass(Ea);
+	if( fBufferGas ) resonanceMass = fBufferGas->GetPhotonMass(fEa);
 
 	/// Scanning towards the right (valid also for vacuum)
 	Double_t scanMass = resonanceMass;
-	Double_t Pmax = GammaTransmissionProbability(Bmag, Lcoh, Ea, resonanceMass);
-	while( Pmax/2 > GammaTransmissionProbability(Bmag, Lcoh, Ea, scanMass)) 
+	Double_t Pmax = GammaTransmissionProbability(resonanceMass);
+	while( Pmax/2 > GammaTransmissionProbability(scanMass)) 
 	{
 		scanMass += step;
 		if ( scanMass > maxMass ) 
@@ -451,6 +476,7 @@ Double_t TRestAxionField::GammaTransmissionFWHM(Double_t Ea, Double_t Bmag, Doub
 std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanning(std::string gasName,
                                                                                    double ma_max, double Ea) {
     std::vector<std::pair<Double_t, Double_t>> massDensityPairs;
+
     std::vector<double> FWHM;
     std::vector<double> ma;
     TRestAxionField* ax = new TRestAxionField();
