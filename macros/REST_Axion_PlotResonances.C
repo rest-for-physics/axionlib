@@ -40,7 +40,7 @@ int REST_Axion_PlotResonances(double ma_max = 0.1, double ma_min = 0, double Ea 
     ax->SetCoherenceLength(Lcoh);
     ax->SetAxionEnergy(Ea);
 
-    vector<std::pair<Double_t, Double_t>> pair = ax->GetMassDensityScanning(gasName, ma_max, Ea, 3);
+    vector<std::pair<Double_t, Double_t>> pair = ax->GetMassDensityScanning(gasName, ma_max, 3);
     std::vector<double> m_a;
     std::vector<double> sum_prob;
 
