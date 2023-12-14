@@ -116,7 +116,7 @@ int REST_Axion_PlotResonances(double ma_max = 0.1, double ma_min = 0, double Ea 
     vac->Draw("SAME");
 
     // Plot of the vertical line
-    TLine* verticalLine = new TLine(pair[0].second, c1->GetUymin(), pair[0].second, ylim);
+    TLine* verticalLine = new TLine(pair[0].first, c1->GetUymin(), pair[0].first, ylim);
     verticalLine->SetLineColor(kGreen - 3);
     verticalLine->SetLineWidth(2);
     verticalLine->Draw("same");
