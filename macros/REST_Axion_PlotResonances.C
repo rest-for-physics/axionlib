@@ -25,7 +25,7 @@
 //***
 //*** --------------
 //*** Usage: restManager PlotResonances [ma_max=0.1] [ma_min=0] [Ea=4.2] [Bmag=2.5] [Lcoh=10000] [gasName=He]
-//[vacuum=true] [n_ma=7000]
+//*** [vacuum=true] [n_ma=10000]
 //***
 //*** Being all of them optional arguments.
 //*** --------------
