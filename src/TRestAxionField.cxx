@@ -479,10 +479,10 @@ std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanni
     std::vector<double> FWHM;
     std::vector<double> ma;
     TRestAxionField* ax = new TRestAxionField();
-    double start = ax->GammaTransmissionFWHM();
+    double firstMass = ax->GammaTransmissionFWHM();
     TRestAxionBufferGas* gas = new TRestAxionBufferGas();
     gas->SetGasDensity(gasName, 0);
-    massDensityPairs.push_back(std::make_pair(start, gas->GetDensityForMass(start)));
+    massDensityPairs.push_back(std::make_pair(firstMass, gas->GetDensityForMass(firstMass)));
     int i = 0;
     delete ax;
     delete gas;
