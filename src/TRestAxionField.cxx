@@ -483,41 +483,42 @@ Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
 ///
 /// For additional info see PR: https://github.com/rest-for-physics/axionlib/pull/78
 ///
-std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanning(std::string gasName, double maMax, double rampDown) {
+std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanning(std::string gasName,
+                                                                                   double maMax,
+                                                                                   double rampDown) {
     std::vector<std::pair<Double_t, Double_t>> massDensityPairs;
 
-	// Storing the gas pointer, if there was one
-	TRestAxionBufferGas *previousGas = nullptr;
-	if( fBufferGas )
-	{
-		previousGas = fBufferGas;
-		fBufferGas = nullptr;
-	}
+    // Storing the gas pointer, if there was one
+    TRestAxionBufferGas* previousGas = nullptr;
+    if (fBufferGas) {
+        previousGas = fBufferGas;
+        fBufferGas = nullptr;
+    }
 
-	// We are in vacuum now
-    double firstMass = GammaTransmissionFWHM()/2;
+    // We are in vacuum now
+    double firstMass = GammaTransmissionFWHM() / 2;
 
     TRestAxionBufferGas gas;
-	gas.SetGasDensity(gasName, 0);
-	AssignBufferGas(&gas); // We are in gas now
+    gas.SetGasDensity(gasName, 0);
+    AssignBufferGas(&gas);  // We are in gas now
 
-	Double_t ma = firstMass;
-	Double_t density = gas.GetDensityForMass(firstMass);
+    Double_t ma = firstMass;
+    Double_t density = gas.GetDensityForMass(firstMass);
 
-	/// Setting mass-density pair for the first step
-	massDensityPairs.push_back(std::make_pair(ma, density ) );
+    /// Setting mass-density pair for the first step
+    massDensityPairs.push_back(std::make_pair(ma, density));
 
-	while (ma < maMax)
-	{
-		Double_t factor = TMath::Exp( - ma*rampDown  ) + 1;
-		gas.SetGasDensity(gasName, density);
+    while (ma < maMax) {
+        Double_t factor = TMath::Exp(-ma * rampDown) + 1;
+        gas.SetGasDensity(gasName, density);
 
-		ma += GammaTransmissionFWHM()/factor; 
-		std::cout << "Mass : " << ma << " Factor : " << factor << " FWHM: " <<  GammaTransmissionFWHM()/factor << std::endl;
-		density = gas.GetDensityForMass(ma);
+        ma += GammaTransmissionFWHM() / factor;
+        std::cout << "Mass : " << ma << " Factor : " << factor
+                  << " FWHM: " << GammaTransmissionFWHM() / factor << std::endl;
+        density = gas.GetDensityForMass(ma);
 
-		massDensityPairs.push_back(std::make_pair(ma, density ));
-	}
+        massDensityPairs.push_back(std::make_pair(ma, density));
+    }
 
     // Recovering back the gas that was defined before calling this method
     fBufferGas = previousGas;
