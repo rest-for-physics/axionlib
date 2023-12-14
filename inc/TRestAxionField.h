@@ -80,8 +80,7 @@ class TRestAxionField : public TObject {
 
     Double_t GammaTransmissionFWHM(Double_t step = 0.00001);
 
-    std::vector<std::pair<Double_t, Double_t>> GetMassDensityScanning(std::string gasName = "He",
-                                                                      Double_t ma_max = 1, Double_t Ea = 4.2);
+    std::vector<std::pair<Double_t, Double_t>> GetMassDensityScanning(std::string gasName = "He", Double_t maMax = 1, Double_t scale = 1);
 
     TRestAxionField();
     ~TRestAxionField();
