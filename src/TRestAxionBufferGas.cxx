@@ -418,8 +418,8 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
 /// energy Ea (4.2 by default).
 ///
 /// This method is only valid for pure gases with only one gas component. Before calling the method
-/// one needs to define a gas with a single component, 
-/// e.g. using TRestAxionBufferGas::SetGasDensity( "He", 0 ) 
+/// one needs to define a gas with a single component,
+/// e.g. using TRestAxionBufferGas::SetGasDensity( "He", 0 )
 ///
 ///	The resulting density will be expressed in kg/mm^3, which are the standard REST Units.
 ///
