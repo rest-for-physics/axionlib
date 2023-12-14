@@ -439,12 +439,13 @@ Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
 	Double_t maxMass = 10; // 10eV is the maximum mass (exit condition)
 
 	Double_t resonanceMass = 0;
-	if( fBufferGas ) resonanceMass = fBufferGas->GetPhotonMass(fEa);
+	if( fBufferGas )
+		resonanceMass = fBufferGas->GetPhotonMass(fEa);
 
 	/// Scanning towards the right (valid also for vacuum)
 	Double_t scanMass = resonanceMass;
 	Double_t Pmax = GammaTransmissionProbability(resonanceMass);
-	while( Pmax/2 > GammaTransmissionProbability(scanMass)) 
+	while( Pmax/2 < GammaTransmissionProbability(scanMass)) 
 	{
 		scanMass += step;
 		if ( scanMass > maxMass ) 
