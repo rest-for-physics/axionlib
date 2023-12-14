@@ -35,7 +35,6 @@
 int REST_Axion_PlotResonances(double ma_max = 0.1, double ma_min = 0, double Ea = 4.2, double Bmag = 2.5,
                               double Lcoh = 10000, std::string gasName = "He", Bool_t vacuum = true,
                               int n_ma = 10000) {
-
     TRestAxionField* ax = new TRestAxionField();
     ax->SetMagneticField(Bmag);
     ax->SetCoherenceLength(Lcoh);
@@ -53,13 +52,12 @@ int REST_Axion_PlotResonances(double ma_max = 0.1, double ma_min = 0, double Ea 
     }
 
     TCanvas* c1 = new TCanvas("c1", "c1", 800, 600);
-	std::vector <TGraph *> grp;
+    std::vector<TGraph*> grp;
 
-	TRestAxionBufferGas* gas = new TRestAxionBufferGas();
+    TRestAxionBufferGas* gas = new TRestAxionBufferGas();
 
-	for( const auto &p : pair )
-	{
- //   for (size_t i = 0; i < pair.size(); i++) {
+    for (const auto& p : pair) {
+        //   for (size_t i = 0; i < pair.size(); i++) {
         // Creates the gas and the axion field
         gas->SetGasDensity(gasName, p.second);
         ax->AssignBufferGas(gas);
@@ -71,8 +69,8 @@ int REST_Axion_PlotResonances(double ma_max = 0.1, double ma_min = 0, double Ea 
             sum_prob[j] += prob[j];
         }
 
-         TGraph *gr = new TGraph(n_ma, &m_a[0], &prob[0]);
-		 grp.push_back(gr);
+        TGraph* gr = new TGraph(n_ma, &m_a[0], &prob[0]);
+        grp.push_back(gr);
     }
 
     // Computes the Vacuum probability
@@ -101,7 +99,7 @@ int REST_Axion_PlotResonances(double ma_max = 0.1, double ma_min = 0, double Ea 
     grp[0]->GetYaxis()->SetRangeUser(0, ylim);
     grp[0]->Draw("AL");
 
-	for( const auto g : grp ) {
+    for (const auto g : grp) {
         g->SetLineColor(kBlue - 3);
         g->Draw("SAME");
     }
@@ -133,7 +131,7 @@ int REST_Axion_PlotResonances(double ma_max = 0.1, double ma_min = 0, double Ea 
     legend->Draw("same");
     c1->Draw();
 
-	c1->Print("test.png");
+    c1->Print("test.png");
 
     return 0;
 }

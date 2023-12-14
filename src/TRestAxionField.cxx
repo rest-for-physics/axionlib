@@ -434,31 +434,30 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 /// probability reaches half of the maximum **vacuum** probability.
 ///
 Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
-	Double_t maxMass = 10;  // 10eV is the maximum mass (exit condition)
+    Double_t maxMass = 10;  // 10eV is the maximum mass (exit condition)
 
-	Double_t resonanceMass = 0;
-	if (fBufferGas) resonanceMass = fBufferGas->GetPhotonMass(fEa);
+    Double_t resonanceMass = 0;
+    if (fBufferGas) resonanceMass = fBufferGas->GetPhotonMass(fEa);
 
-	/// Scanning towards the right (valid also for vacuum)
-	Double_t scanMass = resonanceMass;
-	Double_t Pmax = GammaTransmissionProbability(resonanceMass);
-	while (Pmax / 2 < GammaTransmissionProbability(scanMass)) {
-		scanMass += step;
-		if (scanMass > maxMass) {
-			RESTError
-				<< "TRestAxionField::GammaTransmissionProbability. Something went wrong when calculating FWHM"
-				<< RESTendl;
-			return maxMass;
-		}
-	}
+    /// Scanning towards the right (valid also for vacuum)
+    Double_t scanMass = resonanceMass;
+    Double_t Pmax = GammaTransmissionProbability(resonanceMass);
+    while (Pmax / 2 < GammaTransmissionProbability(scanMass)) {
+        scanMass += step;
+        if (scanMass > maxMass) {
+            RESTError
+                << "TRestAxionField::GammaTransmissionProbability. Something went wrong when calculating FWHM"
+                << RESTendl;
+            return maxMass;
+        }
+    }
 
-	Double_t fwhm = scanMass - resonanceMass;
-	if( fwhm <= 0 )
-	{
-		RESTError << "TRestAxionField::GammaTransmissionProbability. Problem calculating FWHM!" << RESTendl;
-		fwhm = step;
-	}
-	return 2*fwhm;
+    Double_t fwhm = scanMass - resonanceMass;
+    if (fwhm <= 0) {
+        RESTError << "TRestAxionField::GammaTransmissionProbability. Problem calculating FWHM!" << RESTendl;
+        fwhm = step;
+    }
+    return 2 * fwhm;
 }
 
 ///////////////////////////////////////////////
@@ -478,82 +477,81 @@ Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
 ///
 /// For additional info see PR: https://github.com/rest-for-physics/axionlib/pull/78
 ///
-std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanning(std::string gasName, double maMax, double scale) {
+std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanning(std::string gasName,
+                                                                                   double maMax,
+                                                                                   double scale) {
     std::vector<std::pair<Double_t, Double_t>> massDensityPairs;
 
-    //std::vector<double> FWHM;
-    //std::vector<double> ma;
+    // std::vector<double> FWHM;
+    // std::vector<double> ma;
 
-	// Storing the gas pointer, if there was one
-	TRestAxionBufferGas *previousGas = nullptr;
-	if( fBufferGas )
-	{
-		previousGas = fBufferGas;
-		fBufferGas = nullptr;
-	}
+    // Storing the gas pointer, if there was one
+    TRestAxionBufferGas* previousGas = nullptr;
+    if (fBufferGas) {
+        previousGas = fBufferGas;
+        fBufferGas = nullptr;
+    }
 
-	// We are in vacuum now
+    // We are in vacuum now
     double firstMass = GammaTransmissionFWHM();
 
     TRestAxionBufferGas gas;
-	// We are in gas now
-	AssignBufferGas(&gas);
+    // We are in gas now
+    AssignBufferGas(&gas);
 
-	Double_t ma = firstMass;
-	Double_t density = gas.GetDensityForMass(firstMass);
+    Double_t ma = firstMass;
+    Double_t density = gas.GetDensityForMass(firstMass);
 
-	/// Setting mass-density pair for the first step
-	massDensityPairs.push_back(std::make_pair(ma, density ) );
+    /// Setting mass-density pair for the first step
+    massDensityPairs.push_back(std::make_pair(ma, density));
 
-	while (ma < maMax)
-	{
-		Double_t factor = (scale-1) * TMath::Exp( - 5 * ma/maMax  ) + 1;
-		gas.SetGasDensity(gasName, density);
+    while (ma < maMax) {
+        Double_t factor = (scale - 1) * TMath::Exp(-5 * ma / maMax) + 1;
+        gas.SetGasDensity(gasName, density);
 
-		ma += GammaTransmissionFWHM()/factor; 
-		density = gas.GetDensityForMass(ma);
+        ma += GammaTransmissionFWHM() / factor;
+        density = gas.GetDensityForMass(ma);
 
-		massDensityPairs.push_back(std::make_pair(ma, density ));
-	}
+        massDensityPairs.push_back(std::make_pair(ma, density));
+    }
 
-		/*
-        ma.push_back(gas->GetPhotonMass(Ea));
-        FWHM.push_back(ax->GammaTransmissionFWHM());
-        cout << "FWHM " << i << " : " << FWHM[i] << endl;
-        if (i != 0 && FWHM[i - 1] > 2 * FWHM[i]) {
-            delete gas;
-            delete ax;
-            RESTWarning << "FWHM[" << (i - 1) << "] bigger than 2*FWHM[" << (i) << "], redefining it to FWHM["
-                        << (i - 1) << "]/2" << RESTendl;
-            FWHM[i - 1] = FWHM[i - 1] / 2;
-            Double_t newPhotonMass = ma[i - 1] + FWHM[i - 1];
-            TRestAxionBufferGas* gas2 = new TRestAxionBufferGas();
-            gas2->SetGasDensity(gasName, massDensityPairs[i - 1].second);
-            Double_t newDensity = gas2->GetDensityForMass(newPhotonMass);
-            massDensityPairs[i] = std::make_pair(newPhotonMass, newDensity);
-            delete gas2;
-            TRestAxionBufferGas* gas = new TRestAxionBufferGas();
-            gas->SetGasDensity(gasName, newDensity);
-            TRestAxionField* ax = new TRestAxionField();
-            ax->AssignBufferGas(gas);
-            ma[i] = gas->GetPhotonMass(Ea);
-            FWHM[i] = ax->GammaTransmissionFWHM();
-            newPhotonMass = ma[i] + FWHM[i];
-            massDensityPairs.push_back(std::make_pair(newPhotonMass, gas->GetDensityForMass(newPhotonMass)));
-            i++;
-            continue;
-        }
-        Double_t newPhotonMass = ma[i] + FWHM[i];
-        massDensityPairs.push_back(std::make_pair(newPhotonMass, gas->GetDensityForMass(newPhotonMass)));
-        i++;
-        delete gas;
-        delete ax;
-    } while (massDensityPairs[i].first < ma_max);
-	*/
+    /*
+ma.push_back(gas->GetPhotonMass(Ea));
+FWHM.push_back(ax->GammaTransmissionFWHM());
+cout << "FWHM " << i << " : " << FWHM[i] << endl;
+if (i != 0 && FWHM[i - 1] > 2 * FWHM[i]) {
+delete gas;
+delete ax;
+RESTWarning << "FWHM[" << (i - 1) << "] bigger than 2*FWHM[" << (i) << "], redefining it to FWHM["
+            << (i - 1) << "]/2" << RESTendl;
+FWHM[i - 1] = FWHM[i - 1] / 2;
+Double_t newPhotonMass = ma[i - 1] + FWHM[i - 1];
+TRestAxionBufferGas* gas2 = new TRestAxionBufferGas();
+gas2->SetGasDensity(gasName, massDensityPairs[i - 1].second);
+Double_t newDensity = gas2->GetDensityForMass(newPhotonMass);
+massDensityPairs[i] = std::make_pair(newPhotonMass, newDensity);
+delete gas2;
+TRestAxionBufferGas* gas = new TRestAxionBufferGas();
+gas->SetGasDensity(gasName, newDensity);
+TRestAxionField* ax = new TRestAxionField();
+ax->AssignBufferGas(gas);
+ma[i] = gas->GetPhotonMass(Ea);
+FWHM[i] = ax->GammaTransmissionFWHM();
+newPhotonMass = ma[i] + FWHM[i];
+massDensityPairs.push_back(std::make_pair(newPhotonMass, gas->GetDensityForMass(newPhotonMass)));
+i++;
+continue;
+}
+Double_t newPhotonMass = ma[i] + FWHM[i];
+massDensityPairs.push_back(std::make_pair(newPhotonMass, gas->GetDensityForMass(newPhotonMass)));
+i++;
+delete gas;
+delete ax;
+} while (massDensityPairs[i].first < ma_max);
+*/
 
-	// Recovering back the gas that was defined before calling this method
-	fBufferGas = previousGas;
-
+    // Recovering back the gas that was defined before calling this method
+    fBufferGas = previousGas;
 
     return massDensityPairs;
 }
