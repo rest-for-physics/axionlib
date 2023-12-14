@@ -75,7 +75,7 @@ class TRestAxionBufferGas : public TRestMetadata {
 
     Double_t GetPhotonMass(double en);
 
-    Double_t GetDensityForMass(double m_gamma);
+    Double_t GetDensityForMass(double m_gamma, double en = 4.2);
 
     void PrintAbsorptionGasData(TString gasName);
     void PrintFormFactorGasData(TString gasName);

@@ -502,7 +502,7 @@ std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanni
     AssignBufferGas(&gas);  // We are in gas now
 
     Double_t ma = firstMass;
-    Double_t density = gas.GetDensityForMass(firstMass);
+    Double_t density = gas.GetDensityForMass(firstMass, fEa);
 
     /// Setting mass-density pair for the first step
     massDensityPairs.push_back(std::make_pair(ma, density));
