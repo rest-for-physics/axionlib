@@ -35,9 +35,13 @@
 int REST_Axion_PlotResonances(double ma_max = 0.1, double ma_min = 0, double Ea = 4.2, double Bmag = 2.5,
                               double Lcoh = 10000, std::string gasName = "He", Bool_t vacuum = true,
                               int n_ma = 10000) {
-    TRestAxionField* ax = new TRestAxionField();
 
-    vector<std::pair<Double_t, Double_t>> pair = ax->GetMassDensityScanning(gasName, ma_max, Ea);
+    TRestAxionField* ax = new TRestAxionField();
+    ax->SetMagneticField(Bmag);
+    ax->SetCoherenceLength(Lcoh);
+    ax->SetAxionEnergy(Ea);
+
+    vector<std::pair<Double_t, Double_t>> pair = ax->GetMassDensityScanning(gasName, ma_max, Ea, 3);
     std::vector<double> m_a;
     std::vector<double> sum_prob;
 
@@ -49,37 +53,33 @@ int REST_Axion_PlotResonances(double ma_max = 0.1, double ma_min = 0, double Ea 
     }
 
     TCanvas* c1 = new TCanvas("c1", "c1", 800, 600);
-    TGraph* grp[pair.size()];
+	std::vector <TGraph *> grp;
 
-    for (size_t i = 0; i < pair.size(); i++) {
+	TRestAxionBufferGas* gas = new TRestAxionBufferGas();
+
+	for( const auto &p : pair )
+	{
+ //   for (size_t i = 0; i < pair.size(); i++) {
         // Creates the gas and the axion field
-        TRestAxionBufferGas* gas = new TRestAxionBufferGas();
-        gas->SetGasDensity(gasName, pair[i].second);
-        TRestAxionField* ax = new TRestAxionField();
+        gas->SetGasDensity(gasName, p.second);
         ax->AssignBufferGas(gas);
-        double photonMass = gas->GetPhotonMass(Ea);
-
-        // Obatain the maximum probability for the axion mass
-        double max_prob = ax->GammaTransmissionProbability(2.5, 10000, Ea, photonMass);
 
         // Obtain the probability for each axion mass
         std::vector<double> prob;
         for (int j = 0; j < n_ma; j++) {
-            prob.push_back(ax->GammaTransmissionProbability(2.5, 10000, Ea, m_a[j]));
+            prob.push_back(ax->GammaTransmissionProbability(m_a[j]));
             sum_prob[j] += prob[j];
         }
 
-        grp[i] = new TGraph(n_ma, &m_a[0], &prob[0]);
-
-        delete ax;
-        delete gas;
+         TGraph *gr = new TGraph(n_ma, &m_a[0], &prob[0]);
+		 grp.push_back(gr);
     }
 
     // Computes the Vacuum probability
     TRestAxionField* ax_vac = new TRestAxionField();
     std ::vector<double> prob_vac;
     for (int j = 0; j < n_ma; j++) {
-        prob_vac.push_back(ax_vac->GammaTransmissionProbability(2.5, 10000, Ea, m_a[j]));
+        prob_vac.push_back(ax_vac->GammaTransmissionProbability(m_a[j]));
     }
 
     // Computes the sum of all the probabilities
@@ -100,9 +100,10 @@ int REST_Axion_PlotResonances(double ma_max = 0.1, double ma_min = 0, double Ea 
     double ylim = 3.5e-18;
     grp[0]->GetYaxis()->SetRangeUser(0, ylim);
     grp[0]->Draw("AL");
-    for (size_t i = 0; i < pair.size(); i++) {
-        grp[i]->SetLineColor(kBlue - 3);
-        grp[i]->Draw("SAME");
+
+	for( const auto g : grp ) {
+        g->SetLineColor(kBlue - 3);
+        g->Draw("SAME");
     }
 
     // PLot of the sum of all the probabilities
@@ -131,6 +132,8 @@ int REST_Axion_PlotResonances(double ma_max = 0.1, double ma_min = 0, double Ea 
     legend->AddEntry(verticalLine, "m_{a} where P_{ag}^{vac} = max(P_{ag}^{vac}/2) ", "l");
     legend->Draw("same");
     c1->Draw();
+
+	c1->Print("test.png");
 
     return 0;
 }
