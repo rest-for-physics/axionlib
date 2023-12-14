@@ -387,6 +387,10 @@ Double_t TRestAxionBufferGas::cmToeV(double l_Inv)  // E in keV, P in bar ---> G
 ///
 Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
     Double_t photonMass = 0;
+
+	if( fBufferGasName.empty() )
+		RESTError << "TRestAxionBufferGas::GetDensityForMass gas has not been defined!" << RESTendl;
+
     for (unsigned int n = 0; n < fBufferGasName.size(); n++) {
         Double_t W_value = 0;
         if (fBufferGasName[n] == "H") W_value = 1.00794;   // g/mol
@@ -417,6 +421,13 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
 ///
 Double_t TRestAxionBufferGas::GetDensityForMass(double m_gamma) {
     Double_t massDensity = 0;
+
+	if( fBufferGasName.empty() )
+		RESTError << "TRestAxionBufferGas::GetDensityForMass gas has not been defined!" << RESTendl;
+
+	if( fBufferGasName.size() > 1 )
+		RESTError << "TRestAxionBufferGas::GetDensityForMass gas this method is only for sinale gas mixtures!" << RESTendl;
+
     for (unsigned int n = 0; n < fBufferGasName.size(); n++) {
         Double_t W_value = 0;
         Double_t Z_value = 0;
@@ -445,6 +456,7 @@ Double_t TRestAxionBufferGas::GetDensityForMass(double m_gamma) {
             massDensity += pow(m_gamma, 2) * W_value / (Z_value * pow(28.77, 2));
         }
     }
+
     return massDensity / units("g/cm^3");
 }
 
