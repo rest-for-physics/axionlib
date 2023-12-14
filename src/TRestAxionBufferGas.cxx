@@ -414,8 +414,8 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
 }
 
 ////////////////////////////////////////////
-/// \brief It returns the equivalent gas density for a given photon mass expressed in eV and a given axion energy Ea (4.2 by default).
-/// You have to define previously the gas type.
+/// \brief It returns the equivalent gas density for a given photon mass expressed in eV and a given axion
+/// energy Ea (4.2 by default). You have to define previously the gas type.
 ///
 ///	The resulting density will be expressed in kg/mm^3, which are the standard REST Units.
 ///
@@ -438,12 +438,12 @@ Double_t TRestAxionBufferGas::GetDensityForMass(double m_gamma, double en) {
 
     if (W_value == 0) {
         RESTError << "Gas name : " << fBufferGasName[0] << " is not implemented in TRestAxionBufferGas!!"
-                    << RESTendl;
+                  << RESTendl;
         RESTError << "W value must be defined in TRestAxionBufferGas::GetDensityForMass" << RESTendl;
         RESTError << "This gas will not contribute to the calculation of the photon mass!" << RESTendl;
 
     } else {
-            massDensity += pow(m_gamma, 2) * W_value / (GetFormFactor(fBufferGasName[0], en) * pow(28.77, 2));
+        massDensity += pow(m_gamma, 2) * W_value / (GetFormFactor(fBufferGasName[0], en) * pow(28.77, 2));
     }
 
     return massDensity / units("g/cm^3");
