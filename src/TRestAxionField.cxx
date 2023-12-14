@@ -470,12 +470,11 @@ Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
 /// `FWHM/factor`, where the factor is a value that moves from 2 to 1 as the mass increases, and it falls down
 /// with a velocity related with the argument `rampDown`, where the factor follows this formula:
 ///
-///	factor = TMath::Exp( - ma*rampDown/maMax  ) + 1;
+///	factor = TMath::Exp( - ma*rampDown  ) + 1;
 ///
-/// The method stops when the axion mass is bigger than the maximum axion mass given as an argument, `ma_max`.
+/// The method stops when the axion mass is bigger than the maximum axion mass given as an argument, `maMax`.
 ///
 /// Default arguments: gasName="He", ma_max=0.15 eV, rampDown=5
-///
 ///
 /// \return It returns a vector of pair with the values for the scan, the first one is the axion mass and the
 /// second one is the density.
@@ -512,8 +511,6 @@ std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanni
         gas.SetGasDensity(gasName, density);
 
         ma += GammaTransmissionFWHM() / factor;
-        std::cout << "Mass : " << ma << " Factor : " << factor
-                  << " FWHM: " << GammaTransmissionFWHM() / factor << std::endl;
         density = gas.GetDensityForMass(ma);
 
         massDensityPairs.push_back(std::make_pair(ma, density));
@@ -524,70 +521,3 @@ std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanni
 
     return massDensityPairs;
 }
-/// Commented because it uses ComplexReal structure that is moved to TRestAxionFieldPropagationProcess class
-/*
-void TRestAxionField::PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
-                                                Double_t mg, Double_t absLength) {
-    mpfr::mpreal axionMass = ma;
-    mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
-
-    mpfr::mpreal photonMass = mg;
-    if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
-
-    if (fDebug) {
-        RESTDebug << "+--------------------------------------------------------------------------+" <<
-RESTendl; RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" <<
-RESTendl; RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl; RESTDebug << " Axion mass : " <<
-ma << " eV" << RESTendl; RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl; RESTDebug << " Lcoh : "
-<< Lcoh << " mm" << RESTendl; RESTDebug << " Bmag : " << Bmag << " T" << RESTendl; RESTDebug <<
-"+--------------------------------------------------------------------------+" << RESTendl;
-    }
-
-    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
-    mpfr::mpreal l = cohLength * PhMeterIneV;
-    mpfr::mpreal phi = q * l;
-
-    mpfr::mpreal Gamma = absLength;
-    if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
-    mpfr::mpreal GammaL = Gamma * cohLength * 100;
-
-    if (fDebug) {
-        RESTDebug << "+------------------------+" << RESTendl;
-        RESTDebug << " Intermediate calculations" << RESTendl;
-        RESTDebug << " q : " << q << " eV" << RESTendl;
-        RESTDebug << " l : " << l << " eV-1" << RESTendl;
-        RESTDebug << " phi : " << phi << RESTendl;
-        RESTDebug << "Gamma : " << Gamma << RESTendl;
-        RESTDebug << "GammaL : " << GammaL << RESTendl;
-        RESTDebug << "+------------------------+" << RESTendl;
-    }
-
-    mpfr::mpreal bl = BL(Bmag, Lcoh);
-
-    /// We have now calculated the main quantities BL, QL, and GammaL
-
-    ComplexReal I = SetComplexReal(0, 1);
-    ComplexReal ExpPhi = SetComplexReal(cos(-phi), sin(-phi));
-
-    ComplexReal Bcomplex = SetComplexReal(BL(Bmag, Lcoh), 0);
-    ComplexReal Qcomplex = SetComplexReal(phi, -GammaL / 2);
-
-    ComplexReal Bterm = ComplexCocient(Bcomplex, Qcomplex);
-    Bterm = ComplexProduct(I, Bterm);
-
-    mpfr::mpreal ExpGamma = exp(-GammaL / 2.);
-    Double_t ExpGammaDouble = TMath::Exp((Double_t)-GammaL / 2.);
-
-    cout.precision(30);
-
-    if (fDebug) {
-        cout << "ExpGamma : " << ExpGamma << RESTendl;
-        cout << "ExpGammaDouble : " << ExpGammaDouble << RESTendl;
-        RESTDebug << "(BL/2)^2 : " << BLHalfSquared(Bmag, Lcoh) << RESTendl;
-        RESTDebug << "cos(phi) : " << cos(phi) << RESTendl;
-        RESTDebug << "Exp(-GammaL) : " << exp(-GammaL) << RESTendl;
-    }
-
-    // if (fDebug) RESTDebug << "Axion-photon absorption probability : " << sol << RESTendl;
-}
-*/
