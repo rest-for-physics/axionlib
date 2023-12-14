@@ -452,7 +452,7 @@ Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
         }
     }
 
-    return scanMass;
+    return scanMass-resonanceMass;
 }
 
 ///////////////////////////////////////////////
