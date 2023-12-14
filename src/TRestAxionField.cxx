@@ -456,7 +456,9 @@ Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
     if (fwhm <= 0) {
         RESTError << "TRestAxionField::GammaTransmissionProbability. Problem calculating FWHM!" << RESTendl;
         fwhm = step;
+        
     }
+    if (resonanceMass == 0) return scanMass;
     return 2 * fwhm;
 }
 
