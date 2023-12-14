@@ -482,7 +482,7 @@ std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanni
     double start = ax->GammaTransmissionFWHM();
     TRestAxionBufferGas* gas = new TRestAxionBufferGas();
     gas->SetGasDensity(gasName, 0);
-    massDensityPairs.push_back(std::make_pair(start, gas->GetMassDensity(start)));
+    massDensityPairs.push_back(std::make_pair(start, gas->GetDensityForMass(start)));
     int i = 0;
     delete ax;
     delete gas;
@@ -503,7 +503,7 @@ std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanni
             Double_t newPhotonMass = ma[i - 1] + FWHM[i - 1];
             TRestAxionBufferGas* gas2 = new TRestAxionBufferGas();
             gas2->SetGasDensity(gasName, massDensityPairs[i - 1].second);
-            Double_t newDensity = gas2->GetMassDensity(newPhotonMass);
+            Double_t newDensity = gas2->GetDensityForMass(newPhotonMass);
             massDensityPairs[i] = std::make_pair(newPhotonMass, newDensity);
             delete gas2;
             TRestAxionBufferGas* gas = new TRestAxionBufferGas();
@@ -513,12 +513,12 @@ std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanni
             ma[i] = gas->GetPhotonMass(Ea);
             FWHM[i] = ax->GammaTransmissionFWHM();
             newPhotonMass = ma[i] + FWHM[i];
-            massDensityPairs.push_back(std::make_pair(newPhotonMass, gas->GetMassDensity(newPhotonMass)));
+            massDensityPairs.push_back(std::make_pair(newPhotonMass, gas->GetDensityForMass(newPhotonMass)));
             i++;
             continue;
         }
         Double_t newPhotonMass = ma[i] + FWHM[i];
-        massDensityPairs.push_back(std::make_pair(newPhotonMass, gas->GetMassDensity(newPhotonMass)));
+        massDensityPairs.push_back(std::make_pair(newPhotonMass, gas->GetDensityForMass(newPhotonMass)));
         i++;
         delete gas;
         delete ax;
