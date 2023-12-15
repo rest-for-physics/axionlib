@@ -174,6 +174,11 @@ void TRestAxionWolterOptics::Initialize() {
     fAlpha = GetAlpha();
     fThickness = GetThickness();
 
+    fXSep.clear();
+    for (unsigned int n = 0; n < fAlpha.size(); n++)
+        fXSep.push_back(2 * (fR1[n] - fR3[n] - fMirrorLength * TMath::Sin(fAlpha[n])) /
+                        TMath::Tan(fAlpha[n]));
+
     if (fAlpha.size() == 0) return;
 
     fCosAlpha.clear();
@@ -278,7 +283,8 @@ Int_t TRestAxionWolterOptics::FirstMirrorReflection(const TVector3& pos, const T
     fFirstInteractionPosition =
         pos + dir * REST_Physics::GetConeVectorIntersection(pos, dir, TVector3(0, 0, -1), vertex, cosA);
 
-    if (fFirstInteractionPosition.Z() < GetEntrancePositionZ() || fFirstInteractionPosition.Z() > 0) {
+    if (fFirstInteractionPosition.Z() < GetEntrancePositionZ() ||
+        fFirstInteractionPosition.Z() > -(0.5 * fXSep[mirror])) {
         RESTDebug << "TRestAxionWolterOptics::FirstMirrorReflection. No interaction!" << RESTendl;
         fFirstInteractionPosition = REST_Physics::MoveByDistance(pos, dir, fMirrorLength / 2.);
         fMiddleDirection = fEntranceDirection;
@@ -323,7 +329,8 @@ Int_t TRestAxionWolterOptics::SecondMirrorReflection(const TVector3& pos, const 
     fSecondInteractionPosition =
         pos + dir * REST_Physics::GetConeVectorIntersection(pos, dir, TVector3(0, 0, -1), vertex, cosA);
 
-    if (fSecondInteractionPosition.Z() > GetExitPositionZ() || fSecondInteractionPosition.Z() < 0) {
+    if (fSecondInteractionPosition.Z() > GetExitPositionZ() ||
+        fSecondInteractionPosition.Z() < (0.5 * fXSep[mirror])) {
         RESTDebug << "TRestAxionWolterOptics::SecondMirrorReflection. No interaction!" << RESTendl;
         fSecondInteractionPosition = REST_Physics::MoveByDistance(pos, dir, fMirrorLength / 2.);
         fExitDirection = fMiddleDirection;

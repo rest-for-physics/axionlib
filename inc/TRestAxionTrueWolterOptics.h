@@ -47,6 +47,9 @@ class TRestAxionTrueWolterOptics : public TRestAxionOptics {
     /// Mirror thickness in mm. See schematic figure.
     std::vector<Double_t> fThickness;  //!
 
+    /// Distance between mirror stacks in mm. See schematic figure.
+    std::vector<Double_t> fXSep;  //!
+
     /// The spider structure to be used as an optical opaque mask (common to all planes)
     TRestSpiderMask* fSpiderMask = nullptr;  //<
 
@@ -110,13 +113,13 @@ class TRestAxionTrueWolterOptics : public TRestAxionOptics {
 
     /// It returns the entrance Z-position defined by the optical axis.
     Double_t GetEntrancePositionZ() override {
-        if (fCosAlpha.size() > 0) return -fMirrorLength * fCosAlpha[0];
+        if (fCosAlpha.size() > 0) return -fMirrorLength * fCosAlpha[0] - 0.5 * fXSep[0];
         return 0;
     }
 
     /// It returns the exit Z-position defined by the optical axis
     Double_t GetExitPositionZ() override {
-        if (fCosAlpha_3.size() > 0) return fMirrorLength * fCosAlpha_3[0];
+        if (fCosAlpha_3.size() > 0) return fMirrorLength * fCosAlpha_3[0] + 0.5 * fXSep[0];
         return 0;
     }
 
