@@ -130,7 +130,7 @@ int REST_Axion_PlotResonances(double ma_max = 0.1, double ma_min = 0, double Ea 
     legend->Draw("same");
     c1->Draw();
 
-    c1->Print("test.png");
+    c1->Print("/tmp/resonances.png");
 
     return 0;
 }
