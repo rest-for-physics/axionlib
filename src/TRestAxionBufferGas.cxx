@@ -38,7 +38,7 @@
 /// \code
 /// TRestAxionBufferGas *gas = new TRestAxionBufferGas();
 ///
-/// //Density units must be expressed here in g/cm3
+/// //Density units must be expressed here in the default REST units, `kg/mm3`.
 /// gas->SetGasDensity( "He", 2.6e-9 );
 /// gas->SetGasDensity( "Xe", 5.6e-9 );
 /// \endcode
@@ -48,7 +48,7 @@
 /// \code
 /// TRestAxionBufferGas *gas = new TRestAxionBufferGas();
 ///
-/// gas->SetGasMixture( "He+Xe", "2.6e-6g/dm3+5.6mg/m3" );
+/// gas->SetGasMixture( "He+Xe", "2.6e-6g/dm^3+5.6mg/m^3" );
 /// \endcode
 ///
 /// The corresponding RML section for initialization through a configuration
@@ -57,7 +57,7 @@
 /// \code
 ///	<TRestAxionBufferGas name="heliumAndXenon" verboseLevel="warning" >
 ///		<gas name="He" density="2.6e-9"/>
-///		<gas name="Xe" density="5.6mg/cm3"/>
+///		<gas name="Xe" density="5.6mg/cm^3"/>
 ///	</TRestAxionBufferGas>
 /// \endcode
 ///
@@ -174,16 +174,27 @@ void TRestAxionBufferGas::SetGasDensity(TString gasName, Double_t density) {
 ///
 /// Example : SetGasMixture("Ne+Xe", "2e-3g/cm3+3mg/cm3" );
 ///
+/// If the second argument with densities is not given, the buffer gas will
+/// add the gas components with zero density.
+///
 void TRestAxionBufferGas::SetGasMixture(TString gasMixture, TString gasDensities) {
     Initialize();
 
     std::vector<string> names = Split((string)gasMixture, "+");
-    std::vector<string> densities = Split((string)gasDensities, "+");
+    std::vector<string> densities;
+    if (gasDensities == "0")
+        densities.clear();
+    else
+        densities = Split((string)gasDensities, "+");
 
-    if (names.size() == densities.size()) {
+    if (!densities.empty() && names.size() == densities.size()) {
         for (unsigned int n = 0; n < names.size(); n++) {
             Double_t density = GetValueInRESTUnits(densities[n]);
             SetGasDensity(names[n], density);
+        }
+    } else if (densities.empty()) {
+        for (unsigned int n = 0; n < names.size(); n++) {
+            SetGasDensity(names[n], 0);
         }
     } else {
         this->SetError("SetGasMixture. Number of gases does not match the densities!");
@@ -376,6 +387,10 @@ Double_t TRestAxionBufferGas::cmToeV(double l_Inv)  // E in keV, P in bar ---> G
 ///
 Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
     Double_t photonMass = 0;
+
+    if (fBufferGasName.empty())
+        RESTError << "TRestAxionBufferGas::GetDensityForMass gas has not been defined!" << RESTendl;
+
     for (unsigned int n = 0; n < fBufferGasName.size(); n++) {
         Double_t W_value = 0;
         if (fBufferGasName[n] == "H") W_value = 1.00794;   // g/mol
@@ -396,6 +411,46 @@ Double_t TRestAxionBufferGas::GetPhotonMass(double en) {
     }
 
     return 28.77 * TMath::Sqrt(photonMass);
+}
+
+////////////////////////////////////////////
+/// \brief It returns the equivalent gas density for a given photon mass expressed in eV and a given axion
+/// energy Ea (4.2 by default).
+///
+/// This method is only valid for pure gases with only one gas component. Before calling the method
+/// one needs to define a gas with a single component,
+/// e.g. using TRestAxionBufferGas::SetGasDensity( "He", 0 )
+///
+///	The resulting density will be expressed in kg/mm^3, which are the standard REST Units.
+///
+Double_t TRestAxionBufferGas::GetDensityForMass(double m_gamma, double en) {
+    Double_t massDensity = 0;
+
+    if (fBufferGasName.empty())
+        RESTError << "TRestAxionBufferGas::GetDensityForMass gas has not been defined!" << RESTendl;
+
+    if (fBufferGasName.size() > 1)
+        RESTError << "TRestAxionBufferGas::GetDensityForMass gas this method is only for sinale gas mixtures!"
+                  << RESTendl;
+
+    Double_t W_value = 0;
+    if (fBufferGasName[0] == "H") W_value = 1.00794;   // g/mol
+    if (fBufferGasName[0] == "He") W_value = 4.002;    // g/mol
+    if (fBufferGasName[0] == "Ne") W_value = 20.179;   // g/mol
+    if (fBufferGasName[0] == "Ar") W_value = 39.948;   // g/mol
+    if (fBufferGasName[0] == "Xe") W_value = 131.293;  // g/mol
+
+    if (W_value == 0) {
+        RESTError << "Gas name : " << fBufferGasName[0] << " is not implemented in TRestAxionBufferGas!!"
+                  << RESTendl;
+        RESTError << "W value must be defined in TRestAxionBufferGas::GetDensityForMass" << RESTendl;
+        RESTError << "This gas will not contribute to the calculation of the photon mass!" << RESTendl;
+
+    } else {
+        massDensity += pow(m_gamma, 2) * W_value / (GetFormFactor(fBufferGasName[0], en) * pow(28.77, 2));
+    }
+
+    return massDensity / units("g/cm^3");
 }
 
 ///////////////////////////////////////////////
