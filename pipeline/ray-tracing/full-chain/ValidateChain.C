@@ -51,7 +51,7 @@ Int_t ValidateChain(std::string fname) {
         return 3;
     }
 
-    if (integral2 < 0.125 || integral2 > 0.135) {
+    if (integral2 < 0.145 || integral2 > 0.155) {
         std::cout << "Average window transmission is not within the expected range!" << std::endl;
         return 5;
     }

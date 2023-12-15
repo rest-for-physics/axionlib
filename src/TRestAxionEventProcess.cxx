@@ -71,8 +71,8 @@ void TRestAxionEventProcess::BeginOfEventProcess(TRestEvent* inEv) {
     RESTDebug << "BoEP: Initial Direction. X: " << fAxionEvent->GetDirection().X()
               << " Y: " << fAxionEvent->GetDirection().Y() << " Z: " << fAxionEvent->GetDirection().Z()
               << RESTendl;
-    fAxionEvent->RotateYX(fPosition, -fInternalYaw, -fInternalPitch);
-    fAxionEvent->RotateYX(fExternalRotationCenter, -fExternalYaw, -fExternalPitch);
+    fAxionEvent->RotateYX(fPosition, fInternalYaw, fInternalPitch);
+    fAxionEvent->RotateYX(fExternalRotationCenter, fExternalYaw, fExternalPitch);
     fAxionEvent->Translate(TVector3(-fPosition.X(), -fPosition.Y(), -fPosition.Z()));
     RESTDebug << " ---- " << RESTendl;
     RESTDebug << "BoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
@@ -100,8 +100,8 @@ void TRestAxionEventProcess::EndOfEventProcess(TRestEvent* evInput) {
     RESTDebug << " ---- " << RESTendl;
     fAxionEvent->Translate(TVector3(fPosition.X(), fPosition.Y(), fPosition.Z()));
     if (fLocalAxis) {
-        fAxionEvent->RotateXY(fExternalRotationCenter, fExternalPitch, fExternalYaw);
-        fAxionEvent->RotateXY(fPosition, fInternalPitch, fInternalYaw);
+        fAxionEvent->RotateXY(fExternalRotationCenter, -fExternalPitch, -fExternalYaw);
+        fAxionEvent->RotateXY(fPosition, -fInternalPitch, -fInternalYaw);
     }
     RESTDebug << "EoEP: Final Position. X: " << fAxionEvent->GetPosition().X()
               << " Y: " << fAxionEvent->GetPosition().Y() << " Z: " << fAxionEvent->GetPosition().Z()
