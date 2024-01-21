@@ -171,7 +171,7 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
     }
 
     if (!fAxionField) {
-        fAxionField = new TRestAxionField();
+        fAxionField = new TRestAxionQCDField();
 
         fBufferGas = (TRestAxionBufferGas*)this->GetMetadata("TRestAxionBufferGas");
         if (fBufferGas)

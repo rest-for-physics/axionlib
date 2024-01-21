@@ -24,8 +24,8 @@
 #define _TRestAxionSolarFlux
 
 #include <TCanvas.h>
-#include <TH1F.h>
-#include <TH2F.h>
+#include <TH1D.h>
+#include <TH2D.h>
 #include <TRandom3.h>
 #include <TRestMetadata.h>
 
@@ -37,6 +37,9 @@ class TRestAxionSolarFlux : public TRestMetadata {
 
     /// Axion coupling strength
     Double_t fCouplingStrength = 0;  //<
+
+    /// Mass parameter
+    Double_t fMass = 0;  //!
 
     /// Seed used in random generator
     Int_t fSeed = 0;  //<
@@ -61,18 +64,26 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// It is required in order to load solar flux tables into memory
     void Initialize();
 
+    /// It is required in order to load solar flux tables into memory for specific mass
+    void InitializeMass(Double_t mass) {
+        SetMass(mass);
+        Initialize();
+    }
+
+    /// Set mass and reinitialise
+    void SetMass(Double_t m) { fMass = m; }  // Initialize(); }
+
     /// It returns the integrated flux at earth in cm-2 s-1 for the given energy range
-    virtual Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1), Double_t mass = 0) = 0;
+    virtual Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1)) = 0;
 
     /// It returns the total integrated flux at earth in cm-2 s-1
-    virtual Double_t GetTotalFlux(Double_t mass = 0) = 0;
+    virtual Double_t GetTotalFlux() = 0;
 
     /// It defines how to generate Monte Carlo energy and radius values to reproduce the flux
-    virtual std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1),
-                                                                   Double_t mass = 0) = 0;
+    virtual std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1)) = 0;
 
     /// It returns an energy integrated spectrum in cm-2 s-1 keV-1
-    virtual TH1F* GetEnergySpectrum(Double_t m = 0) = 0;
+    virtual TH1D* GetEnergySpectrum() = 0;
 
     virtual TCanvas* DrawSolarFlux();
 
@@ -83,7 +94,9 @@ class TRestAxionSolarFlux : public TRestMetadata {
 
     Bool_t AreTablesLoaded() { return fTablesLoaded; }
 
-    TH1F* GetFluxHistogram(std::string fname, Double_t binSize = 0.01);
+    Double_t GetMass() { return fMass; }
+
+    TH1D* GetFluxHistogram(std::string fname, Double_t binSize = 0.01);
     TCanvas* DrawFluxFile(std::string fname, Double_t binSize = 0.01);
 
     void PrintMetadata();

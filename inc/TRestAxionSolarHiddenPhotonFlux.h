@@ -20,53 +20,50 @@
  * For the list of contributors see $REST_PATH/CREDITS.                  *
  *************************************************************************/
 
-#ifndef _TRestAxionSolarQCDFlux
-#define _TRestAxionSolarQCDFlux
+#ifndef _TRestAxionSolarHiddenPhotonFlux
+#define _TRestAxionSolarHiddenPhotonFlux
 
 #include <TRestAxionSolarFlux.h>
 #include <TRestAxionSolarModel.h>
 
-//! A metadata class to load tabulated solar axion fluxes. Mass independent.
-class TRestAxionSolarQCDFlux : public TRestAxionSolarFlux {
+//! A metadata class to load tabulated solar hidden photon fluxes. Kinetic mixing set to 1.
+class TRestAxionSolarHiddenPhotonFlux : public TRestAxionSolarFlux {
    private:
-    /// The filename containning the solar flux table with continuum spectrum
+    /// The filename containing the solar flux table with continuum spectrum
     std::string fFluxDataFile = "";  //<
 
-    /// The filename containning the solar flux spectra for monochromatic spectrum
-    std::string fFluxSptFile = "";  //<
+    /// The filename containing the resonance width (wGamma)
+    std::string fWidthDataFile = "";  //<
+
+    /// The filename containing the plasma frequency (wp) table
+    std::string fPlasmaFreqDataFile = "";  //<
 
     /// It will be used when loading `.flux` files to define the input file energy binsize in eV.
     Double_t fBinSize = 0;  //<
 
-    /// It will be used when loading `.flux` files to define the threshold for peak identification
-    Double_t fPeakSigma = 0;  //<
-
     /// The tabulated solar flux continuum spectra TH1D(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
     std::vector<TH1D*> fFluxTable;  //!
 
-    /// The tabulated solar flux in cm-2 s-1 for a number of monochromatic energies versus solar radius
-    std::map<Double_t, TH1D*> fFluxLines;  //!
+    /// The tabulated solar flux continuum spectra TH1D(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
+    std::vector<TH1D*> fContinuumTable;  //!
+
+    /// The tabulated resonance width TH1D(200,0,20)keV in eV2 versus solar radius
+    std::vector<TH1D*> fWidthTable;  //!
+
+    /// The solar plasma frequency vector in eV versus solar radius
+    std::vector<TH1D*> fPlasmaFreqTable;  //!
+
+    /// The total solar flux TH1D(200,0,20)keV in cm-2 s-1 keV-1 versus solar radius
+    std::vector<TH1D*> fFullFluxTable;  //!
 
     /// Accumulative integrated solar flux for each solar ring for continuum spectrum (renormalized to unity)
     std::vector<Double_t> fFluxTableIntegrals;  //!
 
-    /// Accumulative integrated solar flux for each monochromatic energy (renormalized to unity)
-    std::vector<Double_t> fFluxLineIntegrals;  //!
-
-    /// Total solar flux for monochromatic contributions
-    Double_t fTotalMonochromaticFlux = 0;  //!
-
     /// Total solar flux for monochromatic contributions
     Double_t fTotalContinuumFlux = 0;  //!
 
-    /// The ratio between monochromatic and total flux
-    Double_t fFluxRatio = 0;  //!
-
     /// A pointer to the continuum spectrum histogram
     TH1D* fContinuumHist = nullptr;  //!
-
-    /// A pointer to the monochromatic spectrum histogram
-    TH1D* fMonoHist = nullptr;  //!
 
     /// A pointer to the superposed monochromatic and continuum spectrum histogram
     TH1D* fTotalHist = nullptr;  //!
@@ -80,8 +77,11 @@ class TRestAxionSolarQCDFlux : public TRestAxionSolarFlux {
     /// It returns true if continuum flux spectra was loaded
     Bool_t isSolarTableLoaded() { return fFluxTable.size() > 0; }
 
-    /// It returns true if monochromatic flux spectra was loaded
-    Bool_t isSolarSpectrumLoaded() { return fFluxLines.size() > 0; }
+    /// It returns true if width table was loaded
+    Bool_t isWidthTableLoaded() { return fWidthTable.size() > 0; }
+
+    /// It returns true if plasma frequency table was loaded
+    Bool_t isPlasmaFreqLoaded() { return fPlasmaFreqTable.size() > 0; }
 
     /// It returns the integrated flux at earth in cm-2 s-1 for the given energy range
     Double_t IntegrateFluxInRange(TVector2 eRange = TVector2(-1, -1)) override;
@@ -89,17 +89,22 @@ class TRestAxionSolarQCDFlux : public TRestAxionSolarFlux {
     /// It defines how to generate Monte Carlo energy and radius values to reproduce the flux
     std::pair<Double_t, Double_t> GetRandomEnergyAndRadius(TVector2 eRange = TVector2(-1, -1)) override;
 
-    /// It defines how to read the solar tables at the inhereted class
+    /// It defines how to read the solar tables at the inhereted class for a given mass in eV
     Bool_t LoadTables() override;
 
+    void LoadContinuumTable();
+    void LoadWidthTable();
+    void LoadPlasmaFreqTable();
+
+    // calculate solar HP flux from the 3 tables and mass
+    void CalculateSolarFlux();
     /// It returns the total integrated flux at earth in cm-2 s-1
-    Double_t GetTotalFlux() override { return fTotalContinuumFlux + fTotalMonochromaticFlux; }
+    Double_t GetTotalFlux() override { return fTotalContinuumFlux; }
 
     /// It returns an energy integrated spectrum in cm-2 s-1 keV-1
     TH1D* GetEnergySpectrum() override { return GetTotalSpectrum(); }
 
     TH1D* GetContinuumSpectrum();
-    TH1D* GetMonochromaticSpectrum();
     TH1D* GetTotalSpectrum();
 
     virtual TCanvas* DrawSolarFlux() override;
@@ -116,12 +121,11 @@ class TRestAxionSolarQCDFlux : public TRestAxionSolarFlux {
 
     void PrintContinuumSolarTable();
     void PrintIntegratedRingFlux();
-    void PrintMonoChromaticFlux();
 
-    TRestAxionSolarQCDFlux();
-    TRestAxionSolarQCDFlux(const char* cfgFileName, std::string name = "");
-    ~TRestAxionSolarQCDFlux();
+    TRestAxionSolarHiddenPhotonFlux();
+    TRestAxionSolarHiddenPhotonFlux(const char* cfgFileName, std::string name = "");
+    ~TRestAxionSolarHiddenPhotonFlux();
 
-    ClassDefOverride(TRestAxionSolarQCDFlux, 1);
+    ClassDefOverride(TRestAxionSolarHiddenPhotonFlux, 1);
 };
 #endif

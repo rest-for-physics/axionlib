@@ -84,7 +84,7 @@ void TRestAxionLikelihood::Initialize() {
     fBufferGas = new TRestAxionBufferGas();
 
     // Conversion probabilities as defined by van Bibber paper
-    fAxionField = new TRestAxionField();
+    fAxionField = new TRestAxionQCDField();
 
     fAxionField->AssignBufferGas(fBufferGas);
 

@@ -21,7 +21,7 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
-/// TRestAxionField is a class used to calculate the axion-photon mixing
+/// TRestAxionQCDField is a class used to calculate the axion-photon mixing
 /// and determine the probability of the particle being in an axion or photon
 /// state.
 ///
@@ -35,15 +35,17 @@
 ///
 /// History of developments:
 ///
-/// 2019-March: First concept and implementation of TRestAxionField class.
+/// 2019-March: First concept and implementation of TRestAxionQCDField class.
 ///             Javier Galan
+/// 2023-September: Separation of QCD and HiddenPhoton classes.
+///             Tom O'Shea
 ///
-/// \class      TRestAxionField
+/// \class      TRestAxionQCDField
 /// \author     Javier Galan
 ///
 /// <hr>
 ///
-#include "TRestAxionField.h"
+#include "TRestAxionQCDField.h"
 
 #include <TVectorD.h>
 
@@ -57,32 +59,32 @@
 
 using namespace std;
 
-ClassImp(TRestAxionField);
+ClassImp(TRestAxionQCDField);
 
 ///////////////////////////////////////////////
 /// \brief Default constructor
 ///
-TRestAxionField::TRestAxionField() { Initialize(); }
+TRestAxionQCDField::TRestAxionQCDField() { Initialize(); }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
-TRestAxionField::~TRestAxionField() {}
+TRestAxionQCDField::~TRestAxionQCDField() {}
 
 ///////////////////////////////////////////////
-/// \brief Initialization of TRestAxionField class
+/// \brief Initialization of TRestAxionQCDField class
 ///
 /// It sets the default real precision to be used with mpfr types. Now it is 30 digits.
 /// So that we can still calculate numbers such as : 1.0 - 1.e-30
 ///
-void TRestAxionField::Initialize() {
+void TRestAxionQCDField::Initialize() {
 #ifdef USE_MPFR
     TRestComplex::SetPrecision(30);
 #endif
 
     fBufferGas = NULL;
 
-    /// MOVED TO TRestAxionFieldPropagationProcess class
+    /// MOVED TO TRestAxionQCDFieldPropagationProcess class
     /// faxion = SetComplexReal(1, 0);
     /// fAem = SetComplexReal(0, 0);
 }
@@ -93,7 +95,7 @@ void TRestAxionField::Initialize() {
 /// `Lcoh` should be expressed in `mm`, and `Bmag` in `T`.
 /// The result will be given for an axion-photon coupling of 10^{-10} GeV^{-1}
 ///
-double TRestAxionField::BL(Double_t Bmag, Double_t Lcoh) {
+double TRestAxionQCDField::BL(Double_t Bmag, Double_t Lcoh) {
     Double_t lengthInMeters = Lcoh / 1000.;
 
     Double_t tm = REST_Physics::lightSpeed / REST_Physics::naturalElectron * 1.0e-9;  // GeV
@@ -109,7 +111,7 @@ double TRestAxionField::BL(Double_t Bmag, Double_t Lcoh) {
 /// `Lcoh` should be expressed in `mm`, and `Bmag` in `T`.
 /// The result will be given for an axion-photon coupling of 10^{-10} GeV^{-1}
 ///
-double TRestAxionField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**2
+double TRestAxionQCDField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**2
 {
     Double_t lengthInMeters = Lcoh / 1000.;
 
@@ -134,12 +136,12 @@ double TRestAxionField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-Double_t TRestAxionField::GammaTransmissionProbability(Double_t ma, Double_t mg, Double_t absLength) {
+Double_t TRestAxionQCDField::GammaTransmissionProbability(Double_t ma, Double_t mg, Double_t absLength) {
 #ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
         << RESTendl;
-    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
+    RESTWarning << "TRestAxionQCDField::GammaTransmissionProbability will return 0" << RESTendl;
     return 0;
 #else
     mpfr::mpreal axionMass = ma;
@@ -150,7 +152,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t ma, Double_t mg,
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(fEa);
 
     RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
-    RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << RESTendl;
+    RESTDebug << " TRestAxionQCDField::GammaTransmissionProbability. Parameter summary" << RESTendl;
     RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
     RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
     RESTDebug << " Axion energy : " << fEa << " keV" << RESTendl;
@@ -202,8 +204,8 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t ma, Double_t mg,
 /// \brief On top of calculating the gamma transmission probability it will assign new values
 /// for the magnetic field (Bmag/T), coherence length (Lcoh/mm) and axion energy (Ea/keV).
 ///
-Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
-                                                       Double_t mg, Double_t absLength) {
+Double_t TRestAxionQCDField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea,
+                                                          Double_t ma, Double_t mg, Double_t absLength) {
     fBmag = Bmag;
     fLcoh = Lcoh;
     fEa = Ea;
@@ -230,14 +232,14 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t L
 /// to solve the problem with a density profile. TOBE implemented in a new method if needed, where
 /// Gamma is not constant and \integral{q(z)} is integrated at each step.
 ///
-Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL,
-                                                       Double_t Ea, Double_t ma, Double_t mg,
-                                                       Double_t absLength) {
+Double_t TRestAxionQCDField::GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL,
+                                                          Double_t Ea, Double_t ma, Double_t mg,
+                                                          Double_t absLength) {
 #ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
         << RESTendl;
-    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
+    RESTWarning << "TRestAxionQCDField::GammaTransmissionProbability will return 0" << RESTendl;
     return 0;
 #else
     mpfr::mpreal axionMass = ma;
@@ -254,7 +256,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
     if (Bmag.size() > 0) fieldAverage = std::accumulate(Bmag.begin(), Bmag.end(), 0.0) / Bmag.size();
 
     RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
-    RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << RESTendl;
+    RESTDebug << " TRestAxionQCDField::GammaTransmissionProbability. Parameter summary" << RESTendl;
     RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
     RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
     RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
@@ -342,12 +344,12 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, Double_t absLength) {
+Double_t TRestAxionQCDField::AxionAbsorptionProbability(Double_t ma, Double_t mg, Double_t absLength) {
 #ifndef USE_MPFR
     RESTWarning
-        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFr=ON to your REST compilation"
+        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
         << RESTendl;
-    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
+    RESTWarning << "TRestAxionQCDField::AxionAbsorptionProbability will return 0" << RESTendl;
     return 0;
 #else
     mpfr::mpreal axionMass = ma;
@@ -359,7 +361,7 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, D
     if (fDebug) {
         RESTDebug << "+--------------------------------------------------------------------------+"
                   << RESTendl;
-        RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << RESTendl;
+        RESTDebug << " TRestAxionQCDField::GammaTransmissionProbability. Parameter summary" << RESTendl;
         RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
         RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
         RESTDebug << " Axion energy : " << fEa << " keV" << RESTendl;
@@ -412,8 +414,8 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, D
 /// \brief On top of calculating the axion absorption probability it will assign new values
 /// for the magnetic field (Bmag/T), coherence length (Lcoh/mm) and axion energy (Ea/keV).
 ///
-Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
-                                                     Double_t mg, Double_t absLength) {
+Double_t TRestAxionQCDField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea,
+                                                        Double_t ma, Double_t mg, Double_t absLength) {
     fBmag = Bmag;
     fLcoh = Lcoh;
     fEa = Ea;
@@ -433,7 +435,7 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 /// IMPORTANT: In the case that the buffer gas is not defined, this method will return the mass at which the
 /// probability reaches half of the maximum **vacuum** probability.
 ///
-Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
+Double_t TRestAxionQCDField::GammaTransmissionFWHM(Double_t step) {
     Double_t maxMass = 10;  // 10eV is the maximum mass (exit condition)
 
     Double_t resonanceMass = 0;
@@ -481,9 +483,9 @@ Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
 ///
 /// For additional info see PR: https://github.com/rest-for-physics/axionlib/pull/78
 ///
-std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanning(std::string gasName,
-                                                                                   double maMax,
-                                                                                   double rampDown) {
+std::vector<std::pair<Double_t, Double_t>> TRestAxionQCDField::GetMassDensityScanning(std::string gasName,
+                                                                                      double maMax,
+                                                                                      double rampDown) {
     std::vector<std::pair<Double_t, Double_t>> massDensityPairs;
 
     // Storing the gas pointer, if there was one
