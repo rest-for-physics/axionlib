@@ -344,12 +344,7 @@ Double_t TRestAxionQCDField::GammaTransmissionProbability(std::vector<Double_t> 
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-<<<<<<< HEAD:src/TRestAxionQCDField.cxx
-Double_t TRestAxionQCDField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea,
-                                                        Double_t ma, Double_t mg, Double_t absLength) {
-=======
-Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, Double_t absLength) {
->>>>>>> master:src/TRestAxionField.cxx
+Double_t TRestAxionQCDField::AxionAbsorptionProbability(Double_t ma, Double_t mg, Double_t absLength) {
 #ifndef USE_MPFR
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
@@ -415,38 +410,19 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, D
 #endif
 }
 
-<<<<<<< HEAD:src/TRestAxionQCDField.cxx
-/// Commented because it uses ComplexReal structure that is moved to TRestAxionQCDFieldPropagationProcess
-/// class
-/*
-void TRestAxionQCDField::PropagateAxion(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
-                                                Double_t mg, Double_t absLength) {
-    mpfr::mpreal axionMass = ma;
-    mpfr::mpreal cohLength = Lcoh / 1000.;  // Default REST units are mm;
-=======
 ///////////////////////////////////////////////
 /// \brief On top of calculating the axion absorption probability it will assign new values
 /// for the magnetic field (Bmag/T), coherence length (Lcoh/mm) and axion energy (Ea/keV).
 ///
-Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+Double_t TRestAxionQCDField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                                      Double_t mg, Double_t absLength) {
     fBmag = Bmag;
     fLcoh = Lcoh;
     fEa = Ea;
->>>>>>> master:src/TRestAxionField.cxx
 
     return AxionAbsorptionProbability(ma, mg, absLength);
 }
 
-<<<<<<< HEAD:src/TRestAxionQCDField.cxx
-    if (fDebug) {
-        RESTDebug << "+--------------------------------------------------------------------------+" <<
-RESTendl; RESTDebug << " TRestAxionQCDField::GammaTransmissionProbability. Parameter summary" <<
-RESTendl; RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl; RESTDebug << " Axion mass : " <<
-ma << " eV" << RESTendl; RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl; RESTDebug << " Lcoh : "
-<< Lcoh << " mm" << RESTendl; RESTDebug << " Bmag : " << Bmag << " T" << RESTendl; RESTDebug <<
-"+--------------------------------------------------------------------------+" << RESTendl;
-=======
 ///////////////////////////////////////////////
 /// \brief Performs the calculation of the FWHM for the axion-photon conversion probability
 /// computed in `TRestAxionField::GammaTransmissionProbability`.
@@ -459,7 +435,7 @@ ma << " eV" << RESTendl; RESTDebug << " Axion energy : " << Ea << " keV" << REST
 /// IMPORTANT: In the case that the buffer gas is not defined, this method will return the mass at which the
 /// probability reaches half of the maximum **vacuum** probability.
 ///
-Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
+Double_t TRestAxionQCDField::GammaTransmissionFWHM(Double_t step) {
     Double_t maxMass = 10;  // 10eV is the maximum mass (exit condition)
 
     Double_t resonanceMass = 0;
@@ -476,7 +452,6 @@ Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
                 << RESTendl;
             return maxMass;
         }
->>>>>>> master:src/TRestAxionField.cxx
     }
 
     Double_t fwhm = scanMass - resonanceMass;
