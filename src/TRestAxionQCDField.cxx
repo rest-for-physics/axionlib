@@ -414,8 +414,8 @@ Double_t TRestAxionQCDField::AxionAbsorptionProbability(Double_t ma, Double_t mg
 /// \brief On top of calculating the axion absorption probability it will assign new values
 /// for the magnetic field (Bmag/T), coherence length (Lcoh/mm) and axion energy (Ea/keV).
 ///
-Double_t TRestAxionQCDField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
-                                                     Double_t mg, Double_t absLength) {
+Double_t TRestAxionQCDField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea,
+                                                        Double_t ma, Double_t mg, Double_t absLength) {
     fBmag = Bmag;
     fLcoh = Lcoh;
     fEa = Ea;
