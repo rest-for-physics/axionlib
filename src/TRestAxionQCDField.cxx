@@ -204,7 +204,7 @@ Double_t TRestAxionQCDField::GammaTransmissionProbability(Double_t ma, Double_t 
 /// \brief On top of calculating the gamma transmission probability it will assign new values
 /// for the magnetic field (Bmag/T), coherence length (Lcoh/mm) and axion energy (Ea/keV).
 ///
-Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
+Double_t TRestAxionQCDField::GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                                        Double_t mg, Double_t absLength) {
     fBmag = Bmag;
     fLcoh = Lcoh;
@@ -483,7 +483,7 @@ Double_t TRestAxionQCDField::GammaTransmissionFWHM(Double_t step) {
 ///
 /// For additional info see PR: https://github.com/rest-for-physics/axionlib/pull/78
 ///
-std::vector<std::pair<Double_t, Double_t>> TRestAxionField::GetMassDensityScanning(std::string gasName,
+std::vector<std::pair<Double_t, Double_t>> TRestAxionQCDField::GetMassDensityScanning(std::string gasName,
                                                                                    double maMax,
                                                                                    double rampDown) {
     std::vector<std::pair<Double_t, Double_t>> massDensityPairs;
