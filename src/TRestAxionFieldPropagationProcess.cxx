@@ -208,7 +208,7 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
         fieldAverage = std::accumulate(bProfile.begin(), bProfile.end(), 0.0) / bProfile.size();
 
         Double_t Ea = fAxionEvent->GetEnergy();
-        Double_t ma = fAxionEvent->GetMass();
+        Double_t ma = fAxionEvent->GetMass() * units("eV");
 
         prob = fAxionField->GammaTransmissionProbability(bProfile, fIntegrationStep, Ea, ma);
 
