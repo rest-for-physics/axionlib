@@ -1060,6 +1060,55 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos, Bool_t showWarn
 }
 
 ///////////////////////////////////////////////
+/// \brief It allows to remap the magnetic field to a larger mesh size. The new mesh
+/// size granularity must be provided by argument, and each dimension  must be a factor of the 
+/// present mesh size.
+///
+void TRestAxionMagneticField::ReMap( Double_t sX, Double_t sY, Double_t sZ )
+{
+	if( sX == 0 || sY == 0 || sZ == 0 )
+	{
+		RESTError << "TRestAxionMagneticField::ReMap. The mesh granularity cannot be 0" << RESTendl;
+		RESTError << "Remapping will not take effect" << RESTendl;
+		return;
+	}
+
+	Double_t remainder = std::fmod(sX, fMeshSize[0].X()) + std::fmod(sY, fMeshSize[0].Y()) + std::fmod(sZ, fMeshSize[0].Z());
+	if( remainder != 0 )
+	{
+		RESTError << "TRestAxionMagneticField::ReMap. The field cannot be remapped."<< RESTendl;
+		RESTError << "The new mesh granularity must be a multiple of the existing granularity." << RESTendl;
+		RESTError << "Present mesh size : (" << fMeshSize[0].X() << ", " << fMeshSize[0].Y() << ", " << fMeshSize[0].Z() << ")" << RESTendl;
+		RESTError << "Requested mesh size : (" << sX << ", " << sY << ", " << sZ << ")" << RESTendl;
+		RESTError << "Remapping will not take effect" << RESTendl;
+		return;
+	}
+
+	Int_t scaleX = (Int_t) (sX/fMeshSize[0].X());
+	Int_t scaleY = (Int_t) (sY/fMeshSize[0].Y());
+	Int_t scaleZ = (Int_t) (sZ/fMeshSize[0].Z());
+
+	Int_t newNodesX = (fMagneticFieldVolumes[0].mesh.GetNodesX()-1)/scaleX + 1;
+	Int_t newNodesY = (fMagneticFieldVolumes[0].mesh.GetNodesY()-1)/scaleY + 1;
+	Int_t newNodesZ = (fMagneticFieldVolumes[0].mesh.GetNodesZ()-1)/scaleZ + 1;
+
+	for( Int_t nx = 0; nx < newNodesX; nx++ )
+		for( Int_t ny = 0; ny < newNodesY; ny++ )
+			for( Int_t nz = 0; nz < newNodesZ; nz++ )
+				fMagneticFieldVolumes[0].field[nx][ny][nz] = fMagneticFieldVolumes[0].field[nx*scaleX][ny*scaleY][nz*scaleZ];
+
+	fMagneticFieldVolumes[0].mesh.SetNodes(newNodesX, newNodesY, newNodesZ);
+	fMagneticFieldVolumes[0].field.resize(fMagneticFieldVolumes[0].mesh.GetNodesX());
+	for (unsigned int n = 0; n < fMagneticFieldVolumes[0].field.size(); n++) {
+		fMagneticFieldVolumes[0].field[n].resize(fMagneticFieldVolumes[0].mesh.GetNodesY());
+		for (unsigned int m = 0; m < fMagneticFieldVolumes[0].field[n].size(); m++)
+			fMagneticFieldVolumes[0].field[n][m].resize(fMagneticFieldVolumes[0].mesh.GetNodesZ());
+	}
+
+	fMeshSize[0] = TVector3( fMeshSize[0].X() * scaleX, fMeshSize[0].Y() * scaleY, fMeshSize[0].Z() * scaleZ );
+}
+
+///////////////////////////////////////////////
 /// \brief It returns the corresponding volume index at the given position. If not found it will return
 /// -1.
 ///

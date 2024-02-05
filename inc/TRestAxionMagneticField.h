@@ -102,6 +102,8 @@ class TRestAxionMagneticField : public TRestMetadata {
    public:
     void LoadMagneticVolumes();
 
+	void ReMap( Double_t sX, Double_t sY, Double_t sZ );
+
     /// It returns true if no magnetic field map was loaded for that volume
     Bool_t IsFieldConstant(Int_t id) {
         if (GetMagneticVolume(id)) return GetMagneticVolume(id)->field.size() == 0;
