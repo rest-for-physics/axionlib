@@ -54,6 +54,7 @@
 #endif
 
 #include <numeric>
+#include <gsl/gsl_integration.h>
 
 using namespace std;
 
@@ -94,9 +95,9 @@ void TRestAxionField::Initialize() {
 /// The result will be given for an axion-photon coupling of 10^{-10} GeV^{-1}
 ///
 double TRestAxionField::BL(Double_t Bmag, Double_t Lcoh) {
-    Double_t lengthInMeters = Lcoh / 1000.;
+    Double_t lengthInMeters = Lcoh * units("m");
 
-    Double_t tm = REST_Physics::lightSpeed / REST_Physics::naturalElectron * 1.0e-9;  // GeV
+    Double_t tm = REST_Physics::lightSpeed / REST_Physics::naturalElectron * units("GeV")/units("eV");  // eV --> GeV
     Double_t sol = lengthInMeters * Bmag * tm;
     sol = sol * 1.0e-10;
 
@@ -111,9 +112,9 @@ double TRestAxionField::BL(Double_t Bmag, Double_t Lcoh) {
 ///
 double TRestAxionField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**2
 {
-    Double_t lengthInMeters = Lcoh / 1000.;
+    Double_t lengthInMeters = Lcoh * units("m");
 
-    Double_t tm = REST_Physics::lightSpeed / REST_Physics::naturalElectron * 1.0e-9;  // gev
+    Double_t tm = REST_Physics::lightSpeed / REST_Physics::naturalElectron * units("GeV") / units( "eV");  // eV --> GeV
     Double_t sol = lengthInMeters * Bmag * tm / 2;
     sol = sol * sol * 1.0e-20;
 
@@ -143,7 +144,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t ma, Double_t mg,
     return 0;
 #else
     mpfr::mpreal axionMass = ma;
-    mpfr::mpreal cohLength = fLcoh / 1000.;  // Default REST units are mm;
+    mpfr::mpreal cohLength = fLcoh * units("m");  // Default REST units are mm;
 
     mpfr::mpreal photonMass = mg;
 
@@ -160,39 +161,40 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t ma, Double_t mg,
 
     if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(fBmag, fLcoh);
 
-    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / fEa / 1000.0;
+    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / (fEa * units("eV"));
     mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
     mpfr::mpreal phi = q * l;
 
     mpfr::mpreal Gamma = absLength;
     if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(fEa);  // cm-1
-    mpfr::mpreal GammaL = Gamma * cohLength * 100;
+    mpfr::mpreal GammaL = Gamma * cohLength * units("cm")/units("m"); // m --> cm
 
     if (fDebug) {
-        RESTDebug << "+------------------------+" << RESTendl;
-        RESTDebug << " Intermediate calculations" << RESTendl;
-        RESTDebug << " q : " << q << " eV" << RESTendl;
-        RESTDebug << " l : " << l << " eV-1" << RESTendl;
-        RESTDebug << " phi : " << phi << RESTendl;
-        RESTDebug << "Gamma : " << Gamma << RESTendl;
-        RESTDebug << "GammaL : " << GammaL << RESTendl;
-        RESTDebug << "+------------------------+" << RESTendl;
+        std::cout << "+------------------------+" << std::endl;
+        std::cout << " Intermediate calculations" << std::endl;
+        std::cout << " q : " << q << " eV" << std::endl;
+        std::cout << " l : " << l << " eV-1" << std::endl;
+        std::cout << " phi : " << phi << std::endl;
+        std::cout << "Gamma : " << Gamma << std::endl;
+        std::cout << "GammaL : " << GammaL << std::endl;
+        std::cout << "+------------------------+" << std::endl;
     }
 
     mpfr::mpreal MFactor = phi * phi + GammaL * GammaL / 4.0;
     MFactor = 1.0 / MFactor;
 
     if (fDebug) {
-        RESTDebug << "Mfactor : " << MFactor << RESTendl;
-        RESTDebug << "(BL/2)^2 : " << BLHalfSquared(fBmag, fLcoh) << RESTendl;
-        RESTDebug << "cos(phi) : " << cos(phi) << RESTendl;
-        RESTDebug << "Exp(-GammaL) : " << exp(-GammaL) << RESTendl;
+        std::cout << "Mfactor : " << MFactor << std::endl;
+        std::cout << "(BL/2)^2 : " << BLHalfSquared(fBmag, fLcoh) << std::endl;
+        std::cout << "cos(phi) : " << cos(phi) << std::endl;
+        std::cout << "Exp(-GammaL) : " << exp(-GammaL) << std::endl;
     }
 
     double sol = (double)(MFactor * BLHalfSquared(fBmag, fLcoh) *
                           (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
 
-    RESTDebug << "Axion-photon transmission probability : " << sol << RESTendl;
+	if( fDebug )
+		std::cout << "Axion-photon transmission probability : " << sol << std::endl;
 
     return sol;
 #endif
@@ -244,7 +246,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
 
     // Default REST units are mm. We express cohLength in m.
     Double_t Lcoh = (Bmag.size() - 1) * deltaL;  // in mm
-    Double_t cohLength = Lcoh / 1000.;           // in m
+    Double_t cohLength = Lcoh * units("m");           // in m
 
     mpfr::mpreal photonMass = mg;
 
@@ -253,69 +255,72 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
     Double_t fieldAverage = 0;
     if (Bmag.size() > 0) fieldAverage = std::accumulate(Bmag.begin(), Bmag.end(), 0.0) / Bmag.size();
 
-    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
-    RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << RESTendl;
-    RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
-    RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
-    RESTDebug << " Axion energy : " << Ea << " keV" << RESTendl;
-    RESTDebug << " Lcoh : " << cohLength << " mm" << RESTendl;
-    RESTDebug << " Bmag average : " << fieldAverage << " T" << RESTendl;
-    RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;
+	if( fDebug )
+	{
+		std::cout << "+--------------------------------------------------------------------------+" << std::endl;
+		std::cout << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << std::endl;
+		std::cout << " Photon mass : " << photonMass << " eV" << std::endl;
+		std::cout << " Axion mass : " << ma << " eV" << std::endl;
+		std::cout << " Axion energy : " << Ea << " keV" << std::endl;
+		std::cout << " Lcoh : " << cohLength << " m" << std::endl;
+		std::cout << " Bmag average : " << fieldAverage << " T" << std::endl;
+		std::cout << "+--------------------------------------------------------------------------+" << std::endl;
+	}
 
     // In vacuum
     if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(fieldAverage, Lcoh);
 
-    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / Ea / 1000.0;
+    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / (Ea * units("eV"));
     mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
     mpfr::mpreal phi = q * l;
 
     mpfr::mpreal Gamma = absLength;
     if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
-    mpfr::mpreal GammaL = Gamma * cohLength * 100;
+    mpfr::mpreal GammaL = Gamma * cohLength * units("cm")/units("m"); // m --> cm
 
     if (fDebug) {
-        RESTDebug << "+------------------------+" << RESTendl;
-        RESTDebug << " Intermediate calculations" << RESTendl;
-        RESTDebug << " q : " << q << " eV" << RESTendl;
-        RESTDebug << " l : " << l << " eV-1" << RESTendl;
-        RESTDebug << " phi : " << phi << RESTendl;
-        RESTDebug << "Gamma : " << Gamma << RESTendl;
-        RESTDebug << "GammaL : " << GammaL << RESTendl;
-        RESTDebug << "+------------------------+" << RESTendl;
+        std::cout << "+------------------------+" << std::endl;
+        std::cout << " Intermediate calculations" << std::endl;
+        std::cout << " q : " << q << " eV" << std::endl;
+        std::cout << " l : " << l << " eV-1" << std::endl;
+        std::cout << " phi : " << phi << std::endl;
+        std::cout << "Gamma : " << Gamma << std::endl;
+        std::cout << "GammaL : " << GammaL << std::endl;
+        std::cout << "+------------------------+" << std::endl;
     }
 
     mpfr::mpreal MFactor = phi * phi + GammaL * GammaL / 4.0;
     MFactor = 1.0 / MFactor;
 
     if (fDebug) {
-        RESTDebug << "Mfactor : " << MFactor << RESTendl;
-        RESTDebug << "(BL/2)^2 : " << BLHalfSquared(fieldAverage, Lcoh) << RESTendl;
-        RESTDebug << "cos(phi) : " << cos(phi) << RESTendl;
-        RESTDebug << "Exp(-GammaL) : " << exp(-GammaL) << RESTendl;
+        std::cout << "Mfactor : " << MFactor << std::endl;
+        std::cout << "(BL/2)^2 : " << BLHalfSquared(fieldAverage, Lcoh) << std::endl;
+        std::cout << "cos(phi) : " << cos(phi) << std::endl;
+        std::cout << "Exp(-GammaL) : " << exp(-GammaL) << std::endl;
     }
 
-    Double_t deltaIneV = deltaL / 1000. * REST_Physics::PhMeterIneV;
 
     /// We integrate following the Midpoint rule method. (Other potential options : Trapezoidal, Simpsons)
+	/*
+    Double_t deltaIneV = deltaL * units("m") * REST_Physics::PhMeterIneV;
     TRestComplex sum(0, 0);
-    for (unsigned int n = 0; n < Bmag.size() - 1; n++) {
-        Double_t Bmiddle = 0.5 * (Bmag[n] + Bmag[n + 1]);
+	for (unsigned int n = 0; n < Bmag.size() - 1; n++) {
+		Double_t Bmiddle = 0.5 * (Bmag[n] + Bmag[n + 1]);
 
-        Double_t lStepIneV = ((double)n + 0.5) * deltaIneV;
-        Double_t lStepInCm = ((double)n + 0.5) * deltaL / 10.;
+		Double_t lStepIneV = ((double)n + 0.5) * deltaIneV;
+		Double_t lStepInCm = ((double)n + 0.5) * deltaL * units("cm");
 
-        TRestComplex qC(0, -q * lStepIneV);
-        qC = TRestComplex::Exp(qC);
+		TRestComplex qCgC(0.5 * Gamma * lStepInCm, -q * lStepIneV);
+		qCgC = TRestComplex::Exp(qCgC);
 
-        TRestComplex gC(0.5 * Gamma * lStepInCm, 0);
-        gC = TRestComplex::Exp(gC);
+		TRestComplex integrand = Bmiddle * deltaL * qCgC;  // The integrand is in T by mm
 
-        TRestComplex integrand = Bmiddle * deltaL * gC * qC;  // The integrand is in T by mm
+		sum += integrand;
+	}
+	*/
 
-        sum += integrand;
-    }
-
-    mpfr::mpreal sol = exp(-GammaL) * sum.Rho2() * BLHalfSquared(1, 1);
+      mpfr::mpreal sol = 0;
+ //   mpfr::mpreal sol = exp(-GammaL) * sum.Rho2() * BLHalfSquared(1, 1);
     // Now T and mm have been recalculated in natural units using BLHalfSquared(1,1).
 
     /*
@@ -323,10 +328,195 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
     (double)(MFactor * BLHalfSquared(Bmag, Lcoh) * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
             */
 
-    RESTDebug << "Axion-photon transmission probability : " << sol << RESTendl;
+	if( fDebug ) 
+		std::cout << "Axion-photon transmission probability : " << sol << std::endl;
 
     return (Double_t)sol;
 #endif
+}
+
+///////////////////////////////////////////////
+/// \brief Performs the calculation of axion-photon conversion probability using directly
+/// equation (28) from J. Redondo and A. Ringwald, Light shinning through walls.
+/// https://arxiv.org/pdf/1011.3741.pdf
+///
+/// m_gamma will be obtainned from the buffer gas definition. If no buffer gas has been
+/// assigned then the medium will be assumed to be vacuum.
+///
+/// Ea in keV, ma in eV
+///
+/// The mgamma and absorption lengths are the ones defined by the gas.
+///
+/// The returned value is given for g_ag = 10^-10 GeV-1
+///
+/// \note The density is for the moment homogeneous. We would need to implemnent a double integral
+/// to solve the problem with a density profile.
+///
+std::pair<Double_t,Double_t> TRestAxionField::GammaTransmissionFieldMapProbability( Double_t Ea, Double_t ma, Double_t accuracy, Int_t num_intervals, Int_t qawo_levels ) {
+
+	if( !fMagneticField ) 
+	{
+		RESTError << "TRestAxionField::GammaTransmissionFieldMapProbability requires a magnetic field map!" << RESTendl;
+		RESTError << "Use TRestAxionField::AssignMagneticField method to assign one" << RESTendl;
+		return {0.0,0.0};
+	}
+
+	double photonMass = 0; // Vacuum
+    if (fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
+
+	if( fDebug )
+	{
+		std::cout << "+--------------------------------------------------------------------------+" << std::endl;
+		std::cout << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << std::endl;
+		std::cout << " Photon mass : " << photonMass << " eV" << std::endl;
+		std::cout << " Axion mass : " << ma << " eV" << std::endl;
+		std::cout << " Axion energy : " << Ea << " keV" << std::endl;
+		std::cout << "+--------------------------------------------------------------------------+" << std::endl;
+	}
+
+    double q = (ma * ma - photonMass * photonMass) / 2. / (Ea * units("eV") );
+	q = q / REST_Physics::eVInPhMeter*units("m")/units("mm"); // mm-1
+
+    double Gamma = 0;
+    if (fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea) * units("cm") / units("mm");  // mm-1
+
+    if (fDebug) {
+        std::cout << "+------------------------+" << std::endl;
+        std::cout << " Intermediate calculations" << std::endl;
+        std::cout << " q : " << q << " eV" << std::endl;
+        std::cout << "Gamma : " << Gamma << std::endl;
+        std::cout << "+------------------------+" << std::endl;
+	}
+
+	if( q == 0 ) return ComputeResonanceIntegral( Gamma, accuracy, num_intervals );
+	else return ComputeOffResonanceIntegral( q, Gamma, accuracy, num_intervals, qawo_levels);
+
+	return {0.0,0.0};
+}
+
+///////////////////////////////////////////////
+/// \brief Performs the calculation of axion-photon conversion probability using directly
+/// equation (28) from J. Redondo and A. Ringwald, Light shinning through walls.
+/// https://arxiv.org/pdf/1011.3741.pdf
+///
+/// It integrates the Integrand function defined on the header of TRestAxionField. 
+///
+/// This method uses the GSL QAG integration method. We use this method when the cosine
+/// function vanishes when q = 0.
+///
+/// See https://www.gnu.org/software/gsl/doc/html/integration.html for more details on
+/// the integration parameters.
+///
+/// The Gamma function should be expressed in mm-1 since the field map accessed in the integrand
+/// is evaluated using mm.
+///
+std::pair<Double_t,Double_t> TRestAxionField::ComputeResonanceIntegral( Double_t Gamma, Double_t accuracy, Int_t num_intervals )
+{
+	double reprob,rerr;
+
+	std::pair<TRestAxionMagneticField *, double> params = {fMagneticField, Gamma};
+
+	gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(num_intervals);
+
+	gsl_function F;
+	F.function = &Integrand;
+	F.params = &params;
+
+	auto start = std::chrono::system_clock::now();
+
+	gsl_integration_qag( &F, 0, fMagneticField->GetTrackLength(), accuracy, accuracy, num_intervals, GSL_INTEG_GAUSS61, workspace, &reprob, &rerr);
+
+	auto end = std::chrono::system_clock::now();
+	auto seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end-start);
+
+	double GammaL = Gamma * fMagneticField->GetTrackLength();
+	double C = exp(-GammaL) * BLHalfSquared(1, 1);
+
+	double prob = C * reprob*reprob;
+	double proberr = 2 * C * reprob * rerr;
+
+	if( fDebug )
+	{
+		std::cout << " ---- TRestAxionField::ComputeResonanceIntegral (QAG) ----" << std::endl;
+		std::cout << "Gamma: " << Gamma << " mm-1" << std::endl;
+		std::cout << "accuracy: " << accuracy << std::endl;
+		std::cout << "num_intervals: " << num_intervals << std::endl;
+		std::cout << " -------" << std::endl;
+		std::cout << "Probability: " << prob << std::endl;
+		std::cout << "Probability error: " << proberr << std::endl;
+		std::cout << "Computing time: " << seconds.count() << std::endl;
+		std::cout << " -------" << std::endl;
+	}
+
+	std::pair<Double_t, Double_t> sol = { prob, proberr };
+	return sol;
+}
+
+///////////////////////////////////////////////
+/// \brief Performs the calculation of axion-photon conversion probability using directly
+/// equation (28) from J. Redondo and A. Ringwald, Light shinning through walls.
+/// https://arxiv.org/pdf/1011.3741.pdf
+///
+/// It integrates the Integrand function defined on the header of TRestAxionField. 
+///
+/// This method uses the GSL QAWO method for oscillatory functions. That is the case when
+/// the q is not zero, in the off-resonance case.
+///
+/// See https://www.gnu.org/software/gsl/doc/html/integration.html for more details on
+/// the integration parameters.
+///
+/// The Gamma function should be expressed in mm-1 since the field map accessed in the integrand
+/// is evaluated using mm.
+///
+std::pair<Double_t,Double_t> TRestAxionField::ComputeOffResonanceIntegral(Double_t q, Double_t Gamma, Double_t accuracy, Int_t num_intervals, Int_t qawo_levels )
+{
+	double reprob,rerr;
+	double improb,imerr;
+
+	std::pair<TRestAxionMagneticField *, double> params = {fMagneticField, Gamma};
+
+	gsl_integration_workspace *workspace = gsl_integration_workspace_alloc(num_intervals);
+
+	gsl_function F;
+	F.function = &Integrand;
+	F.params = &params;
+
+	auto start = std::chrono::system_clock::now();
+
+	gsl_integration_qawo_table *wf = gsl_integration_qawo_table_alloc(q, fMagneticField->GetTrackLength(), GSL_INTEG_COSINE, qawo_levels);
+	gsl_integration_qawo(&F, 0, accuracy, accuracy, num_intervals, workspace, wf, &reprob, &rerr);
+
+	gsl_integration_qawo_table_set( wf, q, fMagneticField->GetTrackLength(), GSL_INTEG_SINE );
+	gsl_integration_qawo(&F, 0, accuracy, accuracy, num_intervals, workspace, wf, &improb, &imerr);
+
+	gsl_integration_qawo_table_free(wf);
+
+	auto end = std::chrono::system_clock::now();
+	auto seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end-start);
+
+	double GammaL = Gamma * fMagneticField->GetTrackLength();
+	double C = exp(-GammaL) * BLHalfSquared(1, 1);
+
+	double prob = C * (reprob*reprob + improb*improb);
+	double proberr = 2 * C * TMath::Sqrt( reprob*reprob * rerr*rerr +  improb*improb * imerr*imerr );
+
+	if( fDebug )
+	{
+		std::cout << " ---- TRestAxionField::ComputeOffResonanceIntegral (QAWO) ----" << std::endl;
+		std::cout << "Gamma: " << Gamma << " mm-1" << std::endl;
+		std::cout << "q: " << q << "mm-1" << std::endl;
+		std::cout << "accuracy: " << accuracy << std::endl;
+		std::cout << "num_intervals: " << num_intervals << std::endl;
+		std::cout << "qawo_levels: " << qawo_levels << std::endl;
+		std::cout << " -------" << std::endl;
+		std::cout << "Probability: " << prob << std::endl;
+		std::cout << "Probability error: " << proberr << std::endl;
+		std::cout << "Computing time: " << seconds.count() << std::endl;
+		std::cout << " -------" << std::endl;
+	}
+
+	std::pair<Double_t, Double_t> sol = { prob, proberr };
+	return sol;
 }
 
 ///////////////////////////////////////////////
@@ -347,11 +537,11 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, D
     RESTWarning
         << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFr=ON to your REST compilation"
         << RESTendl;
-    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
+    RESTWarning << "TRestAxionField::AxionAbsorptionProbability will return 0" << RESTendl;
     return 0;
 #else
     mpfr::mpreal axionMass = ma;
-    mpfr::mpreal cohLength = fLcoh / 1000.;  // Default REST units are mm;
+    mpfr::mpreal cohLength = fLcoh * units("m");  // Default REST units are mm;
 
     mpfr::mpreal photonMass = mg;
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(fEa);
@@ -359,7 +549,7 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, D
     if (fDebug) {
         RESTDebug << "+--------------------------------------------------------------------------+"
                   << RESTendl;
-        RESTDebug << " TRestAxionField::GammaTransmissionProbability. Parameter summary" << RESTendl;
+        RESTDebug << " TRestAxionField::AxionAbsorptionProbability. Parameter summary" << RESTendl;
         RESTDebug << " Photon mass : " << photonMass << " eV" << RESTendl;
         RESTDebug << " Axion mass : " << ma << " eV" << RESTendl;
         RESTDebug << " Axion energy : " << fEa << " keV" << RESTendl;
@@ -371,13 +561,13 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, D
 
     if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(fBmag, fLcoh);
 
-    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / fEa / 1000.0;
+    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / (fEa * units("eV"));
     mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
     mpfr::mpreal phi = q * l;
 
     mpfr::mpreal Gamma = absLength;
     if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(fEa);  // cm-1
-    mpfr::mpreal GammaL = Gamma * cohLength * 100;
+    mpfr::mpreal GammaL = Gamma * cohLength * units("cm")/units("m");
 
     if (fDebug) {
         RESTDebug << "+------------------------+" << RESTendl;

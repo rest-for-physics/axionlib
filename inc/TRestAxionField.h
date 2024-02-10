@@ -48,6 +48,10 @@ class TRestAxionField : public TObject {
     /// A pointer to the magnetic field definition
     TRestAxionMagneticField* fMagneticField = nullptr;  //!
 
+	std::pair<Double_t,Double_t> ComputeOffResonanceIntegral(Double_t q, Double_t Gamma, Double_t accuracy, Int_t num_intervals, Int_t qawo_levels );
+
+	std::pair<Double_t,Double_t> ComputeResonanceIntegral( Double_t Gamma, Double_t accuracy, Int_t num_intervals);
+
    public:
     void SetMagneticField(Double_t b) { fBmag = b; }
     void SetCoherenceLength(Double_t l) { fLcoh = l; }
@@ -85,7 +89,7 @@ class TRestAxionField : public TObject {
     Double_t GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL, Double_t Ea,
                                           Double_t ma, Double_t mg = 0, Double_t absLength = 0);
 
-	Double_t GammaTransmissionFieldMapProbability( Double_t Ea, Double_t ma );
+	std::pair<Double_t,Double_t> GammaTransmissionFieldMapProbability( Double_t Ea, Double_t ma, Double_t accuracy = 1.e-1, Int_t num_intervals = 100, Int_t qawo_levels = 20 );
 
 	/// Integrand used for axion-photon probability integration
 	static double Integrand(double x, void *params) {
