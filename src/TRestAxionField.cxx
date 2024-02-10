@@ -143,10 +143,9 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t ma, Double_t mg,
     RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
     return 0;
 #else
-    mpfr::mpreal axionMass = ma;
-    mpfr::mpreal cohLength = fLcoh * units("m");  // Default REST units are mm;
+    Double_t cohLength = fLcoh * units("m");  // Default REST units are mm;
 
-    mpfr::mpreal photonMass = mg;
+    Double_t photonMass = mg;
 
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(fEa);
 
@@ -161,13 +160,13 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t ma, Double_t mg,
 
     if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(fBmag, fLcoh);
 
-    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / (fEa * units("eV"));
-    mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
-    mpfr::mpreal phi = q * l;
+    Double_t q = (ma * ma - photonMass * photonMass) / 2. / (fEa * units("eV"));
+    Double_t l = cohLength * REST_Physics::PhMeterIneV;
+    Double_t phi = q * l;
 
-    mpfr::mpreal Gamma = absLength;
+    Double_t Gamma = absLength;
     if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(fEa);  // cm-1
-    mpfr::mpreal GammaL = Gamma * cohLength * units("cm")/units("m"); // m --> cm
+    Double_t GammaL = Gamma * cohLength * units("cm")/units("m"); // m --> cm
 
     if (fDebug) {
         std::cout << "+------------------------+" << std::endl;
@@ -180,7 +179,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t ma, Double_t mg,
         std::cout << "+------------------------+" << std::endl;
     }
 
-    mpfr::mpreal MFactor = phi * phi + GammaL * GammaL / 4.0;
+    Double_t MFactor = phi * phi + GammaL * GammaL / 4.0;
     MFactor = 1.0 / MFactor;
 
     if (fDebug) {
@@ -242,13 +241,12 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
     RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
     return 0;
 #else
-    mpfr::mpreal axionMass = ma;
 
     // Default REST units are mm. We express cohLength in m.
     Double_t Lcoh = (Bmag.size() - 1) * deltaL;  // in mm
     Double_t cohLength = Lcoh * units("m");           // in m
 
-    mpfr::mpreal photonMass = mg;
+    Double_t photonMass = mg;
 
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
 
@@ -270,13 +268,13 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
     // In vacuum
     if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(fieldAverage, Lcoh);
 
-    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / (Ea * units("eV"));
-    mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
-    mpfr::mpreal phi = q * l;
+    Double_t q = (ma * ma - photonMass * photonMass) / 2. / (Ea * units("eV"));
+    Double_t l = cohLength * REST_Physics::PhMeterIneV;
+    Double_t phi = q * l;
 
-    mpfr::mpreal Gamma = absLength;
+    Double_t Gamma = absLength;
     if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
-    mpfr::mpreal GammaL = Gamma * cohLength * units("cm")/units("m"); // m --> cm
+    Double_t GammaL = Gamma * cohLength * units("cm")/units("m"); // m --> cm
 
     if (fDebug) {
         std::cout << "+------------------------+" << std::endl;
@@ -289,7 +287,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
         std::cout << "+------------------------+" << std::endl;
     }
 
-    mpfr::mpreal MFactor = phi * phi + GammaL * GammaL / 4.0;
+    Double_t MFactor = phi * phi + GammaL * GammaL / 4.0;
     MFactor = 1.0 / MFactor;
 
     if (fDebug) {
@@ -319,8 +317,8 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
 	}
 	*/
 
-      mpfr::mpreal sol = 0;
- //   mpfr::mpreal sol = exp(-GammaL) * sum.Rho2() * BLHalfSquared(1, 1);
+      Double_t sol = 0;
+ //   Double_t sol = exp(-GammaL) * sum.Rho2() * BLHalfSquared(1, 1);
     // Now T and mm have been recalculated in natural units using BLHalfSquared(1,1).
 
     /*
@@ -540,10 +538,9 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, D
     RESTWarning << "TRestAxionField::AxionAbsorptionProbability will return 0" << RESTendl;
     return 0;
 #else
-    mpfr::mpreal axionMass = ma;
-    mpfr::mpreal cohLength = fLcoh * units("m");  // Default REST units are mm;
+    Double_t cohLength = fLcoh * units("m");  // Default REST units are mm;
 
-    mpfr::mpreal photonMass = mg;
+    Double_t photonMass = mg;
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(fEa);
 
     if (fDebug) {
@@ -561,13 +558,13 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, D
 
     if (ma == 0.0 && photonMass == 0.0) return BLHalfSquared(fBmag, fLcoh);
 
-    mpfr::mpreal q = (ma * ma - photonMass * photonMass) / 2. / (fEa * units("eV"));
-    mpfr::mpreal l = cohLength * REST_Physics::PhMeterIneV;
-    mpfr::mpreal phi = q * l;
+    Double_t q = (ma * ma - photonMass * photonMass) / 2. / (fEa * units("eV"));
+    Double_t l = cohLength * REST_Physics::PhMeterIneV;
+    Double_t phi = q * l;
 
-    mpfr::mpreal Gamma = absLength;
+    Double_t Gamma = absLength;
     if (absLength == 0 && fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(fEa);  // cm-1
-    mpfr::mpreal GammaL = Gamma * cohLength * units("cm")/units("m");
+    Double_t GammaL = Gamma * cohLength * units("cm")/units("m");
 
     if (fDebug) {
         RESTDebug << "+------------------------+" << RESTendl;
@@ -580,7 +577,7 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, D
         RESTDebug << "+------------------------+" << RESTendl;
     }
 
-    mpfr::mpreal MFactor = phi * phi + GammaL * GammaL / 4.0;
+    Double_t MFactor = phi * phi + GammaL * GammaL / 4.0;
     MFactor = 1.0 / MFactor;
 
     if (fDebug) {
