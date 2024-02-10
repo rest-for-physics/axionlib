@@ -179,7 +179,7 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
         else
             fBufferGasAdditionalLength = 0;
 
-		fAxionField->AssignMagneticField(fMagneticField);
+        fAxionField->AssignMagneticField(fMagneticField);
     }
 
     RESTDebug << "Axion-field : " << fAxionField << RESTendl;
@@ -192,22 +192,23 @@ TRestEvent* TRestAxionFieldPropagationProcess::ProcessEvent(TRestEvent* evInput)
 
     RESTDebug << "TRestAxionFieldPropagationProcess::ProcessEvent : " << fAxionEvent->GetID() << RESTendl;
 
-	fMagneticField->SetTrack( fAxionEvent->GetPosition(), fAxionEvent->GetDirection() );
+    fMagneticField->SetTrack(fAxionEvent->GetPosition(), fAxionEvent->GetDirection());
 
-	Double_t Ea = fAxionEvent->GetEnergy();
-	Double_t ma = fAxionEvent->GetMass() * units("eV");
+    Double_t Ea = fAxionEvent->GetEnergy();
+    Double_t ma = fAxionEvent->GetMass() * units("eV");
 
-	std::pair<Double_t,Double_t> prob = fAxionField->GammaTransmissionFieldMapProbability( Ea, ma, fAccuracy,  fNumIntervals, fQawoLevels );
+    std::pair<Double_t, Double_t> prob =
+        fAxionField->GammaTransmissionFieldMapProbability(Ea, ma, fAccuracy, fNumIntervals, fQawoLevels);
 
     SetObservableValue("probability", prob.first);
     SetObservableValue("error", prob.second);
 
     Double_t transmission = 1;
-	if (fBufferGas && fBufferGasAdditionalLength > 0) {
-		Double_t Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
-		Double_t GammaL = Gamma * fBufferGasAdditionalLength * units("cm");
-		transmission = exp(-GammaL);
-	}
+    if (fBufferGas && fBufferGasAdditionalLength > 0) {
+        Double_t Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea);  // cm-1
+        Double_t GammaL = Gamma * fBufferGasAdditionalLength * units("cm");
+        transmission = exp(-GammaL);
+    }
 
     SetObservableValue("transmission", transmission);
 

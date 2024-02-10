@@ -37,17 +37,17 @@ class TRestAxionFieldPropagationProcess : public TRestAxionEventProcess {
     /// The additional length in mm that the converted photon propagates without magnetic field
     Double_t fBufferGasAdditionalLength = 0;  //<
 
-	/// The tolerance or accuracy used inside the GSL integrator
-	Double_t fAccuracy = 0.1;
+    /// The tolerance or accuracy used inside the GSL integrator
+    Double_t fAccuracy = 0.1;
 
-	/// Number of intervales used by the GSL integrator
-	Int_t fNumIntervals = 100;
+    /// Number of intervales used by the GSL integrator
+    Int_t fNumIntervals = 100;
 
-	/// Number of levels used by the GSL integrator to parameterize the cosine integral
-	Int_t fQawoLevels = 20;
+    /// Number of levels used by the GSL integrator to parameterize the cosine integral
+    Int_t fQawoLevels = 20;
 
-	/// It will re-size the cells in the magnetic field (affecting the time required for integral computation)
-	TVector3 fReMap = TVector3(30,30,100);
+    /// It will re-size the cells in the magnetic field (affecting the time required for integral computation)
+    TVector3 fReMap = TVector3(30, 30, 100);
 
     /// A pointer to the magnetic field description stored in TRestRun
     TRestAxionMagneticField* fMagneticField = nullptr;  //!
