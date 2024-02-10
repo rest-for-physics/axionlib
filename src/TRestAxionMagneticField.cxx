@@ -1073,39 +1073,42 @@ void TRestAxionMagneticField::ReMap( Double_t sX, Double_t sY, Double_t sZ )
 		return;
 	}
 
-	Double_t remainder = std::fmod(sX, fMeshSize[0].X()) + std::fmod(sY, fMeshSize[0].Y()) + std::fmod(sZ, fMeshSize[0].Z());
-	if( remainder != 0 )
+	for( size_t n = 0; n < fMagneticFieldVolumes.size(); n++ )
 	{
-		RESTError << "TRestAxionMagneticField::ReMap. The field cannot be remapped."<< RESTendl;
-		RESTError << "The new mesh granularity must be a multiple of the existing granularity." << RESTendl;
-		RESTError << "Present mesh size : (" << fMeshSize[0].X() << ", " << fMeshSize[0].Y() << ", " << fMeshSize[0].Z() << ")" << RESTendl;
-		RESTError << "Requested mesh size : (" << sX << ", " << sY << ", " << sZ << ")" << RESTendl;
-		RESTError << "Remapping will not take effect" << RESTendl;
-		return;
+		Double_t remainder = std::fmod(sX, fMeshSize[n].X()) + std::fmod(sY, fMeshSize[n].Y()) + std::fmod(sZ, fMeshSize[n].Z());
+		if( remainder != 0 )
+		{
+			RESTError << "TRestAxionMagneticField::ReMap. The field cannot be remapped."<< RESTendl;
+			RESTError << "The new mesh granularity must be a multiple of the existing granularity." << RESTendl;
+			RESTError << "Present mesh size : (" << fMeshSize[n].X() << ", " << fMeshSize[n].Y() << ", " << fMeshSize[n].Z() << ")" << RESTendl;
+			RESTError << "Requested mesh size : (" << sX << ", " << sY << ", " << sZ << ")" << RESTendl;
+			RESTError << "Remapping will not take effect" << RESTendl;
+			return;
+		}
+
+		Int_t scaleX = (Int_t) (sX/fMeshSize[n].X());
+		Int_t scaleY = (Int_t) (sY/fMeshSize[n].Y());
+		Int_t scaleZ = (Int_t) (sZ/fMeshSize[n].Z());
+
+		Int_t newNodesX = (fMagneticFieldVolumes[n].mesh.GetNodesX()-1)/scaleX + 1;
+		Int_t newNodesY = (fMagneticFieldVolumes[n].mesh.GetNodesY()-1)/scaleY + 1;
+		Int_t newNodesZ = (fMagneticFieldVolumes[n].mesh.GetNodesZ()-1)/scaleZ + 1;
+
+		for( Int_t nx = 0; nx < newNodesX; nx++ )
+			for( Int_t ny = 0; ny < newNodesY; ny++ )
+				for( Int_t nz = 0; nz < newNodesZ; nz++ )
+					fMagneticFieldVolumes[n].field[nx][ny][nz] = fMagneticFieldVolumes[n].field[nx*scaleX][ny*scaleY][nz*scaleZ];
+
+		fMagneticFieldVolumes[n].mesh.SetNodes(newNodesX, newNodesY, newNodesZ);
+		fMagneticFieldVolumes[n].field.resize(fMagneticFieldVolumes[n].mesh.GetNodesX());
+		for (unsigned int i = 0; i < fMagneticFieldVolumes[n].field.size(); n++) {
+			fMagneticFieldVolumes[n].field[n].resize(fMagneticFieldVolumes[n].mesh.GetNodesY());
+			for (unsigned int j = 0; j < fMagneticFieldVolumes[n].field[i].size(); m++)
+				fMagneticFieldVolumes[n].field[i][j].resize(fMagneticFieldVolumes[n].mesh.GetNodesZ());
+		}
+
+		fMeshSize[n] = TVector3( fMeshSize[n].X() * scaleX, fMeshSize[n].Y() * scaleY, fMeshSize[n].Z() * scaleZ );
 	}
-
-	Int_t scaleX = (Int_t) (sX/fMeshSize[0].X());
-	Int_t scaleY = (Int_t) (sY/fMeshSize[0].Y());
-	Int_t scaleZ = (Int_t) (sZ/fMeshSize[0].Z());
-
-	Int_t newNodesX = (fMagneticFieldVolumes[0].mesh.GetNodesX()-1)/scaleX + 1;
-	Int_t newNodesY = (fMagneticFieldVolumes[0].mesh.GetNodesY()-1)/scaleY + 1;
-	Int_t newNodesZ = (fMagneticFieldVolumes[0].mesh.GetNodesZ()-1)/scaleZ + 1;
-
-	for( Int_t nx = 0; nx < newNodesX; nx++ )
-		for( Int_t ny = 0; ny < newNodesY; ny++ )
-			for( Int_t nz = 0; nz < newNodesZ; nz++ )
-				fMagneticFieldVolumes[0].field[nx][ny][nz] = fMagneticFieldVolumes[0].field[nx*scaleX][ny*scaleY][nz*scaleZ];
-
-	fMagneticFieldVolumes[0].mesh.SetNodes(newNodesX, newNodesY, newNodesZ);
-	fMagneticFieldVolumes[0].field.resize(fMagneticFieldVolumes[0].mesh.GetNodesX());
-	for (unsigned int n = 0; n < fMagneticFieldVolumes[0].field.size(); n++) {
-		fMagneticFieldVolumes[0].field[n].resize(fMagneticFieldVolumes[0].mesh.GetNodesY());
-		for (unsigned int m = 0; m < fMagneticFieldVolumes[0].field[n].size(); m++)
-			fMagneticFieldVolumes[0].field[n][m].resize(fMagneticFieldVolumes[0].mesh.GetNodesZ());
-	}
-
-	fMeshSize[0] = TVector3( fMeshSize[0].X() * scaleX, fMeshSize[0].Y() * scaleY, fMeshSize[0].Z() * scaleZ );
 }
 
 ///////////////////////////////////////////////
