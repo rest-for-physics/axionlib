@@ -1193,6 +1193,41 @@ std::vector<Double_t> TRestAxionMagneticField::GetTransversalComponentAlongPath(
 }
 
 ///////////////////////////////////////////////
+/// \brief It initializes the field track boundaries data members of this class using a 
+/// track position and direction so that these values can be used later on in parameterization.
+///
+void TRestAxionMagneticField::SetTrack( const TVector3 &position, const TVector3 &direction )
+{
+	std::vector<TVector3> trackBounds = GetFieldBoundaries(position, direction);
+
+	if( trackBounds.size() != 2 )
+	{
+		fTrackStart = TVector3(0,0,0);
+		fTrackDirection = TVector3(0,0,0);
+		fTrackLength = 0;
+	}
+
+	fTrackStart = trackBounds[0];
+	fTrackLength = (trackBounds[1] - trackBounds[0]).Mag() - 1;
+	fTrackDirection = (trackBounds[1] - trackBounds[0]).Unit();
+}
+
+///////////////////////////////////////////////
+/// \brief It will return the transversal magnetic field component evaluated at a parametric
+/// distance `x` (given by argument) for the track defined inside the class. The track will 
+/// be defined by the data members fStartTrack and fEndTrack which should be initialized by
+/// external means by invoking the method SetTrack( position, direction );
+///
+/// This method will be used by the integration method
+///
+Double_t TRestAxionMagneticField::GetTransversalComponentInParametricTrack( Double_t x ) {
+	if( x < 0 || x > fTrackLength )
+		return 0;
+
+	return GetTransversalComponent(fTrackStart + x * fTrackDirection, fTrackDirection);
+}
+
+///////////////////////////////////////////////
 /// \brief It returns the average of the transversal magnetic field intensity between the 3-d coordinates
 /// `from` and `to`.
 ///

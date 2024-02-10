@@ -70,6 +70,15 @@ class TRestAxionMagneticField : public TRestMetadata {
     /// A magnetic field volume structure to store field data and mesh.
     std::vector<MagneticFieldVolume> fMagneticFieldVolumes;  //!
 
+	/// The start track position used to parameterize the field along a track
+	TVector3 fTrackStart = TVector3(0,0,0); //!
+	
+	/// The track direction used to parameterize the field along a track
+	TVector3 fTrackDirection = TVector3(0,0,0); //!
+
+	/// The total length of the track which defines the limit for field parameterization
+	Double_t fTrackLength = 0; //!
+
     /// A helper histogram to plot the field
     TH2D* fHisto;  //!
 
@@ -104,6 +113,12 @@ class TRestAxionMagneticField : public TRestMetadata {
 
 	void ReMap( Double_t sX, Double_t sY, Double_t sZ );
 
+	void SetTrack( const TVector3 &position, const TVector3 &direction );
+	
+	Double_t GetTrackLength() const { return fTrackLength; }
+	TVector3 GetTrackStart() const { return fTrackStart; }
+	TVector3 GetTrackDirection() const { return fTrackDirection; }
+
     /// It returns true if no magnetic field map was loaded for that volume
     Bool_t IsFieldConstant(Int_t id) {
         if (GetMagneticVolume(id)) return GetMagneticVolume(id)->field.size() == 0;
@@ -137,6 +152,7 @@ class TRestAxionMagneticField : public TRestMetadata {
     TVector3 GetVolumeCenter(Int_t id);
 
     Double_t GetTransversalComponent(TVector3 position, TVector3 direction);
+	Double_t GetTransversalComponentInParametricTrack( Double_t x );
 
     std::vector<Double_t> GetTransversalComponentAlongPath(TVector3 from, TVector3 to, Double_t dl = 1.,
                                                            Int_t Nmax = 0);
