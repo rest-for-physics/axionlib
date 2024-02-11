@@ -49,10 +49,8 @@
 
 #include "TH1F.h"
 
-#ifdef USE_MPFR
-#include "TRestComplex.h"
-#endif
 
+#include <TComplex.h>
 #include <gsl/gsl_integration.h>
 
 #include <numeric>
@@ -78,10 +76,6 @@ TRestAxionField::~TRestAxionField() {}
 /// So that we can still calculate numbers such as : 1.0 - 1.e-30
 ///
 void TRestAxionField::Initialize() {
-#ifdef USE_MPFR
-    TRestComplex::SetPrecision(30);
-#endif
-
     fBufferGas = NULL;
 
     /// MOVED TO TRestAxionFieldPropagationProcess class
@@ -286,17 +280,17 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
 
     /// We integrate following the Midpoint rule method. (Other potential options : Trapezoidal, Simpsons)
 	Double_t deltaIneV = deltaL * units("m") * REST_Physics::PhMeterIneV;
-	TRestComplex sum(0, 0);
+	TComplex sum(0, 0);
 	for (unsigned int n = 0; n < Bmag.size() - 1; n++) {
 		Double_t Bmiddle = 0.5 * (Bmag[n] + Bmag[n + 1]);
 
 		Double_t lStepIneV = ((double)n + 0.5) * deltaIneV;
 		Double_t lStepInCm = ((double)n + 0.5) * deltaL * units("cm");
 
-		TRestComplex qCgC(0.5 * Gamma * lStepInCm, -q * lStepIneV);
-		qCgC = TRestComplex::Exp(qCgC);
+		TComplex qCgC(0.5 * Gamma * lStepInCm, -q * lStepIneV);
+		qCgC = TComplex::Exp(qCgC);
 
-		TRestComplex integrand = Bmiddle * deltaL * qCgC;  // The integrand is in T by mm
+		TComplex integrand = Bmiddle * deltaL * qCgC;  // The integrand is in T by mm
 
 		sum += integrand;
 	}
@@ -352,7 +346,7 @@ std::pair<Double_t, Double_t> TRestAxionField::GammaTransmissionFieldMapProbabil
     }
 
     double q = (ma * ma - photonMass * photonMass) / 2. / (Ea * units("eV"));
-    q = q / REST_Physics::eVInPhMeter * units("m") / units("mm");  // mm-1
+    q = q * REST_Physics::PhMeterIneV * units("m") / units("mm");  // mm-1
 
     double Gamma = 0;
     if (fBufferGas) Gamma = fBufferGas->GetPhotonAbsorptionLength(Ea) * units("cm") / units("mm");  // mm-1
