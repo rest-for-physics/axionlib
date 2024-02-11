@@ -26,8 +26,13 @@
         </addProcess>
         <addProcess type="TRestAxionTransportProcess" zPosition="-5m" name="to5m"/>
         <addProcess type="TRestAxionDeviationProcess" name="dev" devAngle="2deg" seed="137"/>
-		<!--- Needs to be adapted to new release v2.4.2 -->
-        <addProcess type="TRestAxionFieldPropagationProcess" name="axionPhoton" integrationStep="5cm" bufferGasAdditionalLength="3m" observables="all" verboseLevel="info"/>
+
+        <addProcess type="TRestAxionFieldPropagationProcess" name="axionPhoton" bufferGasAdditionalLength="3m" observables="all" verboseLevel="info">
+			<parameter name="accuracy" value="0.1"/>
+			<parameter name="numIntervals" value="100" />
+			<parameter name="qawoLevels" value="20"/>
+		</addProcess>
+
         <addProcess type="TRestAxionAnalysisProcess" name="at5m" observables="all"/>
     </TRestProcessRunner>
     <addTask command="EventProcess-&gt;RunProcess()" value="ON"/>
