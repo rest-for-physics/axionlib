@@ -72,7 +72,13 @@ class TRestAxionFieldPropagationProcess : public TRestAxionEventProcess {
     void PrintMetadata() override {
         BeginPrintProcess();
 
-        RESTMetadata << "Integration step length : " << fIntegrationStep << " mm" << RESTendl;
+		RESTMetadata << "Integration parameters" << RESTendl;
+        RESTMetadata << "- Integration accuracy/tolerance : " << fAccuracy << RESTendl;
+        RESTMetadata << "- Max number of integration intervals : " << fNumIntervals << RESTendl;
+        RESTMetadata << "- Number of QAWO levels : " << fQawoLevels << RESTendl;
+		RESTMetadata << " " << RESTendl;
+		RESTMetadata << "Field re-mapping size : (" << fReMap.X() << ", " << fReMap.Y() << ", " << fReMap.Z() << ")" << RESTendl;
+		RESTMetadata << " " << RESTendl;
         RESTMetadata << "Buffer gas additional length : " << fBufferGasAdditionalLength * units("m") << " m"
                      << RESTendl;
 
