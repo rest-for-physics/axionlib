@@ -46,7 +46,7 @@ Int_t ValidateChain(std::string fname) {
     Double_t integral2 = g->Integral() / run->GetEntries();
     std::cout << "Average window transmission : " << integral2 << std::endl;
 
-    if (integral < 2.01953e-22 || integral > 1.99953e-22) {
+    if (integral > 2.01953e-22 || integral < 1.99953e-22) {
         std::cout << "Axion-photon probability is not within the expected range!" << std::endl;
         return 3;
     }
