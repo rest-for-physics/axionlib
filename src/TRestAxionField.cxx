@@ -139,13 +139,6 @@ double TRestAxionField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
 Double_t TRestAxionField::GammaTransmissionProbability(Double_t ma, Double_t mg, Double_t absLength) {
-#ifndef USE_MPFR
-    RESTWarning
-        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
-        << RESTendl;
-    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
-    return 0;
-#else
     Double_t cohLength = fLcoh * units("m");  // Default REST units are mm;
 
     Double_t photonMass = mg;
@@ -198,7 +191,6 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t ma, Double_t mg,
     if (fDebug) std::cout << "Axion-photon transmission probability : " << sol << std::endl;
 
     return sol;
-#endif
 }
 
 ///////////////////////////////////////////////
@@ -236,14 +228,6 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t Bmag, Double_t L
 Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL,
                                                        Double_t Ea, Double_t ma, Double_t mg,
                                                        Double_t absLength) {
-#ifndef USE_MPFR
-    RESTWarning
-        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFR=ON to your REST compilation"
-        << RESTendl;
-    RESTWarning << "TRestAxionField::GammaTransmissionProbability will return 0" << RESTendl;
-    return 0;
-#else
-
     // Default REST units are mm. We express cohLength in m.
     Double_t Lcoh = (Bmag.size() - 1) * deltaL;  // in mm
     Double_t cohLength = Lcoh * units("m");      // in m
@@ -301,37 +285,28 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
     }
 
     /// We integrate following the Midpoint rule method. (Other potential options : Trapezoidal, Simpsons)
-    /*
-Double_t deltaIneV = deltaL * units("m") * REST_Physics::PhMeterIneV;
-TRestComplex sum(0, 0);
-    for (unsigned int n = 0; n < Bmag.size() - 1; n++) {
-            Double_t Bmiddle = 0.5 * (Bmag[n] + Bmag[n + 1]);
+	Double_t deltaIneV = deltaL * units("m") * REST_Physics::PhMeterIneV;
+	TRestComplex sum(0, 0);
+	for (unsigned int n = 0; n < Bmag.size() - 1; n++) {
+		Double_t Bmiddle = 0.5 * (Bmag[n] + Bmag[n + 1]);
 
-            Double_t lStepIneV = ((double)n + 0.5) * deltaIneV;
-            Double_t lStepInCm = ((double)n + 0.5) * deltaL * units("cm");
+		Double_t lStepIneV = ((double)n + 0.5) * deltaIneV;
+		Double_t lStepInCm = ((double)n + 0.5) * deltaL * units("cm");
 
-            TRestComplex qCgC(0.5 * Gamma * lStepInCm, -q * lStepIneV);
-            qCgC = TRestComplex::Exp(qCgC);
+		TRestComplex qCgC(0.5 * Gamma * lStepInCm, -q * lStepIneV);
+		qCgC = TRestComplex::Exp(qCgC);
 
-            TRestComplex integrand = Bmiddle * deltaL * qCgC;  // The integrand is in T by mm
+		TRestComplex integrand = Bmiddle * deltaL * qCgC;  // The integrand is in T by mm
 
-            sum += integrand;
-    }
-    */
+		sum += integrand;
+	}
 
-    Double_t sol = 0;
-    //   Double_t sol = exp(-GammaL) * sum.Rho2() * BLHalfSquared(1, 1);
+    Double_t sol = exp(-GammaL) * sum.Rho2() * BLHalfSquared(1, 1);
     // Now T and mm have been recalculated in natural units using BLHalfSquared(1,1).
-
-    /*
-    double sol =
-    (double)(MFactor * BLHalfSquared(Bmag, Lcoh) * (1 + exp(-GammaL) - 2 * exp(-GammaL / 2) * cos(phi)));
-            */
 
     if (fDebug) std::cout << "Axion-photon transmission probability : " << sol << std::endl;
 
     return (Double_t)sol;
-#endif
 }
 
 ///////////////////////////////////////////////
@@ -539,13 +514,6 @@ std::pair<Double_t, Double_t> TRestAxionField::ComputeOffResonanceIntegral(Doubl
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
 Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, Double_t absLength) {
-#ifndef USE_MPFR
-    RESTWarning
-        << "MPFR libraries not linked to REST libraries. Try adding -DREST_MPFr=ON to your REST compilation"
-        << RESTendl;
-    RESTWarning << "TRestAxionField::AxionAbsorptionProbability will return 0" << RESTendl;
-    return 0;
-#else
     Double_t cohLength = fLcoh * units("m");  // Default REST units are mm;
 
     Double_t photonMass = mg;
@@ -600,7 +568,6 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, D
     if (fDebug) RESTDebug << "Axion-photon absorption probability : " << sol << RESTendl;
 
     return sol;
-#endif
 }
 
 ///////////////////////////////////////////////
