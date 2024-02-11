@@ -26,6 +26,7 @@
         </addProcess>
         <addProcess type="TRestAxionTransportProcess" zPosition="-5m" name="to5m"/>
         <addProcess type="TRestAxionDeviationProcess" name="dev" devAngle="2deg" seed="137"/>
+		<!--- Needs to be adapted to new release v2.4.2 -->
         <addProcess type="TRestAxionFieldPropagationProcess" name="axionPhoton" integrationStep="5cm" bufferGasAdditionalLength="3m" observables="all" verboseLevel="info"/>
         <addProcess type="TRestAxionAnalysisProcess" name="at5m" observables="all"/>
     </TRestProcessRunner>
