@@ -6,17 +6,18 @@
 #include "TRestAxionBufferGas.h"
 #include "TRestAxionField.h"
 //*******************************************************************************************************
-//*** Description: This script plots the transmission probability as a function of the axion mass for a given
+//*** Description: This script will launch the integration of the axion-field with given parameters.
+//*** It allows to test different magnetic field cell sizes, for a given mass that can be off-resonance
+//*** for dm different from zero, and a given maximum tolerance or error for the integration routine.
+//***
+//*** The macro sets the TRestAxionField under debug mode to print the different results on screen.
 //***
 //*** --------------
-//*** Usage: restManager PlotResonances [ma_max=0.1] [ma_min=0] [Ea=4.2] [Bmag=2.5] [Lcoh=10000] [gasName=He]
-//*** [vacuum=true] [n_ma=10000]
-//***
-//*** Being all of them optional arguments.
+//*** Usage: restManager FieldIntegrationTests [sX=10] [sX=10] [sZ=10] [dm=0.01] [tolerance=0.1] [Ea=4.2]
 //*** --------------
+//***
 //*** Author: Javier Galan
 //*******************************************************************************************************
-
 int REST_Axion_FieldIntegrationTests(Double_t sX = 10, Double_t sY = 10, Double_t sZ = 50, Double_t dm = 0.01,
                                      Double_t tolerance = 0.1, Double_t Ea = 4.2) {
     /// Setting up magnetic field and track to evaluate
