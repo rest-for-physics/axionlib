@@ -45,15 +45,13 @@
 ///
 #include "TRestAxionField.h"
 
-#include <TVectorD.h>
-
-#include "TH1F.h"
-
-
 #include <TComplex.h>
+#include <TVectorD.h>
 #include <gsl/gsl_integration.h>
 
 #include <numeric>
+
+#include "TH1F.h"
 
 using namespace std;
 
@@ -279,21 +277,21 @@ Double_t TRestAxionField::GammaTransmissionProbability(std::vector<Double_t> Bma
     }
 
     /// We integrate following the Midpoint rule method. (Other potential options : Trapezoidal, Simpsons)
-	Double_t deltaIneV = deltaL * units("m") * REST_Physics::PhMeterIneV;
-	TComplex sum(0, 0);
-	for (unsigned int n = 0; n < Bmag.size() - 1; n++) {
-		Double_t Bmiddle = 0.5 * (Bmag[n] + Bmag[n + 1]);
+    Double_t deltaIneV = deltaL * units("m") * REST_Physics::PhMeterIneV;
+    TComplex sum(0, 0);
+    for (unsigned int n = 0; n < Bmag.size() - 1; n++) {
+        Double_t Bmiddle = 0.5 * (Bmag[n] + Bmag[n + 1]);
 
-		Double_t lStepIneV = ((double)n + 0.5) * deltaIneV;
-		Double_t lStepInCm = ((double)n + 0.5) * deltaL * units("cm");
+        Double_t lStepIneV = ((double)n + 0.5) * deltaIneV;
+        Double_t lStepInCm = ((double)n + 0.5) * deltaL * units("cm");
 
-		TComplex qCgC(0.5 * Gamma * lStepInCm, -q * lStepIneV);
-		qCgC = TComplex::Exp(qCgC);
+        TComplex qCgC(0.5 * Gamma * lStepInCm, -q * lStepIneV);
+        qCgC = TComplex::Exp(qCgC);
 
-		TComplex integrand = Bmiddle * deltaL * qCgC;  // The integrand is in T by mm
+        TComplex integrand = Bmiddle * deltaL * qCgC;  // The integrand is in T by mm
 
-		sum += integrand;
-	}
+        sum += integrand;
+    }
 
     Double_t sol = exp(-GammaL) * sum.Rho2() * BLHalfSquared(1, 1);
     // Now T and mm have been recalculated in natural units using BLHalfSquared(1,1).
