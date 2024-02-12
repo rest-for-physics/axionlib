@@ -1,4 +1,3 @@
-[![pipeline status](https://gitlab.cern.ch/rest-for-physics/axionlib/badges/master/pipeline.svg)](https://gitlab.cern.ch/rest-for-physics/axionlib/-/commits/master)
 [![website](https://img.shields.io/badge/user-guide-E8B6FF.svg)](https://rest-for-physics.github.io)
 [![api](https://img.shields.io/badge/user-API-FFCA78.svg)](https://sultan.unizar.es/rest/)
 [![forum](https://img.shields.io/badge/user-forum-AAFF90.svg)](https://rest-forum.unizar.es/)
