@@ -43,7 +43,7 @@ struct MagneticFieldVolume {
     TRestMesh mesh;
 
     /// The field data connected to the grid defined by the mesh
-    std::vector<std::vector<std::vector<TVector3>>> field;
+    std::vector<TVector3> field;
 };
 
 /// A class to load magnetic field maps and evaluate the field on those maps including interpolation.
@@ -111,6 +111,8 @@ class TRestAxionMagneticField : public TRestMetadata {
             return NULL;
         }
     }
+
+	size_t GetArrayElement( MagneticFieldVolume &mVol, Int_t nx, Int_t ny, Int_t nz);
 
    public:
     void LoadMagneticVolumes();

@@ -696,6 +696,11 @@ TCanvas* TRestAxionMagneticField::DrawTracks(TVector3 vanishingPoint, Int_t divi
     return fCanvas;
 }
 
+size_t TRestAxionMagneticField::GetArrayElement( MagneticFieldVolume &mVol, Int_t nx, Int_t ny, Int_t nz)
+{
+	return (size_t) (nx*mVol.mesh.GetNodesY()*mVol.mesh.GetNodesZ() + ny*mVol.mesh.GetNodesZ() + nz);
+}
+
 ///////////////////////////////////////////////
 /// \brief A method to help loading magnetic field data, as x,y,z,Bx,By,Bz into a magnetic volume
 /// definition using its corresponding mesh.
@@ -704,12 +709,7 @@ TCanvas* TRestAxionMagneticField::DrawTracks(TVector3 vanishingPoint, Int_t divi
 ///
 void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
                                                     std::vector<std::vector<Float_t>> data) {
-    mVol.field.resize(mVol.mesh.GetNodesX());
-    for (unsigned int n = 0; n < mVol.field.size(); n++) {
-        mVol.field[n].resize(mVol.mesh.GetNodesY());
-        for (unsigned int m = 0; m < mVol.field[n].size(); m++)
-            mVol.field[n][m].resize(mVol.mesh.GetNodesZ());
-    }
+    mVol.field.resize(mVol.mesh.GetNodesX() * mVol.mesh.GetNodesY() * mVol.mesh.GetNodesZ());
 
     RESTDebug << "TRestAxionMagneticField::LoadMagneticFieldData. Printing first 5 data rows" << RESTendl;
     for (unsigned int n = 0; n < data.size(); n++) {
@@ -719,6 +719,8 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
         Int_t nX = mVol.mesh.GetNodeX((Int_t)(data[n][0] + mVol.mesh.GetNetSizeX() / 2.), true);
         Int_t nY = mVol.mesh.GetNodeY((Int_t)(data[n][1] + mVol.mesh.GetNetSizeY() / 2.), true);
         Int_t nZ = mVol.mesh.GetNodeZ((Int_t)(data[n][2] + mVol.mesh.GetNetSizeZ() / 2.), true);
+
+		size_t element = GetArrayElement( mVol, nX, nY, nZ );
 
         if (n < 5) {
             RESTDebug << "X: " << data[n][0] << " Y: " << data[n][1] << " Z: " << data[n][2] << RESTendl;
@@ -730,15 +732,15 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
             if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) GetChar();
         }
 
-        if (mVol.field[nX][nY][nZ] != TVector3(0.0, 0.0, 0.0)) {
+        if (mVol.field[element] != TVector3(0.0, 0.0, 0.0)) {
             RESTWarning << "X: " << data[n][0] << " Y: " << data[n][1] << " Z: " << data[n][2] << RESTendl;
             RESTWarning << "nX: " << nX << " nY: " << nY << " nZ: " << nZ << RESTendl;
             RESTWarning << "WARNING: field[nX][nY][nZ] element not equal to initial value (0, 0, 0) !!"
                         << RESTendl;
             RESTWarning << "It has value: "
                         << "mVol.field[" << nX << "][" << nY << "][" << nZ << "] = ("
-                        << mVol.field[nX][nY][nZ].X() << " , " << mVol.field[nX][nY][nZ].Y() << " , "
-                        << mVol.field[nX][nY][nZ].Z() << ")" << RESTendl;
+                        << mVol.field[element].X() << " , " << mVol.field[element].Y() << " , "
+                        << mVol.field[element].Z() << ")" << RESTendl;
             RESTWarning << "Values to write: "
                         << "Bx: " << data[n][3] << " By: " << data[n][4] << " Bz: " << data[n][5] << RESTendl
                         << RESTendl;
@@ -747,7 +749,8 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
             if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) GetChar();
         }
 
-        mVol.field[nX][nY][nZ] = TVector3(data[n][3], data[n][4], data[n][5]);
+
+        mVol.field[element] = TVector3(data[n][3], data[n][4], data[n][5]);
     }
 }
 
@@ -970,14 +973,30 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos, Bool_t showWarn
         else
             nZ_1 = nZ;
 
-        TVector3 C000 = fMagneticFieldVolumes[id].field[nX][nY][nZ] + fConstantField[id];
-        TVector3 C100 = fMagneticFieldVolumes[id].field[nX_1][nY][nZ] + fConstantField[id];
-        TVector3 C010 = fMagneticFieldVolumes[id].field[nX][nY_1][nZ] + fConstantField[id];
-        TVector3 C110 = fMagneticFieldVolumes[id].field[nX_1][nY_1][nZ] + fConstantField[id];
-        TVector3 C001 = fMagneticFieldVolumes[id].field[nX][nY][nZ_1] + fConstantField[id];
-        TVector3 C101 = fMagneticFieldVolumes[id].field[nX_1][nY][nZ_1] + fConstantField[id];
-        TVector3 C011 = fMagneticFieldVolumes[id].field[nX][nY_1][nZ_1] + fConstantField[id];
-        TVector3 C111 = fMagneticFieldVolumes[id].field[nX_1][nY_1][nZ_1] + fConstantField[id];
+		size_t element;
+		element = GetArrayElement( fMagneticFieldVolumes[id], nX, nY, nZ );
+        TVector3 C000 = fMagneticFieldVolumes[id].field[element] + fConstantField[id];
+
+		element = GetArrayElement( fMagneticFieldVolumes[id], nX_1, nY, nZ );
+        TVector3 C100 = fMagneticFieldVolumes[id].field[element] + fConstantField[id];
+
+		element = GetArrayElement( fMagneticFieldVolumes[id], nX, nY_1, nZ );
+        TVector3 C010 = fMagneticFieldVolumes[id].field[element] + fConstantField[id];
+
+		element = GetArrayElement( fMagneticFieldVolumes[id], nX_1, nY_1, nZ );
+        TVector3 C110 = fMagneticFieldVolumes[id].field[element] + fConstantField[id];
+
+		element = GetArrayElement( fMagneticFieldVolumes[id], nX, nY, nZ_1 );
+        TVector3 C001 = fMagneticFieldVolumes[id].field[element] + fConstantField[id];
+
+		element = GetArrayElement( fMagneticFieldVolumes[id], nX_1, nY, nZ_1 );
+        TVector3 C101 = fMagneticFieldVolumes[id].field[element] + fConstantField[id];
+
+		element = GetArrayElement( fMagneticFieldVolumes[id], nX, nY_1, nZ_1 );
+        TVector3 C011 = fMagneticFieldVolumes[id].field[element] + fConstantField[id];
+
+		element = GetArrayElement( fMagneticFieldVolumes[id], nX_1, nY_1, nZ_1 );
+        TVector3 C111 = fMagneticFieldVolumes[id].field[element] + fConstantField[id];
 
         Double_t x0 = fMagneticFieldVolumes[id].mesh.GetX(nX);
         Double_t x1 = fMagneticFieldVolumes[id].mesh.GetX(nX_1);
@@ -1089,6 +1108,7 @@ void TRestAxionMagneticField::ReMap(const size_t& n, const TVector3& newMapSize)
         return;
     }
 
+	/*
     Int_t scaleX = (Int_t)(newMapSize.X() / fMeshSize[n].X());
     Int_t scaleY = (Int_t)(newMapSize.Y() / fMeshSize[n].Y());
     Int_t scaleZ = (Int_t)(newMapSize.Z() / fMeshSize[n].Z());
@@ -1112,6 +1132,7 @@ void TRestAxionMagneticField::ReMap(const size_t& n, const TVector3& newMapSize)
     }
 
     fMeshSize[n] = TVector3(fMeshSize[n].X() * scaleX, fMeshSize[n].Y() * scaleY, fMeshSize[n].Z() * scaleZ);
+	*/
 }
 
 ///////////////////////////////////////////////
