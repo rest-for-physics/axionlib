@@ -170,9 +170,7 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
         exit(0);
     }
 
-	for( size_t n = 0; n < fMagneticField->GetNumberOfVolumes(); n++ )
-		fMagneticField->ReMap( n, fReMap );
-
+    for (size_t n = 0; n < fMagneticField->GetNumberOfVolumes(); n++) fMagneticField->ReMap(n, fReMap);
 
     if (!fAxionField) {
         fAxionField = new TRestAxionField();
@@ -184,7 +182,8 @@ void TRestAxionFieldPropagationProcess::InitProcess() {
             fBufferGasAdditionalLength = 0;
 
         fAxionField->AssignMagneticField(fMagneticField);
-		if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) fMagneticField->PrintMetadata();
+        if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info)
+            fMagneticField->PrintMetadata();
     }
 
     RESTDebug << "Axion-field : " << fAxionField << RESTendl;
