@@ -24,16 +24,17 @@
 #define _TRestAxionField
 
 #include "TRestAxionBufferGas.h"
+#include "TRestAxionMagneticField.h"
 
 //! A basic class to define analytical axion-photon conversion calculations for axion helioscopes
 class TRestAxionField : public TObject {
    private:
     Bool_t fDebug = false;  //!
 
-    /// The magnetic field in Teslas
+    /// The magnetic field in Teslas (used for constant field formulas)
     Double_t fBmag = 2.5;
 
-    /// The coherence lenght (in mm) where the magnetic field is defined
+    /// The coherence lenght (in mm) where the magnetic field is defined (for constant field)
     Double_t fLcoh = 10000;
 
     /// The energy of the axion in keV
@@ -42,7 +43,16 @@ class TRestAxionField : public TObject {
     void Initialize();
 
     /// A pointer to the buffer gas definition
-    TRestAxionBufferGas* fBufferGas = NULL;  //!
+    TRestAxionBufferGas* fBufferGas = nullptr;  //!
+
+    /// A pointer to the magnetic field definition
+    TRestAxionMagneticField* fMagneticField = nullptr;  //!
+
+    std::pair<Double_t, Double_t> ComputeOffResonanceIntegral(Double_t q, Double_t Gamma, Double_t accuracy,
+                                                              Int_t num_intervals, Int_t qawo_levels);
+
+    std::pair<Double_t, Double_t> ComputeResonanceIntegral(Double_t Gamma, Double_t accuracy,
+                                                           Int_t num_intervals);
 
    public:
     void SetMagneticField(Double_t b) { fBmag = b; }
@@ -62,6 +72,9 @@ class TRestAxionField : public TObject {
     /// It assigns a gas buffer medium to the calculation
     void AssignBufferGas(TRestAxionBufferGas* buffGas) { fBufferGas = buffGas; }
 
+    /// It assigns a magnetic field to the calculation
+    void AssignMagneticField(TRestAxionMagneticField* mField) { fMagneticField = mField; }
+
     /// It assigns a gas buffer medium to the calculation
     void SetBufferGas(TRestAxionBufferGas* buffGas) { fBufferGas = buffGas; }
 
@@ -77,6 +90,21 @@ class TRestAxionField : public TObject {
 
     Double_t GammaTransmissionProbability(std::vector<Double_t> Bmag, Double_t deltaL, Double_t Ea,
                                           Double_t ma, Double_t mg = 0, Double_t absLength = 0);
+
+    std::pair<Double_t, Double_t> GammaTransmissionFieldMapProbability(Double_t Ea, Double_t ma,
+                                                                       Double_t accuracy = 1.e-1,
+                                                                       Int_t num_intervals = 100,
+                                                                       Int_t qawo_levels = 20);
+
+    /// Integrand used for axion-photon probability integration
+    static double Integrand(double x, void* params) {
+        auto* data = reinterpret_cast<std::pair<TRestAxionMagneticField*, double>*>(params);
+
+        TRestAxionMagneticField* field = data->first;
+        double gamma = data->second;
+
+        return exp(0.5 * gamma * x) * field->GetTransversalComponentInParametricTrack(x);
+    }
 
     Double_t GammaTransmissionFWHM(Double_t step = 0.00001);
 

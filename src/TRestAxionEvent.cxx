@@ -159,8 +159,9 @@ void TRestAxionEvent::Translate(const TVector3& delta) { fPosition += delta; }
 void TRestAxionEvent::PrintEvent() {
     TRestEvent::PrintEvent();
 
-    cout << "Energy : " << GetEnergy() << endl;
-    cout << "Position : ( " << fPosition.X() << ", " << fPosition.Y() << ", " << fPosition.Z() << " )"
+    cout << "Mass : " << GetMass() * units("eV") << " eV" << endl;
+    cout << "Energy : " << GetEnergy() << " keV" << endl;
+    cout << "Position : ( " << fPosition.X() << ", " << fPosition.Y() << ", " << fPosition.Z() << " ) mm"
          << endl;
     cout << "Direction : ( " << fDirection.X() << ", " << fDirection.Y() << ", " << fDirection.Z() << " )"
          << endl;

@@ -918,6 +918,10 @@ void TRestAxionMagneticField::LoadMagneticVolumes() {
         RESTError << "TRestAxionMagneticField::LoadMagneticVolumes. Volumes overlap!" << RESTendl;
         exit(1);
     }
+
+    for (size_t n = 0; n < fMagneticFieldVolumes.size(); n++)
+        if (fReMap != TVector3(0, 0, 0)) ReMap(n, fReMap);
+
     RESTDebug << "Finished loading magnetic volumes" << RESTendl;
 }
 
@@ -1060,6 +1064,57 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos, Bool_t showWarn
 }
 
 ///////////////////////////////////////////////
+/// \brief It allows to remap the magnetic field to a larger mesh size. The new mesh
+/// size granularity must be provided by argument, and each dimension  must be a factor of the
+/// present mesh size.
+///
+void TRestAxionMagneticField::ReMap(const size_t& n, const TVector3& newMapSize) {
+    if (newMapSize.X() == 0 || newMapSize.Y() == 0 || newMapSize.Z() == 0) {
+        RESTError << "TRestAxionMagneticField::ReMap. The mesh granularity cannot be 0" << RESTendl;
+        RESTError << "Remapping will not take effect" << RESTendl;
+        return;
+    }
+
+    Double_t remainder = std::fmod(newMapSize.X(), fMeshSize[n].X()) +
+                         std::fmod(newMapSize.Y(), fMeshSize[n].Y()) +
+                         std::fmod(newMapSize.Z(), fMeshSize[n].Z());
+    if (remainder != 0) {
+        RESTError << "TRestAxionMagneticField::ReMap. The field cannot be remapped." << RESTendl;
+        RESTError << "The new mesh granularity must be a multiple of the existing granularity." << RESTendl;
+        RESTError << "Present mesh size : (" << fMeshSize[n].X() << ", " << fMeshSize[n].Y() << ", "
+                  << fMeshSize[n].Z() << ")" << RESTendl;
+        RESTError << "Requested mesh size : (" << newMapSize.X() << ", " << newMapSize.Y() << ", "
+                  << newMapSize.Z() << ")" << RESTendl;
+        RESTError << "Remapping will not take effect" << RESTendl;
+        return;
+    }
+
+    Int_t scaleX = (Int_t)(newMapSize.X() / fMeshSize[n].X());
+    Int_t scaleY = (Int_t)(newMapSize.Y() / fMeshSize[n].Y());
+    Int_t scaleZ = (Int_t)(newMapSize.Z() / fMeshSize[n].Z());
+
+    Int_t newNodesX = (fMagneticFieldVolumes[n].mesh.GetNodesX() - 1) / scaleX + 1;
+    Int_t newNodesY = (fMagneticFieldVolumes[n].mesh.GetNodesY() - 1) / scaleY + 1;
+    Int_t newNodesZ = (fMagneticFieldVolumes[n].mesh.GetNodesZ() - 1) / scaleZ + 1;
+
+    for (Int_t nx = 0; nx < newNodesX; nx++)
+        for (Int_t ny = 0; ny < newNodesY; ny++)
+            for (Int_t nz = 0; nz < newNodesZ; nz++)
+                fMagneticFieldVolumes[n].field[nx][ny][nz] =
+                    fMagneticFieldVolumes[n].field[nx * scaleX][ny * scaleY][nz * scaleZ];
+
+    fMagneticFieldVolumes[n].mesh.SetNodes(newNodesX, newNodesY, newNodesZ);
+    fMagneticFieldVolumes[n].field.resize(fMagneticFieldVolumes[n].mesh.GetNodesX());
+    for (unsigned int i = 0; i < fMagneticFieldVolumes[n].field.size(); i++) {
+        fMagneticFieldVolumes[n].field[n].resize(fMagneticFieldVolumes[n].mesh.GetNodesY());
+        for (unsigned int j = 0; j < fMagneticFieldVolumes[n].field[i].size(); j++)
+            fMagneticFieldVolumes[n].field[i][j].resize(fMagneticFieldVolumes[n].mesh.GetNodesZ());
+    }
+
+    fMeshSize[n] = TVector3(fMeshSize[n].X() * scaleX, fMeshSize[n].Y() * scaleY, fMeshSize[n].Z() * scaleZ);
+}
+
+///////////////////////////////////////////////
 /// \brief It returns the corresponding volume index at the given position. If not found it will return
 /// -1.
 ///
@@ -1141,6 +1196,38 @@ std::vector<Double_t> TRestAxionMagneticField::GetTransversalComponentAlongPath(
     }
 
     return Bt;
+}
+
+///////////////////////////////////////////////
+/// \brief It initializes the field track boundaries data members of this class using a
+/// track position and direction so that these values can be used later on in parameterization.
+///
+void TRestAxionMagneticField::SetTrack(const TVector3& position, const TVector3& direction) {
+    std::vector<TVector3> trackBounds = GetFieldBoundaries(position, direction);
+
+    if (trackBounds.size() != 2) {
+        fTrackStart = TVector3(0, 0, 0);
+        fTrackDirection = TVector3(0, 0, 0);
+        fTrackLength = 0;
+    }
+
+    fTrackStart = trackBounds[0];
+    fTrackLength = (trackBounds[1] - trackBounds[0]).Mag() - 1;
+    fTrackDirection = (trackBounds[1] - trackBounds[0]).Unit();
+}
+
+///////////////////////////////////////////////
+/// \brief It will return the transversal magnetic field component evaluated at a parametric
+/// distance `x` (given by argument) for the track defined inside the class. The track will
+/// be defined by the data members fStartTrack and fEndTrack which should be initialized by
+/// external means by invoking the method SetTrack( position, direction );
+///
+/// This method will be used by the integration method
+///
+Double_t TRestAxionMagneticField::GetTransversalComponentInParametricTrack(Double_t x) {
+    if (x < 0 || x > fTrackLength) return 0;
+
+    return GetTransversalComponent(fTrackStart + x * fTrackDirection, fTrackDirection);
 }
 
 ///////////////////////////////////////////////
@@ -1327,7 +1414,7 @@ std::vector<TVector3> TRestAxionMagneticField::GetFieldBoundaries(TVector3 pos, 
 /// \brief Initialization of TRestAxionMagnetic field members through a RML file
 ///
 void TRestAxionMagneticField::InitFromConfigFile() {
-    this->Initialize();
+    TRestMetadata::InitFromConfigFile();
 
     auto magVolumeDef = GetElement("addMagneticVolume");
     while (magVolumeDef) {
@@ -1399,6 +1486,11 @@ void TRestAxionMagneticField::InitFromConfigFile() {
 ///
 void TRestAxionMagneticField::PrintMetadata() {
     TRestMetadata::PrintMetadata();
+
+    if (fReMap != TVector3(0, 0, 0)) {
+        RESTMetadata << "Fields original mesh size has been remapped" << RESTendl;
+        RESTMetadata << " " << RESTendl;
+    }
 
     RESTMetadata << " - Number of magnetic volumes : " << GetNumberOfVolumes() << RESTendl;
     RESTMetadata << " ------------------------------------------------ " << RESTendl;

@@ -34,11 +34,20 @@
 //! A process to introduce the magnetic field profile integration along the track
 class TRestAxionFieldPropagationProcess : public TRestAxionEventProcess {
    private:
-    /// The differential length in mm used for the field integration
-    Double_t fIntegrationStep = 50;  //<
-
     /// The additional length in mm that the converted photon propagates without magnetic field
     Double_t fBufferGasAdditionalLength = 0;  //<
+
+    /// The tolerance or accuracy used inside the GSL integrator
+    Double_t fAccuracy = 0.1;
+
+    /// Number of intervales used by the GSL integrator
+    Int_t fNumIntervals = 100;
+
+    /// Number of levels used by the GSL integrator to parameterize the cosine integral
+    Int_t fQawoLevels = 20;
+
+    /// It will re-size the cells in the magnetic field (affecting the time required for integral computation)
+    TVector3 fReMap = TVector3(30, 30, 100);
 
     /// A pointer to the magnetic field description stored in TRestRun
     TRestAxionMagneticField* fMagneticField = nullptr;  //!
@@ -63,7 +72,14 @@ class TRestAxionFieldPropagationProcess : public TRestAxionEventProcess {
     void PrintMetadata() override {
         BeginPrintProcess();
 
-        RESTMetadata << "Integration step length : " << fIntegrationStep << " mm" << RESTendl;
+        RESTMetadata << "Integration parameters" << RESTendl;
+        RESTMetadata << "- Integration accuracy/tolerance : " << fAccuracy << RESTendl;
+        RESTMetadata << "- Max number of integration intervals : " << fNumIntervals << RESTendl;
+        RESTMetadata << "- Number of QAWO levels : " << fQawoLevels << RESTendl;
+        RESTMetadata << " " << RESTendl;
+        RESTMetadata << "Field re-mapping size : (" << fReMap.X() << ", " << fReMap.Y() << ", " << fReMap.Z()
+                     << ")" << RESTendl;
+        RESTMetadata << " " << RESTendl;
         RESTMetadata << "Buffer gas additional length : " << fBufferGasAdditionalLength * units("m") << " m"
                      << RESTendl;
 

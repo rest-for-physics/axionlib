@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <TRestManager name="SpecPlot" title="Example" verboseLevel="info">
     <TRestRun name="DummyRun"/>
+	<!--- Some of these observables are only available up to release v2.4.1. After release v2.4.2 these observables have changed! -->
     <TRestAnalysisPlot name="restplot" title="Optics Plots" verboseLevel="warning">
         <parameter name="previewPlot" value="false"/>
         <canvas size="(3600,2400)" divide="(3,3)" save="axionFieldPlots.png"/>
