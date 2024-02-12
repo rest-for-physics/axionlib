@@ -72,7 +72,7 @@ class TRestAxionField : public TObject {
     /// It assigns a gas buffer medium to the calculation
     void AssignBufferGas(TRestAxionBufferGas* buffGas) { fBufferGas = buffGas; }
 
-    /// It assigns a gas buffer medium to the calculation
+    /// It assigns a magnetic field to the calculation
     void AssignMagneticField(TRestAxionMagneticField* mField) { fMagneticField = mField; }
 
     /// It assigns a gas buffer medium to the calculation
