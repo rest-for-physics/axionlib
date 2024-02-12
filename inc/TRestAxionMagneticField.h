@@ -112,7 +112,7 @@ class TRestAxionMagneticField : public TRestMetadata {
         }
     }
 
-	size_t GetArrayElement( MagneticFieldVolume &mVol, Int_t nx, Int_t ny, Int_t nz);
+    size_t GetArrayElement(MagneticFieldVolume& mVol, Int_t nx, Int_t ny, Int_t nz);
 
    public:
     void LoadMagneticVolumes();

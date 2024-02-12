@@ -27,21 +27,21 @@ zCenter = 0
 print("Starting to read")
 # loading the data into a matrix (xyzBdata)
 file = r"../data/magneticField/Mentink_20240124.txt"
-df = pd.read_csv(file, comment="%", sep='\t',header=None)
-print( df.head() )
+df = pd.read_csv(file, comment="%", sep="\t", header=None)
+print(df.head())
 
-print( "---" )
+print("---")
 print(df[0:5])
-print( "---" )
+print("---")
 
 print("Translating to matrix")
 xyzBdata = df.values
 
-print( "#####" )
+print("#####")
 print(xyzBdata[0][0:6])
 print(xyzBdata[1][0:6])
 print(xyzBdata[2][0:6])
-print( "#####" )
+print("#####")
 
 print(len(xyzBdata))
 
@@ -63,7 +63,20 @@ zBMin = 100000
 f = open("output.txt", "wt")
 
 for x in xyzBdata:
-    f.write( str(x[0]) + "\t" + str(x[1]) + "\t" + str(x[2]) + "\t" + str(x[3]) + "\t" + str(x[4]) + "\t" + str(x[5]) + "\n")
+    f.write(
+        str(x[0])
+        + "\t"
+        + str(x[1])
+        + "\t"
+        + str(x[2])
+        + "\t"
+        + str(x[3])
+        + "\t"
+        + str(x[4])
+        + "\t"
+        + str(x[5])
+        + "\n"
+    )
     if xMax < x[0]:
         xMax = x[0]
     if yMax < x[1]:
@@ -117,25 +130,25 @@ for x in xyzBdata:
     # We recenter the volume and redefine axis (x becomes z, y becomes x and z becomes y)
     # XLS file distances are expressed in m. We translate to mm.
 
-	if( x[2] <= zCutOffHigh and x[2] > zCutOffLow):
-		y = [
-			1000 * (x[0] - xCenter),
-			1000 * (x[1] - yCenter),
-			1000 * (x[2] - zCenter),
-			x[3],
-			x[4],
-			x[5],
-		]
+    if x[2] <= zCutOffHigh and x[2] > zCutOffLow:
+        y = [
+            1000 * (x[0] - xCenter),
+            1000 * (x[1] - yCenter),
+            1000 * (x[2] - zCenter),
+            x[3],
+            x[4],
+            x[5],
+        ]
 
-		# Baby-IAXO is symmetric respect to z (direction along axis) and x (direction parallel to the ground).
-		# I.e. x and y in the previous axis definition.
-		# The y-axis symmetry (in the new axis definition) affects the second bore that is not described in this map.
-		# We apply the corresponding symmetries to define the full map of one magnetic bore in the output binary file.
-		count = count + 1
-		fbin.write(struct.pack("<%df" % len(y), *y))
-		if count < 6:
-			print(len(y))
-			print(x[0:6])
-			print(y[0:6])
+        # Baby-IAXO is symmetric respect to z (direction along axis) and x (direction parallel to the ground).
+        # I.e. x and y in the previous axis definition.
+        # The y-axis symmetry (in the new axis definition) affects the second bore that is not described in this map.
+        # We apply the corresponding symmetries to define the full map of one magnetic bore in the output binary file.
+        count = count + 1
+        fbin.write(struct.pack("<%df" % len(y), *y))
+        if count < 6:
+            print(len(y))
+            print(x[0:6])
+            print(y[0:6])
 fbin.close()
 print("Lines writen : " + str(count))
