@@ -47,6 +47,8 @@
 
 #include <TComplex.h>
 #include <TVectorD.h>
+
+#include <gsl/gsl_errno.h>
 #include <gsl/gsl_integration.h>
 
 #include <numeric>
@@ -322,12 +324,17 @@ std::pair<Double_t, Double_t> TRestAxionField::GammaTransmissionFieldMapProbabil
                                                                                     Double_t accuracy,
                                                                                     Int_t num_intervals,
                                                                                     Int_t qawo_levels) {
+	 gsl_set_error_handler_off();
+
     if (!fMagneticField) {
         RESTError << "TRestAxionField::GammaTransmissionFieldMapProbability requires a magnetic field map!"
                   << RESTendl;
         RESTError << "Use TRestAxionField::AssignMagneticField method to assign one" << RESTendl;
         return {0.0, 0.0};
     }
+
+	if( fMagneticField->GetTrackLength() <= 0 )
+		return {0.0, 0.0};
 
     double photonMass = 0;  // Vacuum
     if (fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
