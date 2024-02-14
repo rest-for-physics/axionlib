@@ -1225,6 +1225,7 @@ void TRestAxionMagneticField::SetTrack(const TVector3& position, const TVector3&
         fTrackStart = TVector3(0, 0, 0);
         fTrackDirection = TVector3(0, 0, 0);
         fTrackLength = 0;
+		return;
     }
 
     fTrackStart = trackBounds[0];
