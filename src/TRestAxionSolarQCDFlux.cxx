@@ -162,7 +162,7 @@
 /// \code
 ///    TRestAxionSolarQCDFlux *sFlux = new TRestAxionSolarQCDFlux("fluxes.rml", "LennertHoofABC")
 ///    sFlux->Initialize()
-///    TCanvas *c = sFlux->DrawSolarFluxes()
+///    TCanvas *c = sFlux->DrawSolarFlux()
 ///    c->Print("ABC_FluxTable.png" )
 /// \endcode
 ///
