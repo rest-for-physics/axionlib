@@ -58,7 +58,8 @@ class TRestAxionMagneticField : public TRestMetadata {
     /// A constant field component that will be added to the field map
     std::vector<TVector3> fConstantField;  //<
 
-    /// The size of a grid element from the mesh in mm
+    /// The size of a grid element from the mesh in mm. Initially, it must be the same as the binary input
+    /// data
     std::vector<TVector3> fMeshSize;  //<
 
     /// The type of the mesh used (default is cylindrical)
@@ -67,8 +68,20 @@ class TRestAxionMagneticField : public TRestMetadata {
     /// A vector to store the maximum bounding box values
     std::vector<TVector3> fBoundMax;  //<
 
+    /// A vector that defines the new mesh cell volume. It will re-scale the original fMeshSize.
+    TVector3 fReMap = TVector3(0, 0, 0);  //<
+
     /// A magnetic field volume structure to store field data and mesh.
     std::vector<MagneticFieldVolume> fMagneticFieldVolumes;  //!
+
+    /// The start track position used to parameterize the field along a track
+    TVector3 fTrackStart = TVector3(0, 0, 0);  //!
+
+    /// The track direction used to parameterize the field along a track
+    TVector3 fTrackDirection = TVector3(0, 0, 0);  //!
+
+    /// The total length of the track which defines the limit for field parameterization
+    Double_t fTrackLength = 0;  //!
 
     /// A helper histogram to plot the field
     TH2D* fHisto;  //!
@@ -101,6 +114,14 @@ class TRestAxionMagneticField : public TRestMetadata {
 
    public:
     void LoadMagneticVolumes();
+
+    void ReMap(const size_t& n, const TVector3& newMapSize);
+
+    void SetTrack(const TVector3& position, const TVector3& direction);
+
+    Double_t GetTrackLength() const { return fTrackLength; }
+    TVector3 GetTrackStart() const { return fTrackStart; }
+    TVector3 GetTrackDirection() const { return fTrackDirection; }
 
     /// It returns true if no magnetic field map was loaded for that volume
     Bool_t IsFieldConstant(Int_t id) {
@@ -135,6 +156,7 @@ class TRestAxionMagneticField : public TRestMetadata {
     TVector3 GetVolumeCenter(Int_t id);
 
     Double_t GetTransversalComponent(TVector3 position, TVector3 direction);
+    Double_t GetTransversalComponentInParametricTrack(Double_t x);
 
     std::vector<Double_t> GetTransversalComponentAlongPath(TVector3 from, TVector3 to, Double_t dl = 1.,
                                                            Int_t Nmax = 0);
