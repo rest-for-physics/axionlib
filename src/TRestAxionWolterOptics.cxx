@@ -325,7 +325,7 @@ Int_t TRestAxionWolterOptics::SecondMirrorReflection(const TVector3& pos, const 
     TVector3 vertex(0, 0, fBackVertex[mirror]);
     Double_t cosA = fCosAlpha_3[mirror];
 
-    //// Reflection on first mirror
+    //// Reflection on second mirror
     fSecondInteractionPosition =
         pos + dir * REST_Physics::GetConeVectorIntersection(pos, dir, TVector3(0, 0, -1), vertex, cosA);
 
