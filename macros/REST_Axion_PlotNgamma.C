@@ -1,7 +1,7 @@
-#include "TRestAxionSolarQCDFlux.h"
+#include "TRestAxionField.h"
 #include "TRestAxionSolarFlux.h"
 #include "TRestAxionSolarModel.h"
-#include "TRestAxionField.h"
+#include "TRestAxionSolarQCDFlux.h"
 //*******************************************************************************************************
 //*** Description: It computes the number of photones for each gass step for eah axion mass
 //***
@@ -18,7 +18,8 @@
 //*** - *E_a_max* = 20.0: Maximum energy (in keV) to be plotted.
 //***
 //*** The generated plots are the results from `TRestAxionField::GetMassDensityScanning`,
-//*** `TRestAxionField::GammaTransmissionFWHM`, `TRestAxionBufferGas::GetMassDensity`, `TRestAxionField::GammaTransmissionProbability` and `TRestAxionSolarQCDFlux`.	
+//*** `TRestAxionField::GammaTransmissionFWHM`, `TRestAxionBufferGas::GetMassDensity`,
+//`TRestAxionField::GammaTransmissionProbability` and `TRestAxionSolarQCDFlux`.
 //***
 //*** --------------
 //*** Usage: restManager PlotResonances [ma_max=0.1] [ma_min=0] [Ea=4.2] [Bmag=2.5] [Lcoh=10000] [gasName=He]
@@ -30,10 +31,8 @@
 //*******************************************************************************************************
 
 int REST_Axion_PlotNgamma2(double ma_max = 0.1, double ma_min = 0, double Ea = 4.2, double Bmag = 2.5,
-                              double Lcoh = 10000, std::string gasName = "He", Bool_t vacuum = true,
-                              int n_ma = 100,double E_a_min = 0.0, double E_a_max = 20.0){
-
-    
+                           double Lcoh = 10000, std::string gasName = "He", Bool_t vacuum = true,
+                           int n_ma = 100, double E_a_min = 0.0, double E_a_max = 20.0) {
     // Creates the vector of axion masses
     std::vector<double> m_a;
     std::vector<double> n_photons;
@@ -47,14 +46,14 @@ int REST_Axion_PlotNgamma2(double ma_max = 0.1, double ma_min = 0, double Ea = 4
     }
 
     // Creates the solar axion flux
-    TRestAxionSolarQCDFlux *sFlux = new TRestAxionSolarQCDFlux("fluxes.rml", "Gianotti");
+    TRestAxionSolarQCDFlux* sFlux = new TRestAxionSolarQCDFlux("fluxes.rml", "Gianotti");
     sFlux->Initialize();
-    TH1F *spec1 = sFlux->GetEnergySpectrum();
-    spec1->Rebin(20000/ n_ma);
-    TCanvas *c1 = new TCanvas("c1", "c1", 800, 600);
+    TH1F* spec1 = sFlux->GetEnergySpectrum();
+    spec1->Rebin(20000 / n_ma);
+    TCanvas* c1 = new TCanvas("c1", "c1", 800, 600);
     spec1->Draw();
     c1->Draw();
-    
+
     // ******************* VACUUM PHASE ********************
     // Creates the axion field and the vacuum
     TRestAxionField* ax_vac = new TRestAxionField();
@@ -62,7 +61,7 @@ int REST_Axion_PlotNgamma2(double ma_max = 0.1, double ma_min = 0, double Ea = 4
     ax_vac->SetCoherenceLength(Lcoh);
 
     // Create a vector for saving the integrals that corresponds to the Number of photones
-    
+
     double energy_step = (E_a_max - E_a_min) / n_ma;
 
     for (int i = 0; i <= m_a.size(); ++i) {
@@ -71,15 +70,15 @@ int REST_Axion_PlotNgamma2(double ma_max = 0.1, double ma_min = 0, double Ea = 4
         cout << m_a[i] << endl;
         double E = 0;
         for (int j = 0; j <= m_a.size(); ++j) {
-            E = E_a_min + ((j) * energy_step - energy_step / 2);
+            E = E_a_min + ((j)*energy_step - energy_step / 2);
             ax_vac->SetAxionEnergy(E);
             vac->Fill(E, ax_vac->GammaTransmissionProbability(m_a[i]));
-            //cout << "j: " << j << endl;
+            // cout << "j: " << j << endl;
         }
-        TH1F *ng = new TH1F();
-        *ng = (*spec1)*(*vac); 
+        TH1F* ng = new TH1F();
+        *ng = (*spec1) * (*vac);
         double integral = ng->Integral(ng->FindBin(0), ng->FindBin(20));
-        n_photons[i] = integral*0.2*0.8*14*60*60;    
+        n_photons[i] = integral * 0.2 * 0.8 * 14 * 60 * 60;
         delete vac;
         delete ng;
     }
@@ -97,7 +96,7 @@ int REST_Axion_PlotNgamma2(double ma_max = 0.1, double ma_min = 0, double Ea = 4
     // Obtain the pressure steps
     vector<std::pair<Double_t, Double_t>> pareja = ax->GetMassDensityScanning(gasName, ma_max, 20);
     std::vector<TGraph*> grp;
-    
+
     // Loop that computes N_gamma for each gas pressure
     for (const auto& p : pareja) {
         // Creates the gas and the axion field
@@ -109,14 +108,14 @@ int REST_Axion_PlotNgamma2(double ma_max = 0.1, double ma_min = 0, double Ea = 4
             TH1F* gas = new TH1F("histogram", "histogram", n_ma, E_a_min, E_a_max);
             double E = 0;
             for (int k = 10; k <= m_a.size(); ++k) {
-                E = E_a_min + ((k) * energy_step);
+                E = E_a_min + ((k)*energy_step);
                 ax->SetAxionEnergy(E);
                 gas->Fill(E, ax->GammaTransmissionProbability(m_a[j]));
             }
-            TH1F *ng = new TH1F();
-            *ng = (*spec1)*(*gas);
+            TH1F* ng = new TH1F();
+            *ng = (*spec1) * (*gas);
             double integral = ng->Integral(ng->FindBin(0), ng->FindBin(20));
-            n_photons_gas[j] = integral*0.2*0.8*14*60*60;
+            n_photons_gas[j] = integral * 0.2 * 0.8 * 14 * 60 * 60;
             delete gas;
             delete ng;
         }
@@ -124,21 +123,18 @@ int REST_Axion_PlotNgamma2(double ma_max = 0.1, double ma_min = 0, double Ea = 4
         grp.push_back(gr_gas);
     }
 
-
-
-
     // ******************* PLOTS ********************
     delete ax_vac;
-    cout << "SIZE:" <<grp.size() << endl;
+    cout << "SIZE:" << grp.size() << endl;
     TCanvas* c3 = new TCanvas("c3", "c3", 800, 600);
     TGraph* gr = new TGraph(n_ma, &m_a[0], &n_photons[0]);
-    
+
     gr->SetLineColor(kRed);
-    
+
     gr->SetTitle("Number of Photons vs Axion Mass");
     gr->GetXaxis()->SetTitle("Axion Mass (eV)");
     gr->GetYaxis()->SetTitle("Number of Photons");
-    
+
     // Set the y axis to log scale
     c3->SetLogy();
     c3->SetLogx();
@@ -147,7 +143,7 @@ int REST_Axion_PlotNgamma2(double ma_max = 0.1, double ma_min = 0, double Ea = 4
 
     // Plot of the gas steps
     for (const auto g : grp) {
-        // Set a line of a different color for each interation 
+        // Set a line of a different color for each interation
         g->SetLineColor(kBlue);
         g->Draw("SAME");
     }
