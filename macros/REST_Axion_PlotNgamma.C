@@ -35,8 +35,8 @@
 
 int REST_Axion_PlotNgamma(double ma_max = 0.1, double ma_min = 0, double Ea = 4.2, double Bmag = 2.5,
 
-                           double Lcoh = 10000, std::string gasName = "He", Bool_t vacuum = true,
-                           int n_ma = 100, double E_a_min = 0.0, double E_a_max = 20.0) {
+                          double Lcoh = 10000, std::string gasName = "He", Bool_t vacuum = true,
+                          int n_ma = 100, double E_a_min = 0.0, double E_a_max = 20.0) {
     // Creates the vector of axion masses
     std::vector<double> m_a;
     std::vector<double> n_photons;
