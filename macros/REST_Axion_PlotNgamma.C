@@ -3,7 +3,8 @@
 #include "TRestAxionSolarModel.h"
 #include "TRestAxionSolarQCDFlux.h"
 //*******************************************************************************************************
-//*** Description: It computes the number of photones for each gass step for eah axion mass
+//*** Description: It computes the number of photons for each gas step for each axion mass
+
 //***
 //*** Arguments by default are (in order):
 //*** - *ma_max* = 0.1: Maximum axion mass (in eV) to be plotted.
