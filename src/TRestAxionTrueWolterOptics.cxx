@@ -169,15 +169,22 @@ void TRestAxionTrueWolterOptics::Initialize() {
     SetLibraryVersion(LIBRARY_VERSION);
 
     fR1 = GetR1();
+    fR2 = GetR2();
     fR3 = GetR3();
+    fR4 = GetR4();
     fR5 = GetR5();
     fAlpha = GetAlpha();
     fThickness = GetThickness();
 
     fXSep.clear();
     for (unsigned int n = 0; n < fAlpha.size(); n++)
-        fXSep.push_back(2 * (fR1[n] - fR3[n] - fMirrorLength * TMath::Sin(fAlpha[n])) /
+        if (fR2[n]==fR3[n]){
+            fXSep.push_back(0);
+        }
+        else {
+            fXSep.push_back(2 * (fR1[n] - fR3[n] - fMirrorLength * TMath::Sin(fAlpha[n])) /
                         TMath::Tan(fAlpha[n]));
+        }
 
     if (fAlpha.size() == 0) return;
 
