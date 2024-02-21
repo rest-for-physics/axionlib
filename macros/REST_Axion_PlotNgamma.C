@@ -20,7 +20,8 @@
 //***
 //*** The generated plots are the results from `TRestAxionField::GetMassDensityScanning`,
 //*** `TRestAxionField::GammaTransmissionFWHM`, `TRestAxionBufferGas::GetMassDensity`,
-//`TRestAxionField::GammaTransmissionProbability` and `TRestAxionSolarQCDFlux`.
+//*** `TRestAxionField::GammaTransmissionProbability` and `TRestAxionSolarQCDFlux`.
+
 //***
 //*** --------------
 //*** Usage: restManager PlotResonances [ma_max=0.1] [ma_min=0] [Ea=4.2] [Bmag=2.5] [Lcoh=10000] [gasName=He]
