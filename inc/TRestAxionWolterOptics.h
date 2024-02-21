@@ -35,8 +35,14 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
     /// Entrance radius R1 in mm. See schematic figure.
     std::vector<Double_t> fR1;  //!
 
+    /// Radius R2 in mm. See schematic figure.
+    std::vector<Double_t> fR2;  //!
+
     /// Radius R3 in mm. See schematic figure.
     std::vector<Double_t> fR3;  //!
+
+    /// Radius R4 in mm. See schematic figure.
+    std::vector<Double_t> fR4;  //!
 
     /// Radius R5 in mm. See schematic figure.
     std::vector<Double_t> fR5;  //!
@@ -86,9 +92,21 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
         return r;
     }
 
+    /// It returns a vector with the values of R2
+    std::vector<Double_t> GetR2() {
+        std::vector<Double_t> r = TRestTools::GetColumnFromTable(fOpticsData, 1);
+        return r;
+    }
+
     /// It returns a vector with the values of R3
     std::vector<Double_t> GetR3() {
         std::vector<Double_t> r = TRestTools::GetColumnFromTable(fOpticsData, 2);
+        return r;
+    }
+
+    /// It returns a vector with the values of R4
+    std::vector<Double_t> GetR4() {
+        std::vector<Double_t> r = TRestTools::GetColumnFromTable(fOpticsData, 3);
         return r;
     }
 
