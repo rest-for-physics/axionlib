@@ -332,10 +332,11 @@ Int_t TRestAxionTrueWolterOptics::SecondMirrorReflection(const TVector3& pos, co
 
     TVector3 vertex(0, 0, fBackVertex[mirror]);
     Double_t focal = fR3[mirror] / TMath::Tan(4 * fAlpha[mirror]);
+    Double_t beta = 3 * fAlpha[mirror];
 
     //// Reflection on second mirror
     fSecondInteractionPosition = REST_Physics::GetHyperbolicVectorIntersection(
-        pos, dir, fAlpha[mirror], fR3[mirror], focal);  // should add this: TVector3(0, 0, -1), vertex,
+        pos, dir, beta, fR3[mirror], focal);  // should add this: TVector3(0, 0, -1), vertex,
 
     if (fSecondInteractionPosition.Z() > GetExitPositionZ() ||
         fSecondInteractionPosition.Z() < (0.5 * fXSep[mirror])) {
@@ -347,7 +348,7 @@ Int_t TRestAxionTrueWolterOptics::SecondMirrorReflection(const TVector3& pos, co
     }
 
     TVector3 hyperNormal =
-        REST_Physics::GetHyperbolicNormal(fSecondInteractionPosition, fAlpha[mirror], fR3[mirror], focal);
+        REST_Physics::GetHyperbolicNormal(fSecondInteractionPosition, beta, fR3[mirror], focal);
 
     fExitDirection = GetVectorReflection(fMiddleDirection, hyperNormal);
 
