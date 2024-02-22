@@ -286,8 +286,8 @@ Int_t TRestAxionTrueWolterOptics::FirstMirrorReflection(const TVector3& pos, con
     TVector3 vertex(0, 0, fFrontVertex[mirror]);
 
     //// Reflection on first mirror
-    fFirstInteractionPosition = REST_Physics::GetParabolicVectorIntersection(
-        pos, dir, fAlpha[mirror], fR3[mirror]);  
+    fFirstInteractionPosition =
+        REST_Physics::GetParabolicVectorIntersection(pos, dir, fAlpha[mirror], fR3[mirror]);
 
     if (fFirstInteractionPosition.Z() < GetEntrancePositionZ() ||
         fFirstInteractionPosition.Z() > -(0.5 * fXSep[mirror])) {
@@ -335,8 +335,8 @@ Int_t TRestAxionTrueWolterOptics::SecondMirrorReflection(const TVector3& pos, co
     Double_t beta = 3 * fAlpha[mirror];
 
     //// Reflection on second mirror
-    fSecondInteractionPosition = REST_Physics::GetHyperbolicVectorIntersection(
-        pos, dir, beta, fR3[mirror], focal);  
+    fSecondInteractionPosition =
+        REST_Physics::GetHyperbolicVectorIntersection(pos, dir, beta, fR3[mirror], focal);
 
     if (fSecondInteractionPosition.Z() > GetExitPositionZ() ||
         fSecondInteractionPosition.Z() < (0.5 * fXSep[mirror])) {
