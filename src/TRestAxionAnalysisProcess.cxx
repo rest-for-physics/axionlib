@@ -125,7 +125,7 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     SetObservableValue("energy", fAxionEvent->GetEnergy());
     SetObservableValue("mass", fAxionEvent->GetMass() * units("eV"));
-    
+
     Double_t x = fAxionEvent->GetPosition().X() - fAnalysisPosition.X();
     Double_t y = fAxionEvent->GetPosition().Y() - fAnalysisPosition.Y();
     SetObservableValue("posX", x);
