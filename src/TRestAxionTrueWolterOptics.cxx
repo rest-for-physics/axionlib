@@ -169,10 +169,21 @@ void TRestAxionTrueWolterOptics::Initialize() {
     SetLibraryVersion(LIBRARY_VERSION);
 
     fR1 = GetR1();
+    fR2 = GetR2();
     fR3 = GetR3();
+    fR4 = GetR4();
     fR5 = GetR5();
     fAlpha = GetAlpha();
     fThickness = GetThickness();
+
+    fXSep.clear();
+    for (unsigned int n = 0; n < fAlpha.size(); n++)
+        if (fR2[n] == fR3[n]) {
+            fXSep.push_back(0);
+        } else {
+            fXSep.push_back(2 * (fR1[n] - fR3[n] - fMirrorLength * TMath::Sin(fAlpha[n])) /
+                            TMath::Tan(fAlpha[n]));
+        }
 
     if (fAlpha.size() == 0) return;
 
@@ -275,10 +286,11 @@ Int_t TRestAxionTrueWolterOptics::FirstMirrorReflection(const TVector3& pos, con
     TVector3 vertex(0, 0, fFrontVertex[mirror]);
 
     //// Reflection on first mirror
-    fFirstInteractionPosition = REST_Physics::GetParabolicVectorIntersection(
-        pos, dir, fAlpha[mirror], fR3[mirror], fMirrorLength);  // should add this: TVector3(0, 0, -1), vertex
+    fFirstInteractionPosition =
+        REST_Physics::GetParabolicVectorIntersection(pos, dir, fAlpha[mirror], fR3[mirror]);
 
-    if (fFirstInteractionPosition.Z() < GetEntrancePositionZ() || fFirstInteractionPosition.Z() > 0) {
+    if (fFirstInteractionPosition.Z() < GetEntrancePositionZ() ||
+        fFirstInteractionPosition.Z() > -(0.5 * fXSep[mirror])) {
         RESTDebug << "TRestAxionTrueWolterOptics::FirstMirrorReflection. No interaction!" << RESTendl;
         fFirstInteractionPosition = REST_Physics::MoveByDistance(pos, dir, fMirrorLength / 2.);
         fMiddleDirection = fEntranceDirection;
@@ -320,13 +332,14 @@ Int_t TRestAxionTrueWolterOptics::SecondMirrorReflection(const TVector3& pos, co
 
     TVector3 vertex(0, 0, fBackVertex[mirror]);
     Double_t focal = fR3[mirror] / TMath::Tan(4 * fAlpha[mirror]);
+    Double_t beta = 3 * fAlpha[mirror];
 
-    //// Reflection on first mirror
+    //// Reflection on second mirror
     fSecondInteractionPosition =
-        REST_Physics::GetHyperbolicVectorIntersection(pos, dir, fAlpha[mirror], fR3[mirror], fMirrorLength,
-                                                      focal);  // should add this: TVector3(0, 0, -1), vertex,
+        REST_Physics::GetHyperbolicVectorIntersection(pos, dir, beta, fR3[mirror], focal);
 
-    if (fSecondInteractionPosition.Z() > GetExitPositionZ() || fSecondInteractionPosition.Z() < 0) {
+    if (fSecondInteractionPosition.Z() > GetExitPositionZ() ||
+        fSecondInteractionPosition.Z() < (0.5 * fXSep[mirror])) {
         RESTDebug << "TRestAxionTrueWolterOptics::SecondMirrorReflection. No interaction!" << RESTendl;
         fSecondInteractionPosition = REST_Physics::MoveByDistance(pos, dir, fMirrorLength / 2.);
         fExitDirection = fMiddleDirection;
@@ -335,7 +348,7 @@ Int_t TRestAxionTrueWolterOptics::SecondMirrorReflection(const TVector3& pos, co
     }
 
     TVector3 hyperNormal =
-        REST_Physics::GetHyperbolicNormal(fSecondInteractionPosition, fAlpha[mirror], fR3[mirror], focal);
+        REST_Physics::GetHyperbolicNormal(fSecondInteractionPosition, beta, fR3[mirror], focal);
 
     fExitDirection = GetVectorReflection(fMiddleDirection, hyperNormal);
 

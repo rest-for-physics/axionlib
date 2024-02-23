@@ -169,10 +169,21 @@ void TRestAxionWolterOptics::Initialize() {
     SetLibraryVersion(LIBRARY_VERSION);
 
     fR1 = GetR1();
+    fR2 = GetR2();
     fR3 = GetR3();
+    fR4 = GetR4();
     fR5 = GetR5();
     fAlpha = GetAlpha();
     fThickness = GetThickness();
+
+    fXSep.clear();
+    for (unsigned int n = 0; n < fAlpha.size(); n++)
+        if (fR2[n] == fR3[n]) {
+            fXSep.push_back(0);
+        } else {
+            fXSep.push_back(2 * (fR1[n] - fR3[n] - fMirrorLength * TMath::Sin(fAlpha[n])) /
+                            TMath::Tan(fAlpha[n]));
+        }
 
     if (fAlpha.size() == 0) return;
 
@@ -278,7 +289,8 @@ Int_t TRestAxionWolterOptics::FirstMirrorReflection(const TVector3& pos, const T
     fFirstInteractionPosition =
         pos + dir * REST_Physics::GetConeVectorIntersection(pos, dir, TVector3(0, 0, -1), vertex, cosA);
 
-    if (fFirstInteractionPosition.Z() < GetEntrancePositionZ() || fFirstInteractionPosition.Z() > 0) {
+    if (fFirstInteractionPosition.Z() < GetEntrancePositionZ() ||
+        fFirstInteractionPosition.Z() > -(0.5 * fXSep[mirror])) {
         RESTDebug << "TRestAxionWolterOptics::FirstMirrorReflection. No interaction!" << RESTendl;
         fFirstInteractionPosition = REST_Physics::MoveByDistance(pos, dir, fMirrorLength / 2.);
         fMiddleDirection = fEntranceDirection;
@@ -319,11 +331,12 @@ Int_t TRestAxionWolterOptics::SecondMirrorReflection(const TVector3& pos, const 
     TVector3 vertex(0, 0, fBackVertex[mirror]);
     Double_t cosA = fCosAlpha_3[mirror];
 
-    //// Reflection on first mirror
+    //// Reflection on second mirror
     fSecondInteractionPosition =
         pos + dir * REST_Physics::GetConeVectorIntersection(pos, dir, TVector3(0, 0, -1), vertex, cosA);
 
-    if (fSecondInteractionPosition.Z() > GetExitPositionZ() || fSecondInteractionPosition.Z() < 0) {
+    if (fSecondInteractionPosition.Z() > GetExitPositionZ() ||
+        fSecondInteractionPosition.Z() < (0.5 * fXSep[mirror])) {
         RESTDebug << "TRestAxionWolterOptics::SecondMirrorReflection. No interaction!" << RESTendl;
         fSecondInteractionPosition = REST_Physics::MoveByDistance(pos, dir, fMirrorLength / 2.);
         fExitDirection = fMiddleDirection;
