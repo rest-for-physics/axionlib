@@ -32,6 +32,9 @@ class TRestAxionAnalysisProcess : public TRestEventProcess {
     /// A pointer to the specific TRestAxionEvent
     TRestAxionEvent* fAxionEvent;  //!
 
+    /// The analysis position in mm with regards to the sun at (0,0,-AU).
+    TVector3 fAnalysisPosition = TVector3(0, 0, 0);  //<
+
     void Initialize() override;
 
     void LoadDefaultConfig();
