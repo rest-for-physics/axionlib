@@ -1,8 +1,8 @@
+#include "TMath.h"
 #include "TRestAxionField.h"
 #include "TRestAxionSolarFlux.h"
 #include "TRestAxionSolarModel.h"
 #include "TRestAxionSolarQCDFlux.h"
-#include "TMath.h"
 //*******************************************************************************************************
 //*** Description: It computes the number of photons for each gas step for each axion mass
 
@@ -38,12 +38,11 @@ int REST_Axion_PlotNgamma(double ma_max = 0.1, double ma_min = 0, double Ea = 4.
 
                           double Lcoh = 10000, std::string gasName = "He", Bool_t vacuum = true,
                           int n_ma = 100, double E_a_min = 0.0, double E_a_max = 20.0) {
-
     // Factors for the INTEGRAL
-    double exp_time = 60 * 60; // seconds
+    double exp_time = 60 * 60;  // seconds
     double detect_eff = 0.2;
     double optic_eff = 0.8;
-    double area = TMath::Pi()* 35; // cm^2
+    double area = TMath::Pi() * 35;  // cm^2
 
     // Creates the vector of axion masses
     std::vector<double> m_a;
@@ -76,18 +75,18 @@ int REST_Axion_PlotNgamma(double ma_max = 0.1, double ma_min = 0, double Ea = 4.
 
     double energy_step = (spec->GetBinCenter(1) - spec->GetBinCenter(0));
 
-    TH1* convoluted = (TH1F*) spec->Clone();
-    convoluted ->SetName("convoluted");
+    TH1* convoluted = (TH1F*)spec->Clone();
+    convoluted->SetName("convoluted");
 
     for (int i = 0; i <= m_a.size(); ++i) {
         for (int j = 0; j <= spec->GetNbinsX(); ++j) {
-            double en = convoluted->GetBinCenter(j+1);
+            double en = convoluted->GetBinCenter(j + 1);
             ax_vac->SetAxionEnergy(en);
             double Paxion = ax_vac->GammaTransmissionProbability(m_a[i]);
-            convoluted->SetBinContent(j+1, spec->GetBinContent(j+1) * Paxion );
+            convoluted->SetBinContent(j + 1, spec->GetBinContent(j + 1) * Paxion);
         }
-        double integral = convoluted->Integral(convoluted->FindBin(0),convoluted ->FindBin(20));
-        n_photons[i] = integral*optic_eff*exp_time*area*detect_eff; // *optEff*detectEff*area*time
+        double integral = convoluted->Integral(convoluted->FindBin(0), convoluted->FindBin(20));
+        n_photons[i] = integral * optic_eff * exp_time * area * detect_eff;  // *optEff*detectEff*area*time
     }
     delete ax_vac;
     delete convoluted;
@@ -106,8 +105,8 @@ int REST_Axion_PlotNgamma(double ma_max = 0.1, double ma_min = 0, double Ea = 4.
     std::vector<TGraph*> grp;
 
     // Loop that computes N_gamma for each gas pressure
-    TH1* convolutedgas = (TH1F*) spec->Clone();
-    convolutedgas ->SetName("convolutedgas");
+    TH1* convolutedgas = (TH1F*)spec->Clone();
+    convolutedgas->SetName("convolutedgas");
 
     for (const auto& p : pareja) {
         // Creates the gas and the axion field
@@ -117,13 +116,14 @@ int REST_Axion_PlotNgamma(double ma_max = 0.1, double ma_min = 0, double Ea = 4.
 
         for (int i = 0; i < n_ma; i++) {
             for (int j = 0; j <= spec->GetNbinsX(); ++j) {
-            double en = convoluted->GetBinCenter(j+1);
-            ax->SetAxionEnergy(en);
-            double Paxion = ax->GammaTransmissionProbability(m_a[i]);
-            convoluted->SetBinContent(j+1, spec->GetBinContent(j+1) * Paxion );
-        }
-            double integral = convolutedgas->Integral(convolutedgas->FindBin(0),convolutedgas ->FindBin(20));
-            n_photons_gas[i] = integral*optic_eff*exp_time*area*detect_eff; // *optEff*detectEff*area*time
+                double en = convoluted->GetBinCenter(j + 1);
+                ax->SetAxionEnergy(en);
+                double Paxion = ax->GammaTransmissionProbability(m_a[i]);
+                convoluted->SetBinContent(j + 1, spec->GetBinContent(j + 1) * Paxion);
+            }
+            double integral = convolutedgas->Integral(convolutedgas->FindBin(0), convolutedgas->FindBin(20));
+            n_photons_gas[i] =
+                integral * optic_eff * exp_time * area * detect_eff;  // *optEff*detectEff*area*time
         }
         TGraph* gr_gas = new TGraph(n_ma, &m_a[0], &n_photons_gas[0]);
         grp.push_back(gr_gas);
