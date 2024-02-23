@@ -170,6 +170,8 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
     /// experiment is not focussed by the bore but by the whole experiment.
     /// In my opinion the target should be either the optics, or the magnet end bore.
     /// Then one should place the optics or the magnet end bore at the (0,0,0) + TargetPosition.
+    /// TODO: The target position and the magnetic field have to be in the same spot in x- and y-direction
+    /// apparently.
     ///
     do {
         x = 2 * (fRandom->Rndm() - 0.5);
