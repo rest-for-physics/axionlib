@@ -125,13 +125,14 @@ TRestEvent* TRestAxionAnalysisProcess::ProcessEvent(TRestEvent* evInput) {
 
     SetObservableValue("energy", fAxionEvent->GetEnergy());
     SetObservableValue("mass", fAxionEvent->GetMass() * units("eV"));
-
-    Double_t x = fAxionEvent->GetPosition().X();
-    Double_t y = fAxionEvent->GetPosition().Y();
+    
+    Double_t x = fAxionEvent->GetPosition().X() - fAnalysisPosition.X();
+    Double_t y = fAxionEvent->GetPosition().Y() - fAnalysisPosition.Y();
     SetObservableValue("posX", x);
     SetObservableValue("posY", y);
     SetObservableValue("posZ", fAxionEvent->GetPosition().Z());
 
+    /// The following only works if the center of the signal is where the analysis position is.
     Double_t r = TMath::Sqrt(x * x + y * y);
     SetObservableValue("R", r);
 
