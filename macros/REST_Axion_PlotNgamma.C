@@ -2,6 +2,7 @@
 #include "TRestAxionSolarFlux.h"
 #include "TRestAxionSolarModel.h"
 #include "TRestAxionSolarQCDFlux.h"
+#include "TMath.h"
 //*******************************************************************************************************
 //*** Description: It computes the number of photons for each gas step for each axion mass
 
@@ -37,6 +38,13 @@ int REST_Axion_PlotNgamma(double ma_max = 0.1, double ma_min = 0, double Ea = 4.
 
                           double Lcoh = 10000, std::string gasName = "He", Bool_t vacuum = true,
                           int n_ma = 100, double E_a_min = 0.0, double E_a_max = 20.0) {
+
+    // Factors for the INTEGRAL
+    double exp_time = 60 * 60; // seconds
+    double detect_eff = 0.2;
+    double optic_eff = 0.8;
+    double area = TMath::Pi()* 35; // cm^2
+
     // Creates the vector of axion masses
     std::vector<double> m_a;
     std::vector<double> n_photons;
@@ -52,10 +60,10 @@ int REST_Axion_PlotNgamma(double ma_max = 0.1, double ma_min = 0, double Ea = 4.
     // Creates the solar axion flux
     TRestAxionSolarQCDFlux* sFlux = new TRestAxionSolarQCDFlux("fluxes.rml", "Gianotti");
     sFlux->Initialize();
-    TH1F* spec1 = sFlux->GetEnergySpectrum();
-    spec1->Rebin(20000 / n_ma);
+    TH1F* spec = sFlux->GetEnergySpectrum();
+    spec->Rebin(20000 / n_ma);
     TCanvas* c1 = new TCanvas("c1", "c1", 800, 600);
-    spec1->Draw();
+    spec->Draw();
     c1->Draw();
 
     // ******************* VACUUM PHASE ********************
@@ -66,27 +74,23 @@ int REST_Axion_PlotNgamma(double ma_max = 0.1, double ma_min = 0, double Ea = 4.
 
     // Create a vector for saving the integrals that corresponds to the Number of photones
 
-    double energy_step = (E_a_max - E_a_min) / n_ma;
+    double energy_step = (spec->GetBinCenter(1) - spec->GetBinCenter(0));
+
+    TH1* convoluted = (TH1F*) spec->Clone();
+    convoluted ->SetName("convoluted");
 
     for (int i = 0; i <= m_a.size(); ++i) {
-        // TCanvas* c2 = new TCanvas("c2", "c2", 800, 600);
-        TH1F* vac = new TH1F("histogram", "histogram", n_ma, E_a_min, E_a_max);
-        cout << m_a[i] << endl;
-        double E = 0;
-        for (int j = 0; j <= m_a.size(); ++j) {
-            E = E_a_min + ((j)*energy_step - energy_step / 2);
-            ax_vac->SetAxionEnergy(E);
-            vac->Fill(E, ax_vac->GammaTransmissionProbability(m_a[i]));
-            // cout << "j: " << j << endl;
+        for (int j = 0; j <= spec->GetNbinsX(); ++j) {
+            double en = convoluted->GetBinCenter(j+1);
+            ax_vac->SetAxionEnergy(en);
+            double Paxion = ax_vac->GammaTransmissionProbability(m_a[i]);
+            convoluted->SetBinContent(j+1, spec->GetBinContent(j+1) * Paxion );
         }
-        TH1F* ng = new TH1F();
-        *ng = (*spec1) * (*vac);
-        double integral = ng->Integral(ng->FindBin(0), ng->FindBin(20));
-        n_photons[i] = integral * 0.2 * 0.8 * 14 * 60 * 60;
-        delete vac;
-        delete ng;
+        double integral = convoluted->Integral(convoluted->FindBin(0),convoluted ->FindBin(20));
+        n_photons[i] = integral*optic_eff*exp_time*area*detect_eff; // *optEff*detectEff*area*time
     }
     delete ax_vac;
+    delete convoluted;
 
     // ******************* GAS PHASE ********************
 
@@ -102,26 +106,24 @@ int REST_Axion_PlotNgamma(double ma_max = 0.1, double ma_min = 0, double Ea = 4.
     std::vector<TGraph*> grp;
 
     // Loop that computes N_gamma for each gas pressure
+    TH1* convolutedgas = (TH1F*) spec->Clone();
+    convolutedgas ->SetName("convolutedgas");
+
     for (const auto& p : pareja) {
         // Creates the gas and the axion field
         cout << "Density: " << p.second << endl;
         gas->SetGasDensity(gasName, p.second);
         ax->AssignBufferGas(gas);
 
-        for (int j = 0; j < n_ma; j++) {
-            TH1F* gas = new TH1F("histogram", "histogram", n_ma, E_a_min, E_a_max);
-            double E = 0;
-            for (int k = 10; k <= m_a.size(); ++k) {
-                E = E_a_min + ((k)*energy_step);
-                ax->SetAxionEnergy(E);
-                gas->Fill(E, ax->GammaTransmissionProbability(m_a[j]));
-            }
-            TH1F* ng = new TH1F();
-            *ng = (*spec1) * (*gas);
-            double integral = ng->Integral(ng->FindBin(0), ng->FindBin(20));
-            n_photons_gas[j] = integral * 0.2 * 0.8 * 14 * 60 * 60;
-            delete gas;
-            delete ng;
+        for (int i = 0; i < n_ma; i++) {
+            for (int j = 0; j <= spec->GetNbinsX(); ++j) {
+            double en = convoluted->GetBinCenter(j+1);
+            ax->SetAxionEnergy(en);
+            double Paxion = ax->GammaTransmissionProbability(m_a[i]);
+            convoluted->SetBinContent(j+1, spec->GetBinContent(j+1) * Paxion );
+        }
+            double integral = convolutedgas->Integral(convolutedgas->FindBin(0),convolutedgas ->FindBin(20));
+            n_photons_gas[i] = integral*optic_eff*exp_time*area*detect_eff; // *optEff*detectEff*area*time
         }
         TGraph* gr_gas = new TGraph(n_ma, &m_a[0], &n_photons_gas[0]);
         grp.push_back(gr_gas);
