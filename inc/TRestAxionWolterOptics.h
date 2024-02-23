@@ -35,8 +35,14 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
     /// Entrance radius R1 in mm. See schematic figure.
     std::vector<Double_t> fR1;  //!
 
+    /// Radius R2 in mm. See schematic figure.
+    std::vector<Double_t> fR2;  //!
+
     /// Radius R3 in mm. See schematic figure.
     std::vector<Double_t> fR3;  //!
+
+    /// Radius R4 in mm. See schematic figure.
+    std::vector<Double_t> fR4;  //!
 
     /// Radius R5 in mm. See schematic figure.
     std::vector<Double_t> fR5;  //!
@@ -46,6 +52,11 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
 
     /// Mirror thickness in mm. See schematic figure.
     std::vector<Double_t> fThickness;  //!
+
+    /// Distance between mirror stacks in mm. See schematic figure.
+    /// This is here calculated using the functions from
+    /// https://backend.orbit.dtu.dk/ws/portalfiles/portal/122353510/phdthesis_for_DTU_orbit.pdf.
+    std::vector<Double_t> fXSep;  //!
 
     /// The spider structure to be used as an optical opaque mask (common to all planes)
     TRestSpiderMask* fSpiderMask = nullptr;  //<
@@ -83,9 +94,21 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
         return r;
     }
 
+    /// It returns a vector with the values of R2
+    std::vector<Double_t> GetR2() {
+        std::vector<Double_t> r = TRestTools::GetColumnFromTable(fOpticsData, 1);
+        return r;
+    }
+
     /// It returns a vector with the values of R3
     std::vector<Double_t> GetR3() {
         std::vector<Double_t> r = TRestTools::GetColumnFromTable(fOpticsData, 2);
+        return r;
+    }
+
+    /// It returns a vector with the values of R4
+    std::vector<Double_t> GetR4() {
+        std::vector<Double_t> r = TRestTools::GetColumnFromTable(fOpticsData, 3);
         return r;
     }
 
@@ -110,13 +133,13 @@ class TRestAxionWolterOptics : public TRestAxionOptics {
 
     /// It returns the entrance Z-position defined by the optical axis.
     Double_t GetEntrancePositionZ() override {
-        if (fCosAlpha.size() > 0) return -fMirrorLength * fCosAlpha[0];
+        if (fCosAlpha.size() > 0) return -fMirrorLength * fCosAlpha[0] - 0.5 * fXSep[0];
         return 0;
     }
 
     /// It returns the exit Z-position defined by the optical axis
     Double_t GetExitPositionZ() override {
-        if (fCosAlpha_3.size() > 0) return fMirrorLength * fCosAlpha_3[0];
+        if (fCosAlpha_3.size() > 0) return fMirrorLength * fCosAlpha_3[0] + 0.5 * fXSep[0];
         return 0;
     }
 
