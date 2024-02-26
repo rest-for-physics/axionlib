@@ -65,6 +65,7 @@ It is necessary to enable the `REST_MPFR` cmake option in order to benefit from 
 ### Publications
 
 This repository makes use of the following published codes:
+
 - K. Altenmuller et al, REST-for-Physics, a ROOT-based framework for event oriented data analysis and combined Monte Carlo response, [Computer Physics Communications 273, April 2022, 108281](https://doi.org/10.1016/j.cpc.2021.108281).
 - S.Hoof, J.Jaeckel, T.J.Lennert, Quantifying uncertainties in the solar axion flux and their impact on determining axion model parameters, [JCAP09(2021)006](https://doi.org/10.1088/1475-7516/2021/09/006).
 - T.Kittelmann, E.Klinkby, E.B.Knudsen, P.Willendrup, X.X.Cai, K.Kanaki, Monte Carlo Particle Lists: MCPL, Computer Physics Communications 218 (2017) 17–42](http://dx.doi.org/10.17632/cby92vsv5g.1).
