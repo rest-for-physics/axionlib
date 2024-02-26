@@ -49,6 +49,9 @@ class TRestAxionGeneratorProcess : public TRestEventProcess {
     /// The target size in mm (or generator source extension) for the generator.
     Double_t fTargetRadius = 800;  //<
 
+    /// The target position in mm with regards to the sun at (0,0,-AU).
+    TVector3 fTargetPosition = TVector3(0, 0, 0);  //<
+
     /// The generator type (solarFlux/flat)
     TString fGeneratorType = "solarFlux";  //<
 

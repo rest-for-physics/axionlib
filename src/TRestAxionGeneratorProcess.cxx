@@ -166,9 +166,12 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
 
     /// The axion position must be displaced by the target size.
     /// We always do this. It is independent of generator
-    /// The target is virtually placed at the (0,0,0).
+    /// The target is virtually placed at the (0,0,0) + TargetPosition since the
+    /// experiment is not focussed by the bore but by the whole experiment.
     /// In my opinion the target should be either the optics, or the magnet end bore.
-    /// Then one should place the optics or the magnet end bore at the (0,0,0).
+    /// Then one should place the optics or the magnet end bore at the (0,0,0) + TargetPosition.
+    /// TODO: The target position and the magnetic field have to be in the same spot in x- and y-direction
+    /// apparently.
     ///
     do {
         x = 2 * (fRandom->Rndm() - 0.5);
@@ -178,7 +181,7 @@ TRestEvent* TRestAxionGeneratorProcess::ProcessEvent(TRestEvent* evInput) {
 
     r = TMath::Sqrt(r);
 
-    axionPosition = axionPosition + TVector3(fTargetRadius * x, fTargetRadius * y, 0);
+    axionPosition = axionPosition + TVector3(fTargetRadius * x, fTargetRadius * y, 0) + fTargetPosition;
 
     Double_t mass = fRandom->Uniform(fAxionMassRange.X(), fAxionMassRange.Y());
 
