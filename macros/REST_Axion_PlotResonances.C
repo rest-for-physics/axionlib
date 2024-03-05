@@ -43,6 +43,7 @@ const Double_t fReBinning = 100; // Transforms 0.001 keV into 0.1keV
 int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1, double ma_min = 0, double Ea = 4.2, double Bmag = 2., double Lcoh = 10000, std::string gasName = "He", int cutoff = 5, int n_ma = 1000) {
 
 	gStyle->SetPadRightMargin(0.13);
+	gStyle->SetPadBottomMargin(0.13);
     TCanvas* c1 = new TCanvas("c1", "c1", 800, 600);
 
 	std::vector<std::string> options = TRestTools::GetOptions(optionString);
@@ -53,6 +54,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
 	bool sumProb = std::find(options.begin(), options.end(), "sumProb") != options.end();
 	bool legend = std::find(options.begin(), options.end(), "legend") != options.end();
 	bool nGamma = std::find(options.begin(), options.end(), "nGamma") != options.end();
+	bool labels = std::find(options.begin(), options.end(), "labels") != options.end();
 
     TRestAxionField* ax = new TRestAxionField();
     ax->SetMagneticField(Bmag);
@@ -97,6 +99,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
     std::vector<TGraph*> grp;
     TRestAxionBufferGas* gas = new TRestAxionBufferGas();
 
+	std::vector<std::pair<Double_t,Double_t>> labelPositions;
     for (const auto& p : Psettings) {
         // Creates the gas and the axion field
         gas->SetGasDensity(gasName, p.second);
@@ -106,11 +109,21 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
         std::vector<double> prob;
 		// Probability is not zero, but we introduce an artifact to make proper curve filling
 		prob.push_back(0);
+		Double_t xLabel = 0;
+		Double_t yLabel = 0;
         for (size_t j = 1; j < m_a.size(); j++) {
-			prob.push_back(ax->GammaTransmissionProbability(m_a[j]));
+			Double_t probV = ax->GammaTransmissionProbability(m_a[j]);
+			if( probV > yLabel )
+			{
+				yLabel = probV;
+				xLabel = m_a[j];
+			}
+			prob.push_back(probV);
 
             sum_prob[j] += prob[j];
         }
+		std::pair<Double_t,Double_t> coords(xLabel-0.002, 1.05*yLabel);
+		labelPositions.push_back(coords);
 
         TGraph* gr = new TGraph(m_a.size(), &m_a[0], &prob[0]);
         grp.push_back(gr);
@@ -126,26 +139,41 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
     grp[0]->GetXaxis()->SetTitle("m_{a} [eV]");
     grp[0]->GetYaxis()->SetTitle("P_{a#gamma}");
     grp[0]->GetXaxis()->SetLimits(ma_min+0.00001, ma_max);
+
 	grp[0]->GetXaxis()->SetLabelSize(0.04);
     grp[0]->GetXaxis()->SetLabelFont(42);
-	grp[0]->GetXaxis()->SetTitleSize(0.04);
+	grp[0]->GetXaxis()->SetTitleSize(0.045);
     grp[0]->GetXaxis()->SetTitleFont(42);
+
     grp[0]->GetYaxis()->SetRangeUser(0, fProbMax);
+
 	grp[0]->GetYaxis()->SetLabelSize(0.04);
     grp[0]->GetYaxis()->SetLabelFont(42);
-	grp[0]->GetYaxis()->SetTitleSize(0.04);
+	grp[0]->GetYaxis()->SetTitleSize(0.05);
     grp[0]->GetYaxis()->SetTitleFont(42);
+    grp[0]->GetYaxis()->SetTitleOffset(0.9);
 
 	grp[0]->SetLineColor(kBlack);
 	grp[0]->SetFillColorAlpha(kRed,0.5);
-	grp[0]->SetLineWidth(2);
+	grp[0]->SetLineWidth(1);
     grp[0]->Draw("AFL");
 
+	int n = 0;
     for (const auto g : grp) {
         g->SetLineColor(kBlack);
         g->SetLineWidth(2);
 		g->SetFillColorAlpha(kRed,0.15);
         g->Draw("FL SAME");
+
+		if( labels)
+		{
+			std::string label = "P" + std::to_string(n+1);
+			TLatex* textLatex = new TLatex(labelPositions[n].first, labelPositions[n].second, label.c_str());
+			textLatex->SetTextColor(1);
+			textLatex->SetTextSize(0.02);
+			textLatex->Draw("same");
+		}
+		n++;
     }
 
     // PLot of the sum of all the probabilities
@@ -238,7 +266,8 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
 			/// 0.001 is to remove the first tick, which is zero, and overlaps with 0.1eV
 			TGaxis *A1 = new TGaxis(0.1,0,0.1,fProbMax,0.001,fNGammaMax,510,"+L");
 			A1->SetTitle("N_{#gamma}");
-			A1->SetTitleOffset(1.5);
+			A1->SetTitleOffset(1.3);
+			A1->SetTitleSize(0.045);
 			A1->SetLabelSize(0.04);
 			A1->SetLabelFont(42);
 			A1->SetTextFont(42);
