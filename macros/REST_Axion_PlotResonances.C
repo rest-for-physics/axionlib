@@ -133,7 +133,6 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
     ///// PLOTS /////
 
     // Plot the density scan
-    grp[0]->SetLineColor(kBlue - 3);
 	if( title ) grp[0]->SetTitle("Transmission probability as a function of the axion mass");
 	else grp[0]->SetTitle("");
     grp[0]->GetXaxis()->SetTitle("m_{a} [eV]");
@@ -161,7 +160,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
 	int n = 0;
     for (const auto g : grp) {
         g->SetLineColor(kBlack);
-        g->SetLineWidth(2);
+        g->SetLineWidth(1);
 		g->SetFillColorAlpha(kRed,0.15);
         g->Draw("FL SAME");
 
@@ -181,23 +180,25 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
 	if( sumProb )
 	{
 		sum = new TGraph(m_a.size(), &m_a[0], &sum_prob[0]);
-		sum->SetLineColor(kBlue + 3);
-		sum->SetLineWidth(3);
+		sum->SetLineColor(kBlue - 6);
+		sum->SetLineWidth(2);
 		sum->Draw("SAME");
 	}
 
     // Plot of the vacuum probability
     TGraph* vac = new TGraph(m_a.size(), &m_a[0], &prob_vac[0]);
     vac->SetLineColor(kBlack);
-    vac->SetLineWidth(2);
+    vac->SetLineWidth(1);
 	vac->SetFillColorAlpha(kBlue,0.25);
     vac->Draw("FL SAME");
 
-	TGraph *gama;
+	TGraph *gama, *gamaABC;
+	Double_t deltaE = 0;
 	if( nGamma ) // The following code could be a method of a future TRestAxionPlotResonances::DrawNGamma()
 	{
-		std ::vector<double> NGamma;
+		std ::vector<double> NGamma, NGammaABC;
 
+		/////////// Integrating Ngamma for Primakoff ////////////
 		TRestAxionSolarQCDFlux* sFlux = new TRestAxionSolarQCDFlux("fluxes.rml", "LennertHoofPrimakoff");
 		sFlux->Initialize();
 		TH1F* spec = sFlux->GetEnergySpectrum();
@@ -207,7 +208,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
 		TH1F *rebinned = dynamic_cast<TH1F*>(spec->Rebin(fReBinning,"rebinned"));
 		/// We need to renormalize since the bin contents are already renormalized to cm-2 s-1 keV-1
 		rebinned->Scale(1./fReBinning);
-		Double_t deltaE = rebinned->GetBinCenter(2) - rebinned->GetBinCenter(1);
+		deltaE = rebinned->GetBinCenter(2) - rebinned->GetBinCenter(1);
 
 		if(!rebinned) {
 			std::cout << "Energy spectrum is nullptr!" << std::endl;
@@ -255,13 +256,13 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
 			}
 
 			gama = new TGraph(m_a.size(), &m_a[0], &NGamma[0]);
-			gama->SetLineColor(kRed + 3);
-			gama->SetLineWidth(3);
+			gama->SetLineColor(kRed + 1);
+			gama->SetLineWidth(2);
+			gama->SetLineStyle(2);
 			gama->GetYaxis()->SetRangeUser(0, fNGammaMax);
 			gama->Scale(fProbMax/fNGammaMax);
 			gama->Draw("SAME");
 
-			std::cout << "Max: " << maxNGamma << std::endl;
 
 			/// 0.001 is to remove the first tick, which is zero, and overlaps with 0.1eV
 			TGaxis *A1 = new TGaxis(0.1,0,0.1,fProbMax,0.001,fNGammaMax,510,"+L");
@@ -273,6 +274,73 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
 			A1->SetTextFont(42);
 			A1->Draw();
 		}
+
+		/////////// Integrating Ngamma for ABC ////////////
+		TRestAxionSolarQCDFlux* sFluxABC = new TRestAxionSolarQCDFlux("fluxes.rml", "LennertHoofABC");
+
+		sFluxABC->Initialize();
+		TH1F* specABC = sFluxABC->GetEnergySpectrum();
+
+		/// The original gets 1eV binning to describe monocromatic lines.
+		/// We do not need such a high resolution 
+		TH1F *rebinnedABC = dynamic_cast<TH1F*>(specABC->Rebin(fReBinning,"rebinnedABC"));
+		/// We need to renormalize since the bin contents are already renormalized to cm-2 s-1 keV-1
+		rebinnedABC->Scale(1./fReBinning);
+		deltaE = rebinnedABC->GetBinCenter(2) - rebinnedABC->GetBinCenter(1);
+
+		if(!rebinnedABC) {
+			std::cout << "Energy spectrum is nullptr!" << std::endl;
+		}
+		else
+		{
+			Double_t maxNGamma = 0;
+			// Obtain the Ngamma for each axion mass
+			for (size_t j = 0; j < m_a.size(); j++) {
+				std::cout << "Producing Ngamma (ABC) for mass : " << m_a[j] << std::endl;
+
+				Double_t ng = 0;
+
+				// Vacuum
+				ax->AssignBufferGas(nullptr);
+				for( int n = 1; n < rebinnedABC->GetNbinsX(); n++ )
+				{
+					Double_t energy = rebinnedABC->GetBinCenter(n);
+					if ( energy < fEnergyRange.X() || energy > 2 )
+						continue;
+
+					ax->SetAxionEnergy( rebinnedABC->GetBinCenter(n) );
+					ng += rebinnedABC->GetBinContent(n) * ax->GammaTransmissionProbability(m_a[j]);
+				}
+
+				/// Gas phase
+				for (const auto& p : Psettings) {
+					// Creates the gas and assignss it to the axion field
+					gas->SetGasDensity(gasName, p.second);
+					ax->AssignBufferGas(gas);
+
+					for( int n = 1; n < rebinnedABC->GetNbinsX(); n++ )
+					{
+						Double_t energy = rebinnedABC->GetBinCenter(n);
+						if ( energy < fEnergyRange.X() || energy > 2 )
+							continue;
+
+						ax->SetAxionEnergy( rebinnedABC->GetBinCenter(n) );
+						ng += rebinnedABC->GetBinContent(n) * ax->GammaTransmissionProbability(m_a[j]);
+					}
+				}
+				ng = 2*100 * ng * deltaE * fArea * fExposureTime;
+				if( ng > maxNGamma ) maxNGamma = ng;
+				NGammaABC.push_back( ng );
+			}
+
+			gamaABC = new TGraph(m_a.size(), &m_a[0], &NGammaABC[0]);
+			gamaABC->SetLineColor(kBlue+3);
+			gamaABC->SetLineStyle(2);
+			gamaABC->SetLineWidth(2);
+			gamaABC->GetYaxis()->SetRangeUser(0, fNGammaMax);
+			gamaABC->Scale(fProbMax/fNGammaMax);
+			gamaABC->Draw("SAME");
+		}
 	}
 
     // Plot of the vertical line
@@ -280,7 +348,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
 	if( drawLine )
 	{
 		verticalLine = new TLine(Psettings[0].first, c1->GetUymin(), Psettings[0].first, fProbMax);
-		verticalLine->SetLineColor(kGreen - 3);
+		verticalLine->SetLineColor(kGreen - 7);
 		verticalLine->SetLineWidth(2);
 		verticalLine->Draw("same");
 	}
@@ -292,7 +360,11 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
 		legend->AddEntry(grp[0], "P_{a#gamma} for each P-step", "lf");
 		legend->AddEntry(vac, "P_{a#gamma} for vacuum", "lf");
 		if( sumProb ) legend->AddEntry(sum, "#Sigma P_{a#gamma}", "l");
-		if( nGamma ) legend->AddEntry(gama, "N_{#gamma}", "l");
+		if( nGamma ) 
+		{
+			legend->AddEntry(gama, "N_{#gamma} (Primakoff)", "l");
+			legend->AddEntry(gamaABC, "2x N_{#gamma} (ABC)", "l");
+		}
 		if( drawLine ) legend->AddEntry(verticalLine, "m_{a} where P_{a#gamma}^{vac} = max(P_{a#gamma}^{vac}/2) ", "l");
 		legend->Draw("same");
 		c1->Draw();
