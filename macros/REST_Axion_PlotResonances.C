@@ -24,7 +24,8 @@
 //*** `TRestAxionField::GammaTransmissionFWHM` and `TRestAxionBufferGas::GetMassDensity`.
 //***
 //*** --------------
-//*** Usage: restManager PlotResonances [options] [ma_max=0.1] [ma_min=0] [Ea=4.2] [Bmag=2.5] [Lcoh=10000] [gasName=He]
+//*** Usage: restManager PlotResonances [options] [ma_max=0.1] [ma_min=0] [Ea=4.2] [Bmag=2.5] [Lcoh=10000]
+//[gasName=He]
 //*** [cutoff=5] [n_ma=10000]
 //***
 //*** Being all of them optional arguments.
@@ -35,58 +36,59 @@
 const Double_t fProbMax = 3e-18;
 const Double_t fNGammaMax = 6000;
 
-const TVector2 fEnergyRange = TVector2(0.5,10);
-const Double_t fExposureTime = 30 * 3600. * 18; // s
-const Double_t fArea = TMath::Pi() * 35 * 35; // cm2
-const Double_t fReBinning = 100; // Transforms 0.001 keV into 0.1keV											  
+const TVector2 fEnergyRange = TVector2(0.5, 10);
+const Double_t fExposureTime = 30 * 3600. * 18;  // s
+const Double_t fArea = TMath::Pi() * 35 * 35;    // cm2
+const Double_t fReBinning = 100;                 // Transforms 0.001 keV into 0.1keV
 
-int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1, double ma_min = 0, double Ea = 4.2, double Bmag = 2., double Lcoh = 10000, std::string gasName = "He", int cutoff = 5, int n_ma = 1000) {
-
-	gStyle->SetPadRightMargin(0.13);
-	gStyle->SetPadBottomMargin(0.13);
+int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1, double ma_min = 0,
+                              double Ea = 4.2, double Bmag = 2., double Lcoh = 10000,
+                              std::string gasName = "He", int cutoff = 5, int n_ma = 1000) {
+    gStyle->SetPadRightMargin(0.13);
+    gStyle->SetPadBottomMargin(0.13);
     TCanvas* c1 = new TCanvas("c1", "c1", 800, 600);
 
-	std::vector<std::string> options = TRestTools::GetOptions(optionString);
+    std::vector<std::string> options = TRestTools::GetOptions(optionString);
 
-	bool title = std::find(options.begin(), options.end(), "title") != options.end();
-	bool vacuum = std::find(options.begin(), options.end(), "vacuum") != options.end();
-	bool drawLine = std::find(options.begin(), options.end(), "drawLine") != options.end();
-	bool sumProb = std::find(options.begin(), options.end(), "sumProb") != options.end();
-	bool legend = std::find(options.begin(), options.end(), "legend") != options.end();
-	bool nGamma = std::find(options.begin(), options.end(), "nGamma") != options.end();
-	bool labels = std::find(options.begin(), options.end(), "labels") != options.end();
+    bool title = std::find(options.begin(), options.end(), "title") != options.end();
+    bool vacuum = std::find(options.begin(), options.end(), "vacuum") != options.end();
+    bool drawLine = std::find(options.begin(), options.end(), "drawLine") != options.end();
+    bool sumProb = std::find(options.begin(), options.end(), "sumProb") != options.end();
+    bool legend = std::find(options.begin(), options.end(), "legend") != options.end();
+    bool nGamma = std::find(options.begin(), options.end(), "nGamma") != options.end();
+    bool labels = std::find(options.begin(), options.end(), "labels") != options.end();
 
     TRestAxionField* ax = new TRestAxionField();
     ax->SetMagneticField(Bmag);
     ax->SetCoherenceLength(Lcoh);
     ax->SetAxionEnergy(Ea);
 
-	/// Could be stored as a data member of TRestAxionPlotResonances for further access
-	std::vector<std::pair<Double_t, Double_t>> Psettings = ax->GetMassDensityScanning(gasName, ma_max, 20);
+    /// Could be stored as a data member of TRestAxionPlotResonances for further access
+    std::vector<std::pair<Double_t, Double_t>> Psettings = ax->GetMassDensityScanning(gasName, ma_max, 20);
 
-	if( Psettings.size() > cutoff ) Psettings.resize(cutoff);
+    if (Psettings.size() > cutoff) Psettings.resize(cutoff);
 
     // Creates the vector of axion masses (This could be a data member of TRestAxionPlotResonances).
     std::vector<double> m_a;
     double ma_step = (ma_max - ma_min) / n_ma;
-	m_a.push_back( ma_min ); // The first mass drawn will get zero probability for the curve filling.
-							 // So we repeat the value
+    m_a.push_back(ma_min);  // The first mass drawn will get zero probability for the curve filling.
+                            // So we repeat the value
 
     std::vector<double> sum_prob;
-	sum_prob.push_back(0);
+    sum_prob.push_back(0);
     for (int i = 0; i < n_ma; i++) {
         m_a.push_back(ma_min + i * ma_step);
         sum_prob.push_back(0);
     }
 
     // Computes the Vacuum probability
-	ax->AssignBufferGas(nullptr);
+    ax->AssignBufferGas(nullptr);
     std ::vector<double> prob_vac;
 
-	// Probability is not zero, but we introduce an artifact (virtual point) to make proper TGraph filling 
-	prob_vac.push_back(0);
+    // Probability is not zero, but we introduce an artifact (virtual point) to make proper TGraph filling
+    prob_vac.push_back(0);
     for (size_t j = 1; j < m_a.size(); j++) {
-		prob_vac.push_back(ax->GammaTransmissionProbability(m_a[j]));
+        prob_vac.push_back(ax->GammaTransmissionProbability(m_a[j]));
     }
 
     // Computes the sum of all the probabilities (Adding vacuum)
@@ -99,7 +101,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
     std::vector<TGraph*> grp;
     TRestAxionBufferGas* gas = new TRestAxionBufferGas();
 
-	std::vector<std::pair<Double_t,Double_t>> labelPositions;
+    std::vector<std::pair<Double_t, Double_t>> labelPositions;
     for (const auto& p : Psettings) {
         // Creates the gas and the axion field
         gas->SetGasDensity(gasName, p.second);
@@ -107,28 +109,26 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
 
         // Obtain the probability for each axion mass
         std::vector<double> prob;
-		// Probability is not zero, but we introduce an artifact to make proper curve filling
-		prob.push_back(0);
-		Double_t xLabel = 0;
-		Double_t yLabel = 0;
+        // Probability is not zero, but we introduce an artifact to make proper curve filling
+        prob.push_back(0);
+        Double_t xLabel = 0;
+        Double_t yLabel = 0;
         for (size_t j = 1; j < m_a.size(); j++) {
-			Double_t probV = ax->GammaTransmissionProbability(m_a[j]);
-			if( probV > yLabel )
-			{
-				yLabel = probV;
-				xLabel = m_a[j];
-			}
-			prob.push_back(probV);
+            Double_t probV = ax->GammaTransmissionProbability(m_a[j]);
+            if (probV > yLabel) {
+                yLabel = probV;
+                xLabel = m_a[j];
+            }
+            prob.push_back(probV);
 
             sum_prob[j] += prob[j];
         }
-		std::pair<Double_t,Double_t> coords(xLabel-0.002, 1.05*yLabel);
-		labelPositions.push_back(coords);
+        std::pair<Double_t, Double_t> coords(xLabel - 0.002, 1.05 * yLabel);
+        labelPositions.push_back(coords);
 
         TGraph* gr = new TGraph(m_a.size(), &m_a[0], &prob[0]);
         grp.push_back(gr);
     }
-
 
     ///// PLOTS /////
 
@@ -137,42 +137,41 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
 	else grp[0]->SetTitle("");
     grp[0]->GetXaxis()->SetTitle("m_{a} [eV]");
     grp[0]->GetYaxis()->SetTitle("P_{a#gamma}");
-    grp[0]->GetXaxis()->SetLimits(ma_min+0.00001, ma_max);
+    grp[0]->GetXaxis()->SetLimits(ma_min + 0.00001, ma_max);
 
-	grp[0]->GetXaxis()->SetLabelSize(0.04);
+    grp[0]->GetXaxis()->SetLabelSize(0.04);
     grp[0]->GetXaxis()->SetLabelFont(42);
-	grp[0]->GetXaxis()->SetTitleSize(0.045);
+    grp[0]->GetXaxis()->SetTitleSize(0.045);
     grp[0]->GetXaxis()->SetTitleFont(42);
 
     grp[0]->GetYaxis()->SetRangeUser(0, fProbMax);
 
-	grp[0]->GetYaxis()->SetLabelSize(0.04);
+    grp[0]->GetYaxis()->SetLabelSize(0.04);
     grp[0]->GetYaxis()->SetLabelFont(42);
-	grp[0]->GetYaxis()->SetTitleSize(0.05);
+    grp[0]->GetYaxis()->SetTitleSize(0.05);
     grp[0]->GetYaxis()->SetTitleFont(42);
     grp[0]->GetYaxis()->SetTitleOffset(0.9);
 
-	grp[0]->SetLineColor(kBlack);
-	grp[0]->SetFillColorAlpha(kRed,0.5);
-	grp[0]->SetLineWidth(1);
+    grp[0]->SetLineColor(kBlack);
+    grp[0]->SetFillColorAlpha(kRed, 0.5);
+    grp[0]->SetLineWidth(1);
     grp[0]->Draw("AFL");
 
-	int n = 0;
+    int n = 0;
     for (const auto g : grp) {
         g->SetLineColor(kBlack);
         g->SetLineWidth(1);
 		g->SetFillColorAlpha(kRed,0.15);
         g->Draw("FL SAME");
 
-		if( labels)
-		{
-			std::string label = "P" + std::to_string(n+1);
-			TLatex* textLatex = new TLatex(labelPositions[n].first, labelPositions[n].second, label.c_str());
-			textLatex->SetTextColor(1);
-			textLatex->SetTextSize(0.02);
-			textLatex->Draw("same");
-		}
-		n++;
+        if (labels) {
+            std::string label = "P" + std::to_string(n + 1);
+            TLatex* textLatex = new TLatex(labelPositions[n].first, labelPositions[n].second, label.c_str());
+            textLatex->SetTextColor(1);
+            textLatex->SetTextSize(0.02);
+            textLatex->Draw("same");
+        }
+        n++;
     }
 
     // PLot of the sum of all the probabilities
@@ -188,6 +187,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
     // Plot of the vacuum probability
     TGraph* vac = new TGraph(m_a.size(), &m_a[0], &prob_vac[0]);
     vac->SetLineColor(kBlack);
+<<<<<<< HEAD
     vac->SetLineWidth(1);
 	vac->SetFillColorAlpha(kBlue,0.25);
     vac->Draw("FL SAME");
