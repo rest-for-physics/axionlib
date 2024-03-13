@@ -21,7 +21,7 @@
 int REST_Axion_FieldIntegrationTests(Double_t sX = 10, Double_t sY = 10, Double_t sZ = 50, Double_t dm = 0.01,
                                      Double_t tolerance = 0.1, Double_t Ea = 4.2) {
     /// Setting up magnetic field and track to evaluate
-    TRestAxionMagneticField magneticField("fields.rml", "babyIAXO_HD");
+    TRestAxionMagneticField magneticField("fields.rml", "babyIAXO_2024");
 
     for (size_t n = 0; n < magneticField.GetNumberOfVolumes(); n++)
         magneticField.ReMap(n, TVector3(sX, sY, sZ));
