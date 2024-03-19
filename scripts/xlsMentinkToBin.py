@@ -17,17 +17,18 @@ import pandas as pd
 # Field map is provided only for the top magnetic bore. We will recenter the field map.
 # Since this is a condition for TRestAxionMagneticField.
 xCenter = 0
-yCenter = 0
-zCenter = 0.7975
+yCenter = 0.8
+zCenter = 0
 
 print("Starting to read")
 # loading the data into a matrix (xyzBdata)
-file = r"../data/magneticField/Bykovskiy_202004.xls"
+file = r"../data/magneticField/Mentink_202401.txt"
 df = pd.read_excel(file)
 
 print(df[1:5])
 
 print("Translating to matrix")
+#xyzBdata = df.values(columns=df.columns[0:])
 xyzBdata = df[df.columns[0:]].values
 
 print(xyzBdata[0][0:6])
@@ -119,12 +120,12 @@ for x in xyzBdata:
     # We recenter the volume and redefine axis (x becomes z, y becomes x and z becomes y)
     # XLS file distances are expressed in m. We translate to mm.
     y = [
+        1000 * (x[0] - xCenter),
         1000 * (x[1] - yCenter),
         1000 * (x[2] - zCenter),
-        1000 * (x[0] - xCenter),
+        x[3],
         x[4],
         x[5],
-        x[3],
     ]
 
     # Baby-IAXO is symmetric respect to z (direction along axis) and x (direction parallel to the ground).
@@ -138,10 +139,10 @@ for x in xyzBdata:
         print(len(y))
         print(x[0:6])
         print(y[0:6])
-    # The original file was only missing the z-axis, when we change the sign of z-axis we must change the sign of Bz.
-    if y[2] > 0:
-        y[2] = -y[2]
-        y[5] = -y[5]
+    # The original file was only missing the x-axis, when we change the sign of x-axis we must change the sign of Bx.
+    if y[0] < 0:
+        y[0] = -y[0]
+        y[3] = -y[3]
         count = count + 1
         fbin.write(struct.pack("<%df" % len(y), *y))
         if count < 6:
