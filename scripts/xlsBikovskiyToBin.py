@@ -22,13 +22,14 @@ zCenter = 0.7975
 
 print("Starting to read")
 # loading the data into a matrix (xyzBdata)
-file = r"../../../data/magneticField/Bykovskiy_201906.xls"
+file = r"../data/magneticField/Bykovskiy_202004.xls"
 df = pd.read_excel(file)
 
 print(df[1:5])
 
 print("Translating to matrix")
-xyzBdata = df.as_matrix(columns=df.columns[0:])
+#xyzBdata = df.values(columns=df.columns[0:])
+xyzBdata = df[df.columns[0:]].values
 
 print(xyzBdata[0][0:6])
 
