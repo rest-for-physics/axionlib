@@ -28,7 +28,7 @@ df = pd.read_excel(file)
 print(df[1:5])
 
 print("Translating to matrix")
-#xyzBdata = df.values(columns=df.columns[0:])
+# xyzBdata = df.values(columns=df.columns[0:])
 xyzBdata = df[df.columns[0:]].values
 
 print(xyzBdata[0][0:6])
