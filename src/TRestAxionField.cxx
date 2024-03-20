@@ -35,9 +35,9 @@
 /// GammaTransmissionProbability that allows to calculate the axion-photon
 /// probability using different strategies.
 ///
-/// \section constant Calculating axion-photon probability in a constant field.
+/// ## Calculating axion-photon probability in a constant field.
 ///
-/// ### In vacuum
+/// ### 1. In vacuum
 ///
 /// For calculations inside a constant magnetic field one may simply
 /// invoke the following code which will launch the calculation in *vacuum*,
@@ -74,7 +74,7 @@
 /// field.GammaTransmissionProbability( 0.01 );
 /// \endcode
 ///
-/// ### In a buffer gas medium
+/// ### 2. In a buffer gas medium
 ///
 /// The axion-photon probability can also be calculated in the sin of a
 /// gaseous medium. For that we need to assign a buffer gas instance containing
@@ -95,7 +95,14 @@
 /// field.GammaTransmissionProbability( 0.1 );
 /// \endcode
 ///
-/// \section non-constant Calculating axion-photon probability in an unhomogeneous field.
+/// Once we have assigned a buffer gas to the class we may return back to the
+/// vacuum state by just assigning a nullptr to the gas.
+///
+/// \code
+/// field.AssignBufferGas(nullptr);
+/// \endcode
+///
+/// ## Calculating axion-photon probability in an unhomogeneous field.
 ///
 /// There are two main strategies presently implemented inside this class to integrate
 /// the axion field along an unhomogeneous magnetic field. The first one uses a simple
@@ -168,6 +175,20 @@
 /// Where the later call will return a `std::pair` with the probability and its
 /// corresponding error.
 ///
+/// ## Determining density steps for continuous scanning
+///
+/// A method may be used to determine the masses and gas densities to achieve
+/// a continuous scanning TRestAxionField::GetMassDensityScanning. This method
+/// will place a new mass or gas density setting at FWHM/2 till it reaches
+/// the maximum axion mass specified in the argument.
+///
+/// The following code recovers the axion masses and density settings required
+/// for a continuous scan till 0.2eV.
+///
+/// \code
+/// std::pair <Double_t,Double_t> aField.GetMassDensityScanning( "He", 0.2 );
+/// \endcode
+///
 ///--------------------------------------------------------------------------
 ///
 /// RESTsoft - Software for Rare Event Searches with TPCs
@@ -176,9 +197,12 @@
 ///
 /// 2019-March: First concept and implementation of TRestAxionField class.
 ///             Javier Galan
+/// 2023-December: Implementing methods to recover the axion mass scanning nodes
+///             Fran Candon
 ///
 /// \class      TRestAxionField
 /// \author     Javier Galan
+/// \author     Fran Candon
 ///
 /// <hr>
 ///
@@ -208,9 +232,6 @@ TRestAxionField::~TRestAxionField() {}
 
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestAxionField class
-///
-/// It sets the default real precision to be used with mpfr types. Now it is 30 digits.
-/// So that we can still calculate numbers such as : 1.0 - 1.e-30
 ///
 void TRestAxionField::Initialize() {
     fBufferGas = NULL;
