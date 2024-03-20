@@ -51,6 +51,7 @@
 /// gas->SetGasMixture( "He+Xe", "2.6e-6g/dm^3+5.6mg/m^3" );
 /// \endcode
 ///
+///
 /// The corresponding RML section for initialization through a configuration
 /// file would be as follows.
 ///
@@ -59,6 +60,15 @@
 ///		<gas name="He" density="2.6e-9"/>
 ///		<gas name="Xe" density="5.6mg/cm^3"/>
 ///	</TRestAxionBufferGas>
+/// \endcode
+///
+/// Example 3:
+///
+/// We may also use a definition found inside the official REST-for-Physics
+/// data directory.
+///
+/// \code
+/// TRestAxionBufferGas *gas = new TRestAxionBufferGas("bufferGases.rml", "helium");
 /// \endcode
 ///
 ///--------------------------------------------------------------------------

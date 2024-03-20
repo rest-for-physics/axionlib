@@ -21,13 +21,173 @@
  *************************************************************************/
 
 //////////////////////////////////////////////////////////////////////////
+////
 /// TRestAxionField is a class used to calculate the axion-photon mixing
-/// and determine the probability of the particle being in an axion or photon
-/// state.
+/// and determine the probability of the particle being in a photon
+/// state after propagating inside a magnetic field.
 ///
-/// A peculiarity from this class is that it encapsulates internally the high
-/// precision calculations using the real precisions types using TRestComplex.
-/// It is known that double precision is not good enough in some scenarios.
+/// The class allows to assign a buffer gas using a TRestAxionBufferGas and
+/// a magnetic field map loaded through TRestAxionMagneticField. If these
+/// objects have been assigned, the methods implemented in this class
+/// may consider those - if needed - inside the calculation.
+///
+/// In practice this class provides different versions of the method
+/// GammaTransmissionProbability that allows to calculate the axion-photon
+/// probability using different strategies.
+///
+/// ## Calculating axion-photon probability in a constant field.
+///
+/// ### 1. In vacuum
+///
+/// For calculations inside a constant magnetic field one may simply
+/// invoke the following code which will launch the calculation in *vacuum*,
+/// for a field of 2T, a coherence length of 10000mm, and an axion energy
+/// and mass of 4.2keV and 0.1eV, respectively.
+///
+/// \code
+/// TRestAxionField field;
+/// field->GammaTransmissionProbability( 2, 10000, 4.2, 0.1 );
+/// \endcode
+///
+/// It is possible to reduce the number of arguments we are giving to this
+/// function by assigning few data member values present inside TRestAxionField
+/// as follows:
+///
+/// \code
+/// TRestAxionField field;
+/// field.SetMagneticField(2);
+/// field.SetCoherenceLength(10000);
+/// field.SetAxionEnergy(4.2);
+/// field.GammaTransmissionProbability( 0.1 );
+/// \endcode
+///
+/// Indeed, the complete version with all arguments will also update the
+/// data member values, so that next calls to this method will use the same
+/// magnetic field, coherence length and energy. In the following example
+/// the second call to GammaTransmissionProbability will use again the same
+/// values for magnetic field, coherence length and energy from the
+/// preceding call.
+///
+/// \code
+/// TRestAxionField field;
+/// field.GammaTransmissionProbability( 2, 10000, 4.2, 0.1 );
+/// field.GammaTransmissionProbability( 0.01 );
+/// \endcode
+///
+/// ### 2. In a buffer gas medium
+///
+/// The axion-photon probability can also be calculated in the sin of a
+/// gaseous medium. For that we need to assign a buffer gas instance containing
+/// the relevant gas properties in the form of a TRestAxionBufferGas.
+///
+/// The following piece of code will assign the gas properties to the field
+/// calculation as defined inside the `bufferGases.rml` official file. The gas
+/// provides the absorption and equivalent photon mass as a funtion of the
+/// energy.
+///
+/// \code
+/// TRestAxionField field;
+/// TRestAxionBufferGas gas("bufferGases.rml", "helium");
+/// field.AssignBufferGas( &gas );
+/// field.SetMagneticField(2);
+/// field.SetCoherenceLength(10000);
+/// field.SetAxionEnergy(4.2);
+/// field.GammaTransmissionProbability( 0.1 );
+/// \endcode
+///
+/// Once we have assigned a buffer gas to the class we may return back to the
+/// vacuum state by just assigning a nullptr to the gas.
+///
+/// \code
+/// field.AssignBufferGas(nullptr);
+/// \endcode
+///
+/// ## Calculating axion-photon probability in an unhomogeneous field.
+///
+/// There are two main strategies presently implemented inside this class to integrate
+/// the axion field along an unhomogeneous magnetic field. The first one uses a simple
+/// trapezoidal integration method with the advantage that the computing time is controlled
+/// by length of the integration step, but no error calculation is given. The second
+/// method advantage is that in principle it allows to fix the accuracy of our calculation
+/// and an error of the integration is returned by the GSL integration method used. The
+/// main disadvantage is that by fixing the accuracy we lose control on the computation
+/// time required to reach such accuracy. Here we describe both methods.
+///
+/// ### 1. Using external field profile
+///
+/// Using a external field profile requires to prepare the field profile and pass it
+/// along to TRestAxionField::GammaTransmissionProbability method performing the
+/// integration. The profile will be placed in a `std::vector<Double_t>` that describes
+/// the magnetic field profile with a fixed length step.
+/// The method TRestAxionMagneticField::GetTransversalComponentAlongPath can be used
+/// to generate such profile and calculate the field using the first method, as in
+/// the following example:
+///
+/// \code
+/// Double_t deltaL = 100; // mm
+/// Double_t Ea = 4.2; // keV
+/// Double_t ma = 0.001; // eV
+///
+/// // Recovering the B-field profile along the axis
+/// TRestAxionMagneticField mField("fields.rml", "babyIAXO_2024");
+/// std::vector<Double_t> bField = mField.GetTransversalComponentAlongPath( TVector3(0,0,-6000),
+/// TVector3(0,0,6000), deltaL );
+///
+/// TRestAxionField aField;
+/// aField.GammaTransmissionProbability( bField, deltaL, Ea, ma );
+/// \endcode
+///
+/// In a similar way to the constant field case, it would suffice to assign a buffer gas to
+/// the TRestAxionField instance to have the calculation performed in a buffer gas.
+///
+/// ### 2. Using a field map instance
+///
+/// A new method has been added in which the integration method is given a pointer to the
+/// function that will allow evaluation of the magnetic field along the B-profile
+/// parameterized track. Thus, it is the integration method the one requesting the points
+/// on the parametric curve that will be necessary to perform the integration. The required
+/// field evaluation is encoded inside TRestAxionField::Integrand which accesses the
+/// magnetic field instance TRestAxionField::fMagneticField in order to recover a parametric
+/// track along the path.
+///
+/// The method name using this technique requires thus direct access to a
+/// TRestAxionMagneticField instance that must be assigned beforehand. For computing
+/// the integral following this strategy one needs to write the following code where we
+/// consider the most generic case including a gas buffer medium.
+///
+/// \code
+/// TRestAxionField aField;
+///
+/// TRestAxionBufferGas gas("bufferGases.rml", "helium");
+/// aField.AssignBufferGas( &gas );
+///
+/// TRestAxionMagneticField mField("fields.rml", "babyIAXO_2024");
+/// aField.AssignMagneticField( &mField );
+///
+/// Double_t ma = 0.001;
+/// Double_t Ea = 4.2;
+/// Double_t accuracy = 0.1;
+/// // The track that will be integrated must be predefined before inside the magnetic field class
+/// mField.SetTrack( TVector3(0,0,-6000), TVector3(0,0,1) );
+/// std::pair<Double_t, Double_t> prob = aField.GammaTransmissionFieldMapProbability(Ea, ma, accuracy);
+/// \endcode
+///
+/// Where the later call will return a `std::pair` with the probability and its
+/// corresponding error.
+///
+/// ## Determining density steps for continuous scanning
+///
+/// A method may be used to determine the masses and gas densities to achieve
+/// a continuous scanning TRestAxionField::GetMassDensityScanning. This method
+/// will place a new mass or gas density setting at FWHM/2 till it reaches
+/// the maximum axion mass specified in the argument.
+///
+/// The following code recovers the axion masses and density settings required
+/// for a continuous scan till 0.2eV.
+///
+/// \code
+/// std::pair <Double_t,Double_t> aField.GetMassDensityScanning( "He", 0.2 );
+/// \endcode
 ///
 ///--------------------------------------------------------------------------
 ///
@@ -37,9 +197,12 @@
 ///
 /// 2019-March: First concept and implementation of TRestAxionField class.
 ///             Javier Galan
+/// 2023-December: Implementing methods to recover the axion mass scanning nodes
+///             Fran Candon
 ///
 /// \class      TRestAxionField
 /// \author     Javier Galan
+/// \author     Fran Candon
 ///
 /// <hr>
 ///
@@ -69,9 +232,6 @@ TRestAxionField::~TRestAxionField() {}
 
 ///////////////////////////////////////////////
 /// \brief Initialization of TRestAxionField class
-///
-/// It sets the default real precision to be used with mpfr types. Now it is 30 digits.
-/// So that we can still calculate numbers such as : 1.0 - 1.e-30
 ///
 void TRestAxionField::Initialize() {
     fBufferGas = NULL;
@@ -584,8 +744,8 @@ Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Bmag, Double_t Lco
 /// Default value for the parameters are: Bmag = 2.5 T, Lcoh = 10000 mm, Ea = 4 keV
 /// eV,
 ///
-/// IMPORTANT: In the case that the buffer gas is not defined, this method will return the mass at which the
-/// probability reaches half of the maximum **vacuum** probability.
+/// IMPORTANT: In the case that the buffer gas is not defined, this method will return the mass at which
+/// the probability reaches half of the maximum **vacuum** probability.
 ///
 Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
     Double_t maxMass = 10;  // 10eV is the maximum mass (exit condition)
@@ -599,9 +759,9 @@ Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
     while (Pmax / 2 < GammaTransmissionProbability(scanMass)) {
         scanMass += step;
         if (scanMass > maxMass) {
-            RESTError
-                << "TRestAxionField::GammaTransmissionProbability. Something went wrong when calculating FWHM"
-                << RESTendl;
+            RESTError << "TRestAxionField::GammaTransmissionProbability. Something went wrong when "
+                         "calculating FWHM"
+                      << RESTendl;
             return maxMass;
         }
     }
@@ -615,23 +775,25 @@ Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
 }
 
 ///////////////////////////////////////////////
-/// \brief This method determines the proper densities to be used in an axion helioscope experiment in order
-/// to achieve a continuous axion mass scan.
+/// \brief This method determines the proper densities to be used in an axion helioscope experiment in
+/// order to achieve a continuous axion mass scan.
 ///
 /// The first scanning density is placed where the axion-photon vacuum probability reaches half the value,
 /// `P_ag(max)/2`. Once the first density, or step, has been obtained, the method calculates the FWHM
-/// resonance probability for each density/mass and moves the next scanning axion mass by a step of amplitude
-/// `FWHM/factor`, where the factor is a value that moves from 2 to 1 as the mass increases, and it falls down
-/// with a velocity related with the argument `rampDown`, where the factor follows this formula:
+/// resonance probability for each density/mass and moves the next scanning axion mass by a step of
+/// amplitude `FWHM/factor`, where the factor is a value that moves from 2 to 1 as the mass increases, and
+/// it falls down with a velocity related with the argument `rampDown`, where the factor follows this
+/// formula:
 ///
 ///	factor = TMath::Exp( - ma*rampDown  ) + 1;
 ///
-/// The method stops when the axion mass is bigger than the maximum axion mass given as an argument, `maMax`.
+/// The method stops when the axion mass is bigger than the maximum axion mass given as an argument,
+/// `maMax`.
 ///
 /// Default arguments: gasName="He", ma_max=0.15 eV, rampDown=5
 ///
-/// \return It returns a vector of pair with the values for the scan, the first one is the axion mass and the
-/// second one is the density.
+/// \return It returns a vector of pair with the values for the scan, the first one is the axion mass and
+/// the second one is the density.
 ///
 /// For additional info see PR: https://github.com/rest-for-physics/axionlib/pull/78
 ///
