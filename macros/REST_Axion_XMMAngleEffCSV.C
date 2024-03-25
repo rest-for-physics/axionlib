@@ -47,9 +47,7 @@ Int_t REST_Axion_XMMAngleEffCSV(
 
         Int_t obsID = run->GetAnalysisTree()->GetObservableID("optics_efficiency");
         if (obsID == -1) {
-            RESTError << "No observable \""
-                      << "optics_efficiency"
-                      << "\" in file " << files[n] << RESTendl;
+            RESTError << "No observable \"" << "optics_efficiency" << "\" in file " << files[n] << RESTendl;
             continue;
         }
         Double_t eff = 0;
