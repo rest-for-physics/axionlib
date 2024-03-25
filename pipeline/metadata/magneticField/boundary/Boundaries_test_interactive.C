@@ -60,8 +60,7 @@ void PrintVolumeBoundaries(Int_t volume_ID, TVector3 position, TVector3 directio
 
     if (volume_ID == 0) {
         myfile << "Initial position : (" << position.X() << ", " << position.Y() << ", " << position.Z()
-               << ")"
-               << "\n";
+               << ")" << "\n";
         myfile << "Direction : (" << direction.X() << ", " << direction.Y() << ", " << direction.Z() << ")"
                << "\n\n";
     }
@@ -69,8 +68,7 @@ void PrintVolumeBoundaries(Int_t volume_ID, TVector3 position, TVector3 directio
     myfile << "Number of volume boundary points found : " << boundaries.size() << "\n";
     for (int i = 0; i < boundaries.size(); i++)
         myfile << "boundaries[" << i << "] = (" << boundaries[i].X() << ", " << boundaries[i].Y() << ", "
-               << boundaries[i].Z() << ")"
-               << "\n";
+               << boundaries[i].Z() << ")" << "\n";
     myfile << "\n\n";
 }
 
@@ -84,8 +82,6 @@ void PrintFieldBoundaries(std::vector<TVector3> fieldboundaries) {
     myfile << "Number of field boundary points found : " << fieldboundaries.size() << "\n";
     for (int i = 0; i < fieldboundaries.size(); i++)
         myfile << "fieldboundaries[" << i << "] = (" << fieldboundaries[i].X() << ", "
-               << fieldboundaries[i].Y() << ", " << fieldboundaries[i].Z() << ")"
-               << "\n";
-    myfile << "---------------------------------"
-           << "\n";
+               << fieldboundaries[i].Y() << ", " << fieldboundaries[i].Z() << ")" << "\n";
+    myfile << "---------------------------------" << "\n";
 }

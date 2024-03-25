@@ -735,13 +735,11 @@ void TRestAxionMagneticField::LoadMagneticFieldData(MagneticFieldVolume& mVol,
             RESTWarning << "nX: " << nX << " nY: " << nY << " nZ: " << nZ << RESTendl;
             RESTWarning << "WARNING: field[nX][nY][nZ] element not equal to initial value (0, 0, 0) !!"
                         << RESTendl;
-            RESTWarning << "It has value: "
-                        << "mVol.field[" << nX << "][" << nY << "][" << nZ << "] = ("
+            RESTWarning << "It has value: " << "mVol.field[" << nX << "][" << nY << "][" << nZ << "] = ("
                         << mVol.field[nX][nY][nZ].X() << " , " << mVol.field[nX][nY][nZ].Y() << " , "
                         << mVol.field[nX][nY][nZ].Z() << ")" << RESTendl;
-            RESTWarning << "Values to write: "
-                        << "Bx: " << data[n][3] << " By: " << data[n][4] << " Bz: " << data[n][5] << RESTendl
-                        << RESTendl;
+            RESTWarning << "Values to write: " << "Bx: " << data[n][3] << " By: " << data[n][4]
+                        << " Bz: " << data[n][5] << RESTendl << RESTendl;
 
             this->SetError("There was a problem assigning the field matrix!");
             if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Extreme) GetChar();
@@ -1516,8 +1514,8 @@ void TRestAxionMagneticField::PrintMetadata() {
         RESTMetadata << "* Volume " << p << " centered at  (" << centerX << "," << centerY << "," << centerZ
                      << ") mm" << RESTendl;
         RESTMetadata << "  - Grid mesh element size.  X: " << fMeshSize[p].X() << "mm "
-                     << " Y: " << fMeshSize[p].Y() << "mm "
-                     << " Z: " << fMeshSize[p].Z() << "mm " << RESTendl;
+                     << " Y: " << fMeshSize[p].Y() << "mm " << " Z: " << fMeshSize[p].Z() << "mm "
+                     << RESTendl;
         RESTMetadata << "  - Offset field [T] : (" << fConstantField[p].X() << ", " << fConstantField[p].Y()
                      << ", " << fConstantField[p].Z() << ")" << RESTendl;
         RESTMetadata << "  - File loaded : " << fFileNames[p] << RESTendl;
