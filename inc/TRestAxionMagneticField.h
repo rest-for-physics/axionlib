@@ -161,6 +161,9 @@ class TRestAxionMagneticField : public TRestMetadata {
     std::vector<Double_t> GetTransversalComponentAlongPath(TVector3 from, TVector3 to, Double_t dl = 1.,
                                                            Int_t Nmax = 0);
 
+    std::vector<Double_t> GetComponentAlongPath( Int_t axis, TVector3 from, TVector3 to, Double_t dl = 1.,
+                                                           Int_t Nmax = 0);
+
     Double_t GetTransversalFieldAverage(TVector3 from, TVector3 to, Double_t dl = 1., Int_t Nmax = 0);
 
     TVector3 GetFieldAverageTransverseVector(TVector3 from, TVector3 to, Double_t dl = 10., Int_t Nmax = 0);
@@ -169,6 +172,8 @@ class TRestAxionMagneticField : public TRestMetadata {
                            TString style = "COLZ0", Double_t depth = -100010.0);
 
     TCanvas* DrawTracks(TVector3 vanishingPoint, Int_t divisions, Int_t volId = 0);
+
+    TCanvas* DrawComponents(Int_t volId = 0);
 
     void PrintMetadata();
 
