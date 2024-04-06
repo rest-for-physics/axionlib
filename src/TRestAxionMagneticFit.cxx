@@ -21,31 +21,49 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-/// Write the class description Here                                     
+/// This class allows to perform a fit of the magnetic field profile along
+/// a track parallel to the magnet axis (which is symmetric). A 
+/// TRestAxionMagnetModel will be built then using interpolation between
+/// the different adjacent parallel lines.
 /// 
-/// ### Parameters
-/// Describe any parameters this process receives: 
-/// * **parameter1**: This parameter ...
-/// * **parameter2**: This parameter is ...
+/// This class is specifically built to reproduce the BabyIAXO magnet. There
+/// are plenty of empirical fit parameters and ranges that will probably not
+/// work 100% with different field maps. Specially if those maps are 
+/// of different extension as the one used in BabyIAXO, which is between
+/// -10 meters and 10 meters. Thus, in order to work out new field maps 
+/// following this approach we would need to create new classes with different
+/// schemes, becoming this class an abstract class that serves as interface.
+/// E.g. TRestAxionMagneticFitBabyIAXO::TRestAxionMagneticFit.
 /// 
-/// 
-/// ### Examples
-/// Give examples of usage and RML descriptions that can be tested.      
+/// The present class can be tested as follows:
+///
 /// \code
-///     <WRITE A CODE EXAMPLE HERE>
-/// \endcode
+///		TRestAxionMagneticField field("fields.rml", "babyIAXO_2024");
+///
+///		// Extracting the profile for each B-component (must be parallel)
+///		Double_t dl = 50;
+///		std::vector<Double_t> bX = field.GetComponentAlongPath( 0, TVector3(340, 0, -10000), TVector3(340, 0, 10000), dl );
+///		std::vector<Double_t> bY = field.GetComponentAlongPath( 1, TVector3(340, 0, -10000), TVector3(340, 0, 10000), dl );
+///		std::vector<Double_t> bZ = field.GetComponentAlongPath( 2, TVector3(340, 0, -10000), TVector3(340, 0, 10000), dl );
+///
+///		std::vector<Double_t> z;
+///		for( int n = 0; n < bX.size(); n++ )
+///			z.push_back(dl/2 + n * dl);
+///
+///		TRestAxionMagneticFit bFit;
+///		bFit.LoadData( z, bX, bY, bZ );
+///
+///		bFit.Fit( );
+///
+///		TCanvas *c = bFit.DrawComponents();
+///		c->Print("bFit.png");
+///	\endcode
+///
+///	The above code will produce the following plots with the fitted components and the residuals:
 /// 
-/// ### Running pipeline example
-/// Add the examples to a pipeline to guarantee the code will be running 
-/// on future framework upgrades.                                        
-/// 
-/// 
-/// Please, add any figure that may help to illustrate the process or metadata.  
-/// 
-/// \htmlonly <style>div.image img[src="image.png"]{width:500px;}</style> \endhtmlonly
-/// ![A figure title description](image.png)             
-/// 
-/// The png image should be uploaded to the ./images/ directory          
+/// \htmlonly <style>div.image img[src="magnetFit.png"]{width:1200px;}</style> \endhtmlonly
+///
+/// ![Fit results](magnetFit.png)
 ///                                                                      
 ///----------------------------------------------------------------------
 ///                                                                      
@@ -53,15 +71,14 @@
 ///                                                                      
 /// History of developments:                                             
 ///                                                                      
-/// YEAR-Month: First implementation of TRestAxionMagneticFit
-/// WRITE YOUR FULL NAME 
+/// 2024-04: First implementation of TRestAxionMagneticFit
+/// Javier Galan
 ///                                                                      
 /// \class TRestAxionMagneticFit                                               
-/// \author: TODO. Write full name and e-mail:        jgalan
+/// \author Javier Galan (javier.galan@unizar.es)
 ///                                                                      
 /// <hr>                                                                 
 ///                                                                      
-///
 
 #include <iostream>
 
@@ -415,28 +432,31 @@ Double_t TRestAxionMagneticFit::BxFunction_2(Double_t *x, Double_t *par)
 ///                                                                      
 TCanvas *TRestAxionMagneticFit::DrawComponents( )
 {
+
+	Bool_t pdf = true;
+
 	///////////////////// Bx component ///////////////////////////
 	/// We translate to meters
 	TGraph *graphToDrawX = new TGraph();
 	for (int i = 0; i < fGraphBx->GetN(); ++i) {
-        double x, y;
-        fGraphBx->GetPoint(i, x, y);
-        graphToDrawX->SetPoint(i, (x-10000) / 1000.0, y);
-    }
-	
+		double x, y;
+		fGraphBx->GetPoint(i, x, y);
+		graphToDrawX->SetPoint(i, (x-10000) / 1000.0, y);
+	}
+
 	TGraph *graphResidualsX = new TGraph();
 	for (int i = 0; i < fGraphBx->GetN(); ++i) {
-        double x, y;
-        fGraphBx->GetPoint(i, x, y);
-        graphResidualsX->SetPoint(i, (x-10000) / 1000.0, y-Bx(x));
-    }
+		double x, y;
+		fGraphBx->GetPoint(i, x, y);
+		graphResidualsX->SetPoint(i, (x-10000) / 1000.0, y-Bx(x));
+	}
 
 	if (fCanvas != nullptr) {
 		delete fCanvas;
 		fCanvas = nullptr;
 	}
 
-	fCanvas = new TCanvas("FitCanvas", "", 2400, 600);
+	fCanvas = new TCanvas("FitCanvas", "", 3600, 500, 3600, 400);
 	fCanvas->Divide(3,1);
 	fCanvas->cd(1);
 
@@ -446,10 +466,10 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 	}
 	fPadBxTop = new TPad( "BxTop", "BxTop", 0.0, 0.25, 1.0, 1.0);
 
-	fPadBxTop->SetTopMargin(0.05);
+	fPadBxTop->SetTopMargin(0.0);
 	fPadBxTop->SetBottomMargin(0.0);
 	fPadBxTop->SetLeftMargin(0.15);
-	fPadBxTop->SetRightMargin(0.0);
+	fPadBxTop->SetRightMargin(0.02);
 	fPadBxTop->SetBorderMode(0);
 	fPadBxTop->Draw();
 
@@ -461,8 +481,8 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 
 	fPadBxBottom->SetTopMargin(0.0);
 	fPadBxBottom->SetLeftMargin(0.15);
-	fPadBxBottom->SetBottomMargin(0.25);
-	fPadBxBottom->SetRightMargin(0.0);
+	fPadBxBottom->SetBottomMargin(0.3);
+	fPadBxBottom->SetRightMargin(0.02);
 	fPadBxBottom->SetBorderMode(0);
 	fPadBxBottom->Draw();
 
@@ -470,24 +490,23 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 
 	/// Drawing data points Bx
 	graphToDrawX->SetTitle("");
-	graphToDrawX->GetXaxis()->SetLabelSize(18);
+	graphToDrawX->GetXaxis()->SetLabelSize(20);
 	graphToDrawX->GetXaxis()->SetLabelFont(43);
 	graphToDrawX->GetXaxis()->SetTitle("Z [m]");
 	graphToDrawX->GetXaxis()->SetTitleFont(43);
-	graphToDrawX->GetXaxis()->SetTitleSize(18);
+	graphToDrawX->GetXaxis()->SetTitleSize(20);
 	graphToDrawX->GetXaxis()->SetRangeUser(-10,10);
 	graphToDrawX->SetLineWidth(2);
-	graphToDrawX->SetMarkerStyle(20);
-	graphToDrawX->SetMarkerSize(0.5);
+	graphToDrawX->SetMarkerStyle(4);
+	graphToDrawX->SetMarkerSize(1);
 	graphToDrawX->GetYaxis()->SetTitle("B_{x} [T]");
 	graphToDrawX->GetYaxis()->SetTitleFont(43);
-	graphToDrawX->GetYaxis()->SetTitleSize(18);
+	graphToDrawX->GetYaxis()->SetTitleSize(20);
 	graphToDrawX->GetYaxis()->SetTitleOffset(1.5);
 	graphToDrawX->GetYaxis()->SetLabelFont(43);
-	graphToDrawX->GetYaxis()->SetLabelSize(18);
-	graphToDrawX->GetYaxis()->SetLabelOffset(0);
+	graphToDrawX->GetYaxis()->SetLabelSize(20);
+	graphToDrawX->GetYaxis()->SetLabelOffset(0.02);
 	graphToDrawX->GetYaxis()->SetRangeUser(-0.95,0.5);
-	graphToDrawX->Draw("AP");
 
 	//// Drawing fit function Bx
 	std::vector<Double_t> xData,bX;
@@ -498,49 +517,69 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 	}
 
 	TGraph *bxG = new TGraph(bX.size(), &xData[0], &bX[0]);
+	bxG->SetTitle("");
+	bxG->GetXaxis()->SetLabelSize(20);
+	bxG->GetXaxis()->SetLabelFont(43);
+	bxG->GetXaxis()->SetTitle("Z [m]");
+	bxG->GetXaxis()->SetTitleFont(43);
+	bxG->GetXaxis()->SetTitleSize(20);
+	bxG->GetXaxis()->SetRangeUser(-10,10);
+	bxG->SetLineWidth(2);
+	bxG->SetMarkerStyle(4);
+	bxG->SetMarkerSize(1);
+	bxG->GetYaxis()->SetTitle("B_{x} [T]");
+	bxG->GetYaxis()->SetTitleFont(43);
+	bxG->GetYaxis()->SetTitleSize(20);
+	bxG->GetYaxis()->SetTitleOffset(1.5);
+	bxG->GetYaxis()->SetLabelFont(43);
+	bxG->GetYaxis()->SetLabelSize(20);
+	bxG->GetYaxis()->SetLabelOffset(0.02);
+	bxG->GetYaxis()->SetRangeUser(-0.95,0.5);
 	bxG->SetLineColor(kRed);
-	bxG->SetLineWidth(3);
-	bxG->Draw("same");
+	bxG->SetLineWidth(2);
+	bxG->Draw("AL");
+	graphToDrawX->Draw("Psame");
 
 	fPadBxBottom->cd();
 
 	/// Drawing residuals
-	graphResidualsX->GetXaxis()->SetLabelSize(18);
+	graphResidualsX->GetXaxis()->SetLabelSize(20);
 	graphResidualsX->GetXaxis()->SetLabelFont(43);
 	graphResidualsX->GetXaxis()->SetTitle("Z [m]");
-	graphResidualsX->GetXaxis()->SetTitleSize(18);
+	graphResidualsX->GetXaxis()->SetTitleSize(20);
 	graphResidualsX->GetXaxis()->SetTitleFont(43);
 	graphResidualsX->GetYaxis()->SetTitle("#chi");
-	graphResidualsX->GetYaxis()->SetTitleOffset(2);
+	graphResidualsX->GetYaxis()->SetTitleOffset(1.5);
 	graphResidualsX->GetYaxis()->CenterTitle();
-	graphResidualsX->GetYaxis()->SetTitleSize(18);
+	graphResidualsX->GetYaxis()->SetTitleSize(20);
 	graphResidualsX->GetYaxis()->SetTitleFont(43);
-	graphResidualsX->GetYaxis()->SetLabelSize(18);
+	graphResidualsX->GetYaxis()->SetLabelSize(20);
 	graphResidualsX->GetYaxis()->SetLabelFont(43);
+	graphResidualsX->GetYaxis()->SetLabelOffset(0.02);
 	graphResidualsX->GetXaxis()->SetRangeUser(-10,10);
 	graphResidualsX->GetYaxis()->SetNdivisions(404);
 	graphResidualsX->GetYaxis()->SetRangeUser(-0.035,0.035);
 	graphResidualsX->SetLineWidth(2);
-	graphResidualsX->SetMarkerStyle(20);
-	graphResidualsX->SetMarkerSize(0.5);
+	graphResidualsX->SetMarkerStyle(4);
+	graphResidualsX->SetMarkerSize(1);
 	graphResidualsX->Draw("AP");
 	fCanvas->Update();
-	
+
 	///////////////////// By component ///////////////////////////
 	/// We translate to meters
 	TGraph *graphToDrawY = new TGraph();
 	for (int i = 0; i < fGraphBy->GetN(); ++i) {
-        double x, y;
-        fGraphBy->GetPoint(i, x, y);
-        graphToDrawY->SetPoint(i, (x-10000) / 1000.0, y);
-    }
-	
+		double x, y;
+		fGraphBy->GetPoint(i, x, y);
+		graphToDrawY->SetPoint(i, (x-10000) / 1000.0, y);
+	}
+
 	TGraph *graphResidualsY = new TGraph();
 	for (int i = 0; i < fGraphBy->GetN(); ++i) {
-        double x, y;
-        fGraphBy->GetPoint(i, x, y);
-        graphResidualsY->SetPoint(i, (x-10000) / 1000.0, y-By(x));
-    }
+		double x, y;
+		fGraphBy->GetPoint(i, x, y);
+		graphResidualsY->SetPoint(i, (x-10000) / 1000.0, y-By(x));
+	}
 
 	fCanvas->cd(2);
 
@@ -550,10 +589,10 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 	}
 	fPadByTop = new TPad( "ByTop", "ByTop", 0.0, 0.25, 1.0, 1.0);
 
-	fPadByTop->SetTopMargin(0.05);
+	fPadByTop->SetTopMargin(0.0);
 	fPadByTop->SetBottomMargin(0.0);
 	fPadByTop->SetLeftMargin(0.15);
-	fPadByTop->SetRightMargin(0.0);
+	fPadByTop->SetRightMargin(0.02);
 	fPadByTop->SetBorderMode(0);
 	fPadByTop->Draw();
 
@@ -565,8 +604,8 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 
 	fPadByBottom->SetTopMargin(0.0);
 	fPadByBottom->SetLeftMargin(0.15);
-	fPadByBottom->SetBottomMargin(0.25);
-	fPadByBottom->SetRightMargin(0.0);
+	fPadByBottom->SetBottomMargin(0.3);
+	fPadByBottom->SetRightMargin(0.02);
 	fPadByBottom->SetBorderMode(0);
 	fPadByBottom->Draw();
 
@@ -574,23 +613,22 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 
 	/// Drawing data points By
 	graphToDrawY->SetTitle("");
-	graphToDrawY->GetXaxis()->SetLabelSize(18);
+	graphToDrawY->GetXaxis()->SetLabelSize(20);
 	graphToDrawY->GetXaxis()->SetLabelFont(43);
 	graphToDrawY->GetXaxis()->SetTitle("Z [m]");
 	graphToDrawY->GetXaxis()->SetTitleFont(43);
-	graphToDrawY->GetXaxis()->SetTitleSize(18);
+	graphToDrawY->GetXaxis()->SetTitleSize(20);
 	graphToDrawY->GetXaxis()->SetRangeUser(-10,10);
 	graphToDrawY->SetLineWidth(2);
-	graphToDrawY->SetMarkerStyle(20);
-	graphToDrawY->SetMarkerSize(0.5);
+	graphToDrawY->SetMarkerStyle(4);
+	graphToDrawY->SetMarkerSize(1);
 	graphToDrawY->GetYaxis()->SetTitle("B_{y} [T]");
 	graphToDrawY->GetYaxis()->SetTitleFont(43);
-	graphToDrawY->GetYaxis()->SetTitleSize(18);
+	graphToDrawY->GetYaxis()->SetTitleSize(20);
 	graphToDrawY->GetYaxis()->SetTitleOffset(1.5);
 	graphToDrawY->GetYaxis()->SetLabelFont(43);
-	graphToDrawY->GetYaxis()->SetLabelSize(18);
-	graphToDrawY->GetYaxis()->SetLabelOffset(0);
-	graphToDrawY->Draw("AP");
+	graphToDrawY->GetYaxis()->SetLabelSize(20);
+	graphToDrawY->GetYaxis()->SetLabelOffset(0.02);
 
 	//// Drawing fit function By (xData already filled)
 	std::vector<Double_t> bY;
@@ -601,48 +639,67 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 
 	TGraph *byG = new TGraph(bY.size(), &xData[0], &bY[0]);
 	byG->SetLineColor(kRed);
-	byG->SetLineWidth(3);
-	byG->Draw("same");
+	byG->SetLineWidth(2);
+	byG->SetTitle("");
+	byG->GetXaxis()->SetLabelSize(20);
+	byG->GetXaxis()->SetLabelFont(43);
+	byG->GetXaxis()->SetTitle("Z [m]");
+	byG->GetXaxis()->SetTitleFont(43);
+	byG->GetXaxis()->SetTitleSize(20);
+	byG->GetXaxis()->SetRangeUser(-10,10);
+	byG->SetLineWidth(2);
+	byG->SetMarkerStyle(4);
+	byG->SetMarkerSize(1);
+	byG->GetYaxis()->SetTitle("B_{y} [T]");
+	byG->GetYaxis()->SetTitleFont(43);
+	byG->GetYaxis()->SetTitleSize(20);
+	byG->GetYaxis()->SetTitleOffset(1.5);
+	byG->GetYaxis()->SetLabelFont(43);
+	byG->GetYaxis()->SetLabelSize(20);
+	byG->GetYaxis()->SetLabelOffset(0.02);
+	byG->Draw("AL");
+	graphToDrawY->Draw("Psame");
 
 	fPadByBottom->cd();
 
 	/// Drawing residuals
-	graphResidualsY->GetXaxis()->SetLabelSize(18);
+	graphResidualsY->GetXaxis()->SetLabelSize(20);
 	graphResidualsY->GetXaxis()->SetLabelFont(43);
 	graphResidualsY->GetXaxis()->SetTitle("Z [m]");
-	graphResidualsY->GetXaxis()->SetTitleSize(18);
+	graphResidualsY->GetXaxis()->SetTitleSize(20);
 	graphResidualsY->GetXaxis()->SetTitleFont(43);
 	graphResidualsY->GetYaxis()->SetTitle("#chi");
-	graphResidualsY->GetYaxis()->SetTitleOffset(2);
+	graphResidualsY->GetYaxis()->SetTitleOffset(1.5);
 	graphResidualsY->GetYaxis()->CenterTitle();
-	graphResidualsY->GetYaxis()->SetTitleSize(18);
+	graphResidualsY->GetYaxis()->SetTitleSize(20);
 	graphResidualsY->GetYaxis()->SetTitleFont(43);
-	graphResidualsY->GetYaxis()->SetLabelSize(18);
+	graphResidualsY->GetYaxis()->SetLabelSize(20);
 	graphResidualsY->GetYaxis()->SetLabelFont(43);
+	graphResidualsY->GetYaxis()->SetLabelOffset(0.02);
 	graphResidualsY->GetYaxis()->SetNdivisions(404);
 	graphResidualsY->GetXaxis()->SetRangeUser(-10,10);
 	graphResidualsY->GetYaxis()->SetRangeUser(-0.035,0.035);
 	graphResidualsY->SetLineWidth(2);
-	graphResidualsY->SetMarkerStyle(20);
-	graphResidualsY->SetMarkerSize(0.5);
+	graphResidualsY->SetMarkerStyle(4);
+	graphResidualsY->SetMarkerSize(1);
 	graphResidualsY->Draw("AP");
 	fCanvas->Update();
-	
+
 	///////////////////// Bz component ///////////////////////////
 	/// We translate to meters
 	TGraph *graphToDrawZ = new TGraph();
 	for (int i = 0; i < fGraphBz->GetN(); ++i) {
-        double x, y;
-        fGraphBz->GetPoint(i, x, y);
-        graphToDrawZ->SetPoint(i, (x-10000) / 1000.0, y);
-    }
-	
+		double x, y;
+		fGraphBz->GetPoint(i, x, y);
+		graphToDrawZ->SetPoint(i, (x-10000) / 1000.0, y);
+	}
+
 	TGraph *graphResidualsZ = new TGraph();
 	for (int i = 0; i < fGraphBz->GetN(); ++i) {
-        double x, y;
-        fGraphBz->GetPoint(i, x, y);
-        graphResidualsZ->SetPoint(i, (x-10000) / 1000.0, y-Bz(x));
-    }
+		double x, y;
+		fGraphBz->GetPoint(i, x, y);
+		graphResidualsZ->SetPoint(i, (x-10000) / 1000.0, y-Bz(x));
+	}
 
 	fCanvas->cd(3);
 
@@ -652,10 +709,10 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 	}
 	fPadBzTop = new TPad( "BzTop", "BzTop", 0.0, 0.25, 1.0, 1.0);
 
-	fPadBzTop->SetTopMargin(0.05);
+	fPadBzTop->SetTopMargin(0.0);
 	fPadBzTop->SetBottomMargin(0.0);
 	fPadBzTop->SetLeftMargin(0.15);
-	fPadBzTop->SetRightMargin(0.0);
+	fPadBzTop->SetRightMargin(0.02);
 	fPadBzTop->SetBorderMode(0);
 	fPadBzTop->Draw();
 
@@ -667,8 +724,8 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 
 	fPadBzBottom->SetTopMargin(0.0);
 	fPadBzBottom->SetLeftMargin(0.15);
-	fPadBzBottom->SetBottomMargin(0.25);
-	fPadBzBottom->SetRightMargin(0.0);
+	fPadBzBottom->SetBottomMargin(0.3);
+	fPadBzBottom->SetRightMargin(0.02);
 	fPadBzBottom->SetBorderMode(0);
 	fPadBzBottom->Draw();
 
@@ -676,23 +733,22 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 
 	/// Drawing data points Bz
 	graphToDrawZ->SetTitle("");
-	graphToDrawZ->GetXaxis()->SetLabelSize(18);
+	graphToDrawZ->GetXaxis()->SetLabelSize(20);
 	graphToDrawZ->GetXaxis()->SetLabelFont(43);
 	graphToDrawZ->GetXaxis()->SetTitle("Z [m]");
 	graphToDrawZ->GetXaxis()->SetTitleFont(43);
-	graphToDrawZ->GetXaxis()->SetTitleSize(18);
+	graphToDrawZ->GetXaxis()->SetTitleSize(20);
 	graphToDrawZ->GetXaxis()->SetRangeUser(-10,10);
 	graphToDrawZ->SetLineWidth(2);
-	graphToDrawZ->SetMarkerStyle(20);
-	graphToDrawZ->SetMarkerSize(0.5);
+	graphToDrawZ->SetMarkerStyle(4);
+	graphToDrawZ->SetMarkerSize(1);
 	graphToDrawZ->GetYaxis()->SetTitle("B_{z} [T]");
 	graphToDrawZ->GetYaxis()->SetTitleFont(43);
-	graphToDrawZ->GetYaxis()->SetTitleSize(18);
+	graphToDrawZ->GetYaxis()->SetTitleSize(20);
 	graphToDrawZ->GetYaxis()->SetTitleOffset(1.5);
 	graphToDrawZ->GetYaxis()->SetLabelFont(43);
-	graphToDrawZ->GetYaxis()->SetLabelSize(18);
-	graphToDrawZ->GetYaxis()->SetLabelOffset(0);
-	graphToDrawZ->Draw("AP");
+	graphToDrawZ->GetYaxis()->SetLabelSize(20);
+	graphToDrawZ->GetYaxis()->SetLabelOffset(0.02);
 
 	//// Drawing fit function Bz (xData already filled)
 	std::vector<Double_t> bZ;
@@ -703,30 +759,49 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 
 	TGraph *bzG = new TGraph(bZ.size(), &xData[0], &bZ[0]);
 	bzG->SetLineColor(kRed);
-	bzG->SetLineWidth(3);
-	bzG->Draw("same");
+	bzG->SetLineWidth(2);
+	bzG->SetTitle("");
+	bzG->GetXaxis()->SetLabelSize(20);
+	bzG->GetXaxis()->SetLabelFont(43);
+	bzG->GetXaxis()->SetTitle("Z [m]");
+	bzG->GetXaxis()->SetTitleFont(43);
+	bzG->GetXaxis()->SetTitleSize(20);
+	bzG->GetXaxis()->SetRangeUser(-10,10);
+	bzG->SetLineWidth(2);
+	bzG->SetMarkerStyle(4);
+	bzG->SetMarkerSize(1);
+	bzG->GetYaxis()->SetTitle("B_{z} [T]");
+	bzG->GetYaxis()->SetTitleFont(43);
+	bzG->GetYaxis()->SetTitleSize(20);
+	bzG->GetYaxis()->SetTitleOffset(1.5);
+	bzG->GetYaxis()->SetLabelFont(43);
+	bzG->GetYaxis()->SetLabelSize(20);
+	bzG->GetYaxis()->SetLabelOffset(0.02);
+	bzG->Draw("AL");
+	graphToDrawZ->Draw("Psame");
 
 	fPadBzBottom->cd();
 
 	/// Drawing residuals
-	graphResidualsZ->GetXaxis()->SetLabelSize(18);
+	graphResidualsZ->GetXaxis()->SetLabelSize(20);
 	graphResidualsZ->GetXaxis()->SetLabelFont(43);
 	graphResidualsZ->GetXaxis()->SetTitle("Z [m]");
-	graphResidualsZ->GetXaxis()->SetTitleSize(18);
+	graphResidualsZ->GetXaxis()->SetTitleSize(20);
 	graphResidualsZ->GetXaxis()->SetTitleFont(43);
 	graphResidualsZ->GetYaxis()->SetTitle("#chi");
-	graphResidualsZ->GetYaxis()->SetTitleOffset(2);
+	graphResidualsZ->GetYaxis()->SetTitleOffset(1.5);
 	graphResidualsZ->GetYaxis()->CenterTitle();
-	graphResidualsZ->GetYaxis()->SetTitleSize(18);
+	graphResidualsZ->GetYaxis()->SetTitleSize(20);
 	graphResidualsZ->GetYaxis()->SetTitleFont(43);
-	graphResidualsZ->GetYaxis()->SetLabelSize(18);
+	graphResidualsZ->GetYaxis()->SetLabelSize(20);
 	graphResidualsZ->GetYaxis()->SetLabelFont(43);
+	graphResidualsZ->GetYaxis()->SetLabelOffset(0.02);
 	graphResidualsZ->GetYaxis()->SetNdivisions(404);
 	graphResidualsZ->GetXaxis()->SetRangeUser(-10,10);
 	graphResidualsZ->GetYaxis()->SetRangeUser(-0.035,0.035);
 	graphResidualsZ->SetLineWidth(2);
-	graphResidualsZ->SetMarkerStyle(20);
-	graphResidualsZ->SetMarkerSize(0.5);
+	graphResidualsZ->SetMarkerStyle(4);
+	graphResidualsZ->SetMarkerSize(1);
 	graphResidualsZ->Draw("AP");
 	fCanvas->Update();
 
