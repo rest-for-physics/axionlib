@@ -84,7 +84,6 @@ private:
 	static Double_t ByFunction_2(Double_t *x, Double_t *par);
 	
 	/// The Z value at which we apply field symmetry for Bz component. It is updated by the fit.
-	/*
 	Double_t fZz = 10000;
 
 	/// Chi-square for Bz component
@@ -106,7 +105,6 @@ private:
 	static Double_t BzFunction_0(Double_t *x, Double_t *par);
 	static Double_t BzFunction_1(Double_t *x, Double_t *par);
 	static Double_t BzFunction_2(Double_t *x, Double_t *par);
-	*/
 
 public:
 
@@ -117,9 +115,9 @@ public:
 	void Initialize( );
 	TCanvas *DrawComponents( );
 
-	void FitBxComplete( );
-    void FitByComplete( );
- //   void FitBzComplete( );
+	void FitBxFullRange( );
+    void FitByFullRange( );
+    void FitBzFullRange( );
 
 	void FitBx( );
 	void FitBy( );
