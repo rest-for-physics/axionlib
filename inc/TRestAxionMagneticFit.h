@@ -34,80 +34,96 @@ private:
 	/// It will be enabled once the fit has been performed
 	Bool_t fFitReady = false;  //<
 
-	/// The parameter used to fit the Bx component. Each parameters vector defines different ranges.
-	std::vector<std::vector<Double_t>> fBxParameters; //<
-
 	/// A canvas where the components can be plotted
 	TCanvas *fCanvas = nullptr;
+
+	/// The Z value at which we apply field symmetry. It is updated by the fit.
+	Double_t fZx = 10000;
+	
+	/// Chi-square for Bx component
+	Double_t fChiSquareBx = 0;
+
+	/// The parameter used to fit the Bx component. Each parameters vector defines different ranges.
+	std::vector<std::vector<Double_t>> fBxParameters; //<
+	
+	/// A pad to plot the Bx component absolute
+	TPad *fPadBxTop = nullptr;
+	
+	/// A pad to plot the Bx component residuals
+	TPad *fPadBxBottom = nullptr;
 
 	/// A graph where to place the data to be fitted
 	TGraph *fGraphBx = nullptr;
 
-	static Double_t BxFunction_0(Double_t *x, Double_t *par)
-	{
+	static Double_t BxFunction(Double_t *x, Double_t *par);
+	static Double_t BxFunction_0(Double_t *x, Double_t *par);
+	static Double_t BxFunction_1(Double_t *x, Double_t *par);
+	static Double_t BxFunction_2(Double_t *x, Double_t *par);
+	
+	/// The Z value at which we apply field symmetry for By component. It is updated by the fit.
+	Double_t fZy = 10000;
 
-		Double_t X = x[0];
+	/// Chi-square for By component
+	Double_t fChiSquareBy = 0;
 
-		Double_t func = par[0]*TMath::Exp(par[1]*X);
-		Int_t N = (int) par[2];
-		for( int n = 0; n < N; n++ )
-		{
-			Double_t monomio = par[3+n];
-			for( int m = 0; m < n; m++ )
-				monomio *= x[0];	
-			func += monomio;
-		}
+	/// The parameter used to fit the Bx component. Each parameters vector defines different ranges.
+	std::vector<std::vector<Double_t>> fByParameters; //<
+	
+	/// A pad to plot the Bx component absolute
+	TPad *fPadByTop = nullptr;
+	
+	/// A pad to plot the Bx component residuals
+	TPad *fPadByBottom = nullptr;
 
-		return func;
-	}
+	/// A graph where to place the data to be fitted
+	TGraph *fGraphBy = nullptr;
 
-	static Double_t BxFunction_1(Double_t *x, Double_t *par)
-	{
+	static Double_t ByFunction(Double_t *x, Double_t *par);
+	static Double_t ByFunction_0(Double_t *x, Double_t *par);
+	static Double_t ByFunction_1(Double_t *x, Double_t *par);
+	static Double_t ByFunction_2(Double_t *x, Double_t *par);
+	
+	/// The Z value at which we apply field symmetry for Bz component. It is updated by the fit.
+	/*
+	Double_t fZz = 10000;
 
-		Double_t X = x[0];
+	/// Chi-square for Bz component
+	Double_t fChiSquareBz = 0;
 
-		Double_t func = TMath::Exp( -par[0]*(X-par[1])*(X-par[1]) ) * ( par[2] + (par[3] + par[4]*X + par[5]*X*X)/(par[6]+par[7]*X+par[8]*(X-par[9])*(X-par[9])) + par[10] + par[11]*X );
+	/// The parameter used to fit the Bx component. Each parameters vector defines different ranges.
+	std::vector<std::vector<Double_t>> fBzParameters; //<
+	
+	/// A pad to plot the Bx component absolute
+	TPad *fPadBzTop = nullptr;
+	
+	/// A pad to plot the Bx component residuals
+	TPad *fPadBzBottom = nullptr;
 
-		Int_t N = (int) par[12];
-		for( int n = 0; n < N; n++ )
-		{
-			Double_t monomio = par[13+n];
-			for( int m = 0; m < n; m++ )
-				monomio *= x[0];	
-			func += monomio;
-		}
+	/// A graph where to place the data to be fitted
+	TGraph *fGraphBz = nullptr;
 
-		return func;
-	}
-
-	static Double_t BxFunction_2(Double_t *x, Double_t *par)
-	{
-
-
-		Double_t X = x[0];
-
-		Double_t func = par[0] * TMath::Exp( -par[1]*(X-par[2])*(X-par[2]) );
-
-		Int_t N = (int) par[3];
-		for( int n = 0; n < N; n++ )
-		{
-			Double_t monomio = par[4+n];
-			for( int m = 0; m < n; m++ )
-				monomio *= x[0];	
-			func += monomio;
-		}
-
-		return func;
-	}
+	static Double_t BzFunction(Double_t *x, Double_t *par);
+	static Double_t BzFunction_0(Double_t *x, Double_t *par);
+	static Double_t BzFunction_1(Double_t *x, Double_t *par);
+	static Double_t BzFunction_2(Double_t *x, Double_t *par);
+	*/
 
 public:
 
 	Double_t Bx( const Double_t &z );
+	Double_t By( const Double_t &z );
+	Double_t Bz( const Double_t &z );
 
 	void Initialize( );
 	TCanvas *DrawComponents( );
 
+	void FitBxComplete( );
+    void FitByComplete( );
+ //   void FitBzComplete( );
+
 	void FitBx( );
+	void FitBy( );
+
 	void Fit( );
 	void LoadData( const std::vector <Double_t> &z, const std::vector<Double_t> &Bx, const std::vector<Double_t> &By, const std::vector<Double_t> &Bz );
 

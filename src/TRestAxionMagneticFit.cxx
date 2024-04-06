@@ -86,7 +86,224 @@ TRestAxionMagneticFit::~TRestAxionMagneticFit() { }
 ///                                                                      
 void TRestAxionMagneticFit::Fit( )
 {
-	FitBx( );
+	Initialize();
+	FitBxComplete( );
+	//FitBy( );
+	FitByComplete( );
+}
+
+////// Starts Bz component methods
+
+///////////////////////////////////////////////                          
+/// \brief It returns the value of the Bz field component using the fit parameters
+///                                                                      
+///                                                                      
+/*Double_t TRestAxionMagneticFit::Bz( const Double_t &z )
+{
+	Double_t Z = z;
+	if( Z < 0 || Z > 2*fZz ) return 0;
+
+	if( Z > fZz )
+		Z = 2*fZz - Z;
+
+	if( Z < 2000 )
+	{
+		return BzFunction_0( &Z, &fBzParameters[0][0] );
+	}
+	else if ( Z < 4000 )
+	{
+		return BzFunction_1( &Z, &fBzParameters[1][0] );
+	}
+	else if ( Z <= fZz )
+	{
+		return BzFunction_2( &Z, &fBzParameters[2][0] );
+	}
+
+	return 0;
+}
+
+Double_t TRestAxionMagneticFit::BzFunction(Double_t *x, Double_t *par)
+{
+	Double_t Z = x[0];
+	if( Z < 0 || Z > 2*par[0] ) return 0;
+
+	if( Z > par[0] )
+		Z = 2*par[0] - Z;
+
+	if( Z < 2000 )
+	{
+		return BzFunction_0( &Z, &par[1] );
+	}
+	else if ( Z < 4000 )
+	{
+		return BzFunction_1( &Z, &par[10] );
+	}
+	else if ( Z <= par[0] )
+	{
+		return BzFunction_2( &Z, &par[21] );
+	}
+
+	return 0;
+}
+
+Double_t TRestAxionMagneticFit::BzFunction_0(Double_t *x, Double_t *par)
+{
+	Double_t X = x[0];
+
+	Double_t func = 0;
+	Int_t N = (int) par[0];
+	for( int n = 0; n < N; n++ )
+	{
+		Double_t monomio = par[1+n];
+		for( int m = 0; m < n; m++ )
+			monomio *= x[0];
+		func += monomio;
+	}
+
+	return func;
+}
+
+Double_t TRestAxionMagneticFit::BzFunction_1(Double_t *x, Double_t *par)
+{
+	/// Between 0 and 2000
+	Double_t X = x[0] - 4000;
+
+    Double_t func = (par[0]+ par[1]*X)/(par[2]+par[3]*(X-par[4])*(X-par[4]));
+    Int_t N = (int) par[5];
+    for( int n = 0; n < N; n++ )
+    {
+        Double_t monomio = par[6+n];
+        for( int m = 0; m < n; m++ )
+           monomio *= X;
+        func += monomio;
+    }
+
+    return func;
+}
+
+Double_t TRestAxionMagneticFit::BzFunction_2(Double_t *x, Double_t *par)
+{
+	/// Between 2000 and 6000
+	Double_t X = x[0] - 4000;
+
+	std::cout << "X: " << X << std::endl;
+	std::cout << "par[0]: " << par[0] << std::endl;
+	std::cout << "par[1]: " << par[1] << std::endl;
+	std::cout << "par[2]: " << par[2] << std::endl;
+	std::cout << "par[3]: " << par[3] << std::endl;
+	std::cout << "par[4]: " << par[4] << std::endl;
+	std::cout << "par[5]: " << par[5] << std::endl;
+	std::cout << "par[6]: " << par[6] << std::endl;
+    Double_t func = par[0] * TMath::Exp( -par[1]*(X-par[2]) ) + par[3] * TMath::Exp( -par[4]*(X-par[5]) );
+
+    Int_t N = (int) par[6];
+    for( int n = 0; n < N; n++ )
+    {
+        Double_t monomio = par[7+n];
+        for( int m = 0; m < n; m++ )
+           monomio *= X;
+        func += monomio;
+    }
+
+	std::cout << "Func: " << func << std::endl;
+    return func;
+}
+*/
+
+////// Starts By component methods
+
+///////////////////////////////////////////////                          
+/// \brief It returns the value of the By field component using the fit parameters
+///                                                                      
+Double_t TRestAxionMagneticFit::By( const Double_t &z )
+{
+	Double_t Z = z;
+	if( Z < 0 || Z > 2*fZy ) return 0;
+
+	if( Z > fZy )
+		Z = 2*fZy - Z;
+
+	if( Z < 4000 )
+	{
+		return ByFunction_0( &Z, &fByParameters[0][0] );
+	}
+	else if ( Z < 6000 )
+	{
+		return ByFunction_1( &Z, &fByParameters[1][0] );
+	}
+	else if ( Z <= fZy )
+	{
+		return ByFunction_2( &Z, &fByParameters[2][0] );
+	}
+
+	return 0;
+}
+
+Double_t TRestAxionMagneticFit::ByFunction(Double_t *x, Double_t *par)
+{
+	Double_t Z = x[0];
+	if( Z < 0 || Z > 2*par[0] ) return 0;
+
+	if( Z > par[0] )
+		Z = 2*par[0] - Z;
+
+	if( Z < 4000 )
+	{
+		return ByFunction_0( &Z, &par[1] );
+	}
+	else if ( Z < 6000 )
+	{
+		return ByFunction_1( &Z, &par[7] );
+	}
+	else if ( Z <= par[0] )
+	{
+		return ByFunction_2( &Z, &par[21] );
+	}
+
+	return 0;
+}
+
+Double_t TRestAxionMagneticFit::ByFunction_0(Double_t *x, Double_t *par)
+{
+	Double_t X = x[0];
+
+    Double_t func = par[0]*TMath::Exp(par[1]*(X-par[2])) + par[3]*TMath::Exp(par[4]*(X-par[5]));
+
+    return -func;
+}
+
+Double_t TRestAxionMagneticFit::ByFunction_1(Double_t *x, Double_t *par)
+{
+	/// Between 0 and 2000
+	Double_t X = x[0] - 4000;
+
+	Double_t func = par[0] * TMath::ATan( par[1] * (X-par[2]) + par[3] ) + par[4];
+	Int_t N = (int) par[5];
+	for( int n = 0; n < N; n++ )
+	{
+		Double_t monomio = par[6+n]*X;
+		for( int m = 0; m < n; m++ )
+			monomio *= X;
+		func += monomio;
+	}
+
+	return -func;
+}
+
+Double_t TRestAxionMagneticFit::ByFunction_2(Double_t *x, Double_t *par)
+{
+	/// Between 2000 and 6000
+	Double_t X = x[0] - 4000;
+	Double_t func = par[0] - par[1]*TMath::Exp(-par[2]*(X-par[3]));
+    Int_t N = (int) par[4];
+    for( int n = 0; n < N; n++ )
+    {
+        Double_t monomio = par[5+n]*X;
+        for( int m = 0; m < n; m++ )
+           monomio *= X;
+        func += monomio;
+    }
+    return -func;
 }
 
 ///////////////////////////////////////////////                          
@@ -95,8 +312,10 @@ void TRestAxionMagneticFit::Fit( )
 Double_t TRestAxionMagneticFit::Bx( const Double_t &z )
 {
 	Double_t Z = z;
-	if( Z > 10000 )
-		Z = 20000 - Z;
+	if( Z < 0 || Z > 2*fZx ) return 0;
+
+	if( Z > fZx )
+		Z = 2*fZx - Z;
 
 	if( Z < 3000 )
 	{
@@ -106,12 +325,89 @@ Double_t TRestAxionMagneticFit::Bx( const Double_t &z )
 	{
 		return BxFunction_1( &Z, &fBxParameters[1][0] );
 	}
-	else if ( Z <= 10000 )
+	else if ( Z <= fZx )
 	{
 		return BxFunction_2( &Z, &fBxParameters[2][0] );
 	}
 
 	return 0;
+}
+
+Double_t TRestAxionMagneticFit::BxFunction(Double_t *x, Double_t *par)
+{
+	Double_t Z = x[0];
+	if( Z > par[0] )
+		Z = 2*par[0] - Z;
+
+	if( Z < 0 || Z > 2*par[0] ) return 0;
+
+	if( Z < 3000 )
+	{
+		return BxFunction_0( &Z, &par[1] );
+	}
+	else if ( Z < 6000 )
+	{
+		return BxFunction_1( &Z, &par[9] );
+	}
+	else if ( Z <= par[0] )
+	{
+		return BxFunction_2( &Z, &par[23] );
+	}
+
+	return 0;
+}
+
+Double_t TRestAxionMagneticFit::BxFunction_0(Double_t *x, Double_t *par)
+{
+	Double_t X = x[0];
+
+	Double_t func = par[0]*TMath::Exp(par[1]*X);
+	Int_t N = (int) par[2];
+	for( int n = 0; n < N; n++ )
+	{
+		Double_t monomio = par[3+n];
+		for( int m = 0; m < n; m++ )
+			monomio *= x[0];	
+		func += monomio;
+	}
+
+	return func;
+}
+
+Double_t TRestAxionMagneticFit::BxFunction_1(Double_t *x, Double_t *par)
+{
+	Double_t X = x[0];
+
+	Double_t func = TMath::Exp( -par[0]*(X-par[1])*(X-par[1]) + par[12]*X ) * ( par[2] + (par[3] + par[4]*X + par[5]*X*X)/(par[6]+par[7]*X+par[8]*(X-par[9])*(X-par[9])) + par[10] + par[11]*X );
+
+	Int_t N = (int) par[13];
+	for( int n = 0; n < N; n++ )
+	{
+		Double_t monomio = par[14+n];
+		for( int m = 0; m < n; m++ )
+			monomio *= x[0];	
+		func += monomio;
+	}
+
+	return func;
+}
+
+Double_t TRestAxionMagneticFit::BxFunction_2(Double_t *x, Double_t *par)
+{
+	Double_t X = x[0];
+
+	Double_t func = par[0] * TMath::Exp( -par[1]*(X-par[2])*(X-par[2]) );
+
+	Int_t N = (int) par[3];
+	for( int n = 0; n < N; n++ )
+	{
+		Double_t monomio = par[4+n];
+		for( int m = 0; m < n; m++ )
+			monomio *= x[0];	
+		func += monomio;
+	}
+
+	return func;
 }
 
 ///////////////////////////////////////////////                          
@@ -120,29 +416,320 @@ Double_t TRestAxionMagneticFit::Bx( const Double_t &z )
 ///                                                                      
 TCanvas *TRestAxionMagneticFit::DrawComponents( )
 {
-	if (fCanvas != NULL) {
+	///////////////////// Bx component ///////////////////////////
+	/// We translate to meters
+	TGraph *graphToDrawX = new TGraph();
+	for (int i = 0; i < fGraphBx->GetN(); ++i) {
+        double x, y;
+        fGraphBx->GetPoint(i, x, y);
+        graphToDrawX->SetPoint(i, (x-10000) / 1000.0, y);
+    }
+	
+	TGraph *graphResidualsX = new TGraph();
+	for (int i = 0; i < fGraphBx->GetN(); ++i) {
+        double x, y;
+        fGraphBx->GetPoint(i, x, y);
+        graphResidualsX->SetPoint(i, (x-10000) / 1000.0, y-Bx(x));
+    }
+
+	if (fCanvas != nullptr) {
 		delete fCanvas;
-		fCanvas = NULL;
+		fCanvas = nullptr;
 	}
 
-	fCanvas = new TCanvas("FitCanvas", "", 800, 600);
+	fCanvas = new TCanvas("FitCanvas", "", 2400, 600);
+	fCanvas->Divide(3,1);
+	fCanvas->cd(1);
 
-	fGraphBx->Draw("AP");
-	fCanvas->Update();
+	if (fPadBxTop != nullptr) {
+		delete fPadBxTop;
+		fPadBxTop = nullptr;
+	}
+	fPadBxTop = new TPad( "BxTop", "BxTop", 0.0, 0.25, 1.0, 1.0);
 
-	const Double_t *xData = fGraphBx->GetX();
-	std::vector<Double_t> bX;
-	for( int n = 0; n < fGraphBx->GetN(); n++ )
+	fPadBxTop->SetTopMargin(0.05);
+	fPadBxTop->SetBottomMargin(0.0);
+	fPadBxTop->SetLeftMargin(0.15);
+	fPadBxTop->SetRightMargin(0.0);
+	fPadBxTop->SetBorderMode(0);
+	fPadBxTop->Draw();
+
+	if (fPadBxBottom != nullptr) {
+		delete fPadBxBottom;
+		fPadBxBottom = nullptr;
+	}
+	fPadBxBottom = new TPad( "BxBottom", "BxBottom", 0.0, 0.0, 1.0, 0.25);
+
+	fPadBxBottom->SetTopMargin(0.0);
+	fPadBxBottom->SetLeftMargin(0.15);
+	fPadBxBottom->SetBottomMargin(0.25);
+	fPadBxBottom->SetRightMargin(0.0);
+	fPadBxBottom->SetBorderMode(0);
+	fPadBxBottom->Draw();
+
+	fPadBxTop->cd();
+
+	/// Drawing data points Bx
+	graphToDrawX->SetTitle("");
+	graphToDrawX->GetXaxis()->SetLabelSize(18);
+	graphToDrawX->GetXaxis()->SetLabelFont(43);
+	graphToDrawX->GetXaxis()->SetTitle("Z [m]");
+	graphToDrawX->GetXaxis()->SetTitleFont(43);
+	graphToDrawX->GetXaxis()->SetTitleSize(18);
+	graphToDrawX->GetXaxis()->SetRangeUser(-10,10);
+	graphToDrawX->SetLineWidth(2);
+	graphToDrawX->SetMarkerStyle(20);
+	graphToDrawX->SetMarkerSize(0.5);
+	graphToDrawX->GetYaxis()->SetTitle("B_{x} [T]");
+	graphToDrawX->GetYaxis()->SetTitleFont(43);
+	graphToDrawX->GetYaxis()->SetTitleSize(18);
+	graphToDrawX->GetYaxis()->SetTitleOffset(1.5);
+	graphToDrawX->GetYaxis()->SetLabelFont(43);
+	graphToDrawX->GetYaxis()->SetLabelSize(18);
+	graphToDrawX->GetYaxis()->SetLabelOffset(0);
+	graphToDrawX->GetYaxis()->SetRangeUser(-0.95,0.5);
+	graphToDrawX->Draw("AP");
+
+	//// Drawing fit function Bx
+	std::vector<Double_t> xData,bX;
+	for( double x = 0; x < 20000; x = x + 10 )
 	{
-		bX.push_back( Bx(xData[n]) );
+		xData.push_back((x-10000)/1000);
+		bX.push_back( Bx(x) );
 	}
 
-	TGraph *bxG = new TGraph(bX.size(), xData, &bX[0]);
+	TGraph *bxG = new TGraph(bX.size(), &xData[0], &bX[0]);
 	bxG->SetLineColor(kRed);
 	bxG->SetLineWidth(3);
 	bxG->Draw("same");
 
+	fPadBxBottom->cd();
+
+	/// Drawing residuals
+	graphResidualsX->GetXaxis()->SetLabelSize(18);
+	graphResidualsX->GetXaxis()->SetLabelFont(43);
+	graphResidualsX->GetXaxis()->SetTitle("Z [m]");
+	graphResidualsX->GetXaxis()->SetTitleSize(18);
+	graphResidualsX->GetXaxis()->SetTitleFont(43);
+	graphResidualsX->GetYaxis()->SetTitle("#chi");
+	graphResidualsX->GetYaxis()->SetTitleOffset(2);
+	graphResidualsX->GetYaxis()->CenterTitle();
+	graphResidualsX->GetYaxis()->SetTitleSize(18);
+	graphResidualsX->GetYaxis()->SetTitleFont(43);
+	graphResidualsX->GetYaxis()->SetLabelSize(18);
+	graphResidualsX->GetYaxis()->SetLabelFont(43);
+	graphResidualsX->GetXaxis()->SetRangeUser(-10,10);
+	graphResidualsX->GetYaxis()->SetNdivisions(404);
+	graphResidualsX->GetYaxis()->SetRangeUser(-0.035,0.035);
+	graphResidualsX->SetLineWidth(2);
+	graphResidualsX->SetMarkerStyle(20);
+	graphResidualsX->SetMarkerSize(0.5);
+	graphResidualsX->Draw("AP");
 	fCanvas->Update();
+	
+	///////////////////// By component ///////////////////////////
+	/// We translate to meters
+	TGraph *graphToDrawY = new TGraph();
+	for (int i = 0; i < fGraphBy->GetN(); ++i) {
+        double x, y;
+        fGraphBy->GetPoint(i, x, y);
+        graphToDrawY->SetPoint(i, (x-10000) / 1000.0, y);
+    }
+	
+	TGraph *graphResidualsY = new TGraph();
+	for (int i = 0; i < fGraphBy->GetN(); ++i) {
+        double x, y;
+        fGraphBy->GetPoint(i, x, y);
+        graphResidualsY->SetPoint(i, (x-10000) / 1000.0, y-By(x));
+    }
+
+	fCanvas->cd(2);
+
+	if (fPadByTop != nullptr) {
+		delete fPadByTop;
+		fPadByTop = nullptr;
+	}
+	fPadByTop = new TPad( "ByTop", "ByTop", 0.0, 0.25, 1.0, 1.0);
+
+	fPadByTop->SetTopMargin(0.05);
+	fPadByTop->SetBottomMargin(0.0);
+	fPadByTop->SetLeftMargin(0.15);
+	fPadByTop->SetBorderMode(0);
+	fPadByTop->Draw();
+
+	if (fPadByBottom != nullptr) {
+		delete fPadByBottom;
+		fPadByBottom = nullptr;
+	}
+	fPadByBottom = new TPad( "ByBottom", "ByBottom", 0.0, 0.0, 1.0, 0.25);
+
+	fPadByBottom->SetTopMargin(0.0);
+	fPadByBottom->SetLeftMargin(0.15);
+	fPadByBottom->SetBottomMargin(0.25);
+	fPadByBottom->SetBorderMode(0);
+	fPadByBottom->Draw();
+
+	fPadByTop->cd();
+
+	/// Drawing data points By
+	graphToDrawY->SetTitle("");
+	graphToDrawY->GetXaxis()->SetLabelSize(18);
+	graphToDrawY->GetXaxis()->SetLabelFont(43);
+	graphToDrawY->GetXaxis()->SetTitle("Z [m]");
+	graphToDrawY->GetXaxis()->SetTitleFont(43);
+	graphToDrawY->GetXaxis()->SetTitleSize(18);
+	graphToDrawY->GetXaxis()->SetRangeUser(-10,10);
+	graphToDrawY->SetLineWidth(2);
+	graphToDrawY->SetMarkerStyle(20);
+	graphToDrawY->SetMarkerSize(0.5);
+	graphToDrawY->GetYaxis()->SetTitle("B_{y} [T]");
+	graphToDrawY->GetYaxis()->SetTitleFont(43);
+	graphToDrawY->GetYaxis()->SetTitleSize(18);
+	graphToDrawY->GetYaxis()->SetTitleOffset(1.5);
+	graphToDrawY->GetYaxis()->SetLabelFont(43);
+	graphToDrawY->GetYaxis()->SetLabelSize(18);
+	graphToDrawY->GetYaxis()->SetLabelOffset(0);
+	graphToDrawY->Draw("AP");
+
+	//// Drawing fit function By (xData already filled)
+	std::vector<Double_t> bY;
+	for( double x = 0; x < 20000; x = x + 10 )
+	{
+		bY.push_back( By(x) );
+	}
+
+	TGraph *byG = new TGraph(bY.size(), &xData[0], &bY[0]);
+	byG->SetLineColor(kRed);
+	byG->SetLineWidth(3);
+	byG->Draw("same");
+
+	fPadByBottom->cd();
+
+	/// Drawing residuals
+	graphResidualsY->GetXaxis()->SetLabelSize(18);
+	graphResidualsY->GetXaxis()->SetLabelFont(43);
+	graphResidualsY->GetXaxis()->SetTitle("Z [m]");
+	graphResidualsY->GetXaxis()->SetTitleSize(18);
+	graphResidualsY->GetXaxis()->SetTitleFont(43);
+	graphResidualsY->GetYaxis()->SetTitle("#chi");
+	graphResidualsY->GetYaxis()->SetTitleOffset(2);
+	graphResidualsY->GetYaxis()->CenterTitle();
+	graphResidualsY->GetYaxis()->SetTitleSize(18);
+	graphResidualsY->GetYaxis()->SetTitleFont(43);
+	graphResidualsY->GetYaxis()->SetLabelSize(18);
+	graphResidualsY->GetYaxis()->SetLabelFont(43);
+	graphResidualsY->GetYaxis()->SetNdivisions(404);
+	graphResidualsY->GetXaxis()->SetRangeUser(-10,10);
+	graphResidualsY->GetYaxis()->SetRangeUser(-0.035,0.035);
+	graphResidualsY->SetLineWidth(2);
+	graphResidualsY->SetMarkerStyle(20);
+	graphResidualsY->SetMarkerSize(0.5);
+	graphResidualsY->Draw("AP");
+	fCanvas->Update();
+	
+	///////////////////// Bz component ///////////////////////////
+	/// We translate to meters
+	/*TGraph *graphToDrawZ = new TGraph();
+	for (int i = 0; i < fGraphBz->GetN(); ++i) {
+        double x, y;
+        fGraphBz->GetPoint(i, x, y);
+		std::cout << "1 x: " << x << " y: " << y << std::endl;
+        graphToDrawZ->SetPoint(i, (x-10000) / 1000.0, y);
+    }
+	
+	TGraph *graphResidualsZ = new TGraph();
+	for (int i = 0; i < fGraphBz->GetN(); ++i) {
+        double x, y;
+        fGraphBz->GetPoint(i, x, y);
+		std::cout << "2 x: " << x << " y: " << y << std::endl;
+        graphResidualsZ->SetPoint(i, (x-10000) / 1000.0, y-Bz(x));
+    }
+
+	fCanvas->cd(3);
+
+	if (fPadBzTop != nullptr) {
+		delete fPadBzTop;
+		fPadBzTop = nullptr;
+	}
+	fPadBzTop = new TPad( "BzTop", "BzTop", 0.0, 0.25, 1.0, 1.0);
+
+	fPadBzTop->SetTopMargin(0.05);
+	fPadBzTop->SetBottomMargin(0.0);
+	fPadBzTop->SetLeftMargin(0.15);
+	fPadBzTop->SetBorderMode(0);
+	fPadBzTop->Draw();
+
+	if (fPadBzBottom != nullptr) {
+		delete fPadBzBottom;
+		fPadBzBottom = nullptr;
+	}
+	fPadBzBottom = new TPad( "BzBottom", "BzBottom", 0.0, 0.0, 1.0, 0.25);
+
+	fPadBzBottom->SetTopMargin(0.0);
+	fPadBzBottom->SetLeftMargin(0.15);
+	fPadBzBottom->SetBottomMargin(0.25);
+	fPadBzBottom->SetBorderMode(0);
+	fPadBzBottom->Draw();
+
+	fPadBzTop->cd();
+
+	/// Drawing data points Bz
+	graphToDrawZ->SetTitle("");
+	graphToDrawZ->GetXaxis()->SetLabelSize(18);
+	graphToDrawZ->GetXaxis()->SetLabelFont(43);
+	graphToDrawZ->GetXaxis()->SetTitle("Z [m]");
+	graphToDrawZ->GetXaxis()->SetTitleFont(43);
+	graphToDrawZ->GetXaxis()->SetTitleSize(18);
+	graphToDrawZ->GetXaxis()->SetRangeUser(-10,10);
+	graphToDrawZ->SetLineWidth(2);
+	graphToDrawZ->SetMarkerStyle(20);
+	graphToDrawZ->SetMarkerSize(0.5);
+	graphToDrawZ->GetYaxis()->SetTitle("B_{y} [T]");
+	graphToDrawZ->GetYaxis()->SetTitleFont(43);
+	graphToDrawZ->GetYaxis()->SetTitleSize(18);
+	graphToDrawZ->GetYaxis()->SetTitleOffset(1.5);
+	graphToDrawZ->GetYaxis()->SetLabelFont(43);
+	graphToDrawZ->GetYaxis()->SetLabelSize(18);
+	graphToDrawZ->GetYaxis()->SetLabelOffset(0);
+	graphToDrawZ->Draw("AP");
+
+	//// Drawing fit function Bz (xData already filled)
+	std::vector<Double_t> bZ;
+	for( double x = 0; x < 20000; x = x + 10 )
+	{
+		std::cout << "x: "<< x << std::endl;
+		bZ.push_back( Bz(x) );
+	}
+
+	TGraph *bzG = new TGraph(bZ.size(), &xData[0], &bZ[0]);
+	bzG->SetLineColor(kRed);
+	bzG->SetLineWidth(3);
+	bzG->Draw("same");
+
+	fPadBzBottom->cd();
+
+	/// Drawing residuals
+	graphResidualsZ->GetXaxis()->SetLabelSize(18);
+	graphResidualsZ->GetXaxis()->SetLabelFont(43);
+	graphResidualsZ->GetXaxis()->SetTitle("Z [m]");
+	graphResidualsZ->GetXaxis()->SetTitleSize(18);
+	graphResidualsZ->GetXaxis()->SetTitleFont(43);
+	graphResidualsZ->GetYaxis()->SetTitle("#chi");
+	graphResidualsZ->GetYaxis()->SetTitleOffset(2);
+	graphResidualsZ->GetYaxis()->CenterTitle();
+	graphResidualsZ->GetYaxis()->SetTitleSize(18);
+	graphResidualsZ->GetYaxis()->SetTitleFont(43);
+	graphResidualsZ->GetYaxis()->SetLabelSize(18);
+	graphResidualsZ->GetYaxis()->SetLabelFont(43);
+	graphResidualsZ->GetYaxis()->SetNdivisions(404);
+	graphResidualsZ->GetXaxis()->SetRangeUser(-10,10);
+	graphResidualsZ->GetYaxis()->SetRangeUser(-0.035,0.035);
+	graphResidualsZ->SetLineWidth(2);
+	graphResidualsZ->SetMarkerStyle(20);
+	graphResidualsZ->SetMarkerSize(0.5);
+	graphResidualsZ->Draw("AP");
+	fCanvas->Update();
+	*/
 
 	return fCanvas;
 }
@@ -154,25 +741,51 @@ void TRestAxionMagneticFit::Initialize( )
 {
 	fBxParameters.clear();
 	Int_t nPars_0 = 5;
-	Double_t rangeLow_0 = 0;
-	Double_t rangeHigh_0 = 3000;
+	// Range from 0 to 3000
 	fBxParameters.push_back({-9.25005e-06, 0.00201326, (Double_t) nPars_0, -0.000335604, -2.49173e-07, -5.33662e-11, -5.44359e-14, -9.78496e-20});
 
 	Int_t nPars_1 = 0;
-	Double_t rangeLow_1 = 3000;
-	Double_t rangeHigh_1 = 6000;
-	fBxParameters.push_back({5.54085730344933e-08, 15828.6874921521, -0.000340902705115058, 2.76592388034543e-13, -2.01413327616508e-17, -5.04429881940182e-21, -6.17400428116368e-17, 2.87443466840424e-24, -6.37575734100784e-22, 5425.79751717787, -0.000340902705115058, -2.72736208621692e-08, (Double_t) nPars_1 });
+	// Range from 3000 to 6000
+	fBxParameters.push_back({5.54095e-08, 15842.3, -34.7965, 2.76593e-13, -2.00733e-17, -5.03095e-21, -6.239e-17, -1.298e-22, -6.709e-22, 5416.52, -34.7965, 0.0140181, -5.41826e-8, (Double_t) nPars_1 });
 
 	Int_t nPars_2 = 5;
-	Double_t rangeLow_2 = 6000;
-	Double_t rangeHigh_2 = 10000;
+	// Range from 6000 to 10000
 	fBxParameters.push_back({ 0.174666, 9.33125e-6, 5980.9, (Double_t) nPars_2, 21.8151, -0.00998028 ,1.71624e-06 ,-1.30946e-10 , 3.7387e-15 });
+
+	fByParameters.clear();
+	// Range from 0 to 4000
+	fByParameters.push_back({0.00114352, 0.000269059, 3692.87, 0.00235922, 0.00175728, 2700.33 });
+
+	Int_t nPars_1Y = 8;
+	// Range from 4000 to 6000
+	fByParameters.push_back({0.878548, 0.00505303, 1357.39, -0.227327, 1.28017, (Double_t) nPars_1Y, -1.92992e-05, -2.97035e-08, -1.24648e-11, -5.1324e-16, 3.61321e-18, 3.84381e-21, 5.15085e-25, 2.13876e-29});
+
+	Int_t nPars_2Y = 4;
+	// Range from 6000 to 10000
+	fByParameters.push_back({ 2.67728, 1.33661, 0.00329388, 1364.57, (Double_t) nPars_2Y, 2.41991e-06, 1.10521e-09, 8.83841e-14, -3.64002e-17});
+
+	/*
+	fBzParameters.clear();
+
+	Int_t nPars_0Z = 8;
+	// Range from 0 to 2000
+	fBzParameters.push_back({(Double_t) nPars_0Z, 0.00231608, 1.25227e-06, 6.68873e-10, -9.78742e-14,  1.39871e-16,  9.66594e-22, 4.84975e-25,  2.45398e-28});
+
+	Int_t nPars_1Z = 5;
+	// Range from 2000 to 4000
+	fBzParameters.push_back({9.82286, -0.00798509, -3.36196, -4.39675e-05, 1404.14, (Double_t) nPars_1Z, 0.179615, 0.000249106, -2.90378e-07, 7.39952e-10, -3.20937e-13});
+
+	Int_t nPars_2Z = 4;
+	// Range from 4000 to 10000
+	fBzParameters.push_back({ 5.07839, 0.00700772, 1623.44, 0.61256, 0.00155811, 1522.93, (Double_t) nPars_2Z, 0.00399185, 1.54701e-06, 4.82946e-16, -6.33159e-14});
+	*/
+
 }
 
 ///////////////////////////////////////////////                          
 /// \brief It loads the data into the TGraph objects which store the field profile data
 ///                                                                      
-void TRestAxionMagneticFit::LoadData( const std::vector <Double_t> &z, const std::vector<Double_t> &Bx, const std::vector<Double_t> &By, const std::vector<Double_t> &Bz )
+void TRestAxionMagneticFit::LoadData( const std::vector <Double_t> &z, const std::vector<Double_t> &bx, const std::vector<Double_t> &by, const std::vector<Double_t> &bz )
 {
 	// Creating a TGraph object that contains the Bx profile
 	if( fGraphBx != nullptr )
@@ -180,26 +793,107 @@ void TRestAxionMagneticFit::LoadData( const std::vector <Double_t> &z, const std
 		delete fGraphBx;
 		fGraphBx = nullptr;
 	}
-	fGraphBx = new TGraph(z.size(), &z[0], &Bx[0]);
-
-	// Optionally customize the appearance of the graph
-	fGraphBx->SetLineColor(kRed);
-	fGraphBx->SetLineWidth(2);
-	fGraphBx->SetMarkerStyle(20);
-	fGraphBx->SetMarkerSize(0.5);
-
-	// Optionally, add a title and labels
-	fGraphBx->SetTitle("");
-	fGraphBx->GetXaxis()->SetTitle("Z [mm]");
-	fGraphBx->GetYaxis()->SetTitle("B field components");
-	//fGraphBx->GetXaxis()->SetLimits(rangeLow,rangeHigh);
-	//fGraphBx->GetYaxis()->SetRangeUser(-1, 2 );
+	fGraphBx = new TGraph(z.size(), &z[0], &bx[0]);
 	
+	// Creating a TGraph object that contains the By profile
+	if( fGraphBy != nullptr )
+	{
+		delete fGraphBy;
+		fGraphBy = nullptr;
+	}
+	fGraphBy = new TGraph(z.size(), &z[0], &by[0]);
 
+	/// Inverting because the original fitting was done inverted and initial parameters 
+	/// were obtained to match this signature
+	//std::vector<Double_t> bNY;
+	//for( int n = 0; n < by.size(); n++ )
+	//	bNY.push_back(-by[n]);
+
+	
+	// Creating a TGraph object that contains the By profile
+	/*
+	if( fGraphBz != nullptr )
+	{
+		delete fGraphBz;
+		fGraphBz = nullptr;
+	}
+	fGraphBz = new TGraph(z.size(), &z[0], &bz[0]);
+	*/
 }
 
 ///////////////////////////////////////////////                          
 /// \brief It launches the fitting of the magnetic field on the Bx component.
+/// Only used for debugging purposes. It fits independently in each range.
+///
+void TRestAxionMagneticFit::FitBy( )
+{
+	Int_t nPars_0 = 0;
+	Double_t rangeLow_0 = 0;
+	Double_t rangeHigh_0 = 4000;
+
+	Int_t nPars_1 = 8;
+	Double_t rangeLow_1 = 4000;
+	Double_t rangeHigh_1 = 6000;
+
+	Int_t nPars_2 = 4;
+	Double_t rangeLow_2 = 6000;
+	Double_t rangeHigh_2 = 10000;
+
+	TF1 *fn = new TF1("fitBy0", &ByFunction_0, rangeLow_0, rangeHigh_0, 6);
+
+	for( int n = 0; n < fByParameters[0].size(); n++ )
+		fn->SetParameter(n, fByParameters[0][n] );
+
+	fGraphBy->Fit("fitBy0","QR", "", rangeLow_0, rangeHigh_0);
+
+	fByParameters[0].clear();
+	std::cout << "By-0 N params : " << fn->GetNpar() << std::endl;
+	for( int n = 0; n < fn->GetNpar(); n++ )
+	{
+		std::cout << "Setting parameter " << n << " : " << fn->GetParameter(n) << std::endl;
+		fByParameters[0].push_back(fn->GetParameter(n));
+	}
+	delete fn;
+
+	fn = new TF1("fitBy1", &ByFunction_1, rangeLow_1, rangeHigh_1, 6+nPars_1);
+
+	for( int n = 0; n < fByParameters[1].size(); n++ )
+		fn->SetParameter(n, fByParameters[1][n] );
+	fn->FixParameter(5,nPars_1);
+
+	fGraphBy->Fit("fitBy1","QR", "", rangeLow_1, rangeHigh_1);
+
+	fByParameters[1].clear();
+	std::cout << "By-1 N params : " << fn->GetNpar() << std::endl;
+	for( int n = 0; n < fn->GetNpar(); n++ )
+	{
+		std::cout << "Setting parameter " << n << " : " << fn->GetParameter(n) << std::endl;
+		fByParameters[1].push_back(fn->GetParameter(n));
+	}
+	delete fn;
+
+	/////// 
+	fn = new TF1("fitBy2", &ByFunction_2, rangeLow_2, rangeHigh_2, 5+nPars_2);
+
+	for( int n = 0; n < fByParameters[2].size(); n++ )
+		fn->SetParameter(n, fByParameters[2][n] );
+	fn->FixParameter(4,nPars_2);
+
+	fGraphBy->Fit("fitBy2","QR", "", rangeLow_2, rangeHigh_2);
+
+	fByParameters[2].clear();
+	std::cout << "By-2 N params : " << fn->GetNpar() << std::endl;
+	for( int n = 0; n < fn->GetNpar(); n++ )
+	{
+		std::cout << "Setting parameter " << n << " : " << fn->GetParameter(n) << std::endl;
+		fByParameters[2].push_back(fn->GetParameter(n));
+	}
+	delete fn;
+}
+
+///////////////////////////////////////////////                          
+/// \brief It launches the fitting of the magnetic field on the Bx component.
+/// Only used for debugging purposes. It fits independently in each range.
 ///
 void TRestAxionMagneticFit::FitBx( )
 {
@@ -221,7 +915,7 @@ void TRestAxionMagneticFit::FitBx( )
 		fn->SetParameter(n, fBxParameters[0][n] );
 	fn->FixParameter(2,nPars_0);
 
-	fGraphBx->Fit("fitBx0","R", "", rangeLow_0, rangeHigh_0);
+	fGraphBx->Fit("fitBx0","QR", "", rangeLow_0, rangeHigh_0);
 
 	fBxParameters[0].clear();
 	std::cout << "Bx-0 N params : " << fn->GetNpar() << std::endl;
@@ -232,13 +926,13 @@ void TRestAxionMagneticFit::FitBx( )
 	}
 	delete fn;
 
-	fn = new TF1("fitBx1", &BxFunction_1, rangeLow_1, rangeHigh_1, 13+nPars_1);
+	fn = new TF1("fitBx1", &BxFunction_1, rangeLow_1, rangeHigh_1, 14+nPars_1);
 
 	for( int n = 0; n < fBxParameters[1].size(); n++ )
 		fn->SetParameter(n, fBxParameters[1][n] );
-	fn->FixParameter(12,nPars_1);
+	fn->FixParameter(13,nPars_1);
 
-	fGraphBx->Fit("fitBx1","R", "", rangeLow_1, rangeHigh_1);
+	fGraphBx->Fit("fitBx1","QR", "", rangeLow_1, rangeHigh_1);
 
 	fBxParameters[1].clear();
 	std::cout << "Bx-1 N params : " << fn->GetNpar() << std::endl;
@@ -257,7 +951,7 @@ void TRestAxionMagneticFit::FitBx( )
 		fn->SetParameter(n, fBxParameters[2][n] );
 	fn->FixParameter(3,nPars_2);
 
-	fGraphBx->Fit("fitBx2","R", "", rangeLow_2, rangeHigh_2);
+	fGraphBx->Fit("fitBx2","QR", "", rangeLow_2, rangeHigh_2);
 
 	fBxParameters[2].clear();
 	std::cout << "Bx-2 N params : " << fn->GetNpar() << std::endl;
@@ -269,3 +963,166 @@ void TRestAxionMagneticFit::FitBx( )
 	delete fn;
 }
 
+///////////////////////////////////////////////                          
+/// \brief It launches the fitting of the magnetic field on the Bx component.
+///
+void TRestAxionMagneticFit::FitBxComplete( )
+{
+
+	std::vector<Double_t> parList;
+	parList.push_back(10000);
+
+	parList.insert(parList.end(), fBxParameters[0].begin(), fBxParameters[0].end());
+	parList.insert(parList.end(), fBxParameters[1].begin(), fBxParameters[1].end());
+	parList.insert(parList.end(), fBxParameters[2].begin(), fBxParameters[2].end());
+
+	TF1 *fn = new TF1("fitBx", &BxFunction, 0, 20000, 32);
+
+	for( int n = 0; n < parList.size(); n++ )
+		fn->SetParameter(n, parList[n]);
+
+	fn->SetParLimits(0, 9800,10200);
+
+	fn->FixParameter(3,5);
+	fn->FixParameter(21,0);
+	fn->FixParameter(26,5);
+
+	fGraphBx->Fit("fitBx","QR", "", 0, 20000);
+	fChiSquareBx = fGraphBx->Chisquare( fn, "R");
+
+	fZx = fn->GetParameter(0);
+
+	fBxParameters[0].clear();
+	std::cout << "Bx-0 N params : " << fn->GetNpar() << std::endl;
+	for( int n = 1; n < 9; n++ )
+	{
+		std::cout << "Bx-0 Setting parameter " << n << " : " << fn->GetParameter(n) << std::endl;
+		fBxParameters[0].push_back(fn->GetParameter(n));
+	}
+
+	fBxParameters[1].clear();
+	for( int n = 9; n < 23; n++ )
+	{
+		std::cout << "Bx-1 Setting parameter " << n << " : " << fn->GetParameter(n) << std::endl;
+		fBxParameters[1].push_back(fn->GetParameter(n));
+	}
+
+	fBxParameters[2].clear();
+	for( int n = 23; n < 32; n++ )
+	{
+		std::cout << "Bx-2 Setting parameter " << n << " : " << fn->GetParameter(n) << std::endl;
+		fBxParameters[2].push_back(fn->GetParameter(n));
+	}
+
+	delete fn;
+}
+
+///////////////////////////////////////////////                          
+/// \brief It launches the fitting of the magnetic field on the By component.
+///
+void TRestAxionMagneticFit::FitByComplete( )
+{
+	std::vector<Double_t> parList;
+	parList.push_back(fZy);
+
+	parList.insert(parList.end(), fByParameters[0].begin(), fByParameters[0].end());
+	parList.insert(parList.end(), fByParameters[1].begin(), fByParameters[1].end());
+	parList.insert(parList.end(), fByParameters[2].begin(), fByParameters[2].end());
+
+	TF1 *fn = new TF1("fitBy", &ByFunction, 0, 20000, 30);
+
+	for( int n = 0; n < parList.size(); n++ )
+	{
+		std::cout << "Setting parameter p" << n << ": " << parList[n] << std::endl;
+		fn->SetParameter(n, parList[n]);
+	}
+
+	fn->SetParLimits(0, 9800,10200);
+
+	fn->FixParameter(12,8);
+	fn->FixParameter(25,4);
+
+	fGraphBy->Fit("fitBy","QR", "", 0, 20000);
+	fChiSquareBy = fGraphBy->Chisquare( fn, "R");
+
+	fZy = fn->GetParameter(0);
+	std::cout << "fZy : " << fZy << std::endl;
+	fByParameters[0].clear();
+	std::cout << "By-0 N params : " << fn->GetNpar() << std::endl;
+	for( int n = 1; n < 7; n++ )
+	{
+		std::cout << "By-0 Setting parameter " << n << " : " << fn->GetParameter(n) << std::endl;
+		fByParameters[0].push_back(fn->GetParameter(n));
+	}
+
+	fByParameters[1].clear();
+	for( int n = 7; n < 21; n++ )
+	{
+		std::cout << "By-1 Setting parameter " << n << " : " << fn->GetParameter(n) << std::endl;
+		fByParameters[1].push_back(fn->GetParameter(n));
+	}
+
+	fByParameters[2].clear();
+	for( int n = 21; n < 30; n++ )
+	{
+		std::cout << "By-2 Setting parameter " << n << " : " << fn->GetParameter(n) << std::endl;
+		fByParameters[2].push_back(fn->GetParameter(n));
+	}
+
+	delete fn;
+}
+
+///////////////////////////////////////////////                          
+/// \brief It launches the fitting of the magnetic field on the By component.
+///
+/*void TRestAxionMagneticFit::FitBzComplete( )
+{
+	std::vector<Double_t> parList;
+	parList.push_back(fZy);
+
+	parList.insert(parList.end(), fByParameters[0].begin(), fByParameters[0].end());
+	parList.insert(parList.end(), fByParameters[1].begin(), fByParameters[1].end());
+	parList.insert(parList.end(), fByParameters[2].begin(), fByParameters[2].end());
+
+	TF1 *fn = new TF1("fitBy", &ByFunction, 0, 20000, 30);
+
+	for( int n = 0; n < parList.size(); n++ )
+	{
+		std::cout << "Setting parameter p" << n << ": " << parList[n] << std::endl;
+		fn->SetParameter(n, parList[n]);
+	}
+
+	fn->SetParLimits(0, 9800,10200);
+
+	fn->FixParameter(12,8);
+	fn->FixParameter(25,4);
+
+	fGraphBy->Fit("fitBy","QR", "", 0, 20000);
+	fChiSquareBy = fGraphBy->Chisquare( fn, "R");
+
+	fZy = fn->GetParameter(0);
+	std::cout << "fZy : " << fZy << std::endl;
+	fByParameters[0].clear();
+	std::cout << "By-0 N params : " << fn->GetNpar() << std::endl;
+	for( int n = 1; n < 7; n++ )
+	{
+		std::cout << "By-0 Setting parameter " << n << " : " << fn->GetParameter(n) << std::endl;
+		fByParameters[0].push_back(fn->GetParameter(n));
+	}
+
+	fByParameters[1].clear();
+	for( int n = 7; n < 21; n++ )
+	{
+		std::cout << "By-1 Setting parameter " << n << " : " << fn->GetParameter(n) << std::endl;
+		fByParameters[1].push_back(fn->GetParameter(n));
+	}
+
+	fByParameters[2].clear();
+	for( int n = 21; n < 30; n++ )
+	{
+		std::cout << "By-2 Setting parameter " << n << " : " << fn->GetParameter(n) << std::endl;
+		fByParameters[2].push_back(fn->GetParameter(n));
+	}
+
+	delete fn;
+}*/
