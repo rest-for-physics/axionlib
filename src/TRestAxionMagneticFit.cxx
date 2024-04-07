@@ -464,7 +464,7 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 		delete fPadBxTop;
 		fPadBxTop = nullptr;
 	}
-	fPadBxTop = new TPad( "BxTop", "BxTop", 0.0, 0.25, 1.0, 1.0);
+	fPadBxTop = new TPad( "BxTop", "BxTop", 0.0, 0.3, 1.0, 1.0);
 
 	fPadBxTop->SetTopMargin(0.0);
 	fPadBxTop->SetBottomMargin(0.0);
@@ -477,11 +477,11 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 		delete fPadBxBottom;
 		fPadBxBottom = nullptr;
 	}
-	fPadBxBottom = new TPad( "BxBottom", "BxBottom", 0.0, 0.0, 1.0, 0.25);
+	fPadBxBottom = new TPad( "BxBottom", "BxBottom", 0.0, 0.0, 1.0, 0.3);
 
 	fPadBxBottom->SetTopMargin(0.0);
 	fPadBxBottom->SetLeftMargin(0.15);
-	fPadBxBottom->SetBottomMargin(0.3);
+	fPadBxBottom->SetBottomMargin(0.38);
 	fPadBxBottom->SetRightMargin(0.02);
 	fPadBxBottom->SetBorderMode(0);
 	fPadBxBottom->Draw();
@@ -498,7 +498,7 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 	graphToDrawX->GetXaxis()->SetRangeUser(-10,10);
 	graphToDrawX->SetLineWidth(2);
 	graphToDrawX->SetMarkerStyle(4);
-	graphToDrawX->SetMarkerSize(1);
+	graphToDrawX->SetMarkerSize(0.5);
 	graphToDrawX->GetYaxis()->SetTitle("B_{x} [T]");
 	graphToDrawX->GetYaxis()->SetTitleFont(43);
 	graphToDrawX->GetYaxis()->SetTitleSize(20);
@@ -526,7 +526,7 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 	bxG->GetXaxis()->SetRangeUser(-10,10);
 	bxG->SetLineWidth(2);
 	bxG->SetMarkerStyle(4);
-	bxG->SetMarkerSize(1);
+	bxG->SetMarkerSize(0.5);
 	bxG->GetYaxis()->SetTitle("B_{x} [T]");
 	bxG->GetYaxis()->SetTitleFont(43);
 	bxG->GetYaxis()->SetTitleSize(20);
@@ -561,7 +561,7 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 	graphResidualsX->GetYaxis()->SetRangeUser(-0.035,0.035);
 	graphResidualsX->SetLineWidth(2);
 	graphResidualsX->SetMarkerStyle(4);
-	graphResidualsX->SetMarkerSize(1);
+	graphResidualsX->SetMarkerSize(0.5);
 	graphResidualsX->Draw("AP");
 	fCanvas->Update();
 
@@ -587,7 +587,7 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 		delete fPadByTop;
 		fPadByTop = nullptr;
 	}
-	fPadByTop = new TPad( "ByTop", "ByTop", 0.0, 0.25, 1.0, 1.0);
+	fPadByTop = new TPad( "ByTop", "ByTop", 0.0, 0.3, 1.0, 1.0);
 
 	fPadByTop->SetTopMargin(0.0);
 	fPadByTop->SetBottomMargin(0.0);
@@ -600,11 +600,11 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 		delete fPadByBottom;
 		fPadByBottom = nullptr;
 	}
-	fPadByBottom = new TPad( "ByBottom", "ByBottom", 0.0, 0.0, 1.0, 0.25);
+	fPadByBottom = new TPad( "ByBottom", "ByBottom", 0.0, 0.0, 1.0, 0.3);
 
 	fPadByBottom->SetTopMargin(0.0);
 	fPadByBottom->SetLeftMargin(0.15);
-	fPadByBottom->SetBottomMargin(0.3);
+	fPadByBottom->SetBottomMargin(0.38);
 	fPadByBottom->SetRightMargin(0.02);
 	fPadByBottom->SetBorderMode(0);
 	fPadByBottom->Draw();
@@ -621,7 +621,7 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 	graphToDrawY->GetXaxis()->SetRangeUser(-10,10);
 	graphToDrawY->SetLineWidth(2);
 	graphToDrawY->SetMarkerStyle(4);
-	graphToDrawY->SetMarkerSize(1);
+	graphToDrawY->SetMarkerSize(0.5);
 	graphToDrawY->GetYaxis()->SetTitle("B_{y} [T]");
 	graphToDrawY->GetYaxis()->SetTitleFont(43);
 	graphToDrawY->GetYaxis()->SetTitleSize(20);
@@ -649,7 +649,7 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 	byG->GetXaxis()->SetRangeUser(-10,10);
 	byG->SetLineWidth(2);
 	byG->SetMarkerStyle(4);
-	byG->SetMarkerSize(1);
+	byG->SetMarkerSize(0.5);
 	byG->GetYaxis()->SetTitle("B_{y} [T]");
 	byG->GetYaxis()->SetTitleFont(43);
 	byG->GetYaxis()->SetTitleSize(20);
@@ -681,7 +681,7 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 	graphResidualsY->GetYaxis()->SetRangeUser(-0.035,0.035);
 	graphResidualsY->SetLineWidth(2);
 	graphResidualsY->SetMarkerStyle(4);
-	graphResidualsY->SetMarkerSize(1);
+	graphResidualsY->SetMarkerSize(0.5);
 	graphResidualsY->Draw("AP");
 	fCanvas->Update();
 
@@ -707,7 +707,7 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 		delete fPadBzTop;
 		fPadBzTop = nullptr;
 	}
-	fPadBzTop = new TPad( "BzTop", "BzTop", 0.0, 0.25, 1.0, 1.0);
+	fPadBzTop = new TPad( "BzTop", "BzTop", 0.0, 0.3, 1.0, 1.0);
 
 	fPadBzTop->SetTopMargin(0.0);
 	fPadBzTop->SetBottomMargin(0.0);
@@ -720,11 +720,11 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 		delete fPadBzBottom;
 		fPadBzBottom = nullptr;
 	}
-	fPadBzBottom = new TPad( "BzBottom", "BzBottom", 0.0, 0.0, 1.0, 0.25);
+	fPadBzBottom = new TPad( "BzBottom", "BzBottom", 0.0, 0.0, 1.0, 0.3);
 
 	fPadBzBottom->SetTopMargin(0.0);
 	fPadBzBottom->SetLeftMargin(0.15);
-	fPadBzBottom->SetBottomMargin(0.3);
+	fPadBzBottom->SetBottomMargin(0.38);
 	fPadBzBottom->SetRightMargin(0.02);
 	fPadBzBottom->SetBorderMode(0);
 	fPadBzBottom->Draw();
@@ -741,7 +741,7 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 	graphToDrawZ->GetXaxis()->SetRangeUser(-10,10);
 	graphToDrawZ->SetLineWidth(2);
 	graphToDrawZ->SetMarkerStyle(4);
-	graphToDrawZ->SetMarkerSize(1);
+	graphToDrawZ->SetMarkerSize(0.5);
 	graphToDrawZ->GetYaxis()->SetTitle("B_{z} [T]");
 	graphToDrawZ->GetYaxis()->SetTitleFont(43);
 	graphToDrawZ->GetYaxis()->SetTitleSize(20);
@@ -769,7 +769,7 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 	bzG->GetXaxis()->SetRangeUser(-10,10);
 	bzG->SetLineWidth(2);
 	bzG->SetMarkerStyle(4);
-	bzG->SetMarkerSize(1);
+	bzG->SetMarkerSize(0.5);
 	bzG->GetYaxis()->SetTitle("B_{z} [T]");
 	bzG->GetYaxis()->SetTitleFont(43);
 	bzG->GetYaxis()->SetTitleSize(20);
@@ -801,7 +801,7 @@ TCanvas *TRestAxionMagneticFit::DrawComponents( )
 	graphResidualsZ->GetYaxis()->SetRangeUser(-0.035,0.035);
 	graphResidualsZ->SetLineWidth(2);
 	graphResidualsZ->SetMarkerStyle(4);
-	graphResidualsZ->SetMarkerSize(1);
+	graphResidualsZ->SetMarkerSize(0.5);
 	graphResidualsZ->Draw("AP");
 	fCanvas->Update();
 
