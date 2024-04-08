@@ -43,9 +43,9 @@
 ///		// Extracting the profile for each B-component (must be parallel)
 ///		Double_t dl = 50;
 ///		std::vector<Double_t> bX = field.GetComponentAlongPath( 0, TVector3(340, 0, -10000),
-///TVector3(340, 0, 10000), dl ); 		std::vector<Double_t> bY = field.GetComponentAlongPath( 1, TVector3(340, 0,
-///-10000), TVector3(340, 0, 10000), dl ); 		std::vector<Double_t> bZ = field.GetComponentAlongPath( 2,
-///TVector3(340, 0, -10000), TVector3(340, 0, 10000), dl );
+/// TVector3(340, 0, 10000), dl ); 		std::vector<Double_t> bY = field.GetComponentAlongPath( 1,
+/// TVector3(340, 0, -10000), TVector3(340, 0, 10000), dl ); 		std::vector<Double_t> bZ =
+///field.GetComponentAlongPath( 2, TVector3(340, 0, -10000), TVector3(340, 0, 10000), dl );
 ///
 ///		std::vector<Double_t> z;
 ///		for( int n = 0; n < bX.size(); n++ )
