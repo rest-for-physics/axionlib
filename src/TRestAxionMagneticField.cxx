@@ -267,7 +267,7 @@ TRestAxionMagneticField::~TRestAxionMagneticField() {
 /// \brief Initialization of TRestAxionMagneticField members
 ///
 void TRestAxionMagneticField::Initialize() {
-    SetSectionName(this->ClassName());
+    SetSectionName("TRestAxionMagneticField");
     SetLibraryVersion(LIBRARY_VERSION);
 
     fCanvas = NULL;
@@ -743,7 +743,7 @@ TCanvas* TRestAxionMagneticField::DrawTracks(TVector3 vanishingPoint, Int_t divi
         position = MoveToPlane(position, direction, TVector3(0, 0, 1), TVector3(0, 0, finalPositionZ));
         gr->SetPoint(1, finalPositionZ, position.Y());
 
-        gr->SetLineWidth(1.5);
+        gr->SetLineWidth(1);
         gr->Draw("L");
         grB->SetLineColor(38 + n);
         n++;
