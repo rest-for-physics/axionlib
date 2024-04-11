@@ -161,8 +161,8 @@
 ///
 /// There are also geometric functions that allow to identify the boundaries of
 /// the magnetic volume. A test particle will penetrate in the bounding box and identify
-/// the moment where the field changes to a value different from (0,0,0) in order
-/// to identify the entrance and exit point.
+/// the moment where the field changes to a value different from (0,0,0) in order("fields.rml",
+/// "babyIAXO_2024"); to identify the entrance and exit point.
 ///
 /// The following code will return two TVector3 with the magnetic volume entrance
 /// and exit coordinates, for a test particle being placed at x=10cm, y=10cm and
@@ -176,6 +176,22 @@
 ///
 /// In the other hand, TRestAxionMagneticField::GetVolumeBoundaries will return the
 /// bounding box containing that magnetic field.
+///
+/// ### Remapping the field
+///
+/// It is possible to remap the magnetic field in order to increase the size of the grid
+/// cells in order to gain in performance. We may only increase the size of the cells
+/// by a multiple of the original mesh size.
+///
+/// Given the original mesh granularity by `10mmx10mmx50mm`, we might increase the
+/// granularity of the first volume, index `0` to `50mmx50mmx200mm` as follows:
+///
+/// \code
+/// TRestAxionMagneticField *mag = new TRestAxionMagneticField("fields.rml", "babyIAXO" );
+/// mag->PrintMetadata();
+/// mag->ReMap( 0, TVector3(50, 50, 200) );
+/// mag->PrintMetadata();
+/// \endcode
 ///
 /// ### Visualizing the magnetic field
 ///
