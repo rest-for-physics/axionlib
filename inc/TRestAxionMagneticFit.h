@@ -124,8 +124,8 @@ class TRestAxionMagneticFit {
     void LoadData(const std::vector<Double_t>& z, const std::vector<Double_t>& Bx,
                   const std::vector<Double_t>& By, const std::vector<Double_t>& Bz);
 
-	Double_t GetChi2_X();
-	Double_t GetChi2_X2() { return fChiSquareBx; } 
+    Double_t GetChi2_X();
+    Double_t GetChi2_X2() { return fChiSquareBx; }
 
     TRestAxionMagneticFit();
     ~TRestAxionMagneticFit();

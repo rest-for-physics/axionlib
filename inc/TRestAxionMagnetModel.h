@@ -23,21 +23,21 @@
 #ifndef REST_TRestAxionMagnetModel
 #define REST_TRestAxionMagnetModel
 
-#include <TRestMetadata.h>
 #include <TRestAxionMagneticFit.h>
+#include <TRestMetadata.h>
 
 /// A class to fit and store the fit parameters from the magnetic field map
-class TRestAxionMagnetModel: public TObject {
+class TRestAxionMagnetModel : public TObject {
    private:
-	   std::vector <TRestAxionMagneticFit> fLinearFit;
+    std::vector<TRestAxionMagneticFit> fLinearFit;
 
    public:
-    virtual std::vector<Double_t> GetComponentAlongPath(Int_t axis, TVector3 from, TVector3 to, Double_t dl = 1.,
-                                                Int_t Nmax = 0) = 0;
+    virtual std::vector<Double_t> GetComponentAlongPath(Int_t axis, TVector3 from, TVector3 to,
+                                                        Double_t dl = 1., Int_t Nmax = 0) = 0;
 
-	void Test(Double_t X = 340, Double_t Y = 0, Double_t dl = 50);
+    void Test(Double_t X = 340, Double_t Y = 0, Double_t dl = 50);
 
-	const TRestAxionMagneticFit &GetFit( size_t n ) const{ return fLinearFit[n]; }
+    const TRestAxionMagneticFit& GetFit(size_t n) const { return fLinearFit[n]; }
 
     ClassDef(TRestAxionMagnetModel, 1);
 };

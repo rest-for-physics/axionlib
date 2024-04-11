@@ -23,7 +23,8 @@
 #ifndef _TRestAxionMagneticField
 #define _TRestAxionMagneticField
 
-
+#include <TRestAxionMagnetModel.h>
+#include <TRestMetadata.h>
 
 #include <iostream>
 
@@ -32,10 +33,6 @@
 #include "TRestMesh.h"
 #include "TVector3.h"
 #include "TVectorD.h"
-
-#include <TRestMetadata.h>
-
-#include <TRestAxionMagnetModel.h>
 
 /// A structure to define the properties and store the field data of a single magnetic volume inside
 /// TRestAxionMagneticField

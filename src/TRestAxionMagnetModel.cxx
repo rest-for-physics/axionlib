@@ -21,53 +21,49 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-///                                                                      
+///
 ///----------------------------------------------------------------------
-///                                                                      
-/// REST-for-Physics - Software for Rare Event Searches Toolkit 	    
-///                                                                      
-/// History of developments:                                             
-///                                                                      
+///
+/// REST-for-Physics - Software for Rare Event Searches Toolkit
+///
+/// History of developments:
+///
 /// 2024-04: First implementation of TRestAxionMagnetModel
 /// Javier Galan
-///                                                                      
-/// \class TRestAxionMagnetModel                                               
+///
+/// \class TRestAxionMagnetModel
 /// \author Javier Galan (javier.galan@unizar.es)
-///                                                                      
-/// <hr>                                                                 
-///                                                                      
-#include <iostream>
-
+///
+/// <hr>
+///
 #include "TRestAxionMagnetModel.h"
+
+#include <iostream>
 ClassImp(TRestAxionMagnetModel);
 
-void TRestAxionMagnetModel::Test(Double_t X, Double_t Y, Double_t dl)
-{
-    std::vector<Double_t> bX = GetComponentAlongPath(0, TVector3 (X, Y, -10000), TVector3(X, Y, 10000), dl); 
-    std::vector<Double_t> bY = GetComponentAlongPath(1, TVector3 (X, Y, -10000), TVector3(X, Y, 10000), dl); 
-    std::vector<Double_t> bZ = GetComponentAlongPath(2, TVector3 (X, Y, -10000), TVector3(X, Y, 10000), dl); 
+void TRestAxionMagnetModel::Test(Double_t X, Double_t Y, Double_t dl) {
+    std::vector<Double_t> bX = GetComponentAlongPath(0, TVector3(X, Y, -10000), TVector3(X, Y, 10000), dl);
+    std::vector<Double_t> bY = GetComponentAlongPath(1, TVector3(X, Y, -10000), TVector3(X, Y, 10000), dl);
+    std::vector<Double_t> bZ = GetComponentAlongPath(2, TVector3(X, Y, -10000), TVector3(X, Y, 10000), dl);
 
-	std::vector<Double_t> z;
-	for( int n = 0; n < bX.size(); n++ )
-		z.push_back(dl/2 + n * dl);
+    std::vector<Double_t> z;
+    for (int n = 0; n < bX.size(); n++) z.push_back(dl / 2 + n * dl);
 
-	TRestAxionMagneticFit bFit;
-	bFit.LoadData( z, bX, bY, bZ );
-	bFit.Fit();
+    TRestAxionMagneticFit bFit;
+    bFit.LoadData(z, bX, bY, bZ);
+    bFit.Fit();
 
-	fLinearFit.push_back(bFit);
+    fLinearFit.push_back(bFit);
 
-	//std::cout << "Chi2 : " << bFit.GetChi2_X() << std::endl;
-
+    // std::cout << "Chi2 : " << bFit.GetChi2_X() << std::endl;
 }
 
-///////////////////////////////////////////////                          
-/// \brief Default constructor                                          
-///                                                                      
-//TRestAxionMagnetModel::TRestAxionMagnetModel() { }
+///////////////////////////////////////////////
+/// \brief Default constructor
+///
+// TRestAxionMagnetModel::TRestAxionMagnetModel() { }
 
-///////////////////////////////////////////////                          
-/// \brief Default destructor                                           
-///                                                                      
-//TRestAxionMagnetModel::~TRestAxionMagnetModel() { }
-
+///////////////////////////////////////////////
+/// \brief Default destructor
+///
+// TRestAxionMagnetModel::~TRestAxionMagnetModel() { }

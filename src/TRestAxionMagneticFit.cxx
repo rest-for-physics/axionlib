@@ -45,7 +45,7 @@
 ///		std::vector<Double_t> bX = field.GetComponentAlongPath( 0, TVector3(340, 0, -10000),
 /// TVector3(340, 0, 10000), dl ); 		std::vector<Double_t> bY = field.GetComponentAlongPath( 1,
 /// TVector3(340, 0, -10000), TVector3(340, 0, 10000), dl ); 		std::vector<Double_t> bZ =
-///field.GetComponentAlongPath( 2, TVector3(340, 0, -10000), TVector3(340, 0, 10000), dl );
+/// field.GetComponentAlongPath( 2, TVector3(340, 0, -10000), TVector3(340, 0, 10000), dl );
 ///
 ///		std::vector<Double_t> z;
 ///		for( int n = 0; n < bX.size(); n++ )
@@ -367,7 +367,7 @@ Double_t TRestAxionMagneticFit::BxFunction_2(Double_t* x, Double_t* par) {
 TCanvas* TRestAxionMagneticFit::DrawComponents() {
     ///////////////////// Bx component ///////////////////////////
     /// We translate to meters
-	std::cout << "A" << std::endl;
+    std::cout << "A" << std::endl;
     TGraph* graphToDrawX = new TGraph();
     for (int i = 0; i < fGraphBx->GetN(); ++i) {
         double x, y;
@@ -375,7 +375,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
         graphToDrawX->SetPoint(i, (x - 10000) / 1000.0, y);
     }
 
-	std::cout << "B" << std::endl;
+    std::cout << "B" << std::endl;
     TGraph* graphResidualsX = new TGraph();
     for (int i = 0; i < fGraphBx->GetN(); ++i) {
         double x, y;
@@ -383,13 +383,13 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
         graphResidualsX->SetPoint(i, (x - 10000) / 1000.0, y - Bx(x));
     }
 
-	std::cout << "C" << std::endl;
+    std::cout << "C" << std::endl;
     if (fCanvas != nullptr) {
         delete fCanvas;
         fCanvas = nullptr;
     }
 
-	std::cout << "D" << std::endl;
+    std::cout << "D" << std::endl;
     fCanvas = new TCanvas("FitCanvas", "", 3600, 500, 3600, 400);
     fCanvas->Divide(3, 1);
     fCanvas->cd(1);
@@ -407,7 +407,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
     fPadBxTop->SetBorderMode(0);
     fPadBxTop->Draw();
 
-	std::cout << "E" << std::endl;
+    std::cout << "E" << std::endl;
     if (fPadBxBottom != nullptr) {
         delete fPadBxBottom;
         fPadBxBottom = nullptr;
@@ -443,7 +443,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
     graphToDrawX->GetYaxis()->SetLabelOffset(0.02);
     graphToDrawX->GetYaxis()->SetRangeUser(-0.95, 0.5);
 
-	std::cout << "F" << std::endl;
+    std::cout << "F" << std::endl;
     //// Drawing fit function Bx
     std::vector<Double_t> xData, bX;
     for (double x = 0; x < 20000; x = x + 10) {
@@ -477,7 +477,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
 
     fPadBxBottom->cd();
 
-	std::cout << "G" << std::endl;
+    std::cout << "G" << std::endl;
     /// Drawing residuals
     graphResidualsX->GetXaxis()->SetLabelSize(20);
     graphResidualsX->GetXaxis()->SetLabelFont(43);
@@ -501,7 +501,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
     graphResidualsX->Draw("AP");
     fCanvas->Update();
 
-	std::cout << "H" << std::endl;
+    std::cout << "H" << std::endl;
     ///////////////////// By component ///////////////////////////
     /// We translate to meters
     TGraph* graphToDrawY = new TGraph();
@@ -525,7 +525,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
     }
     fPadByTop = new TPad("ByTop", "ByTop", 0.0, 0.3, 1.0, 1.0);
 
-	std::cout << "I" << std::endl;
+    std::cout << "I" << std::endl;
     fPadByTop->SetTopMargin(0.0);
     fPadByTop->SetBottomMargin(0.0);
     fPadByTop->SetLeftMargin(0.15);
@@ -539,7 +539,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
     }
     fPadByBottom = new TPad("ByBottom", "ByBottom", 0.0, 0.0, 1.0, 0.3);
 
-	std::cout << "G" << std::endl;
+    std::cout << "G" << std::endl;
     fPadByBottom->SetTopMargin(0.0);
     fPadByBottom->SetLeftMargin(0.15);
     fPadByBottom->SetBottomMargin(0.38);
@@ -549,7 +549,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
 
     fPadByTop->cd();
 
-	std::cout << "L" << std::endl;
+    std::cout << "L" << std::endl;
     /// Drawing data points By
     graphToDrawY->SetTitle("");
     graphToDrawY->GetXaxis()->SetLabelSize(20);
@@ -569,7 +569,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
     graphToDrawY->GetYaxis()->SetLabelSize(20);
     graphToDrawY->GetYaxis()->SetLabelOffset(0.02);
 
-	std::cout << "M" << std::endl;
+    std::cout << "M" << std::endl;
     //// Drawing fit function By (xData already filled)
     std::vector<Double_t> bY;
     for (double x = 0; x < 20000; x = x + 10) {
@@ -599,7 +599,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
     byG->Draw("AL");
     graphToDrawY->Draw("Psame");
 
-	std::cout << "N" << std::endl;
+    std::cout << "N" << std::endl;
     fPadByBottom->cd();
 
     /// Drawing residuals
@@ -1079,8 +1079,8 @@ void TRestAxionMagneticFit::FitBzFullRange() {
     fn->FixParameter(15, 5);
     fn->FixParameter(27, 5);
 
-	fGraphBz->Fit("fitBz","R", "", 0, 20000);
-	fChiSquareBz = fGraphBz->Chisquare( fn, "R");
+    fGraphBz->Fit("fitBz", "R", "", 0, 20000);
+    fChiSquareBz = fGraphBz->Chisquare(fn, "R");
 
     fZz = fn->GetParameter(0);
     std::cout << "fZz : " << fZz << std::endl;
@@ -1106,16 +1106,15 @@ void TRestAxionMagneticFit::FitBzFullRange() {
     delete fn;
 }
 
-Double_t TRestAxionMagneticFit::GetChi2_X()
-{
-	Double_t x,y;
-	Double_t chi2 = 0;
-	for (int i = 0; i < fGraphBx->GetN(); ++i) {
-		std::cout << x << " " << y << std::endl;
-		fGraphBx->GetPoint(i, x, y);
-		Double_t res = (y - Bx(x));
-		chi2 += res * res;
-	}
-	if( fGraphBx->GetN()<=0 ) return 0;
-	return chi2/fGraphBx->GetN();
+Double_t TRestAxionMagneticFit::GetChi2_X() {
+    Double_t x, y;
+    Double_t chi2 = 0;
+    for (int i = 0; i < fGraphBx->GetN(); ++i) {
+        std::cout << x << " " << y << std::endl;
+        fGraphBx->GetPoint(i, x, y);
+        Double_t res = (y - Bx(x));
+        chi2 += res * res;
+    }
+    if (fGraphBx->GetN() <= 0) return 0;
+    return chi2 / fGraphBx->GetN();
 }
