@@ -158,8 +158,6 @@ Double_t TRestAxionMagneticFit::BzFunction(Double_t* x, Double_t* par) {
 }
 
 Double_t TRestAxionMagneticFit::BzFunction_0(Double_t* x, Double_t* par) {
-    Double_t X = x[0];
-
     Double_t func = 0;
     Int_t N = (int)par[0];
     for (int n = 0; n < N; n++) {
@@ -367,10 +365,9 @@ Double_t TRestAxionMagneticFit::BxFunction_2(Double_t* x, Double_t* par) {
 /// parameters status
 ///
 TCanvas* TRestAxionMagneticFit::DrawComponents() {
-    Bool_t pdf = true;
-
     ///////////////////// Bx component ///////////////////////////
     /// We translate to meters
+	std::cout << "A" << std::endl;
     TGraph* graphToDrawX = new TGraph();
     for (int i = 0; i < fGraphBx->GetN(); ++i) {
         double x, y;
@@ -378,6 +375,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
         graphToDrawX->SetPoint(i, (x - 10000) / 1000.0, y);
     }
 
+	std::cout << "B" << std::endl;
     TGraph* graphResidualsX = new TGraph();
     for (int i = 0; i < fGraphBx->GetN(); ++i) {
         double x, y;
@@ -385,11 +383,13 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
         graphResidualsX->SetPoint(i, (x - 10000) / 1000.0, y - Bx(x));
     }
 
+	std::cout << "C" << std::endl;
     if (fCanvas != nullptr) {
         delete fCanvas;
         fCanvas = nullptr;
     }
 
+	std::cout << "D" << std::endl;
     fCanvas = new TCanvas("FitCanvas", "", 3600, 500, 3600, 400);
     fCanvas->Divide(3, 1);
     fCanvas->cd(1);
@@ -407,6 +407,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
     fPadBxTop->SetBorderMode(0);
     fPadBxTop->Draw();
 
+	std::cout << "E" << std::endl;
     if (fPadBxBottom != nullptr) {
         delete fPadBxBottom;
         fPadBxBottom = nullptr;
@@ -442,6 +443,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
     graphToDrawX->GetYaxis()->SetLabelOffset(0.02);
     graphToDrawX->GetYaxis()->SetRangeUser(-0.95, 0.5);
 
+	std::cout << "F" << std::endl;
     //// Drawing fit function Bx
     std::vector<Double_t> xData, bX;
     for (double x = 0; x < 20000; x = x + 10) {
@@ -475,6 +477,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
 
     fPadBxBottom->cd();
 
+	std::cout << "G" << std::endl;
     /// Drawing residuals
     graphResidualsX->GetXaxis()->SetLabelSize(20);
     graphResidualsX->GetXaxis()->SetLabelFont(43);
@@ -498,6 +501,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
     graphResidualsX->Draw("AP");
     fCanvas->Update();
 
+	std::cout << "H" << std::endl;
     ///////////////////// By component ///////////////////////////
     /// We translate to meters
     TGraph* graphToDrawY = new TGraph();
@@ -513,7 +517,6 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
         fGraphBy->GetPoint(i, x, y);
         graphResidualsY->SetPoint(i, (x - 10000) / 1000.0, y - By(x));
     }
-
     fCanvas->cd(2);
 
     if (fPadByTop != nullptr) {
@@ -522,6 +525,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
     }
     fPadByTop = new TPad("ByTop", "ByTop", 0.0, 0.3, 1.0, 1.0);
 
+	std::cout << "I" << std::endl;
     fPadByTop->SetTopMargin(0.0);
     fPadByTop->SetBottomMargin(0.0);
     fPadByTop->SetLeftMargin(0.15);
@@ -535,6 +539,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
     }
     fPadByBottom = new TPad("ByBottom", "ByBottom", 0.0, 0.0, 1.0, 0.3);
 
+	std::cout << "G" << std::endl;
     fPadByBottom->SetTopMargin(0.0);
     fPadByBottom->SetLeftMargin(0.15);
     fPadByBottom->SetBottomMargin(0.38);
@@ -544,6 +549,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
 
     fPadByTop->cd();
 
+	std::cout << "L" << std::endl;
     /// Drawing data points By
     graphToDrawY->SetTitle("");
     graphToDrawY->GetXaxis()->SetLabelSize(20);
@@ -563,6 +569,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
     graphToDrawY->GetYaxis()->SetLabelSize(20);
     graphToDrawY->GetYaxis()->SetLabelOffset(0.02);
 
+	std::cout << "M" << std::endl;
     //// Drawing fit function By (xData already filled)
     std::vector<Double_t> bY;
     for (double x = 0; x < 20000; x = x + 10) {
@@ -592,6 +599,7 @@ TCanvas* TRestAxionMagneticFit::DrawComponents() {
     byG->Draw("AL");
     graphToDrawY->Draw("Psame");
 
+	std::cout << "N" << std::endl;
     fPadByBottom->cd();
 
     /// Drawing residuals
@@ -812,12 +820,6 @@ void TRestAxionMagneticFit::LoadData(const std::vector<Double_t>& z, const std::
     }
     fGraphBy = new TGraph(z.size(), &z[0], &by[0]);
 
-    /// Inverting because the original fitting was done inverted and initial parameters
-    /// were obtained to match this signature
-    // std::vector<Double_t> bNY;
-    // for( int n = 0; n < by.size(); n++ )
-    //	bNY.push_back(-by[n]);
-
     // Creating a TGraph object that contains the By profile
     if (fGraphBz != nullptr) {
         delete fGraphBz;
@@ -845,9 +847,9 @@ void TRestAxionMagneticFit::FitBy() {
 
     TF1* fn = new TF1("fitBy0", &ByFunction_0, rangeLow_0, rangeHigh_0, 6);
 
-    for (int n = 0; n < fByParameters[0].size(); n++) fn->SetParameter(n, fByParameters[0][n]);
+    for (size_t n = 0; n < fByParameters[0].size(); n++) fn->SetParameter(n, fByParameters[0][n]);
 
-    fGraphBy->Fit("fitBy0", "QR", "", rangeLow_0, rangeHigh_0);
+    fGraphBy->Fit("fitBy0", "R", "", rangeLow_0, rangeHigh_0);
 
     fByParameters[0].clear();
     std::cout << "By-0 N params : " << fn->GetNpar() << std::endl;
@@ -859,7 +861,7 @@ void TRestAxionMagneticFit::FitBy() {
 
     fn = new TF1("fitBy1", &ByFunction_1, rangeLow_1, rangeHigh_1, 6 + nPars_1);
 
-    for (int n = 0; n < fByParameters[1].size(); n++) fn->SetParameter(n, fByParameters[1][n]);
+    for (size_t n = 0; n < fByParameters[1].size(); n++) fn->SetParameter(n, fByParameters[1][n]);
     fn->FixParameter(5, nPars_1);
 
     fGraphBy->Fit("fitBy1", "QR", "", rangeLow_1, rangeHigh_1);
@@ -875,7 +877,7 @@ void TRestAxionMagneticFit::FitBy() {
     ///////
     fn = new TF1("fitBy2", &ByFunction_2, rangeLow_2, rangeHigh_2, 5 + nPars_2);
 
-    for (int n = 0; n < fByParameters[2].size(); n++) fn->SetParameter(n, fByParameters[2][n]);
+    for (size_t n = 0; n < fByParameters[2].size(); n++) fn->SetParameter(n, fByParameters[2][n]);
     fn->FixParameter(4, nPars_2);
 
     fGraphBy->Fit("fitBy2", "QR", "", rangeLow_2, rangeHigh_2);
@@ -908,7 +910,7 @@ void TRestAxionMagneticFit::FitBx() {
 
     TF1* fn = new TF1("fitBx0", &BxFunction_0, rangeLow_0, rangeHigh_0, 3 + nPars_0);
 
-    for (int n = 0; n < fBxParameters[0].size(); n++) fn->SetParameter(n, fBxParameters[0][n]);
+    for (size_t n = 0; n < fBxParameters[0].size(); n++) fn->SetParameter(n, fBxParameters[0][n]);
     fn->FixParameter(2, nPars_0);
 
     fGraphBx->Fit("fitBx0", "QR", "", rangeLow_0, rangeHigh_0);
@@ -923,7 +925,7 @@ void TRestAxionMagneticFit::FitBx() {
 
     fn = new TF1("fitBx1", &BxFunction_1, rangeLow_1, rangeHigh_1, 14 + nPars_1);
 
-    for (int n = 0; n < fBxParameters[1].size(); n++) fn->SetParameter(n, fBxParameters[1][n]);
+    for (size_t n = 0; n < fBxParameters[1].size(); n++) fn->SetParameter(n, fBxParameters[1][n]);
     fn->FixParameter(13, nPars_1);
 
     fGraphBx->Fit("fitBx1", "QR", "", rangeLow_1, rangeHigh_1);
@@ -940,7 +942,7 @@ void TRestAxionMagneticFit::FitBx() {
 
     fn = new TF1("fitBx2", &BxFunction_2, rangeLow_2, rangeHigh_2, 4 + nPars_2);
 
-    for (int n = 0; n < fBxParameters[2].size(); n++) fn->SetParameter(n, fBxParameters[2][n]);
+    for (size_t n = 0; n < fBxParameters[2].size(); n++) fn->SetParameter(n, fBxParameters[2][n]);
     fn->FixParameter(3, nPars_2);
 
     fGraphBx->Fit("fitBx2", "QR", "", rangeLow_2, rangeHigh_2);
@@ -967,7 +969,7 @@ void TRestAxionMagneticFit::FitBxFullRange() {
 
     TF1* fn = new TF1("fitBx", &BxFunction, 0, 20000, 32);
 
-    for (int n = 0; n < parList.size(); n++) fn->SetParameter(n, parList[n]);
+    for (size_t n = 0; n < parList.size(); n++) fn->SetParameter(n, parList[n]);
 
     fn->SetParLimits(0, 9800, 10200);
 
@@ -975,7 +977,7 @@ void TRestAxionMagneticFit::FitBxFullRange() {
     fn->FixParameter(21, 0);
     fn->FixParameter(26, 5);
 
-    fGraphBx->Fit("fitBx", "QR", "", 0, 20000);
+    fGraphBx->Fit("fitBx", "R", "", 0, 20000);
     fChiSquareBx = fGraphBx->Chisquare(fn, "R");
 
     fZx = fn->GetParameter(0);
@@ -1015,7 +1017,7 @@ void TRestAxionMagneticFit::FitByFullRange() {
 
     TF1* fn = new TF1("fitBy", &ByFunction, 0, 20000, 30);
 
-    for (int n = 0; n < parList.size(); n++) {
+    for (size_t n = 0; n < parList.size(); n++) {
         std::cout << "Setting parameter p" << n << ": " << parList[n] << std::endl;
         fn->SetParameter(n, parList[n]);
     }
@@ -1023,9 +1025,10 @@ void TRestAxionMagneticFit::FitByFullRange() {
     fn->SetParLimits(0, 9800, 10200);
 
     fn->FixParameter(12, 8);
-    fn->FixParameter(25, 4);
+    fn->FixParameter(25, 0);
+    fn->SetParLimits(24, 1000, 1600);
 
-    fGraphBy->Fit("fitBy", "QR", "", 0, 20000);
+    fGraphBy->Fit("fitBy", "R", "", 0, 20000);
     fChiSquareBy = fGraphBy->Chisquare(fn, "R");
 
     fZy = fn->GetParameter(0);
@@ -1065,7 +1068,7 @@ void TRestAxionMagneticFit::FitBzFullRange() {
 
     TF1* fn = new TF1("fitBz", &BzFunction, 0, 20000, 33);
 
-    for (int n = 0; n < parList.size(); n++) {
+    for (size_t n = 0; n < parList.size(); n++) {
         std::cout << "Setting parameter p" << n << ": " << parList[n] << std::endl;
         fn->SetParameter(n, parList[n]);
     }
@@ -1076,8 +1079,8 @@ void TRestAxionMagneticFit::FitBzFullRange() {
     fn->FixParameter(15, 5);
     fn->FixParameter(27, 5);
 
-    fGraphBz->Fit("fitBz", "R", "", 0, 20000);
-    fChiSquareBz = fGraphBz->Chisquare(fn, "R");
+	fGraphBz->Fit("fitBz","R", "", 0, 20000);
+	fChiSquareBz = fGraphBz->Chisquare( fn, "R");
 
     fZz = fn->GetParameter(0);
     std::cout << "fZz : " << fZz << std::endl;
@@ -1101,4 +1104,18 @@ void TRestAxionMagneticFit::FitBzFullRange() {
     }
 
     delete fn;
+}
+
+Double_t TRestAxionMagneticFit::GetChi2_X()
+{
+	Double_t x,y;
+	Double_t chi2 = 0;
+	for (int i = 0; i < fGraphBx->GetN(); ++i) {
+		std::cout << x << " " << y << std::endl;
+		fGraphBx->GetPoint(i, x, y);
+		Double_t res = (y - Bx(x));
+		chi2 += res * res;
+	}
+	if( fGraphBx->GetN()<=0 ) return 0;
+	return chi2/fGraphBx->GetN();
 }
