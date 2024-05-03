@@ -1025,7 +1025,7 @@ TVector3 TRestAxionMagneticField::GetMagneticField(TVector3 pos, Bool_t showWarn
         return TVector3(0, 0, 0);
     } else {
         if (IsFieldConstant(id)) return fConstantField[id];
-        TVector3 node = GetMagneticVolumeNode(fMagneticFieldVolumes[id], pos);
+        TVector3 node = GetMagneticVolumeNode((size_t)id, pos);
         Int_t nX = node.X();
         Int_t nY = node.Y();
         Int_t nZ = node.Z();
@@ -1430,10 +1430,10 @@ TVector3 TRestAxionMagneticField::GetFieldAverageTransverseVector(TVector3 from,
 ///
 /// This method will be made private, no reason to use it outside this class.
 ///
-TVector3 TRestAxionMagneticField::GetMagneticVolumeNode(MagneticFieldVolume mVol, TVector3 pos) {
-    Int_t nx = mVol.mesh.GetNodeX(pos.X());
-    Int_t ny = mVol.mesh.GetNodeY(pos.Y());
-    Int_t nz = mVol.mesh.GetNodeZ(pos.Z());
+TVector3 TRestAxionMagneticField::GetMagneticVolumeNode(size_t id, TVector3 pos) {
+    Int_t nx = fMagneticFieldVolumes[id].mesh.GetNodeX(pos.X());
+    Int_t ny = fMagneticFieldVolumes[id].mesh.GetNodeY(pos.Y());
+    Int_t nz = fMagneticFieldVolumes[id].mesh.GetNodeZ(pos.Z());
     return TVector3(nx, ny, nz);
 }
 

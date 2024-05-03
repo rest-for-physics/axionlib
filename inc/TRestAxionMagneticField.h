@@ -95,7 +95,7 @@ class TRestAxionMagneticField : public TRestMetadata {
 
     void LoadMagneticFieldData(MagneticFieldVolume& mVol, std::vector<std::vector<Float_t>> data);
 
-    TVector3 GetMagneticVolumeNode(MagneticFieldVolume mVol, TVector3 pos);
+    TVector3 GetMagneticVolumeNode(size_t id, TVector3 pos);
 
     /// \brief This private method returns true if the magnetic field volumes loaded are the same as
     /// the volumes defined.
