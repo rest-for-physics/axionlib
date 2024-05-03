@@ -210,6 +210,7 @@
 
 #include <TComplex.h>
 #include <TVectorD.h>
+#include <gsl/gsl_errno.h>
 #include <gsl/gsl_integration.h>
 
 #include <numeric>
@@ -482,12 +483,16 @@ std::pair<Double_t, Double_t> TRestAxionField::GammaTransmissionFieldMapProbabil
                                                                                     Double_t accuracy,
                                                                                     Int_t num_intervals,
                                                                                     Int_t qawo_levels) {
+    gsl_set_error_handler_off();
+
     if (!fMagneticField) {
         RESTError << "TRestAxionField::GammaTransmissionFieldMapProbability requires a magnetic field map!"
                   << RESTendl;
         RESTError << "Use TRestAxionField::AssignMagneticField method to assign one" << RESTendl;
         return {0.0, 0.0};
     }
+
+    if (fMagneticField->GetTrackLength() <= 0) return {0.0, 0.0};
 
     double photonMass = 0;  // Vacuum
     if (fBufferGas) photonMass = fBufferGas->GetPhotonMass(Ea);
@@ -555,8 +560,10 @@ std::pair<Double_t, Double_t> TRestAxionField::ComputeResonanceIntegral(Double_t
 
     auto start = std::chrono::system_clock::now();
 
-    gsl_integration_qag(&F, 0, fMagneticField->GetTrackLength(), accuracy, accuracy, num_intervals,
-                        GSL_INTEG_GAUSS61, workspace, &reprob, &rerr);
+    int status = gsl_integration_qag(&F, 0, fMagneticField->GetTrackLength(), accuracy, accuracy,
+                                     num_intervals, GSL_INTEG_GAUSS61, workspace, &reprob, &rerr);
+
+    if (status > 0) return {0, status};
 
     auto end = std::chrono::system_clock::now();
     auto seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -618,12 +625,19 @@ std::pair<Double_t, Double_t> TRestAxionField::ComputeOffResonanceIntegral(Doubl
 
     gsl_integration_qawo_table* wf =
         gsl_integration_qawo_table_alloc(q, fMagneticField->GetTrackLength(), GSL_INTEG_COSINE, qawo_levels);
-    gsl_integration_qawo(&F, 0, accuracy, accuracy, num_intervals, workspace, wf, &reprob, &rerr);
+    int status =
+        gsl_integration_qawo(&F, 0, accuracy, accuracy, num_intervals, workspace, wf, &reprob, &rerr);
+    if (status > 0) {
+        gsl_integration_qawo_table_free(wf);
+        return {0, status};
+    }
 
     gsl_integration_qawo_table_set(wf, q, fMagneticField->GetTrackLength(), GSL_INTEG_SINE);
-    gsl_integration_qawo(&F, 0, accuracy, accuracy, num_intervals, workspace, wf, &improb, &imerr);
-
-    gsl_integration_qawo_table_free(wf);
+    status = gsl_integration_qawo(&F, 0, accuracy, accuracy, num_intervals, workspace, wf, &improb, &imerr);
+    if (status > 0) {
+        gsl_integration_qawo_table_free(wf);
+        return {0, status};
+    }
 
     auto end = std::chrono::system_clock::now();
     auto seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
