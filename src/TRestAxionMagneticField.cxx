@@ -589,7 +589,7 @@ TCanvas* TRestAxionMagneticField::DrawHistogram(TString projection, TString Bcom
 /// are drawm together with their corresponding field intensity profile along the Z-axis.
 ///
 TCanvas* TRestAxionMagneticField::DrawComponents(Int_t volId) {
-	Int_t divisions = 100;
+    Int_t divisions = 100;
     if (fCanvas != NULL) {
         delete fCanvas;
         fCanvas = NULL;
@@ -597,48 +597,48 @@ TCanvas* TRestAxionMagneticField::DrawComponents(Int_t volId) {
     fCanvas = new TCanvas("fCanvas", "", 1600, 600);
 
     TPad* pad1 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
- //   pad1->Divide(2, 1);
+    //   pad1->Divide(2, 1);
     pad1->Draw();
     pad1->cd();
 
-	Int_t n = 0;
+    Int_t n = 0;
     Double_t genPositionZ = fPositions[volId][2] - fBoundMax[volId].Z() - 2000;
     Double_t finalPositionZ = fPositions[volId][2] + fBoundMax[volId].Z() + 2000;
-	TVector3 position(0, 0, genPositionZ);
-	TVector3 direction (0,0,1);
+    TVector3 position(0, 0, genPositionZ);
+    TVector3 direction(0, 0, 1);
 
-	RESTDebug << RESTendl;
-	RESTDebug << "Start moving along" << RESTendl;
-	RESTDebug << "++++++++++++++++++" << RESTendl;
+    RESTDebug << RESTendl;
+    RESTDebug << "Start moving along" << RESTendl;
+    RESTDebug << "++++++++++++++++++" << RESTendl;
 
-	TGraph* fieldGr = new TGraph();
-	Double_t posZ = fPositions[volId][2] - fBoundMax[volId].Z() - 10;
-	Double_t delta = fBoundMax[volId][2] * 2. / divisions;
+    TGraph* fieldGr = new TGraph();
+    Double_t posZ = fPositions[volId][2] - fBoundMax[volId].Z() - 10;
+    Double_t delta = fBoundMax[volId][2] * 2. / divisions;
 
-	while (posZ <= fPositions[volId][2] + fBoundMax[volId].Z()) {
-		TVector3 posAlongAxis = TVector3(fPositions[volId][0], fPositions[volId][1], posZ);
+    while (posZ <= fPositions[volId][2] + fBoundMax[volId].Z()) {
+        TVector3 posAlongAxis = TVector3(fPositions[volId][0], fPositions[volId][1], posZ);
 
-		position = MoveToPlane(position, direction, TVector3(0, 0, 1), posAlongAxis);
-		Double_t fieldY = this->GetMagneticField(position).Y();
+        position = MoveToPlane(position, direction, TVector3(0, 0, 1), posAlongAxis);
+        Double_t fieldY = this->GetMagneticField(position).Y();
 
-		fieldGr->SetPoint(fieldGr->GetN(), posZ, fieldY);
+        fieldGr->SetPoint(fieldGr->GetN(), posZ, fieldY);
 
-		posZ += delta;
-	}
+        posZ += delta;
+    }
 
-	fieldGr->SetLineWidth(3);
-	fieldGr->SetLineColor(38 + n);
-	fieldGr->GetXaxis()->SetLimits(genPositionZ - 500, finalPositionZ + 500);
-	fieldGr->GetHistogram()->SetMaximum(2.5);
-	fieldGr->GetHistogram()->SetMinimum(0);
-	fieldGr->GetXaxis()->SetTitle("Z [mm]");
-	fieldGr->GetXaxis()->SetTitleSize(0.05);
-	fieldGr->GetXaxis()->SetLabelSize(0.05);
-	fieldGr->GetYaxis()->SetTitle("B [T]");
-	fieldGr->GetYaxis()->SetTitleOffset(1.3);
-	fieldGr->GetYaxis()->SetTitleSize(0.05);
-	fieldGr->GetYaxis()->SetLabelSize(0.05);
-	fieldGr->Draw("AL");
+    fieldGr->SetLineWidth(3);
+    fieldGr->SetLineColor(38 + n);
+    fieldGr->GetXaxis()->SetLimits(genPositionZ - 500, finalPositionZ + 500);
+    fieldGr->GetHistogram()->SetMaximum(2.5);
+    fieldGr->GetHistogram()->SetMinimum(0);
+    fieldGr->GetXaxis()->SetTitle("Z [mm]");
+    fieldGr->GetXaxis()->SetTitleSize(0.05);
+    fieldGr->GetXaxis()->SetLabelSize(0.05);
+    fieldGr->GetYaxis()->SetTitle("B [T]");
+    fieldGr->GetYaxis()->SetTitleOffset(1.3);
+    fieldGr->GetYaxis()->SetTitleSize(0.05);
+    fieldGr->GetYaxis()->SetLabelSize(0.05);
+    fieldGr->Draw("AL");
 
     return fCanvas;
 }
@@ -1286,21 +1286,20 @@ std::vector<Double_t> TRestAxionMagneticField::GetTransversalComponentAlongPath(
 /// condition.
 ///
 std::vector<Double_t> TRestAxionMagneticField::GetComponentAlongPath(Int_t axis, TVector3 from, TVector3 to,
-                                                                                Double_t dl, Int_t Nmax) {
+                                                                     Double_t dl, Int_t Nmax) {
     std::vector<Double_t> Bt;
-	if( axis != 0 && axis != 1 && axis != 2 )
-	{
-		RESTError << "TRestAxionMagneticField::GetComponentAlongPath. Axis must take values 0,1 or 2" << RESTendl;
-		return Bt;
-	}
+    if (axis != 0 && axis != 1 && axis != 2) {
+        RESTError << "TRestAxionMagneticField::GetComponentAlongPath. Axis must take values 0,1 or 2"
+                  << RESTendl;
+        return Bt;
+    }
     Double_t length = (to - from).Mag();
 
     Double_t diff = dl;
     if (Nmax > 0) {
         if (length / dl > Nmax) {
             diff = length / Nmax;
-            RESTWarning << "TRestAxionMagneticField::GetComponentAlongPath. Nmax reached!"
-                        << RESTendl;
+            RESTWarning << "TRestAxionMagneticField::GetComponentAlongPath. Nmax reached!" << RESTendl;
             RESTWarning << "Nmax = " << Nmax << RESTendl;
             RESTWarning << "Adjusting differential step to : " << diff << " mm" << RESTendl;
         }
@@ -1309,12 +1308,9 @@ std::vector<Double_t> TRestAxionMagneticField::GetComponentAlongPath(Int_t axis,
     TVector3 direction = (to - from).Unit();
 
     for (Double_t d = 0; d < length; d += diff) {
-		if( axis == 0 )
-			Bt.push_back(GetMagneticField(from + d * direction).X());
-		if( axis == 1 )
-			Bt.push_back(GetMagneticField(from + d * direction).Y());
-		if( axis == 2 )
-			Bt.push_back(GetMagneticField(from + d * direction).Z());
+        if (axis == 0) Bt.push_back(GetMagneticField(from + d * direction).X());
+        if (axis == 1) Bt.push_back(GetMagneticField(from + d * direction).Y());
+        if (axis == 2) Bt.push_back(GetMagneticField(from + d * direction).Z());
     }
 
     return Bt;
@@ -1331,7 +1327,7 @@ void TRestAxionMagneticField::SetTrack(const TVector3& position, const TVector3&
         fTrackStart = TVector3(0, 0, 0);
         fTrackDirection = TVector3(0, 0, 0);
         fTrackLength = 0;
-		return;
+        return;
     }
 
     fTrackStart = trackBounds[0];

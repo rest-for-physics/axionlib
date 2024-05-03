@@ -161,8 +161,8 @@ class TRestAxionMagneticField : public TRestMetadata {
     std::vector<Double_t> GetTransversalComponentAlongPath(TVector3 from, TVector3 to, Double_t dl = 1.,
                                                            Int_t Nmax = 0);
 
-    std::vector<Double_t> GetComponentAlongPath( Int_t axis, TVector3 from, TVector3 to, Double_t dl = 1.,
-                                                           Int_t Nmax = 0);
+    std::vector<Double_t> GetComponentAlongPath(Int_t axis, TVector3 from, TVector3 to, Double_t dl = 1.,
+                                                Int_t Nmax = 0);
 
     Double_t GetTransversalFieldAverage(TVector3 from, TVector3 to, Double_t dl = 1., Int_t Nmax = 0);
 
