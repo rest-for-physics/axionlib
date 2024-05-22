@@ -74,6 +74,8 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// It returns an energy integrated spectrum in cm-2 s-1 keV-1
     virtual TH1F* GetEnergySpectrum(Double_t m = 0) = 0;
 
+	Double_t GetFluxAtEnergy( Double_t energy, Double_t m = 0 );
+
     virtual TCanvas* DrawSolarFlux();
 
     virtual void ExportTables(Bool_t ascii = false) {

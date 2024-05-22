@@ -187,6 +187,15 @@ TCanvas* TRestAxionSolarFlux::DrawFluxFile(string fname, Double_t binSize) {
 }
 
 ///////////////////////////////////////////////
+/// \brief It returns a flux in cm-2 s-1 keV-1 at the energy given by argument
+///
+Double_t TRestAxionSolarFlux::GetFluxAtEnergy( Double_t energy, Double_t m )
+{
+    TH1F* h = GetEnergySpectrum(m);
+	return h->GetBinContent( h->FindBin(energy) );
+}
+
+///////////////////////////////////////////////
 /// \brief It draws the contents of a .flux file. This method just receives the
 ///
 TCanvas* TRestAxionSolarFlux::DrawSolarFlux() {
