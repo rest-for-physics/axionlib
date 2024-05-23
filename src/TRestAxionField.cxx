@@ -291,8 +291,9 @@ double TRestAxionField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-Double_t TRestAxionField::GammaTransmissionProbability(Double_t Ea, Double_t ma, Double_t mg, Double_t absLength) {
-	fEa = Ea;
+Double_t TRestAxionField::GammaTransmissionProbability(Double_t Ea, Double_t ma, Double_t mg,
+                                                       Double_t absLength) {
+    fEa = Ea;
     Double_t cohLength = fLcoh * units("m");  // Default REST units are mm;
 
     Double_t photonMass = mg;
