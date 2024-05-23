@@ -122,9 +122,6 @@ TRestAxionSolarFlux::~TRestAxionSolarFlux() {}
 void TRestAxionSolarFlux::Initialize() {
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fTablesLoaded = false;
-    if (LoadTables()) fTablesLoaded = true;
-
     if (!fRandom) {
         delete fRandom;
         fRandom = nullptr;

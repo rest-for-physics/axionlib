@@ -41,10 +41,10 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// Seed used in random generator
     Int_t fSeed = 0;  //<
 
+   protected:
     /// A metadata member to control if this class has been initialized
     Bool_t fTablesLoaded = false;  //!
 
-   protected:
     /// A canvas pointer for drawing
     TCanvas* fCanvas = nullptr;  //!
 
