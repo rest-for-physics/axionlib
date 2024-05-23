@@ -224,7 +224,7 @@ void TRestAxionHelioscopeSignal::FillHistograms() {
 			for (size_t i = 0; i < fNbins.size(); ++i)
 				binCenter.push_back(xlow[i] + (binIndices[i] + 0.5) * binWidths[i]);
 
-			hNd->Fill(binCenter.data(), GetSignalRate(binCenter));
+			hNd->Fill(binCenter.data(), GetSignalRate(binCenter, node));
 
 			// Update bin indices for the next iteration
 			carry = true;
