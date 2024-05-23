@@ -29,7 +29,8 @@
 ///			<TRestAxionHelioscopeSignal name="BabyIAXO" nature="signal"
 ///							conversionType="IAXO" bores="2"
 ///							magnetRadius="35cm" magnetLength="10m"
-///magnetStrength="2T" 							opticsEfficiency="0.3" windowEfficiency="0.8">
+/// magnetStrength="2T" 							opticsEfficiency="0.3"
+/// windowEfficiency="0.8">
 ///
 ///				<!-- TRestComponent common fields -->
 ///				<parameter name="parameterizationNodes" value="{0.0001,0.001,0.01,0.1,1}" />
@@ -40,7 +41,7 @@
 ///					<parameter name="couplingType" value="g_ag"/>
 ///					<parameter name="couplingStrength" value="1.e-10"/>
 ///					<parameter name="fluxDataFile"
-///value="Primakoff_LennertHoof_202203.dat"/>
+/// value="Primakoff_LennertHoof_202203.dat"/>
 ///
 ///					<parameter name="seed" value="137" />
 ///				</TRestAxionSolarQCDFlux>
@@ -219,7 +220,7 @@ void TRestAxionHelioscopeSignal::FillHistograms() {
             for (size_t i = 0; i < fNbins.size(); ++i)
                 binCenter.push_back(xlow[i] + (binIndices[i] + 0.5) * binWidths[i]);
 
-			hNd->Fill(binCenter.data(), GetSignalRate(binCenter, node));
+            hNd->Fill(binCenter.data(), GetSignalRate(binCenter, node));
 
             // Update bin indices for the next iteration
             carry = true;
