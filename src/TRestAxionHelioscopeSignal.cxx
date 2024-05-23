@@ -21,15 +21,15 @@
  *************************************************************************/
 
 /////////////////////////////////////////////////////////////////////////
-/// This class describes an axion helioscope signal using different 
+/// This class describes an axion helioscope signal using different
 /// aproximations, calculating an expected rate as a function of energy
 /// (independent of position).
 ///
 ///    \code
 ///			<TRestAxionHelioscopeSignal name="BabyIAXO" nature="signal"
-///							conversionType="IAXO" bores="2" 
-///							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
-///							opticsEfficiency="0.3" windowEfficiency="0.8">
+///							conversionType="IAXO" bores="2"
+///							magnetRadius="35cm" magnetLength="10m"
+///magnetStrength="2T" 							opticsEfficiency="0.3" windowEfficiency="0.8">
 ///
 ///				<!-- TRestComponent common fields -->
 ///				<parameter name="parameterizationNodes" value="{0.0001,0.001,0.01,0.1,1}" />
@@ -39,7 +39,8 @@
 ///				<TRestAxionSolarQCDFlux name="LennertHoofPrimakoff" verboseLevel="warning" >
 ///					<parameter name="couplingType" value="g_ag"/>
 ///					<parameter name="couplingStrength" value="1.e-10"/>
-///					<parameter name="fluxDataFile" value="Primakoff_LennertHoof_202203.dat"/>
+///					<parameter name="fluxDataFile"
+///value="Primakoff_LennertHoof_202203.dat"/>
 ///
 ///					<parameter name="seed" value="137" />
 ///				</TRestAxionSolarQCDFlux>
@@ -106,14 +107,13 @@ TRestAxionHelioscopeSignal::TRestAxionHelioscopeSignal(const char* cfgFileName, 
     LoadConfigFromFile(fConfigFileName, name);
 
     if (GetVerboseLevel() >= TRestStringOutput::REST_Verbose_Level::REST_Info) PrintMetadata();
-
 }
 
 ///////////////////////////////////////////////
 /// \brief Default destructor
 ///
 TRestAxionHelioscopeSignal::~TRestAxionHelioscopeSignal() {
-	if( fField ) delete fField;
+    if (fField) delete fField;
 }
 
 ///////////////////////////////////////////////
@@ -125,8 +125,7 @@ void TRestAxionHelioscopeSignal::Initialize() {
 
     SetSectionName(this->ClassName());
 
-	if( fField == nullptr )
-		fField = new TRestAxionField();
+    if (fField == nullptr) fField = new TRestAxionField();
 
     FillHistograms();
 }
@@ -140,40 +139,37 @@ void TRestAxionHelioscopeSignal::Initialize() {
 /// of the variables of the distribution.
 ///
 Double_t TRestAxionHelioscopeSignal::GetSignalRate(std::vector<Double_t> point, Double_t mass) {
-
     if (GetDimensions() != point.size()) {
         RESTError << "Point should have same dimensions as number of variables!" << RESTendl;
         return 0;
     }
 
-	if( GetDimensions() != 1 )
-	{
+    if (GetDimensions() != 1) {
         RESTError << "Point should have only 1-dimension! Energy" << RESTendl;
         return 0;
     }
 
-	Double_t flux = fFlux->GetFluxAtEnergy( point[0], mass ); // cm-2 s-1 keV-1
-																			  
-	Double_t probability = 0;
-	if( fConversionType == "IAXO" )
-	{
-		probability = fOpticsEfficiency * fWindowEfficiency * fField->GammaTransmissionProbability( mass );
-	
-		// We assume all flux ends up inside the spot. No XY dependency of signal.
-		Double_t apertureArea = TMath::Pi() * fMagnetRadius * units("cm") * fMagnetRadius * units("cm");
+    Double_t flux = fFlux->GetFluxAtEnergy(point[0], mass);  // cm-2 s-1 keV-1
 
-		flux *= fBores * apertureArea;
-	}
+    Double_t probability = 0;
+    if (fConversionType == "IAXO") {
+        probability = fOpticsEfficiency * fWindowEfficiency * fField->GammaTransmissionProbability(mass);
 
-	Double_t signal = flux * probability;
+        // We assume all flux ends up inside the spot. No XY dependency of signal.
+        Double_t apertureArea = TMath::Pi() * fMagnetRadius * units("cm") * fMagnetRadius * units("cm");
+
+        flux *= fBores * apertureArea;
+    }
+
+    Double_t signal = flux * probability;
 
     Double_t normFactor = 1;
-	/// There should be only 1-dimension. Rate is integrated to the particular bin size.
+    /// There should be only 1-dimension. Rate is integrated to the particular bin size.
     for (size_t n = 0; n < GetDimensions(); n++) {
         normFactor *= (fRanges[n].Y() - fRanges[n].X()) / fNbins[n];
     }
 
-	return normFactor * signal; // s-1
+    return normFactor * signal;  // s-1
 }
 
 /////////////////////////////////////////////
@@ -185,63 +181,62 @@ Double_t TRestAxionHelioscopeSignal::GetSignalRate(std::vector<Double_t> point, 
 /// that mimic a MC generation scheme similar to TRestComponentDataSet.
 ///
 void TRestAxionHelioscopeSignal::FillHistograms() {
-    if ( !HasNodes() ) return;
+    if (!HasNodes()) return;
     fNodeDensity.clear();
 
     RESTInfo << "Generating N-dim histogram for " << GetName() << RESTendl;
 
-	int nIndex = 0;
-	for( const auto &node : fParameterizationNodes )
-	{
-		TString hName = fParameter + "_" + DoubleToString(node);
+    int nIndex = 0;
+    for (const auto& node : fParameterizationNodes) {
+        TString hName = fParameter + "_" + DoubleToString(node);
 
-		Int_t* bins = new Int_t[fNbins.size()];
-		Double_t* xlow = new Double_t[fNbins.size()];
-		Double_t* xhigh = new Double_t[fNbins.size()];
+        Int_t* bins = new Int_t[fNbins.size()];
+        Double_t* xlow = new Double_t[fNbins.size()];
+        Double_t* xhigh = new Double_t[fNbins.size()];
 
-		for (size_t n = 0; n < fNbins.size(); n++) {
-			bins[n] = fNbins[n];
-			xlow[n] = fRanges[n].X();
-			xhigh[n] = fRanges[n].Y();
-		}
+        for (size_t n = 0; n < fNbins.size(); n++) {
+            bins[n] = fNbins[n];
+            xlow[n] = fRanges[n].X();
+            xhigh[n] = fRanges[n].Y();
+        }
 
-		THnD* hNd = new THnD(hName, hName, fNbins.size(), bins, xlow, xhigh);
+        THnD* hNd = new THnD(hName, hName, fNbins.size(), bins, xlow, xhigh);
 
-		// Calculate the bin width in each dimension
-		std::vector<double> binWidths;
-		for (size_t i = 0; i < fNbins.size(); ++i) {
-			double width = static_cast<double>(xhigh[i] - xlow[i]) / bins[i];
-			binWidths.push_back(width);
-		}
+        // Calculate the bin width in each dimension
+        std::vector<double> binWidths;
+        for (size_t i = 0; i < fNbins.size(); ++i) {
+            double width = static_cast<double>(xhigh[i] - xlow[i]) / bins[i];
+            binWidths.push_back(width);
+        }
 
-		// Nested loop to iterate over each bin and print its center
-		std::vector<int> binIndices(fNbins.size(), 0);  // Initialize bin indices to 0 in each dimension
+        // Nested loop to iterate over each bin and print its center
+        std::vector<int> binIndices(fNbins.size(), 0);  // Initialize bin indices to 0 in each dimension
 
-		bool carry = false;
-		while (!carry) {
-			// Calculate the center of the current bin in each dimension
-			std::vector<double> binCenter;
-			for (size_t i = 0; i < fNbins.size(); ++i)
-				binCenter.push_back(xlow[i] + (binIndices[i] + 0.5) * binWidths[i]);
+        bool carry = false;
+        while (!carry) {
+            // Calculate the center of the current bin in each dimension
+            std::vector<double> binCenter;
+            for (size_t i = 0; i < fNbins.size(); ++i)
+                binCenter.push_back(xlow[i] + (binIndices[i] + 0.5) * binWidths[i]);
 
 			hNd->Fill(binCenter.data(), GetSignalRate(binCenter, node));
 
-			// Update bin indices for the next iteration
-			carry = true;
-			for (size_t i = 0; i < fNbins.size(); ++i) {
-				binIndices[i]++;
-				if (binIndices[i] < bins[i]) {
-					carry = false;
-					break;
-				}
-				binIndices[i] = 0;
-			}
-		}
+            // Update bin indices for the next iteration
+            carry = true;
+            for (size_t i = 0; i < fNbins.size(); ++i) {
+                binIndices[i]++;
+                if (binIndices[i] < bins[i]) {
+                    carry = false;
+                    break;
+                }
+                binIndices[i] = 0;
+            }
+        }
 
-		fNodeDensity.push_back(hNd);
-		fActiveNode = nIndex;
-		nIndex++;
-	}
+        fNodeDensity.push_back(hNd);
+        fActiveNode = nIndex;
+        nIndex++;
+    }
 }
 
 /////////////////////////////////////////////
@@ -250,15 +245,15 @@ void TRestAxionHelioscopeSignal::FillHistograms() {
 void TRestAxionHelioscopeSignal::PrintMetadata() {
     TRestComponent::PrintMetadata();
 
-	RESTMetadata << "Magnet bores : " << fBores << RESTendl;
-	RESTMetadata << "Magnet radius : " << fMagnetRadius * units("cm") << " cm" <<  RESTendl;
-	RESTMetadata << "Magnet length : " << fMagnetLength * units("m") << " m" << RESTendl;
-	RESTMetadata << "Magnet field : " << fMagnetStrength * units("T") << " T" << RESTendl;
-	RESTMetadata << " " << RESTendl;
+    RESTMetadata << "Magnet bores : " << fBores << RESTendl;
+    RESTMetadata << "Magnet radius : " << fMagnetRadius * units("cm") << " cm" << RESTendl;
+    RESTMetadata << "Magnet length : " << fMagnetLength * units("m") << " m" << RESTendl;
+    RESTMetadata << "Magnet field : " << fMagnetStrength * units("T") << " T" << RESTendl;
+    RESTMetadata << " " << RESTendl;
 
-	RESTMetadata << "Optics efficiency : " << fOpticsEfficiency << RESTendl;
-	RESTMetadata << "Window efficiency : " << fWindowEfficiency << RESTendl;
-	   
+    RESTMetadata << "Optics efficiency : " << fOpticsEfficiency << RESTendl;
+    RESTMetadata << "Window efficiency : " << fWindowEfficiency << RESTendl;
+
     RESTMetadata << "----" << RESTendl;
 }
 
@@ -268,34 +263,33 @@ void TRestAxionHelioscopeSignal::PrintMetadata() {
 void TRestAxionHelioscopeSignal::InitFromConfigFile() {
     TRestComponent::InitFromConfigFile();
 
-	if( fVariables.size() != 1 )
-	{
-		RESTError << "TRestAxionHelioscopeSignal::InitFromConfigFile."
-	    		    << " Signal should be build with just 1-variable. Energy." << RESTendl;
-	}
-	else if( fVariables[0] != "energy" )
-	{
-		RESTError << "The first variable should be energy. We recommend to name that variable as \"energy\"." << RESTendl;
-		RESTError << "Please, double-check the variables definition inside TRestAxionHelioscopeSignal::TRestComponent." << RESTendl;
-	}
+    if (fVariables.size() != 1) {
+        RESTError << "TRestAxionHelioscopeSignal::InitFromConfigFile."
+                  << " Signal should be build with just 1-variable. Energy." << RESTendl;
+    } else if (fVariables[0] != "energy") {
+        RESTError << "The first variable should be energy. We recommend to name that variable as \"energy\"."
+                  << RESTendl;
+        RESTError << "Please, double-check the variables definition inside "
+                     "TRestAxionHelioscopeSignal::TRestComponent."
+                  << RESTendl;
+    }
 
     if (fFlux) {
         delete fFlux;
         fFlux = nullptr;
     }
-    fFlux = (TRestAxionSolarFlux*) this->InstantiateChildMetadata("TRestAxionSolarQCDFlux");
-	fFlux->Initialize();
+    fFlux = (TRestAxionSolarFlux*)this->InstantiateChildMetadata("TRestAxionSolarQCDFlux");
+    fFlux->Initialize();
 
     if (fGas) {
         delete fGas;
         fGas = nullptr;
     }
-    fGas = (TRestAxionBufferGas*) this->InstantiateChildMetadata("TRestAxionBufferGas");
+    fGas = (TRestAxionBufferGas*)this->InstantiateChildMetadata("TRestAxionBufferGas");
 
-	if( fField == nullptr )
-		fField = new TRestAxionField();
+    if (fField == nullptr) fField = new TRestAxionField();
 
     fField->SetMagneticField(GetMagnetStrength());
     fField->SetCoherenceLength(GetMagnetLength());
-	fField->AssignBufferGas( fGas );
+    fField->AssignBufferGas(fGas);
 }

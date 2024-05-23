@@ -29,7 +29,7 @@
 class TRestAxionBufferGas : public TRestMetadata {
    private:
     void Initialize();
-	void Clear();
+    void Clear();
 
     void InitFromConfigFile();
 
