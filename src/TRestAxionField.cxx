@@ -291,7 +291,8 @@ double TRestAxionField::BLHalfSquared(Double_t Bmag, Double_t Lcoh)  // (BL/2)**
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-Double_t TRestAxionField::GammaTransmissionProbability(Double_t ma, Double_t mg, Double_t absLength) {
+Double_t TRestAxionField::GammaTransmissionProbability(Double_t Ea, Double_t ma, Double_t mg, Double_t absLength) {
+	fEa = Ea;
     Double_t cohLength = fLcoh * units("m");  // Default REST units are mm;
 
     Double_t photonMass = mg;
@@ -769,8 +770,8 @@ Double_t TRestAxionField::GammaTransmissionFWHM(Double_t step) {
 
     /// Scanning towards the right (valid also for vacuum)
     Double_t scanMass = resonanceMass;
-    Double_t Pmax = GammaTransmissionProbability(resonanceMass);
-    while (Pmax / 2 < GammaTransmissionProbability(scanMass)) {
+    Double_t Pmax = GammaTransmissionProbability(fEa, resonanceMass);
+    while (Pmax / 2 < GammaTransmissionProbability(fEa, scanMass)) {
         scanMass += step;
         if (scanMass > maxMass) {
             RESTError << "TRestAxionField::GammaTransmissionProbability. Something went wrong when "

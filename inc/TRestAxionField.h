@@ -78,7 +78,7 @@ class TRestAxionField : public TObject {
     /// It assigns a gas buffer medium to the calculation
     void SetBufferGas(TRestAxionBufferGas* buffGas) { fBufferGas = buffGas; }
 
-    Double_t GammaTransmissionProbability(Double_t ma, Double_t mg = 0, Double_t absLength = 0);
+    Double_t GammaTransmissionProbability(Double_t Ea, Double_t ma, Double_t mg = 0, Double_t absLength = 0);
 
     Double_t GammaTransmissionProbability(Double_t Bmag, Double_t Lcoh, Double_t Ea, Double_t ma,
                                           Double_t mg = 0, Double_t absLength = 0);
