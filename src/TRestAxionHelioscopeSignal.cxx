@@ -125,6 +125,7 @@ void TRestAxionHelioscopeSignal::Initialize() {
     TRestComponent::Initialize();
 
     SetSectionName(this->ClassName());
+    SetLibraryVersion(LIBRARY_VERSION);
 
     if (fField == nullptr) fField = new TRestAxionField();
 
