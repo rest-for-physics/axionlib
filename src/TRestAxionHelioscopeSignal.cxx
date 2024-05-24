@@ -128,8 +128,6 @@ void TRestAxionHelioscopeSignal::Initialize() {
     SetLibraryVersion(LIBRARY_VERSION);
 
     if (fField == nullptr) fField = new TRestAxionField();
-
-    FillHistograms();
 }
 
 ///////////////////////////////////////////////
