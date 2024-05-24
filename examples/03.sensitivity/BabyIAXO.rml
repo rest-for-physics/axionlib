@@ -3,19 +3,20 @@
 
 	<TRestSensitivity name="VacuumPhase" strategy="nodes" >
 	
-		<TRestExperiment name="Vacuum" exposureTime="300days">
+		<TRestExperiment name="Vacuum" exposureTime="3*300*12hr">
 			<!-- Background -->
 			<TRestComponentFormula name="Flat7" nature="background" >
 				<parameter name="formulaUnits" value="keV^-1" />
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
-				<formula name="bck" expression="0.8*0.8*TMath::Pi()*1e-07" /> 	// A flat component in keV-1 s-1
+				<!-- A flat component in keV-1 s-1. Spot radius 8mm radius and 2 bores -->
+				<formula name="bck" expression="2*0.8*0.8*TMath::Pi()*1e-07" />
 			</TRestComponentFormula>
 
 			<!-- Signal -->
 			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal"
 							conversionType="IAXO" bores="2" 
 							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
-							opticsEfficiency="0.3" windowEfficiency="0.8">
+							opticsEfficiency="0.35" windowEfficiency="0.8">
 
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
 
@@ -30,19 +31,20 @@
 
 	<TRestSensitivity name="CombinedPhase" strategy="nodes" >
 	
-		<TRestExperiment name="Vacuum" exposureTime="300days">
+		<TRestExperiment name="Vacuum" exposureTime="3*300*12hr">
 			<!-- Background -->
 			<TRestComponentFormula name="Flat7" nature="background" >
 				<parameter name="formulaUnits" value="keV^-1" />
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
-				<formula name="bck" expression="0.8*0.8*TMath::Pi()*1e-07" /> 	// A flat component in keV-1 s-1
+				<!-- A flat component in keV-1 s-1. Spot radius 8mm radius and 2 bores -->
+				<formula name="bck" expression="2*0.8*0.8*TMath::Pi()*1e-07" />
 			</TRestComponentFormula>
 
 			<!-- Signal -->
 			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal"
 							conversionType="IAXO" bores="2" 
 							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
-							opticsEfficiency="0.3" windowEfficiency="0.8">
+							opticsEfficiency="0.35" windowEfficiency="0.8">
 
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
 
@@ -53,27 +55,23 @@
 			</TRestAxionHelioscopeSignal>
 		</TRestExperiment>
 
-		<TRestExperimentList name="GasPhase" >
-			<parameter name="componentPattern" value="SignalComponents.root" />
-			<parameter name="experimentsFile" value="GasPhase.settings" />
-			<parameter name="exposureTime" value="360*12hr"/>
+		<TRestExperimentList name="GasPhase" exposureTime="12*12hr" 
+			componentPattern="SignalComponents.root" experimentsFile="GasPhase.settings" >
 
 			<TRestComponentFormula name="Flat7" nature="background" >
-				<cVariable name="final_posX" range="(-10,10)mm" bins="100" />
-				<cVariable name="final_posY" range="(-1,1)cm" bins="100" />
-				<cVariable name="final_energy" range="(0,10)keV" bins="20" />
-
-				<parameter name="units" value="cm^-2*keV^-1" />
-				<formula name="bck" expression="1E-7" /> 	// A flat component
+				<parameter name="formulaUnits" value="keV^-1" />
+				<cVariable name="energy" range="(0,10)keV" bins="20" />
+				<!-- A flat component in keV-1 s-1. Spot radius 8mm radius and 2 bores -->
+				<formula name="bck" expression="2*0.8*0.8*TMath::Pi()*1e-07" />
 			</TRestComponentFormula>
 		</TRestExperimentList>
 
 	</TRestSensitivity>
 
 	<TRestAxionHelioscopeSignal name="GasSignal" nature="signal"
-					conversionType="IAXO" bores="2" 
-					magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
-					opticsEfficiency="0.3" windowEfficiency="0.8">
+							conversionType="IAXO" bores="2" 
+							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
+							opticsEfficiency="0.35" windowEfficiency="0.8">
 
 		<cVariable name="energy" range="(0,10)keV" bins="20" />
 
@@ -83,8 +81,8 @@
 		<TRestAxionBufferGas name="helium" >
 			<gas name="He" density="0.0025e-6g/cm^3"/>
 		</TRestAxionBufferGas>
-	</TRestAxionHelioscopeSignal>
 
-	<TRestResponse name="XenonNeon" variable="energy" filename="XenonNeon_50Pct_1.4bar.N150f"/>
+		<TRestResponse name="XenonNeon" variable="energy" filename="XenonNeon_50Pct_1.4bar.N150f"/>
+	</TRestAxionHelioscopeSignal>
 
 </BabyIAXO>
