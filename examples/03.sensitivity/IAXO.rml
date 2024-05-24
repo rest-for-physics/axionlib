@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<BabyIAXO>
+
+	<TRestSensitivity name="VacuumPhase" strategy="nodes" >
+	
+		<TRestExperiment name="Vacuum" exposureTime="6*300*12hr">
+			<!-- Background -->
+			<TRestComponentFormula name="Flat7" nature="background" >
+				<parameter name="formulaUnits" value="keV^-1" />
+				<cVariable name="energy" range="(0,10)keV" bins="20" />
+				<!-- A flat component in keV-1 s-1. Spot radius 5.5mm radius and 8 bores -->
+				<formula name="bck" expression="8*0.55*0.55*TMath::Pi()*1e-08" />
+			</TRestComponentFormula>
+
+			<!-- Signal -->
+			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal"
+							conversionType="IAXO" bores="8" 
+							magnetRadius="30cm" magnetLength="20m" magnetStrength="2.5T"
+							opticsEfficiency="0.7" windowEfficiency="0.8">
+
+				<cVariable name="energy" range="(0,10)keV" bins="20" />
+
+				<TRestAxionSolarQCDFlux name="LennertHoofPrimakoff" couplingType="g_ag" couplingStrength="1.e-10"
+										fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
+
+				<TRestResponse name="XenonNeon" variable="energy" filename="XenonNeon_50Pct_1.4bar.N150f"/>
+			</TRestAxionHelioscopeSignal>
+		</TRestExperiment>
+
+	</TRestSensitivity>
+
+	<TRestSensitivity name="CombinedPhase" strategy="nodes" >
+	
+		<TRestExperiment name="Vacuum" exposureTime="6*300*12hr">
+			<!-- Background -->
+			<TRestComponentFormula name="Flat7" nature="background" >
+				<parameter name="formulaUnits" value="keV^-1" />
+				<cVariable name="energy" range="(0,10)keV" bins="20" />
+				<!-- A flat component in keV-1 s-1. Spot radius 5.5mm radius and 8 bores -->
+				<formula name="bck" expression="8*0.55*0.55*TMath::Pi()*1e-08" />
+			</TRestComponentFormula>
+
+			<!-- Signal -->
+			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal"
+							conversionType="IAXO" bores="8" 
+							magnetRadius="30cm" magnetLength="20m" magnetStrength="2.5T"
+							opticsEfficiency="0.7" windowEfficiency="0.8">
+
+				<cVariable name="energy" range="(0,10)keV" bins="20" />
+
+				<TRestAxionSolarQCDFlux name="LennertHoofPrimakoff" couplingType="g_ag" couplingStrength="1.e-10"
+										fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
+
+				<TRestResponse name="XenonNeon" variable="energy" filename="XenonNeon_50Pct_1.4bar.N150f"/>
+			</TRestAxionHelioscopeSignal>
+		</TRestExperiment>
+
+		<TRestExperimentList name="GasPhase" exposureTime="24*12hr" 
+			componentPattern="SignalComponents.root" experimentsFile="GasPhase.settings" >
+
+			<TRestComponentFormula name="Flat7" nature="background" >
+				<parameter name="formulaUnits" value="keV^-1" />
+				<cVariable name="energy" range="(0,10)keV" bins="20" />
+				<!-- A flat component in keV-1 s-1. Spot radius 5.5mm radius and 8 bores -->
+				<formula name="bck" expression="8*0.55*0.55*TMath::Pi()*1e-08" />
+			</TRestComponentFormula>
+		</TRestExperimentList>
+
+	</TRestSensitivity>
+
+	<TRestAxionHelioscopeSignal name="GasSignal" nature="signal"
+							conversionType="IAXO" bores="8" 
+							magnetRadius="30cm" magnetLength="20m" magnetStrength="2.5T"
+							opticsEfficiency="0.7" windowEfficiency="0.8">
+
+		<cVariable name="energy" range="(0,10)keV" bins="20" />
+
+		<TRestAxionSolarQCDFlux name="LennertHoofPrimakoff" couplingType="g_ag" couplingStrength="1.e-10"
+								fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
+
+		<TRestAxionBufferGas name="helium" >
+			<gas name="He" density="0.0025e-6g/cm^3"/>
+		</TRestAxionBufferGas>
+
+		<TRestResponse name="XenonNeon" variable="energy" filename="XenonNeon_50Pct_1.4bar.N150f"/>
+	</TRestAxionHelioscopeSignal>
+
+</BabyIAXO>
