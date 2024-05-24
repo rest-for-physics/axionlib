@@ -1,22 +1,26 @@
-Int_t GenerateSignalComponents()
+Int_t GenerateSignalComponents(std::string rmlFile, std::string name)
 {
 
 	TRestAxionField field;
 	std::vector<std::pair<Double_t, Double_t>> scanSteps = field.GetMassDensityScanning( "He", 0.25, 20 ); // Up to 0.25 eV
 
-	TRestAxionHelioscopeSignal gasPhase( "BabyIAXO.rml", "GasSignal");
+	TRestAxionHelioscopeSignal gasPhase( rmlFile.c_str(), name.c_str());
 	gasPhase.RegenerateParametricNodes( 0.001, 10, 1.02, true );
 
-	TFile *f = TFile::Open("SignalComponents.root", "RECREATE" );
+	std::filesystem::path filePath = rmlFile;
+	std::filesystem::path newExtension = ".settings";
+	std::string settingsFile = filePath.replace_extension(newExtension);
+	std::filesystem::path rootExtension = ".root";
+	std::string componentsFile = "Signals" + (std::string) filePath.replace_extension(rootExtension);
 
-	vacuumPhase.Write( "Vacuum" );
+	std::filesystem::create_directories("output");
+	settingsFile = "output/" + settingsFile;
+	componentsFile = "output/" + componentsFile;
 
-	FILE *g = fopen("GasPhase.settings", "wt");
+	FILE *g = fopen(settingsFile.c_str(), "wt");
+	TFile *f = TFile::Open( (TString) componentsFile, "RECREATE" );
 	for( size_t n = 0; n < scanSteps.size(); n++ )
 	{
-		//std::cout << "Resonant mass : " << scanSteps[n].first << std::endl;
-		//std::cout << "Density : " << scanSteps[n].second << std::endl;
-
 		gasPhase.SetName( "P" + (TString) IntegerToString(n+1) );
 		gasPhase.GetGas()->SetGasDensity("He", scanSteps[n].second );
 		gasPhase.RegenerateHistograms();
@@ -26,6 +30,8 @@ Int_t GenerateSignalComponents()
 	fclose(g);
 
 	f->Close();
+
+	std::cout << "Generated signals file: " << componentsFile << std::endl;
 
 	return 0;
 }
