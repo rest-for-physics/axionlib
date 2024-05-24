@@ -2,7 +2,7 @@
 <BabyIAXO>
 
 	<TRestSensitivity name="VacuumPhase" strategy="nodes" >
-	
+
 		<TRestExperiment name="Vacuum" exposureTime="300days">
 			<!-- Background -->
 			<TRestComponentFormula name="Flat7" nature="background" >
@@ -13,7 +13,7 @@
 
 			<!-- Signal -->
 			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal"
-							conversionType="IAXO" bores="2" 
+							conversionType="IAXO" bores="2"
 							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
 							opticsEfficiency="0.3" windowEfficiency="0.8">
 
@@ -29,7 +29,7 @@
 	</TRestSensitivity>
 
 	<TRestSensitivity name="CombinedPhase" strategy="nodes" >
-	
+
 		<TRestExperiment name="Vacuum" exposureTime="300days">
 			<!-- Background -->
 			<TRestComponentFormula name="Flat7" nature="background" >
@@ -40,7 +40,7 @@
 
 			<!-- Signal -->
 			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal"
-							conversionType="IAXO" bores="2" 
+							conversionType="IAXO" bores="2"
 							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
 							opticsEfficiency="0.3" windowEfficiency="0.8">
 
@@ -71,7 +71,7 @@
 	</TRestSensitivity>
 
 	<TRestAxionHelioscopeSignal name="GasSignal" nature="signal"
-					conversionType="IAXO" bores="2" 
+					conversionType="IAXO" bores="2"
 					magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
 					opticsEfficiency="0.3" windowEfficiency="0.8">
 
