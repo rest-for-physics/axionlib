@@ -13,12 +13,17 @@
 			</TRestComponentFormula>
 
 			<!-- Signal -->
-			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal"
+			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal" parameter="ma"
 							conversionType="IAXO" bores="2" 
 							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
 							opticsEfficiency="0.35" windowEfficiency="0.8">
 
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
+
+				<parameter name="firstParameterValue" value="0.001" />
+				<parameter name="lastParameterValue" value="10" />
+				<parameter name="stepParameterValue" value="1.02" />
+				<parameter name="exponential" value="true" />
 
 				<TRestAxionSolarQCDFlux name="LennertHoofPrimakoff" couplingType="g_ag" couplingStrength="1.e-10"
 										fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
@@ -41,7 +46,7 @@
 			</TRestComponentFormula>
 
 			<!-- Signal -->
-			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal"
+			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal" parameter="ma"
 							conversionType="IAXO" bores="2" 
 							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
 							opticsEfficiency="0.35" windowEfficiency="0.8">
@@ -51,12 +56,11 @@
 				<TRestAxionSolarQCDFlux name="LennertHoofPrimakoff" couplingType="g_ag" couplingStrength="1.e-10"
 										fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
 
-				<TRestResponse name="XenonNeon" variable="energy" filename="XenonNeon_50Pct_1.4bar.N150f"/>
 			</TRestAxionHelioscopeSignal>
 		</TRestExperiment>
 
 		<TRestExperimentList name="GasPhase" exposureTime="12*12hr" 
-			componentPattern="SignalComponents.root" experimentsFile="GasPhase.settings" >
+			componentPattern="output/SignalsBabyIAXO.root" experimentsFile="output/BabyIAXO.settings" >
 
 			<TRestComponentFormula name="Flat7" nature="background" >
 				<parameter name="formulaUnits" value="keV^-1" />
@@ -68,7 +72,7 @@
 
 	</TRestSensitivity>
 
-	<TRestAxionHelioscopeSignal name="GasSignal" nature="signal"
+	<TRestAxionHelioscopeSignal name="GasSignal" nature="signal" parameter="ma"
 							conversionType="IAXO" bores="2" 
 							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
 							opticsEfficiency="0.35" windowEfficiency="0.8">
