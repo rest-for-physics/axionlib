@@ -1,7 +1,7 @@
 Double_t Eo = 0.5; //keV
 Double_t Ef = 10; //keV
 
-Int_t GenerateSignalComponents(std::string rmlFile, std::string name, Double_t totalExposureTime=3*300*12*3600, size_t skipSteps = 1)
+Int_t GenerateSignalComponents(std::string rmlFile, std::string name, Double_t totalExposureTime=1.5*300*12*3600, size_t skipSteps = 1)
 {
 	TRestAxionField field;
 	std::vector<std::pair<Double_t, Double_t>> scanSteps = field.GetMassDensityScanning( "He", 0.25, 20 ); // Up to 0.25 eV

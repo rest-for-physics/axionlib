@@ -3,7 +3,7 @@
 
 	<TRestSensitivity name="VacuumPhase" strategy="nodes" >
 
-		<TRestExperiment name="Vacuum" exposureTime="3*300*12hr" useAverage="true">
+		<TRestExperiment name="Vacuum" exposureTime="4*300*12hr" useAverage="true">
 			<!-- Background -->
 			<TRestComponentFormula name="Flat7" nature="background" >
 				<parameter name="formulaUnits" value="keV^-1" />
@@ -16,7 +16,7 @@
 			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal" parameter="ma"
 							conversionType="IAXO" bores="2"
 							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
-				opticsEfficiency="0.35" windowEfficiency="0.85" >
+				opticsEfficiency="0.35" windowEfficiency="0.7" >
 
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
 
@@ -27,16 +27,13 @@
 
 				<TRestAxionSolarQCDFlux name="LennertHoofPrimakoff" couplingType="g_ag" couplingStrength="1.e-10"
 										fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
-
-				<TRestResponse name="XenonNeon" variable="energy" filename="XenonNeon_50Pct_1.4bar.N150f" />
-
 			</TRestAxionHelioscopeSignal>
 		</TRestExperiment>
 
 	</TRestSensitivity>
 
 	<TRestSensitivity name="CombinedPhase" strategy="nodes" >
-		<TRestExperiment name="Vacuum" exposureTime="3*300*12hr" useAverage="true">
+		<TRestExperiment name="Vacuum" exposureTime="1.5*300*12hr" useAverage="true">
 			<!-- Background -->
 			<TRestComponentFormula name="Flat7" nature="background" >
 				<parameter name="formulaUnits" value="keV^-1" />
@@ -49,7 +46,7 @@
 			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal" parameter="ma"
 							conversionType="IAXO" bores="2"
 							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
-							opticsEfficiency="0.35" windowEfficiency="0.8">
+							opticsEfficiency="0.35" windowEfficiency="0.7">
 
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
 
@@ -61,9 +58,6 @@
 				<parameter name="lastParameterValue" value="10" />
 				<parameter name="stepParameterValue" value="1.02" />
 				<parameter name="exponential" value="true" />
-
-				<TRestResponse name="XenonNeon" variable="energy" filename="XenonNeon_50Pct_1.4bar.N150f" />
-
 			</TRestAxionHelioscopeSignal>
 		</TRestExperiment>
 
@@ -82,7 +76,7 @@
 	<TRestAxionHelioscopeSignal name="GasSignal" nature="signal" parameter="ma"
 							conversionType="IAXO" bores="2"
 							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
-							opticsEfficiency="0.35" windowEfficiency="0.9">
+							opticsEfficiency="0.35" windowEfficiency="0.7">
 
 		<cVariable name="energy" range="(0,10)keV" bins="20" />
 
@@ -98,7 +92,6 @@
 			<gas name="He" density="0.0025e-6g/cm^3"/>
 		</TRestAxionBufferGas>
 
-		<TRestResponse name="XenonNeon" variable="energy" filename="XenonNeon_50Pct_1.4bar.N150f"/>
 	</TRestAxionHelioscopeSignal>
 
 </BabyIAXO>

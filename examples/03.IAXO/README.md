@@ -1,4 +1,4 @@
-This example is used to reproduce the different scenarios considered inside the "E. Armengaud et al JCAP06(2019)047, Physics Potential of the International Axion Observatory". Those scenarios are summarized in the following table, where some values, concerning detector efficiency, $\epsilon_d$, have been replaced by just window detector efficiency, $\epsilon_w$, since the detailed detector response is considered and constructed using [restG4](https://github.com/rest-for-physics/restG4/tree/master), see example [14.DetectorResponse](https://github.com/rest-for-physics/restG4/tree/master/examples/14.DetectorResponse).
+This example is used to reproduce the different scenarios considered inside the "E. Armengaud et al JCAP06(2019)047, Physics Potential of the International Axion Observatory". Those scenarios are summarized in the following table.
 
 Parameter | Units   | BabyIAXO | IAXO baseline | IAXO upgraded |
   :---:   |  :---:  |  :---:   |     :---:     |      :---:    |
@@ -7,14 +7,18 @@ L         |   $m$     |   10     |      20       |       22      |
 A         |  $m^2$     |  0.77    |      2.3      |       3.9     |
  --       |        --  |      --  |            --  |           --  |
 b            | $keV^{-1}cm^{-2}s^{-1}$ | $1\times10^{-7}$ | $1\times 10^{-8}$ | $1\times10^{-9}$ |
-$\epsilon_w$ |         |   0.85      |      0.95     |     0.95      |
+$\epsilon_d$ |         |   0.7      |      0.8     |     0.8      |
 $\epsilon_o$ |         |   0.35      |      0.7      |     0.7       |
 a            | $cm^2$  |  2 x 0.3    |    8 x 0.15   |   8 x 0.15    |
 $\epsilon_t$ |         |   0.5       |      0.5      |     0.5       |
-t            | $year$    |   3+3       |      5+5      |    10+10      |
+t            | $year$    |   1.5+1.5       |      3+3      |    5+5      |
  File       |     |     BabyIAXO.rml  |  IAXO.rml  |  IAXOPlus.rml  |
 
 We consider a tracking of 12 hours which is why we define $\epsilon_t$ efficiency, and we consider a data taking efficiency of 300days out of 365 natural days available.
+
+Each of the RML files contains a description of the data taking program for 2 scenarios.
+- Vacuum phase: Where we consider the total exposure time if we would only take datra in vacuum, and add one extra year that would be required for the commissioning of a gas phase.
+- Combined phase: Where we use the strict scenario proposed in the CDR with half the time in vacuum phase, and half the time distributed in 72 density settings required to reach ~0.25eV coherent mass.
 
 ## Vacuum sensitivity curve generation
 
@@ -50,9 +54,16 @@ The first density setting will be skipped since it exceeds the total time requir
 [0] TRestSensitivity sens("BabyIAXO.rml", "CombinedPhase");
 [1] sens.GenerateCurve()
 [2] sens.ExportCurve("output/BabyIAXO_vacuum.txt", 0 )
+
+### Detector response
+
+A detailed detector x-ray response could be considered by adding the pre-calculated response constructed using [restG4](https://github.com/rest-for-physics/restG4/tree/master), see example [14.DetectorResponse](https://github.com/rest-for-physics/restG4/tree/master/examples/14.DetectorResponse).The pre-calculated response matrix will be convoluted with the axion energy spectrum resulting in a calculation that is 150 times (number of reponse matrix bins) more expensive. The detector response will be considered in the sensitivity calculation if we include a `<TRestResponse>` section inside `<TRestAxionHelioscopeSignal>`, for example for a Xenon-Neon based mixture at 1.4 bar we would add:
+
+```
+<TRestResponse name="XenonNeon" variable="energy" filename="XenonNeon_50Pct_1.4bar.N150f" />
 ```
 
 **Hints**
-- A detailed x-ray detector response is included in the signal calculation. The pre-calculated response matrix will be convoluted with the axion energy spectrum resulting in a calculation that is 150 times (number of reponse matrix bins) more expensive. If removed, calculation should achieve better computational timing.
 - The number of parameter nodes, mass values at which the signal is calculated is of the order of 500 points, which will lead to a HD curve. Reducing the number of points by increasing the parameter `stepParameterValue` will also reduce the computational cost.
 - The parameter `useAverage` has been enabled for all examples, meaning that the tracking mock MonteCarlo data will be generated using exactly the average number of background counts, thus representing an average experiment but not a realistic data taking program. Still good enough to present prospects. A more complete exclusion could be achieved by disabling the `useAverage` parameter and generating several sensitivity curves, using `TRestSensitivity::GenerateCurves(N)` and then drawing them using `TRestSensitivity::DrawLevelCurves`.
+- We are using here the Primakoff flux for the calculation, but obviously just replacing the `TRestAxionQCDSolarFlux` by the corresponding definition would allow to get limit to e.g. the ABC electron coupling flux.
