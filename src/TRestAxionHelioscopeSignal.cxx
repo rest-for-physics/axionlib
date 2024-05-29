@@ -179,7 +179,6 @@ Double_t TRestAxionHelioscopeSignal::GetSignalRate(std::vector<Double_t> point, 
 /// given by argument.
 ///
 Double_t TRestAxionHelioscopeSignal::GetSignalRate(Double_t mass, Double_t Eo, Double_t Ef) {
-    std::cout << "A" << std::endl;
     Double_t dE = 0.5;
 
     Double_t signal = 0;
