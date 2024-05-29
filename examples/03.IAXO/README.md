@@ -11,7 +11,7 @@ Parameter | Units   | BabyIAXO | IAXO baseline | IAXO upgraded |
 B         |   $T$     |   ~2     |     ~2.5      |      ~3.5     |
 L         |   $m$     |   10     |      20       |       22      |
 A         |  $m^2$     |  0.77    |      2.3      |       3.9     |
- - |  -  |  -  |  -  | -  |
+ --       |        --  |      --  |            --  |           --  |
 b            | $keV^{-1}cm^{-2}s^{-1}$ | $1\times10^{-7}$ | $1\times 10^{-8}$ | $1\times10^{-9}$ |
 $\epsilon_w$ |         |   0.85      |      0.95     |     0.95      |
 $\epsilon_o$ |         |   0.35      |      0.7      |     0.7       |
