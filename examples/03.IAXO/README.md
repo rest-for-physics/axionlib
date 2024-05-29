@@ -14,11 +14,7 @@ $\epsilon_t$ |         |   0.5       |      0.5      |     0.5       |
 t            | $year$    |   1.5+1.5       |      3+3      |    5+5      |
  File       |     |     BabyIAXO.rml  |  IAXO.rml  |  IAXOPlus.rml  |
 
-We consider a tracking of 12 hours which is why we define $\epsilon_t$ efficiency, and we consider a data taking efficiency of 300days out of 365 natural days available.
-
-Each of the RML files contains a description of the data taking program for 2 scenarios.
-- Vacuum phase: Where we consider the total exposure time if we would only take datra in vacuum, and add one extra year that would be required for the commissioning of a gas phase.
-- Combined phase: Where we use the strict scenario proposed in the CDR with half the time in vacuum phase, and half the time distributed in 72 density settings required to reach ~0.25eV coherent mass.
+We consider a tracking of 12 hours which is why we define $\epsilon_t$ efficiency equal to 0.5, in addition we have considered an additional data taking efficiency of 300days out of 365 natural days available. The macro `GenerateSignalComponents.C` will produce a set of continuous density settings covering masses up to 0.25\,eV, which translates into 73 density settings.
 
 ## Vacuum sensitivity curve generation
 
@@ -53,7 +49,8 @@ The first density setting will be skipped since it exceeds the total time requir
 ```
 [0] TRestSensitivity sens("BabyIAXO.rml", "CombinedPhase");
 [1] sens.GenerateCurve()
-[2] sens.ExportCurve("lomits/BabyIAXO_Combined.csv", 0 )
+[2] sens.ExportCurve("limits/BabyIAXO_Combined.csv", 0 )
+```
 
 ### Detector response
 
