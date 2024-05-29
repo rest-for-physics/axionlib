@@ -67,3 +67,16 @@ A detailed detector x-ray response could be considered by adding the pre-calcula
 - The number of parameter nodes, mass values at which the signal is calculated is of the order of 500 points, which will lead to a HD curve. Reducing the number of points by increasing the parameter `stepParameterValue` will also reduce the computational cost.
 - The parameter `useAverage` has been enabled for all examples, meaning that the tracking mock MonteCarlo data will be generated using exactly the average number of background counts, thus representing an average experiment but not a realistic data taking program. Still good enough to present prospects. A more complete exclusion could be achieved by disabling the `useAverage` parameter and generating several sensitivity curves, using `TRestSensitivity::GenerateCurves(N)` and then drawing them using `TRestSensitivity::DrawLevelCurves`.
 - We are using here the Primakoff flux for the calculation, but obviously just replacing the `TRestAxionQCDSolarFlux` by the corresponding definition would allow to get limit to e.g. the ABC electron coupling flux.
+
+### Results
+
+The limits directory contains the sensitivity results obtained with each of the TRestSensitivity definitions defined in this example. It also contains a `.gp` file to reproduce the plot shown here.
+
+![Limits](limits/IAXO.png)
+
+### Credit
+
+Consider citing any of the following publications:
+
+- E. Armengaud et al JCAP06(2019)047, Physics Potential of the International Axion Observatory".
+- Javier Galan, Johanna von Oy, Kresimir Jakovcic, Francisco Rodríguez Candón, Juan Antonio García, Luis Antonio Obis Aparicio, Sebastian Smith, Konrad Altenmüller, Louis Helary, Tomas O'Shea. (2024). rest-for-physics/axionlib: v2.4 (v2.4). Zenodo. https://doi.org/10.5281/zenodo.11110335
