@@ -1,12 +1,13 @@
-Double_t Eo = 0.5; //keV
-Double_t Ef = 10; //keV
+Double_t Eo = 0.5;  // keV
+Double_t Ef = 10;   // keV
 
-Int_t GenerateSignalComponents(std::string rmlFile, std::string name, Double_t totalExposureTime=3*300*12*3600, size_t skipSteps = 1)
-{
-	TRestAxionField field;
-	std::vector<std::pair<Double_t, Double_t>> scanSteps = field.GetMassDensityScanning( "He", 0.25, 20 ); // Up to 0.25 eV
+Int_t GenerateSignalComponents(std::string rmlFile, std::string name,
+                               Double_t totalExposureTime = 3 * 300 * 12 * 3600, size_t skipSteps = 1) {
+    TRestAxionField field;
+    std::vector<std::pair<Double_t, Double_t>> scanSteps =
+        field.GetMassDensityScanning("He", 0.25, 20);  // Up to 0.25 eV
 
-	TRestAxionHelioscopeSignal gasPhase( rmlFile.c_str(), name.c_str());
+    TRestAxionHelioscopeSignal gasPhase(rmlFile.c_str(), name.c_str());
     std::filesystem::path filePath = rmlFile;
     std::filesystem::path newExtension = ".settings";
     std::string settingsFile = filePath.replace_extension(newExtension);
@@ -17,39 +18,38 @@ Int_t GenerateSignalComponents(std::string rmlFile, std::string name, Double_t t
     settingsFile = "output/" + settingsFile;
     componentsFile = "output/" + componentsFile;
 
-	TFile *f = TFile::Open( (TString) componentsFile, "RECREATE" );
-	std::vector <Double_t> exposureTimes;
-	for( size_t n = skipSteps; n < scanSteps.size(); n++ )
-	{
-		Double_t mass = scanSteps[n].first;
-		Double_t density = scanSteps[n].second;
+    TFile* f = TFile::Open((TString)componentsFile, "RECREATE");
+    std::vector<Double_t> exposureTimes;
+    for (size_t n = skipSteps; n < scanSteps.size(); n++) {
+        Double_t mass = scanSteps[n].first;
+        Double_t density = scanSteps[n].second;
 
-		gasPhase.SetName( "P" + (TString) IntegerToString(n+1) );
-		gasPhase.GetGas()->SetGasDensity("He", density);
-		gasPhase.RegenerateHistograms();
+        gasPhase.SetName("P" + (TString)IntegerToString(n + 1));
+        gasPhase.GetGas()->SetGasDensity("He", density);
+        gasPhase.RegenerateHistograms();
 
-		Double_t nGamma = gasPhase.GetSignalRate(mass, Eo, Ef);
-		Double_t ksvzFactor = 3.75523 * mass;
-		Double_t exposureTime = TMath::Log(20.) / TMath::Power(ksvzFactor, 4) / nGamma;
-		exposureTimes.push_back( exposureTime );
+        Double_t nGamma = gasPhase.GetSignalRate(mass, Eo, Ef);
+        Double_t ksvzFactor = 3.75523 * mass;
+        Double_t exposureTime = TMath::Log(20.) / TMath::Power(ksvzFactor, 4) / nGamma;
+        exposureTimes.push_back(exposureTime);
 
-		gasPhase.Write( "P" + (TString) IntegerToString(n+1) );
-	}
-	f->Close();
+        gasPhase.Write("P" + (TString)IntegerToString(n + 1));
+    }
+    f->Close();
 
     std::cout << "Generated signals file: " << componentsFile << std::endl;
 
-	Double_t generatedExposureTime = 0;
-	for( size_t n = skipSteps; n < scanSteps.size(); n++ )
-		generatedExposureTime += exposureTimes[n-skipSteps];
+    Double_t generatedExposureTime = 0;
+    for (size_t n = skipSteps; n < scanSteps.size(); n++)
+        generatedExposureTime += exposureTimes[n - skipSteps];
 
+    FILE* g = fopen(settingsFile.c_str(), "wt");
+    for (size_t n = skipSteps; n < scanSteps.size(); n++)
+        fprintf(g, "%lf\tP%d\n", totalExposureTime * exposureTimes[n - skipSteps] / generatedExposureTime,
+                (int)(n + 1));
+    fclose(g);
 
-	FILE *g = fopen(settingsFile.c_str(), "wt");
-	for( size_t n = skipSteps; n < scanSteps.size(); n++ )
-		fprintf( g, "%lf\tP%d\n", totalExposureTime * exposureTimes[n-skipSteps] / generatedExposureTime, (int) (n+1) );
-	fclose(g);
+    std::cout << "Generated settings file: " << settingsFile << std::endl;
 
-	std::cout << "Generated settings file: " << settingsFile << std::endl;
-
-	return 0;
+    return 0;
 }
