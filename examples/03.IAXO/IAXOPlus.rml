@@ -3,7 +3,7 @@
 
 	<TRestSensitivity name="VacuumPhase" strategy="nodes" >
 
-		<TRestExperiment name="Vacuum" exposureTime="10*300*12hr" useAverage="true">
+		<TRestExperiment name="Vacuum" exposureTime="12*300*12hr" useAverage="true">
 			<!-- Background -->
 			<TRestComponentFormula name="Flat9" nature="background" >
 				<parameter name="formulaUnits" value="keV^-1" />
@@ -34,7 +34,7 @@
 	</TRestSensitivity>
 
 	<TRestSensitivity name="CombinedPhase" strategy="nodes" >
-		<TRestExperiment name="Vacuum" exposureTime="5*300*12hr">
+		<TRestExperiment name="Vacuum" exposureTime="5*300*12hr" useAverage="true">
 			<!-- Background -->
 			<TRestComponentFormula name="Flat9" nature="background" >
 				<parameter name="formulaUnits" value="keV^-1" />
@@ -63,7 +63,7 @@
 			</TRestAxionHelioscopeSignal>
 		</TRestExperiment>
 
-		<TRestExperimentList name="GasPhase" exposureTime="0"
+		<TRestExperimentList name="GasPhase" exposureTime="0" useAverage="true"
 			componentPattern="output/SignalsIAXO.root" experimentsFile="output/IAXO.settings" >
 
 			<TRestComponentFormula name="Flat9" nature="background" >
