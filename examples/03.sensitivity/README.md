@@ -2,7 +2,7 @@
 ## Available configuration files
 
 - `BabyIAXO.rml`: It will serve to reproduce the sensitivityof BabyIAXO data taking phase. We include vacuum phase and a combination of vacuum and 73 density settings that extend the axion search up to 0.25 eV.
-- `IAXO.rml`: 
+- `IAXO.rml`:
 
 Parameter | Units | BabyIAXO | IAXO baseline | IAXO upgraded |
   :---:   | :---: |  :---:   |     :---:     |      :---:    |

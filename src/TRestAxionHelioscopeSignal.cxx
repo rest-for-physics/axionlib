@@ -294,6 +294,5 @@ void TRestAxionHelioscopeSignal::InitFromConfigFile() {
     fField->SetCoherenceLength(GetMagnetLength());
     fField->AssignBufferGas(fGas);
 
-	TRestAxionHelioscopeSignal::Initialize();
-
+    TRestAxionHelioscopeSignal::Initialize();
 }

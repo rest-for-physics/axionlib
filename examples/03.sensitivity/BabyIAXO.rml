@@ -13,7 +13,7 @@
 
 			<!-- Signal -->
 			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal" parameter="ma"
-							conversionType="IAXO" bores="2" 
+							conversionType="IAXO" bores="2"
 							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
 							opticsEfficiency="0.35" windowEfficiency="0.8">
 
@@ -45,7 +45,7 @@
 
 			<!-- Signal -->
 			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal" parameter="ma"
-							conversionType="IAXO" bores="2" 
+							conversionType="IAXO" bores="2"
 							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
 							opticsEfficiency="0.35" windowEfficiency="0.8">
 
@@ -57,7 +57,7 @@
 			</TRestAxionHelioscopeSignal>
 		</TRestExperiment>
 
-		<TRestExperimentList name="GasPhase" exposureTime="12*12hr" 
+		<TRestExperimentList name="GasPhase" exposureTime="12*12hr"
 			componentPattern="output/SignalsBabyIAXO.root" experimentsFile="output/BabyIAXO.settings" >
 
 			<TRestComponentFormula name="Flat7" nature="background" >
@@ -71,7 +71,7 @@
 	</TRestSensitivity>
 
 	<TRestAxionHelioscopeSignal name="GasSignal" nature="signal" parameter="ma"
-							conversionType="IAXO" bores="2" 
+							conversionType="IAXO" bores="2"
 							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
 							opticsEfficiency="0.35" windowEfficiency="0.8">
 
