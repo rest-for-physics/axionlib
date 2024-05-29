@@ -1,11 +1,10 @@
 Int_t GenerateSignalComponents(std::string rmlFile, std::string name)
 {
-
-	TRestAxionField field;
-	std::vector<std::pair<Double_t, Double_t>> scanSteps = field.GetMassDensityScanning( "He", 0.25, 20 ); // Up to 0.25 eV
+    TRestAxionField field;
+    std::vector<std::pair<Double_t, Double_t>> scanSteps =
+        field.GetMassDensityScanning("He", 0.25, 20);  // Up to 0.25 eV
 
 	TRestAxionHelioscopeSignal gasPhase( rmlFile.c_str(), name.c_str());
-	gasPhase.RegenerateParametricNodes( 0.001, 10, 1.02, true );
 
 	std::filesystem::path filePath = rmlFile;
 	std::filesystem::path newExtension = ".settings";

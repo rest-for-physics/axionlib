@@ -25,7 +25,6 @@ restRoot
 [1] sens.GenerateCurve()
 [2] sens.ExportCurve("output/BabyIAXO_vacuum.txt", 0 )
 ```
-
 ## Combined vacuum and gas phase sensitivity curve generation
 
 We need first to pre-generate the signals for the different density settings.

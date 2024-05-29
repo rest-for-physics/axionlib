@@ -2,7 +2,6 @@
 <BabyIAXO>
 
 	<TRestSensitivity name="VacuumPhase" strategy="nodes" >
-	
 		<TRestExperiment name="Vacuum" exposureTime="3*300*12hr">
 			<!-- Background -->
 			<TRestComponentFormula name="Flat7" nature="background" >
@@ -35,7 +34,6 @@
 	</TRestSensitivity>
 
 	<TRestSensitivity name="CombinedPhase" strategy="nodes" >
-	
 		<TRestExperiment name="Vacuum" exposureTime="3*300*12hr">
 			<!-- Background -->
 			<TRestComponentFormula name="Flat7" nature="background" >
