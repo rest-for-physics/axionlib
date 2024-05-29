@@ -69,7 +69,7 @@ class TRestAxionHelioscopeSignal : public TRestComponent {
 
    public:
     Double_t GetSignalRate(std::vector<Double_t> point, Double_t mass = 0);
-	Double_t GetSignalRate(Double_t mass, Double_t Eo, Double_t Ef);
+    Double_t GetSignalRate(Double_t mass, Double_t Eo, Double_t Ef);
 
     TRestAxionBufferGas* GetGas() { return fGas; }
     TRestAxionSolarFlux* GetFlux() { return fFlux; }

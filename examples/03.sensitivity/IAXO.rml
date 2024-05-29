@@ -6,7 +6,7 @@
 
 		<TRestExperiment name="Vacuum" exposureTime="6*300*12hr">
 =======
-	
+
 		<TRestExperiment name="Vacuum" exposureTime="12*300*12hr" useAverage="true">
 >>>>>>> Stashed changes
 			<!-- Background -->
@@ -23,7 +23,7 @@
 							conversionType="IAXO" bores="8"
 =======
 			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal" parameter="ma"
-							conversionType="IAXO" bores="8" 
+							conversionType="IAXO" bores="8"
 >>>>>>> Stashed changes
 							magnetRadius="30cm" magnetLength="20m" magnetStrength="2.5T"
 							opticsEfficiency="0.7" windowEfficiency="0.8">
@@ -73,7 +73,7 @@
 		<TRestExperimentList name="GasPhase" exposureTime="24*12hr"
 			componentPattern="SignalComponents.root" experimentsFile="GasPhase.settings" >
 =======
-		<TRestExperimentList name="GasPhase" exposureTime="24*12hr" 
+		<TRestExperimentList name="GasPhase" exposureTime="24*12hr"
 			componentPattern="output/SignalsIAXO.root" experimentsFile="output/IAXO.settings" >
 >>>>>>> Stashed changes
 

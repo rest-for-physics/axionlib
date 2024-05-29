@@ -5,7 +5,7 @@
 <<<<<<< Updated upstream
 		<TRestExperiment name="Vacuum" exposureTime="3*300*12hr">
 =======
-	
+
 		<TRestExperiment name="Vacuum" exposureTime="3*300*12hr" useAverage="true">
 >>>>>>> Stashed changes
 			<!-- Background -->
