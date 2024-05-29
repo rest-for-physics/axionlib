@@ -298,6 +298,7 @@ Double_t TRestAxionField::GammaTransmissionProbability(Double_t Ea, Double_t ma,
 
     Double_t photonMass = mg;
 
+
     if (mg == 0 && fBufferGas) photonMass = fBufferGas->GetPhotonMass(fEa);
 
     RESTDebug << "+--------------------------------------------------------------------------+" << RESTendl;

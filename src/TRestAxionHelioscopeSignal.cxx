@@ -132,11 +132,11 @@ void TRestAxionHelioscopeSignal::Initialize() {
 
 ///////////////////////////////////////////////
 /// \brief It returns the intensity/rate (in seconds) corresponding to the
-/// formula evaluated at the position of the parameter space given by point
-/// and integrated to the parameter space cell volume.
+/// class defined helioscope configuration evaluated at the position of the
+/// parameter space given by point, which by now is simply the energy.
 ///
 /// The size of the point vector must have the same dimension as the dimensions
-/// of the variables of the distribution.
+/// of the variables of the distribution. Right now is 1-dimension.
 ///
 Double_t TRestAxionHelioscopeSignal::GetSignalRate(std::vector<Double_t> point, Double_t mass) {
     if (GetDimensions() != point.size()) {
@@ -171,6 +171,37 @@ Double_t TRestAxionHelioscopeSignal::GetSignalRate(std::vector<Double_t> point, 
     }
 
     return normFactor * signal;  // s-1
+}
+
+///////////////////////////////////////////////
+/// \brief It returns the intensity/rate (in seconds) corresponding to the
+/// class defined helioscope configuration integrated in the energy range
+/// given by argument.
+///
+Double_t TRestAxionHelioscopeSignal::GetSignalRate(Double_t mass, Double_t Eo, Double_t Ef) {
+
+	std::cout << "A" << std::endl;
+	Double_t dE = 0.5;
+
+	Double_t signal = 0;
+	for( Double_t en = Eo; en < Ef; en += dE )
+	{
+		Double_t flux = fFlux->GetFluxAtEnergy(en, mass);  // cm-2 s-1 keV-1
+
+		/// This is copy/paste from previous method. Sorry for doing this.
+		Double_t probability = 0;
+		if (fConversionType == "IAXO") {
+			probability =
+				fOpticsEfficiency * fWindowEfficiency * fField->GammaTransmissionProbability(en, mass);
+
+			// We assume all flux ends up inside the spot. No XY dependency of signal.
+			Double_t apertureArea = TMath::Pi() * fMagnetRadius * units("cm") * fMagnetRadius * units("cm");
+			flux *= fBores * apertureArea;
+		}
+		signal += flux * probability;
+	}
+
+    return signal * dE;  // s-1
 }
 
 /////////////////////////////////////////////
