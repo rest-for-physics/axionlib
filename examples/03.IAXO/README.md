@@ -26,7 +26,7 @@ Each of the RML files contains a description of the data taking program for 2 sc
 restRoot
 [0] TRestSensitivity sens("BabyIAXO.rml", "VacuumPhase");
 [1] sens.GenerateCurve()
-[2] sens.ExportCurve("output/BabyIAXO_vacuum.txt", 0 )
+[2] sens.ExportCurve("limits/BabyIAXO_Vacuum.csv", 0 )
 ```
 ## Combined vacuum and gas phase sensitivity curve generation
 
@@ -53,7 +53,7 @@ The first density setting will be skipped since it exceeds the total time requir
 ```
 [0] TRestSensitivity sens("BabyIAXO.rml", "CombinedPhase");
 [1] sens.GenerateCurve()
-[2] sens.ExportCurve("output/BabyIAXO_vacuum.txt", 0 )
+[2] sens.ExportCurve("lomits/BabyIAXO_Combined.csv", 0 )
 
 ### Detector response
 
