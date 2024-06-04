@@ -2,7 +2,8 @@ Double_t Eo = 0.5;  // keV
 Double_t Ef = 10;   // keV
 
 Int_t GenerateSignalComponents(std::string rmlFile, std::string name,
-                               Double_t totalExposureTime = 1.5 * 300 * 12 * 3600, size_t firstSteps = 5, Double_t firstStepsExposure = 0.5*300*12*3600) {
+                               Double_t totalExposureTime = 1.5 * 300 * 12 * 3600, size_t firstSteps = 5,
+                               Double_t firstStepsExposure = 0.5 * 300 * 12 * 3600) {
     TRestAxionField field;
     std::vector<std::pair<Double_t, Double_t>> scanSteps =
         field.GetMassDensityScanning("He", 0.25, 20);  // Up to 0.25 eV
@@ -31,10 +32,10 @@ Int_t GenerateSignalComponents(std::string rmlFile, std::string name,
         Double_t nGamma = gasPhase.GetSignalRate(mass, Eo, Ef);
         Double_t ksvzFactor = 3.75523 * mass;
         Double_t exposureTime = 0;
-		if( n < firstSteps )
-			exposureTime = firstStepsExposure/firstSteps;
-		else
-			exposureTime = TMath::Log(20.) / TMath::Power(ksvzFactor, 4) / nGamma;
+        if (n < firstSteps)
+            exposureTime = firstStepsExposure / firstSteps;
+        else
+            exposureTime = TMath::Log(20.) / TMath::Power(ksvzFactor, 4) / nGamma;
         exposureTimes.push_back(exposureTime);
 
         gasPhase.Write("P" + (TString)IntegerToString(n + 1));
@@ -44,15 +45,14 @@ Int_t GenerateSignalComponents(std::string rmlFile, std::string name,
     std::cout << "Generated signals file: " << componentsFile << std::endl;
 
     Double_t generatedExposureTime = 0;
-    for (size_t n = firstSteps; n < scanSteps.size(); n++)
-        generatedExposureTime += exposureTimes[n];
+    for (size_t n = firstSteps; n < scanSteps.size(); n++) generatedExposureTime += exposureTimes[n];
 
     FILE* g = fopen(settingsFile.c_str(), "wt");
-    for (size_t n = 0; n < firstSteps; n++)
-        fprintf(g, "%lf\tP%d\n", exposureTimes[n], (int)(n + 1));
+    for (size_t n = 0; n < firstSteps; n++) fprintf(g, "%lf\tP%d\n", exposureTimes[n], (int)(n + 1));
 
     for (size_t n = firstSteps; n < scanSteps.size(); n++)
-        fprintf(g, "%lf\tP%d\n", (totalExposureTime-firstStepsExposure) * exposureTimes[n] / generatedExposureTime,
+        fprintf(g, "%lf\tP%d\n",
+                (totalExposureTime - firstStepsExposure) * exposureTimes[n] / generatedExposureTime,
                 (int)(n + 1));
     fclose(g);
 
