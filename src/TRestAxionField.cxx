@@ -681,7 +681,8 @@ std::pair<Double_t, Double_t> TRestAxionField::ComputeOffResonanceIntegral(Doubl
 ///
 /// The returned value is given for g_ag = 10^-10 GeV-1
 ///
-Double_t TRestAxionField::AxionAbsorptionProbability(Double_t ma, Double_t mg, Double_t absLength) {
+Double_t TRestAxionField::AxionAbsorptionProbability(Double_t Ea, Double_t ma, Double_t mg, Double_t absLength) {
+    fEa = Ea;
     Double_t cohLength = fLcoh * units("m");  // Default REST units are mm;
 
     Double_t photonMass = mg;
