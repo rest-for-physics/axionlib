@@ -152,11 +152,19 @@ Double_t TRestAxionHelioscopeSignal::GetSignalRate(std::vector<Double_t> point, 
     Double_t flux = fFlux->GetFluxAtEnergy(point[0], mass);  // cm-2 s-1 keV-1
 
     Double_t probability = 0;
-    if (fConversionType == "IAXO") {
+    if (ToLower(fConversionType) == "iaxo") {
         probability =
             fOpticsEfficiency * fWindowEfficiency * fField->GammaTransmissionProbability(point[0], mass);
 
         // We assume all flux ends up inside the spot. No XY dependency of signal.
+        Double_t apertureArea = TMath::Pi() * fMagnetRadius * units("cm") * fMagnetRadius * units("cm");
+
+        flux *= fBores * apertureArea;
+    }
+
+    if (ToLower(fConversionType) == "amelie") {
+        probability = fField->AxionAbsorptionProbability(point[0], mass);
+
         Double_t apertureArea = TMath::Pi() * fMagnetRadius * units("cm") * fMagnetRadius * units("cm");
 
         flux *= fBores * apertureArea;
@@ -319,7 +327,11 @@ void TRestAxionHelioscopeSignal::InitFromConfigFile() {
     if (fField == nullptr) fField = new TRestAxionField();
 
     fField->SetMagneticField(GetMagnetStrength());
-    fField->SetCoherenceLength(GetMagnetLength());
+	if( ToLower(fConversionType) == "iaxo" )
+		fField->SetCoherenceLength(GetMagnetLength());
+	else if ( ToLower(fConversionType) == "amelie" )
+		fField->SetCoherenceLength(GetMagnetLength());
+
     fField->AssignBufferGas(fGas);
 
     TRestAxionHelioscopeSignal::Initialize();
