@@ -195,7 +195,7 @@ Double_t TRestAxionHelioscopeSignal::GetSignalRate(Double_t mass, Double_t Eo, D
 
         /// This is copy/paste from previous method. Sorry for doing this.
         Double_t probability = 0;
-        if (fConversionType == "IAXO") {
+        if (ToLower(fConversionType) == "iaxo") {
             probability =
                 fOpticsEfficiency * fWindowEfficiency * fField->GammaTransmissionProbability(en, mass);
 
@@ -281,6 +281,9 @@ void TRestAxionHelioscopeSignal::FillHistograms() {
 ///
 void TRestAxionHelioscopeSignal::PrintMetadata() {
     TRestComponent::PrintMetadata();
+
+	RESTMetadata << "Conversion type: " << fConversionType << RESTendl;
+	RESTMetadata << " " << RESTendl;
 
     RESTMetadata << "Magnet bores : " << fBores << RESTendl;
     RESTMetadata << "Magnet radius : " << fMagnetRadius * units("cm") << " cm" << RESTendl;
