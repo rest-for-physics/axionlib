@@ -131,7 +131,7 @@ set timestamp  font "" textcolor lt -1 norotate
 set trange [ * : * ] noreverse nowriteback
 set urange [ * : * ] noreverse nowriteback
 set vrange [ * : * ] noreverse nowriteback
-set xlabel ""
+set xlabel "m_a [eV]"
 set xlabel  font ",16" textcolor lt -1 norotate
 set x2label ""
 set x2label  font "" textcolor lt -1 norotate
