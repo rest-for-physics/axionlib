@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<BabyIAXO>
+	<globals>
+		<constant name="NeFraction" value="1.0" />
+		<constant name="NeonDensity" value="1.207" />
+		<constant name="HydrogenDensity" value="0.07085" /> <!-- g/cm3 or tonne/m3 -->
+		<constant name="DataTakingYears" value="5" />
+		<constant name="MagnetRadius" value="5.7/2" /> <!-- CMS is 6.3m diameter. We allow for 30cm solid Xenon wall -->
+		<constant name="MagnetLength" value="12" />
+		<constant name="MagnetStrength" value="4" />
+		<constant name="Pi" value="3.1415927" />
+	</globals>
+
+	<TRestSensitivity name="CMS" strategy="nodes" >
+		<TRestExperiment name="Vacuum" exposureTime="DataTakingYears*365*24hr" useAverage="true">
+			<!-- Background -->
+			<TRestComponentFormula name="PandaX4T_ER" nature="background" >
+				<parameter name="formulaUnits" value="keV^-1" />
+				<cVariable name="energy" range="(0,10)keV" bins="20" />
+				<!-- 0.25 tonne-1 day-1 from PandaX-4T ER background (I assume in a 20keV range) -->
+				<formula name="bck" expression="0.25*MagnetRadius*MagnetRadius*Pi*MagnetLength*HydrogenDensity/24/3600/20" />
+			</TRestComponentFormula>
+
+			<!-- Signal -->
+			<TRestAxionHelioscopeSignal name="amSignal" nature="signal" parameter="ma"
+				conversionType="AMELIE" bores="1"
+				magnetRadius="MagnetRadius*1m" magnetLength="MagnetLength m" magnetStrength="MagnetStrength T"
+				opticsEfficiency="1" windowEfficiency="1">
+
+				<cVariable name="energy" range="(0,10)keV" bins="20" />
+
+				<parameter name="firstParameterValue" value="0.1" />
+				<parameter name="lastParameterValue" value="100" />
+				<parameter name="stepParameterValue" value="1.005" />
+				<parameter name="exponential" value="true" />
+
+				<TRestAxionSolarQCDFlux name="LennertHoofPrimakoff" couplingType="g_ag" couplingStrength="1.e-10"
+					fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
+
+				<TRestAxionBufferGas name="NeH" >
+					<gas name="Ne" density="NeFraction*1.207g/cm^3"/>
+					<gas name="H" density="(1-NeFraction)*0.07085g/cm^3"/>
+				</TRestAxionBufferGas>
+			</TRestAxionHelioscopeSignal>
+		</TRestExperiment>
+	</TRestSensitivity>
+
+	<TRestAxionHelioscopeSignal name="cmsSignal" nature="signal" parameter="ma"
+							conversionType="AMELIE" bores="1"
+							magnetRadius="MagnetRadius*1m" magnetLength="MagnetLength m" magnetStrength="MagnetStrength T"
+							opticsEfficiency="1" windowEfficiency="1">
+
+		<cVariable name="energy" range="(0,10)keV" bins="20" />
+
+		<parameter name="firstParameterValue" value="0.001" />
+		<parameter name="lastParameterValue" value="10" />
+		<parameter name="stepParameterValue" value="1.02" />
+		<parameter name="exponential" value="true" />
+
+		<TRestAxionSolarQCDFlux name="LennertHoofPrimakoff" couplingType="g_ag" couplingStrength="1.e-10"
+								fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
+
+		<TRestAxionBufferGas name="NeH" >
+			<gas name="Ne" density="NeFraction*1.207g/cm^3"/>
+			<gas name="H" density="(1-NeFraction)*0.07085g/cm^3"/>
+		</TRestAxionBufferGas>
+
+	</TRestAxionHelioscopeSignal>
+	
+	<TRestAxionBufferGas name="NeH" >
+		<gas name="Ne" density="NeFraction*NeonDensity g/cm^3"/>
+		<gas name="H" density="(1-NeFraction)*HydrogenDensity g/cm^3"/>
+	</TRestAxionBufferGas>
+
+</BabyIAXO>
