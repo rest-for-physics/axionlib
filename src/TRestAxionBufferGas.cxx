@@ -151,7 +151,7 @@ void TRestAxionBufferGas::Clear() {
 void TRestAxionBufferGas::InitFromConfigFile() {
     this->Initialize();
 
-	TRestMetadata::InitFromConfigFile();
+    TRestMetadata::InitFromConfigFile();
 
     auto gasDefinition = GetElement("gas");
     while (gasDefinition) {
