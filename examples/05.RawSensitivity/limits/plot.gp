@@ -1,12 +1,12 @@
 #!/usr/local/Cellar/gnuplot/6.0.0/bin/gnuplot
 #
-#    
+#
 #    	G N U P L O T
-#    	Version 6.0 patchlevel 0    last modified 2023-12-09 
-#    
+#    	Version 6.0 patchlevel 0    last modified 2023-12-09
+#
 #    	Copyright (C) 1986-1993, 1998, 2004, 2007-2023
 #    	Thomas Williams, Colin Kelley and many others
-#    
+#
 #    	gnuplot home:     http://www.gnuplot.info
 #    	faq, bugs, etc:   type "help FAQ"
 #    	immediate help:   type "help"  (plot window: hit 'h')
@@ -16,28 +16,28 @@ unset clip points
 set clip one
 unset clip two
 unset clip radial
-set errorbars front 1.000000 
+set errorbars front 1.000000
 set border 31 front lt black linewidth 1.000 dashtype solid
 set cornerpoles
-set zdata 
-set ydata 
-set xdata 
-set y2data 
-set x2data 
+set zdata
+set ydata
+set xdata
+set y2data
+set x2data
 set boxwidth
 set boxdepth 0
 set style fill  empty border
 set style rectangle back fc  bgnd fillstyle   solid 1.00 border lt -1
-set style circle radius graph 0.02 
+set style circle radius graph 0.02
 set style ellipse size graph 0.05, 0.03 angle 0 units xy
 set dummy x, y
-set format x "% h" 
-set format y "% h" 
-set format x2 "% h" 
-set format y2 "% h" 
-set format z "% h" 
-set format cb "% h" 
-set format r "% h" 
+set format x "% h"
+set format y "% h"
+set format x2 "% h"
+set format y2 "% h"
+set format z "% h"
+set format cb "% h"
+set format r "% h"
 set ttics format "% h"
 set timefmt "%d/%m/%y,%H:%M"
 set angles radians
@@ -111,22 +111,22 @@ set mcbtics default
 set mrtics default
 set nomttics
 set xtics border in scale 1,0.5 mirror norotate  autojustify
-set xtics  norangelimit logscale autofreq 
+set xtics  norangelimit logscale autofreq
 set ytics border in scale 1,0.5 mirror norotate  autojustify
-set ytics  norangelimit logscale autofreq 
+set ytics  norangelimit logscale autofreq
 set ztics border in scale 1,0.5 nomirror norotate  autojustify
-set ztics  norangelimit autofreq 
+set ztics  norangelimit autofreq
 unset x2tics
 unset y2tics
 set cbtics border in scale 1,0.5 mirror norotate  autojustify
-set cbtics  norangelimit autofreq 
+set cbtics  norangelimit autofreq
 set rtics axis in scale 1,0.5 nomirror norotate  autojustify
-set rtics  norangelimit autofreq 
+set rtics  norangelimit autofreq
 unset ttics
-set title "" 
+set title ""
 set title  font "" textcolor lt -1 norotate
-set timestamp bottom 
-set timestamp "" 
+set timestamp bottom
+set timestamp ""
 set timestamp  font "" textcolor lt -1 norotate
 set trange [ * : * ] noreverse nowriteback
 set urange [ * : * ] noreverse nowriteback
@@ -140,17 +140,17 @@ set x2range [ * : * ] noreverse writeback
 set ylabel "g_{a{/Symbol g}} [GeV^{-1}]"
 set ylabel  offset character 1, 0, 0 font ",16" textcolor lt -1 rotate
 set xlabel  font ",16" textcolor lt -1 norotate
-set y2label "" 
+set y2label ""
 set y2label  font "" textcolor lt -1 rotate
 set yrange [ * : * ] noreverse writeback
 set y2range [ * : * ] noreverse writeback
-set zlabel "" 
+set zlabel ""
 set zlabel  font "" textcolor lt -1 norotate
 set zrange [ * : * ] noreverse writeback
-set cblabel "" 
+set cblabel ""
 set cblabel  font "" textcolor lt -1 rotate
 set cbrange [ * : * ] noreverse writeback
-set rlabel "" 
+set rlabel ""
 set rlabel  font "" textcolor lt -1 norotate
 set rrange [ * : * ] noreverse writeback
 set xtics  font ",16" textcolor lt -1 norotate
@@ -168,15 +168,15 @@ set locale "en_US.UTF-8"
 set pm3d explicit at s
 set pm3d scansautomatic
 set pm3d interpolate 1,1 flush begin noftriangles noborder corners2color mean
-set pm3d clip z 
+set pm3d clip z
 set pm3d nolighting
-set palette positive nops_allcF maxcolors 0 gamma 1.5 color model RGB 
+set palette positive nops_allcF maxcolors 0 gamma 1.5 color model RGB
 set palette rgbformulae 7, 5, 15
 set colorbox default
 set colorbox vertical origin screen 0.9, 0.2 size screen 0.05, 0.6 front  noinvert bdefault
 set style boxplot candles range  1.50 outliers pt 7 separation 1 labels auto unsorted
 set chi_shapes fraction 0.60
-set loadpath 
+set loadpath
 set fontpath
 set psdir
 set fit brief errorvariables nocovariancevariables errorscaling prescale nowrap v5
@@ -186,6 +186,6 @@ VoxelDistance = 0.0
 GridDistance = 0.0
 ## Last datafile plotted: "IAXO.txt"
 set key left
-set key  font ",16" 
+set key  font ",16"
 plot [0.1:100] "CMS.txt" title "AMELIE-CMS" dashtype 2 w l, "BabyIAXO.txt" title "BabyIAXO" dashtype 2 w l, "IAXO.txt" title "IAXO"  dashtype 2 w l
 #    EOF
