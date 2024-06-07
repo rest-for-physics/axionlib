@@ -1,6 +1,6 @@
 In this example we reproduce the sensitivity of ....
 
-## Quick recipe to this example
+## Quick recipe to reproduce this example
 
 Edit the value of `NeFraction` inside the `CMS.rml` in order to generate curves with a different fraction of Neon inside a Hydrogen-Neon mixture.
 
