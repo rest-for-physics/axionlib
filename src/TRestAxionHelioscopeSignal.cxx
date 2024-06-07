@@ -227,7 +227,7 @@ Double_t TRestAxionHelioscopeSignal::GetSignalRate(Double_t mass, Double_t Eo, D
 /// that mimic a MC generation scheme similar to TRestComponentDataSet.
 ///
 void TRestAxionHelioscopeSignal::FillHistograms() {
-    if (!HasNodes()) return;
+    if (!HasNodes() || !fFlux) return;
     fNodeDensity.clear();
 
     RESTInfo << "Generating N-dim histogram for " << GetName() << RESTendl;
@@ -328,7 +328,7 @@ void TRestAxionHelioscopeSignal::InitFromConfigFile() {
         fFlux = nullptr;
     }
     fFlux = (TRestAxionSolarFlux*)this->InstantiateChildMetadata("TRestAxionSolarQCDFlux");
-    fFlux->Initialize();
+	if( fFlux ) fFlux->Initialize();
 
     if (fGas) {
         delete fGas;
