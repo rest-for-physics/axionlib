@@ -74,6 +74,11 @@ class TRestAxionHelioscopeSignal : public TRestComponent {
     TRestAxionBufferGas* GetGas() { return fGas; }
     TRestAxionSolarFlux* GetFlux() { return fFlux; }
 
+    void AssignBufferGas( TRestAxionBufferGas *bufferGas) { fGas = bufferGas;
+	   fField->AssignBufferGas(fGas);
+	}
+    void AssignFlux( TRestAxionSolarFlux *flux) { fFlux = flux; }
+
     void PrintMetadata() override;
 
     void SetNumberOfBores(const Int_t& bores) { fBores = bores; }
