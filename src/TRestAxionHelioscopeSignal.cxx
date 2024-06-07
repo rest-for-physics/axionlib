@@ -328,7 +328,7 @@ void TRestAxionHelioscopeSignal::InitFromConfigFile() {
         fFlux = nullptr;
     }
     fFlux = (TRestAxionSolarFlux*)this->InstantiateChildMetadata("TRestAxionSolarQCDFlux");
-	if( fFlux ) fFlux->Initialize();
+    if (fFlux) fFlux->Initialize();
 
     if (fGas) {
         delete fGas;
