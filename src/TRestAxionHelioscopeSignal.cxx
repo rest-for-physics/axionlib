@@ -187,26 +187,35 @@ Double_t TRestAxionHelioscopeSignal::GetSignalRate(std::vector<Double_t> point, 
 /// given by argument.
 ///
 Double_t TRestAxionHelioscopeSignal::GetSignalRate(Double_t mass, Double_t Eo, Double_t Ef) {
-    Double_t dE = 0.5;
+	Double_t dE = 0.5;
 
-    Double_t signal = 0;
-    for (Double_t en = Eo; en < Ef; en += dE) {
-        Double_t flux = fFlux->GetFluxAtEnergy(en, mass);  // cm-2 s-1 keV-1
+	Double_t signal = 0;
+	for (Double_t en = Eo; en < Ef; en += dE) {
+		Double_t flux = fFlux->GetFluxAtEnergy(en, mass);  // cm-2 s-1 keV-1
 
-        /// This is copy/paste from previous method. Sorry for doing this.
-        Double_t probability = 0;
-        if (ToLower(fConversionType) == "iaxo") {
-            probability =
-                fOpticsEfficiency * fWindowEfficiency * fField->GammaTransmissionProbability(en, mass);
+		/// Below is copy/paste from previous method. Sorry for doing this. (Just replaced point[0] by en)
+		Double_t probability = 0;
+		if (ToLower(fConversionType) == "iaxo") {
+			probability =
+				fOpticsEfficiency * fWindowEfficiency * fField->GammaTransmissionProbability(en, mass);
 
-            // We assume all flux ends up inside the spot. No XY dependency of signal.
-            Double_t apertureArea = TMath::Pi() * fMagnetRadius * units("cm") * fMagnetRadius * units("cm");
-            flux *= fBores * apertureArea;
-        }
-        signal += flux * probability;
-    }
+			// We assume all flux ends up inside the spot. No XY dependency of signal.
+			Double_t apertureArea = TMath::Pi() * fMagnetRadius * units("cm") * fMagnetRadius * units("cm");
+			flux *= fBores * apertureArea;
+		}
 
-    return signal * dE;  // s-1
+		if (ToLower(fConversionType) == "amelie") {
+			probability = fField->AxionAbsorptionProbability(en, mass);
+
+			Double_t apertureArea = TMath::Pi() * fMagnetRadius * units("cm") * fMagnetRadius * units("cm");
+
+			flux *= fBores * apertureArea;
+		}
+		/// Above is a copy/paste from previous method. Sorry for doing this.
+		signal += flux * probability;
+	}
+
+	return signal * dE;  // s-1
 }
 
 /////////////////////////////////////////////
