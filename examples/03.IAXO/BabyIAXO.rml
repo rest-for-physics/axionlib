@@ -1,22 +1,33 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <BabyIAXO>
+	<globals>
+		<constant name="Pi" value="3.1415927" />
+		<constant name="Bores" value="2" />
+		<constant name="SpotRadius" value="0.309" />
+		<constant name="BField" value="1.73" />
+		<constant name="Years" value="1.5" />
+		<constant name="MagnetRadius" value="35" />
+		<constant name="MagnetLength" value="10" />
+		<constant name="WindowEff" value="0.7" />
+		<constant name="OpticsEff" value="0.35" />
+		<constant name="BckRate" value="1e-7" />
+	</globals>
 
 	<TRestSensitivity name="VacuumPhase" strategy="nodes" >
 
-		<TRestExperiment name="Vacuum" exposureTime="4*300*12hr" useAverage="true">
+		<TRestExperiment name="Vacuum" exposureTime="Years*365*12hr" useAverage="true">
 			<!-- Background -->
 			<TRestComponentFormula name="Flat7" nature="background" >
 				<parameter name="formulaUnits" value="keV^-1" />
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
-				<!-- A flat component in keV-1 s-1. Spot radius 8mm radius and 2 bores -->
-				<formula name="bck" expression="2*0.8*0.8*TMath::Pi()*1e-07" />
+				<formula name="bck" expression="BckRate*Bores*Pi*SpotRadius*SpotRadius" />
 			</TRestComponentFormula>
 
 			<!-- Signal -->
 			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal" parameter="ma"
-							conversionType="IAXO" bores="2"
-							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
-				opticsEfficiency="0.35" windowEfficiency="0.7" >
+				conversionType="IAXO" bores="Bores"
+				magnetRadius="MagnetRadius cm" magnetLength="MagnetLength m" magnetStrength="BField T"
+				opticsEfficiency="OpticsEff" windowEfficiency="WindowEff" >
 
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
 
@@ -26,7 +37,7 @@
 				<parameter name="exponential" value="true" />
 
 				<TRestAxionSolarQCDFlux name="LennertHoofPrimakoff" couplingType="g_ag" couplingStrength="1.e-10"
-										fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
+					fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
 			</TRestAxionHelioscopeSignal>
 		</TRestExperiment>
 
@@ -38,20 +49,19 @@
 			<TRestComponentFormula name="Flat7" nature="background" >
 				<parameter name="formulaUnits" value="keV^-1" />
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
-				<!-- A flat component in keV-1 s-1. Spot radius 8mm radius and 2 bores -->
-				<formula name="bck" expression="2*0.8*0.8*TMath::Pi()*1e-07" />
+				<formula name="bck" expression="BckRate*Bores*Pi*SpotRadius*SpotRadius" />
 			</TRestComponentFormula>
 
 			<!-- Signal -->
 			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal" parameter="ma"
-							conversionType="IAXO" bores="2"
-							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
-							opticsEfficiency="0.35" windowEfficiency="0.7">
+				conversionType="IAXO" bores="Bores"
+				magnetRadius="MagnetRadius cm" magnetLength="MagnetLength m" magnetStrength="BField T"
+				opticsEfficiency="OpticsEff" windowEfficiency="WindowEff" >
 
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
 
 				<TRestAxionSolarQCDFlux name="LennertHoofPrimakoff" couplingType="g_ag" couplingStrength="1.e-10"
-										fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
+					fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
 
 
 				<parameter name="firstParameterValue" value="0.001" />
@@ -67,16 +77,15 @@
 			<TRestComponentFormula name="Flat7" nature="background" >
 				<parameter name="formulaUnits" value="keV^-1" />
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
-				<!-- A flat component in keV-1 s-1. Spot radius 8mm radius and 2 bores -->
-				<formula name="bck" expression="2*0.8*0.8*TMath::Pi()*1e-07" />
+				<formula name="bck" expression="BckRate*Bores*Pi*SpotRadius*SpotRadius" />
 			</TRestComponentFormula>
 		</TRestExperimentList>
 	</TRestSensitivity>
 
 	<TRestAxionHelioscopeSignal name="GasSignal" nature="signal" parameter="ma"
-							conversionType="IAXO" bores="2"
-							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
-							opticsEfficiency="0.35" windowEfficiency="0.7">
+		conversionType="IAXO" bores="Bores"
+		magnetRadius="MagnetRadius cm" magnetLength="MagnetLength m" magnetStrength="BField T"
+		opticsEfficiency="OpticsEff" windowEfficiency="WindowEff" >
 
 		<cVariable name="energy" range="(0,10)keV" bins="20" />
 
@@ -86,7 +95,7 @@
 		<parameter name="exponential" value="true" />
 
 		<TRestAxionSolarQCDFlux name="LennertHoofPrimakoff" couplingType="g_ag" couplingStrength="1.e-10"
-								fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
+			fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
 
 		<TRestAxionBufferGas name="helium" >
 			<gas name="He" density="0.0025e-6g/cm^3"/>
