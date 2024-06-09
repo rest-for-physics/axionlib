@@ -81,6 +81,8 @@ The limits directory contains the sensitivity results obtained with each of the 
 
 ![Limits](limits/IAXO.png)
 
+The ripples observed in the IAXO and IAXO+ curves is due to the different magnet length. The density settings described inside `GenerateSignalComponents.C` macro, using `TRestAxionField::GetMassDensityScanning`, uses the default values of `TRestAxionField` which correspond to a magnetic lenght of `10m` and therefore they are optimized for BabyIAXO. A smoother curve could be achieved by tuning the density settings position, however it is also interesting to visualize the impact of density settings choice.
+
 ### Credit
 
 Consider citing any of the following publications:
