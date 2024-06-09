@@ -20,7 +20,7 @@
 			<TRestComponentFormula name="Flat7" nature="background" >
 				<parameter name="formulaUnits" value="keV^-1" />
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
-				<formula name="bck" expression="BckRate*Bores*Pi*SpotRadius*SpotRadius" />
+				<formula name="bck" expression="Bores*BckRate*Pi*SpotRadius*SpotRadius" />
 			</TRestComponentFormula>
 
 			<!-- Signal -->
@@ -49,7 +49,7 @@
 			<TRestComponentFormula name="Flat7" nature="background" >
 				<parameter name="formulaUnits" value="keV^-1" />
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
-				<formula name="bck" expression="BckRate*Bores*Pi*SpotRadius*SpotRadius" />
+				<formula name="bck" expression="Bores*BckRate*Pi*SpotRadius*SpotRadius" />
 			</TRestComponentFormula>
 
 			<!-- Signal -->
@@ -77,7 +77,7 @@
 			<TRestComponentFormula name="Flat7" nature="background" >
 				<parameter name="formulaUnits" value="keV^-1" />
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
-				<formula name="bck" expression="BckRate*Bores*Pi*SpotRadius*SpotRadius" />
+				<formula name="bck" expression="Bores*BckRate*Pi*SpotRadius*SpotRadius" />
 			</TRestComponentFormula>
 		</TRestExperimentList>
 	</TRestSensitivity>

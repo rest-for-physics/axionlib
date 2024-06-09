@@ -182,5 +182,5 @@ I = {0.0, 1.0}
 VoxelDistance = 0.0
 GridDistance = 0.0
 ## Last datafile plotted: "IAXOPlus_Combined.csv"
-plot [0.001:10][:] 3.755*x title "KSVZ" w l lw 3, "BabyIAXO_Combined.csv" using ($1):(sqrt(sqrt($2))) title "BabyIAXO" w l lw 2, "IAXO_Combined.csv" using ($1):(sqrt(sqrt($2))) title "IAXO" w l lw 2,  "IAXOPlus_Combined.csv" using ($1):(sqrt(sqrt($2))) title "IAXO+" w l lw 2
+plot [0.001:10][:] 3.755*x title "KSVZ" w l lw 3, "BabyIAXO_Combined.csv" using ($1):(1e10*$2) title "BabyIAXO" w l lw 2, "IAXO_Combined.csv" using ($1):(1e10*$2) title "IAXO" w l lw 2,  "IAXOPlus_Combined.csv" using ($1):(1e10*$2) title "IAXO+" w l lw 2
 #    EOF
