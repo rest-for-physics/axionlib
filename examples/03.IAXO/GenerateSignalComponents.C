@@ -1,7 +1,6 @@
 Double_t Eo = 0.5;  // keV
 Double_t Ef = 10;   // keV
 
-
 Int_t GenerateSignalComponents(std::string rmlFile, std::string name, Double_t totalYears = 1.5,
                                size_t firstSteps = 5, Double_t firstYears = 0.5) {
     Double_t totalExposureTime = totalYears * 365. * 12 * 3600;
