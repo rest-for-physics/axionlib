@@ -132,7 +132,9 @@ TRestAxionBufferGas::~TRestAxionBufferGas() {}
 void TRestAxionBufferGas::Initialize() {
     SetSectionName(this->ClassName());
     SetLibraryVersion(LIBRARY_VERSION);
+}
 
+void TRestAxionBufferGas::Clear() {
     fBufferGasName.clear();
     fBufferGasDensity.clear();
 

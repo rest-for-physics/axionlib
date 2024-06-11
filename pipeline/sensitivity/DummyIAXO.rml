@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<DummyIAXO>
+
+	<TRestSensitivity name="VacuumPhase" strategy="nodes" >
+
+		<TRestExperiment name="Vacuum" exposureTime="300*12hr" useAverage="true" seed="137">
+			<!-- Background -->
+			<TRestComponentFormula name="Flat8" nature="background" >
+				<parameter name="formulaUnits" value="keV^-1" />
+				<cVariable name="energy" range="(0,10)keV" bins="20" />
+				<!-- A flat component in keV-1 s-1. Spot radius 8mm radius and 2 bores -->
+				<formula name="bck" expression="2*0.8*0.8*TMath::Pi()*1e-08" />
+			</TRestComponentFormula>
+
+			<!-- Signal -->
+			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal" parameter="ma"
+							conversionType="IAXO" bores="2"
+							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
+				opticsEfficiency="0.35" windowEfficiency="0.7" >
+
+				<cVariable name="energy" range="(0,10)keV" bins="20" />
+
+				<parameter name="parameterizationNodes" value="{0.01,0.1}" />
+
+				<TRestAxionSolarQCDFlux name="LennertHoofPrimakoff" couplingType="g_ag" couplingStrength="1.e-10"
+										fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="137" />
+			</TRestAxionHelioscopeSignal>
+		</TRestExperiment>
+	</TRestSensitivity>
+
+</DummyIAXO>

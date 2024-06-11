@@ -122,8 +122,7 @@ TRestAxionSolarFlux::~TRestAxionSolarFlux() {}
 void TRestAxionSolarFlux::Initialize() {
     SetLibraryVersion(LIBRARY_VERSION);
 
-    fTablesLoaded = false;
-    if (LoadTables()) fTablesLoaded = true;
+    if (!fTablesLoaded) LoadTables();
 
     if (!fRandom) {
         delete fRandom;
@@ -184,6 +183,14 @@ TCanvas* TRestAxionSolarFlux::DrawFluxFile(string fname, Double_t binSize) {
     GetFluxHistogram(fname, binSize)->Draw("hist");
 
     return fCanvas;
+}
+
+///////////////////////////////////////////////
+/// \brief It returns a flux in cm-2 s-1 keV-1 at the energy given by argument
+///
+Double_t TRestAxionSolarFlux::GetFluxAtEnergy(Double_t energy, Double_t m) {
+    TH1F* h = GetEnergySpectrum(m);
+    return h->GetBinContent(h->FindBin(energy));
 }
 
 ///////////////////////////////////////////////

@@ -156,10 +156,12 @@ Int_t AxionPhysicsValidation() {
     Double_t ma = 1.e-2;  // eV
     Double_t Ea = 3.0;    // keV
 
+    axionField.SetMagneticField(B);
+    axionField.SetCoherenceLength(L);
     std::cout << "Probability (CAST. Helium. ma:10meV - Ea:3keV): "
-              << axionField.GammaTransmissionProbability(B, L, Ea, ma) << std::endl;
+              << axionField.GammaTransmissionProbability(Ea, ma) << std::endl;
 
-    if (std::round(axionField.GammaTransmissionProbability(B, L, Ea, ma) * 1.e20) != 1547) {
+    if (std::round(axionField.GammaTransmissionProbability(Ea, ma) * 1.e20) != 1547) {
         std::cout << "CAST Probability. Wrong axion-photon conversion probability" << std::endl;
         return 301;
     }

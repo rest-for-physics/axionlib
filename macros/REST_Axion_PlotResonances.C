@@ -88,7 +88,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
     // Probability is not zero, but we introduce an artifact (virtual point) to make proper TGraph filling
     prob_vac.push_back(0);
     for (size_t j = 1; j < m_a.size(); j++) {
-        prob_vac.push_back(ax->GammaTransmissionProbability(m_a[j]));
+        prob_vac.push_back(ax->GammaTransmissionProbability(Ea, m_a[j]));
     }
 
     // Computes the sum of all the probabilities (Adding vacuum)
@@ -114,7 +114,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
         Double_t xLabel = 0;
         Double_t yLabel = 0;
         for (size_t j = 1; j < m_a.size(); j++) {
-            Double_t probV = ax->GammaTransmissionProbability(m_a[j]);
+            Double_t probV = ax->GammaTransmissionProbability(Ea, m_a[j]);
             if (probV > yLabel) {
                 yLabel = probV;
                 xLabel = m_a[j];
@@ -227,7 +227,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
                     if (energy < fEnergyRange.X() || energy > fEnergyRange.Y()) continue;
 
                     ax->SetAxionEnergy(rebinned->GetBinCenter(n));
-                    ng += rebinned->GetBinContent(n) * ax->GammaTransmissionProbability(m_a[j]);
+                    ng += rebinned->GetBinContent(n) * ax->GammaTransmissionProbability(Ea, m_a[j]);
                 }
 
                 /// Gas phase
@@ -241,7 +241,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
                         if (energy < fEnergyRange.X() || energy > fEnergyRange.Y()) continue;
 
                         ax->SetAxionEnergy(rebinned->GetBinCenter(n));
-                        ng += rebinned->GetBinContent(n) * ax->GammaTransmissionProbability(m_a[j]);
+                        ng += rebinned->GetBinContent(n) * ax->GammaTransmissionProbability(Ea, m_a[j]);
                     }
                 }
                 ng = ng * deltaE * fArea * fExposureTime;
@@ -298,7 +298,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
                     if (energy < fEnergyRange.X() || energy > 2) continue;
 
                     ax->SetAxionEnergy(rebinnedABC->GetBinCenter(n));
-                    ng += rebinnedABC->GetBinContent(n) * ax->GammaTransmissionProbability(m_a[j]);
+                    ng += rebinnedABC->GetBinContent(n) * ax->GammaTransmissionProbability(Ea, m_a[j]);
                 }
 
                 /// Gas phase
@@ -312,7 +312,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
                         if (energy < fEnergyRange.X() || energy > 2) continue;
 
                         ax->SetAxionEnergy(rebinnedABC->GetBinCenter(n));
-                        ng += rebinnedABC->GetBinContent(n) * ax->GammaTransmissionProbability(m_a[j]);
+                        ng += rebinnedABC->GetBinContent(n) * ax->GammaTransmissionProbability(Ea, m_a[j]);
                     }
                 }
                 ng = 2 * 100 * ng * deltaE * fArea * fExposureTime;

@@ -266,3 +266,27 @@ jobs:
         export REST_GAS_STEP=2
         restManager --c BabyIAXO_Micromegas_XMM.rml --o output.root
         restRoot -q ValidateChain.C'("output.root")'
+
+  Sensitivity:
+    name: Sensitivity tests
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/lobis/root-geant4-garfield:rest-for-physics
+    needs: [ build-axionlib ]
+    steps:
+    - uses: rest-for-physics/framework/.github/actions/checkout@master
+      with:
+        branch: ${{ env.BRANCH_NAME }}
+        repository: rest-for-physics/axionlib
+        path: ${{ env.AXION_LIB_PATH }}
+    - name: Restore cache
+      uses: actions/cache@v3
+      id: axionlib-install-cache
+      with:
+        key: ${{ env.BRANCH_NAME }}-${{ github.sha }}
+        path: ${{ env.REST_PATH }}
+    - name: Dummy IAXO
+      run: |
+        source ${{ env.REST_PATH }}/thisREST.sh
+        cd ${{ env.AXION_LIB_PATH }}/pipeline/sensitivity/
+        restRoot -b -q Validation.C

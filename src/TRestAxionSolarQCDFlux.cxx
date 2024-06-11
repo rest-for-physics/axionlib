@@ -252,6 +252,8 @@ TRestAxionSolarQCDFlux::~TRestAxionSolarQCDFlux() {}
 Bool_t TRestAxionSolarQCDFlux::LoadTables() {
     if (fFluxDataFile == "" && fFluxSptFile == "") return false;
 
+    if (fTablesLoaded) return true;
+
     if (TRestTools::GetFileNameExtension(fFluxDataFile) == "flux") {
         ReadFluxFile();
     } else {
@@ -260,6 +262,8 @@ Bool_t TRestAxionSolarQCDFlux::LoadTables() {
     }
 
     IntegrateSolarFluxes();
+
+    fTablesLoaded = true;
 
     return true;
 }

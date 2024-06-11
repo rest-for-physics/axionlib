@@ -41,10 +41,10 @@ class TRestAxionSolarFlux : public TRestMetadata {
     /// Seed used in random generator
     Int_t fSeed = 0;  //<
 
+   protected:
     /// A metadata member to control if this class has been initialized
     Bool_t fTablesLoaded = false;  //!
 
-   protected:
     /// A canvas pointer for drawing
     TCanvas* fCanvas = nullptr;  //!
 
@@ -73,6 +73,8 @@ class TRestAxionSolarFlux : public TRestMetadata {
 
     /// It returns an energy integrated spectrum in cm-2 s-1 keV-1
     virtual TH1F* GetEnergySpectrum(Double_t m = 0) = 0;
+
+    Double_t GetFluxAtEnergy(Double_t energy, Double_t m = 0);
 
     virtual TCanvas* DrawSolarFlux();
 
