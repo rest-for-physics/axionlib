@@ -2,7 +2,7 @@ This example is used to reproduce the different scenarios considered inside the 
 
 Parameter | Units   | BabyIAXO | IAXO baseline | IAXO upgraded |
   :---:   |  :---:  |  :---:   |     :---:     |      :---:    |
-B         |   $T$     |   ~2     |     ~2.5      |      ~3.5     |
+B         |   $T$     |   ~1.73     |     ~2.55      |      ~3.57     |
 L         |   $m$     |   10     |      20       |       22      |
 A         |  $m^2$     |  0.77    |      2.3      |       3.9     |
  --       |        --  |      --  |            --  |           --  |
@@ -14,7 +14,7 @@ $\epsilon_t$ |         |   0.5       |      0.5      |     0.5       |
 t            | $year$    |   1.5+1.5       |      3+3      |    5+5      |
  File       |     |     BabyIAXO.rml  |  IAXO.rml  |  IAXOPlus.rml  |
 
-We consider a tracking of 12 hours which is why we define $\epsilon_t$ efficiency equal to 0.5, in addition we have considered an additional data taking efficiency of 300days out of 365 natural days available. The macro `GenerateSignalComponents.C` will produce a set of continuous density settings covering masses up to 0.25\,eV, which translates into 73 density settings.
+We consider a tracking of 12 hours which is why we define $\epsilon_t$ efficiency equal to 0.5. The magnetic field considered is obtained from the $f_M$ divided by $L^2 A$ from the table found in the original publication. The macro `GenerateSignalComponents.C` will produce a set of continuous density settings covering masses up to 0.25\,eV, which translates into 73 density settings.
 
 ## Vacuum sensitivity curve generation
 
@@ -41,7 +41,17 @@ The `GenerateSignalComponents` macro defines a default total exposure time that 
 ```
 restRoot
 [0] .L GenerateSignalComponents.C
-[1] GenerateSignalComponents( "BabyIAXO.rml", "GasSignal", 5*300*12*3600 );
+[1] GenerateSignalComponents( "BabyIAXO.rml", "GasSignal", 5, 5, 1.66 );
+```
+
+The two last arguments specify the number of steps (5) that will equaly share the exposure time (1.66). The remaining density settings will share the remaining exposure time following a KSVZ trend.
+
+For the scenarios given in this example (BabyIAXO/IAXO/IAXOPlus) we have used:
+
+```
+GenerateSignalComponents("BabyIAXO.rml", "GasSignal", 1.5, 5, 0.5 );
+GenerateSignalComponents("IAXO.rml", "GasSignal", 3, 5, 1 );
+GenerateSignalComponents("IAXOPlus.rml", "GasSignal", 5, 5, 1.66 );
 ```
 
 The first density setting will be skipped since it exceeds the total time required to reach the KSVZ line. We may also change the number of skipped settings. Then, inside `TRestSensitivity` we define an experiment list, the `settings` file with a column which the calculated exposure time, and the signal to be used, with a common background defined inside <TRestSensitibvity>.
@@ -70,6 +80,8 @@ A detailed detector x-ray response could be considered by adding the pre-calcula
 The limits directory contains the sensitivity results obtained with each of the TRestSensitivity definitions defined in this example. It also contains a `.gp` file to reproduce the plot shown here.
 
 ![Limits](limits/IAXO.png)
+
+The ripples observed in the IAXO and IAXO+ curves is due to the different magnet length. The density settings described inside `GenerateSignalComponents.C` macro, using `TRestAxionField::GetMassDensityScanning`, uses the default values of `TRestAxionField` which correspond to a magnetic lenght of `10m` and therefore they are optimized for BabyIAXO. A smoother curve could be achieved by tuning the density settings position, however it is also interesting to visualize the impact of density settings choice.
 
 ### Credit
 
