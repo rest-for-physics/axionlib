@@ -15,13 +15,13 @@ Int_t Validation() {
         return 2;
     }
 
-    if (sens.GetCurve()[0] < 0.00071575 || sens.GetCurve()[0] > 0.00071576 ) {
+    if (sens.GetCurve()[0] < 0.00071575 || sens.GetCurve()[0] > 0.00071576) {
         std::cout << "error! the first point on the sensitivity curve should be 0.000715751!" << std::endl;
         std::cout << "present value: " << sens.GetCurve()[0] << std::endl;
         return 3;
     }
 
-    if (sens.GetCurve()[1] < 0.6135 || sens.GetCurve()[1] > 0.6136 ) {
+    if (sens.GetCurve()[1] < 0.6135 || sens.GetCurve()[1] > 0.6136) {
         std::cout << "error! the second point on the sensitivity curve should be 0.613593!" << std::endl;
         std::cout << "present value: " << sens.GetCurve()[1] << std::endl;
         return 4;
