@@ -289,4 +289,5 @@ jobs:
       run: |
         source ${{ env.REST_PATH }}/thisREST.sh
         cd ${{ env.AXION_LIB_PATH }}/pipeline/sensitivity/
+        wget https://rest-for-physics.github.io/axionlib-data/solarFlux/Primakoff_LennertHoof_202203.dat
         restRoot -b -q Validation.C
