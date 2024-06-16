@@ -10,7 +10,7 @@
 #    	gnuplot home:     http://www.gnuplot.info
 #    	faq, bugs, etc:   type "help FAQ"
 #    	immediate help:   type "help"  (plot window: hit 'h')
-# set terminal qt 0 font "Sans,10" enhanced
+# set terminal qt 0 font "Sans,10"
 # set output
 unset clip points
 set clip one
@@ -47,7 +47,7 @@ unset raxis
 set theta counterclockwise right
 set style parallel front  lt black linewidth 2.000 dashtype solid
 set key notitle
-set key fixed left top vertical Right noreverse enhanced autotitle nobox font ",16"
+set key fixed right top vertical Right noreverse enhanced autotitle nobox
 set key noinvert samplen 4 spacing 1 width 0 height 0
 set key maxcolumns 0 maxrows 0
 set key noopaque
@@ -111,17 +111,17 @@ set mcbtics default
 set mrtics default
 set nomttics
 set xtics border in scale 1,0.5 mirror norotate  autojustify
-set xtics  norangelimit logscale autofreq  font ",16"
+set xtics  norangelimit logscale autofreq
 set ytics border in scale 1,0.5 mirror norotate  autojustify
-set ytics  norangelimit logscale autofreq  font ",16"
+set ytics  norangelimit logscale autofreq
 set ztics border in scale 1,0.5 nomirror norotate  autojustify
-set ztics  norangelimit autofreq  font ",16"
+set ztics  norangelimit autofreq
 unset x2tics
 unset y2tics
 set cbtics border in scale 1,0.5 mirror norotate  autojustify
-set cbtics  norangelimit autofreq  font ",16"
+set cbtics  norangelimit autofreq
 set rtics axis in scale 1,0.5 nomirror norotate  autojustify
-set rtics  norangelimit autofreq  font ",16"
+set rtics  norangelimit autofreq
 unset ttics
 set title ""
 set title  font "" textcolor lt -1 norotate
@@ -131,18 +131,26 @@ set timestamp  font "" textcolor lt -1 norotate
 set trange [ * : * ] noreverse nowriteback
 set urange [ * : * ] noreverse nowriteback
 set vrange [ * : * ] noreverse nowriteback
+set xlabel ""
+set xlabel  font "" textcolor lt -1 norotate
+set x2label ""
+set x2label  font "" textcolor lt -1 norotate
+set xrange [ * : * ] noreverse writeback
+set x2range [ * : * ] noreverse writeback
+set ylabel ""
+set ylabel  font "" textcolor lt -1 rotate
+set y2label ""
+set y2label  font "" textcolor lt -1 rotate
+set yrange [ * : * ] noreverse writeback
+set y2range [ * : * ] noreverse writeback
 set xlabel "m_a [eV]"
 set xlabel  font ",16" textcolor lt -1 norotate
 set x2label ""
 set x2label  font "" textcolor lt -1 norotate
 set xrange [ * : * ] noreverse writeback
 set x2range [ * : * ] noreverse writeback
-set ylabel "g_{a{/Symbol g}} [10^{-10} GeV^{-1}]"
+set ylabel "g_{a{/Symbol g}} [GeV^{-1}]"
 set ylabel  offset character 1, 0, 0 font ",16" textcolor lt -1 rotate
-set y2label ""
-set y2label  font "" textcolor lt -1 rotate
-set yrange [ * : * ] noreverse writeback
-set y2range [ * : * ] noreverse writeback
 set zlabel ""
 set zlabel  font "" textcolor lt -1 norotate
 set zrange [ * : * ] noreverse writeback
@@ -181,6 +189,8 @@ GNUTERM = "qt"
 I = {0.0, 1.0}
 VoxelDistance = 0.0
 GridDistance = 0.0
-## Last datafile plotted: "IAXOPlus_Combined.csv"
-plot [0.001:10][:] 3.755*x title "KSVZ" w l lw 3, "BabyIAXO_Combined.csv" using ($1):(1e10*$2) title "BabyIAXO" w l lw 2, "IAXO_Combined.csv" using ($1):(1e10*$2) title "IAXO" w l lw 2,  "IAXOPlus_Combined.csv" using ($1):(1e10*$2) title "IAXO+" w l lw 2
+set key left
+set key  font ",16"
+## Last datafile plotted: "/tmp/limit.txt"
+plot [0.1:100] "CMS_ExpectedB_HD_0.1_100_HNe_0Pct.txt" title "Pure Hydrogen" w l, "CMS_ExpectedB_HD_0.1_100_HNe_5Pct.txt" title "Neon 5Pct" w l, "CMS_ExpectedB_HD_0.1_100_HNe_10Pct.txt" title "Neon 10Pct" w l, "CMS_ExpectedB_HD_0.1_100_HNe_20Pct.txt" title "Neon 20Pct" w l, "CMS_ExpectedB_HD_0.1_100_HNe_50Pct.txt" title "Neon 50Pct" w l, "CMS_ExpectedB_HD_0.1_100_HNe_100Pct.txt" title "Pure Neon" w l, "ZeroBck.txt" title "Accessibility zone" dashtype 2 lw 2 w l
 #    EOF

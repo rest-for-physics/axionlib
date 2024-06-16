@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<BabyIAXO>
+
+	<TRestAxionHelioscopeSignal name="IAXOSignal" nature="signal" parameter="ma"
+							conversionType="IAXO" bores="8"
+							magnetRadius="30cm" magnetLength="20m" magnetStrength="2.5T"
+							opticsEfficiency="0.7" windowEfficiency="0.8">
+
+		<cVariable name="energy" range="(0,10)keV" bins="20" />
+
+		<parameter name="firstParameterValue" value="0.001" />
+		<parameter name="lastParameterValue" value="10" />
+		<parameter name="stepParameterValue" value="1.02" />
+		<parameter name="exponential" value="true" />
+
+	</TRestAxionHelioscopeSignal>
+
+	<TRestAxionHelioscopeSignal name="BabyIAXOSignal" nature="signal" parameter="ma"
+							conversionType="IAXO" bores="2"
+							magnetRadius="35cm" magnetLength="10m" magnetStrength="2T"
+							opticsEfficiency="0.35" windowEfficiency="0.7">
+
+		<cVariable name="energy" range="(0,10)keV" bins="20" />
+
+		<parameter name="firstParameterValue" value="0.001" />
+		<parameter name="lastParameterValue" value="10" />
+		<parameter name="stepParameterValue" value="1.02" />
+		<parameter name="exponential" value="true" />
+
+	</TRestAxionHelioscopeSignal>
+
+	<TRestAxionSolarQCDFlux name="LennertHoofPrimakoff" couplingType="g_ag" couplingStrength="1.e-10"
+		fluxDataFile="Primakoff_LennertHoof_202203.dat" seed="147" />
+
+	<TRestAxionBufferGas name="helium" >
+		<gas name="He" density="0.0025e-6g/cm^3"/>
+	</TRestAxionBufferGas>
+
+
+</BabyIAXO>
