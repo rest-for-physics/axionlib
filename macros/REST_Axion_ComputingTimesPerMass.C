@@ -81,6 +81,15 @@ Int_t REST_Axion_ComputingTimesPerMass(std::string namePattern) {
 		std::cout << "Key: " << mass << ", Value: " << cTime << std::endl;
 	}
 
+	FILE *f = fopen("stats.txt", "wt");
+	for (const auto& [mass, stats] : statistics)
+		fprintf( f, "%lf\t%d\n", mass, stats);
+	fclose(f);
+
+	f = fopen("computing.txt", "wt");
+	for (const auto& [mass, cTime] : computingTime)
+		fprintf( f, "%lf\t%lf\n", mass, cTime);
+	fclose(f);
 
     return 0;
 }
