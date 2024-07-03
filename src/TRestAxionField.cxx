@@ -568,7 +568,7 @@ std::pair<Double_t, Double_t> TRestAxionField::ComputeResonanceIntegral(Double_t
     if (status > 0) return {0, status};
 
     auto end = std::chrono::system_clock::now();
-    auto seconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    auto seconds = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
     double GammaL = Gamma * fMagneticField->GetTrackLength();
     double C = exp(-GammaL) * BLHalfSquared(1, 1);
@@ -631,6 +631,7 @@ std::pair<Double_t, Double_t> TRestAxionField::ComputeOffResonanceIntegral(Doubl
         gsl_integration_qawo(&F, 0, accuracy, accuracy, num_intervals, workspace, wf, &reprob, &rerr);
     if (status > 0) {
         gsl_integration_qawo_table_free(wf);
+		std::cout << "Status1: " << status << std::endl;
         return {0, status};
     }
 
@@ -638,6 +639,7 @@ std::pair<Double_t, Double_t> TRestAxionField::ComputeOffResonanceIntegral(Doubl
     status = gsl_integration_qawo(&F, 0, accuracy, accuracy, num_intervals, workspace, wf, &improb, &imerr);
     if (status > 0) {
         gsl_integration_qawo_table_free(wf);
+		std::cout << "Status2: " << status << std::endl;
         return {0, status};
     }
 

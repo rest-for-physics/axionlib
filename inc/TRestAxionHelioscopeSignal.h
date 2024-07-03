@@ -53,6 +53,9 @@ class TRestAxionHelioscopeSignal : public TRestComponent {
     /// If an x-ray window is present we may add an efficiency for Ngamma calculation
     Double_t fWindowEfficiency = 1;
 
+    /// The overall detector efficiency
+    Double_t fDetectorEfficiency = 1;
+
     /// The additional gas length photons need to travel to reach a vacuum region (mm)
     Double_t fGasLength = 0; 
 
@@ -98,6 +101,6 @@ class TRestAxionHelioscopeSignal : public TRestComponent {
     TRestAxionHelioscopeSignal();
     ~TRestAxionHelioscopeSignal();
 
-    ClassDefOverride(TRestAxionHelioscopeSignal, 1);
+    ClassDefOverride(TRestAxionHelioscopeSignal, 2);
 };
 #endif
