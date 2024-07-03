@@ -191,6 +191,9 @@ Double_t TRestAxionHelioscopeSignal::GetSignalRate(Double_t mass, Double_t Eo, D
             probability =
                 fOpticsEfficiency * fWindowEfficiency * fField->GammaTransmissionProbability(en, mass);
 
+			if( fGas ) 
+				probability = probability * fGasLength * units("cm") * fGas->GetPhotonAbsorptionLength(en);
+
             // We assume all flux ends up inside the spot. No XY dependency of signal.
             Double_t apertureArea = TMath::Pi() * fMagnetRadius * units("cm") * fMagnetRadius * units("cm");
             flux *= fBores * apertureArea;
@@ -278,6 +281,9 @@ void TRestAxionHelioscopeSignal::PrintMetadata() {
     RESTMetadata << "Magnet radius : " << fMagnetRadius * units("cm") << " cm" << RESTendl;
     RESTMetadata << "Magnet length : " << fMagnetLength * units("m") << " m" << RESTendl;
     RESTMetadata << "Magnet field : " << fMagnetStrength * units("T") << " T" << RESTendl;
+    RESTMetadata << " " << RESTendl;
+
+    RESTMetadata << "Additional buffer gas behind field : " << fGasLength * units("cm") << " cm" << RESTendl;
     RESTMetadata << " " << RESTendl;
 
     RESTMetadata << "Optics efficiency : " << fOpticsEfficiency << RESTendl;
