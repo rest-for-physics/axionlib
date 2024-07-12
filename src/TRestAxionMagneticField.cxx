@@ -1336,6 +1336,16 @@ void TRestAxionMagneticField::SetTrack(const TVector3& position, const TVector3&
 }
 
 ///////////////////////////////////////////////
+/// \brief It initializes the field track using the initial and final positions specified by
+/// the user.
+///
+void TRestAxionMagneticField::SetUserTrack(const TVector3& start, const TVector3& end) {
+    fTrackStart = start;
+    fTrackLength = (end - start).Mag() - 1;
+    fTrackDirection = (end - start).Unit();
+}
+
+///////////////////////////////////////////////
 /// \brief It will return the transversal magnetic field component evaluated at a parametric
 /// distance `x` (given by argument) for the track defined inside the class. The track will
 /// be defined by the data members fStartTrack and fEndTrack which should be initialized by
