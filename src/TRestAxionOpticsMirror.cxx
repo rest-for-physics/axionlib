@@ -719,3 +719,179 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
     lat->DrawLatexNDC(.5, .95, title.c_str());
     return fCanvas;
 }
+
+///////////////////////////////////////////////
+/// \brief A method that creates a canvas where the mirror optics properties are drawn.
+/// It generates two plots, on the left the reflectivity as a function of the angle, and
+/// on the right the reflectivity as a function of the energy.
+///
+/// The first argument is a string where we may specify the energies and angles to be plotted
+/// against the angle and energy. Between square brackets [ ] we define the values that will
+/// be plotted, while between parenthesis we define the range of the x-axis to be plotted.
+///
+/// For example the following definition will produce a plot with 3 energies (2,5,10) keV
+/// as a function of the angle, in the range 0 to 45 degrees, and a second plot with 4
+/// angles (1,2,5,15) degrees in the energy range 0 to 15keV.
+///
+/// ```
+/// [2,5,10](0,45):[1,2,5,15](0,15)
+/// ```
+///
+/// Optionally we may define the legend position for each plot by adding {x1,y1,x2,y2}, where
+/// x1,y1,x2,y2 are values between 0 and 1 defining the region box that the legend will
+/// occupate at the pad. See also ROOT TLegend documentation.
+///
+/// We may add the position to any of the two plots, or to both of them. Here we define it
+/// for the second plot to be placed at the bottom-left.
+///
+/// ```
+/// [2,5,10](0,45):[1,2,5,15](0,15){0.15,0.15,0.45,0.45}
+/// ```
+///
+/// If we define legend positions only for the first plot, those values will also be used for
+/// the second plot. If no legend positions are given, the default positions will be used.
+///
+/// Two additional double arguments allow to set the low y-range of each of the plots.
+///
+TPad* TRestAxionOpticsMirror::DrawOpticsPropertiesLinear(std::string options, Double_t lowRange,
+                                                      Double_t lowRange2) {
+    if (fReflectivityTable.size() == 0) LoadTables();
+
+    std::vector<string> optList = TRestTools::GetOptions(options);
+
+    if (optList.size() == 0)
+        optList = TRestTools::GetOptions(
+            "[2,4,6](0,3.5){0.65,0.68,0.85,0.88}:[0.25,0.5,0.75](0,10){0.2,0.2,0.45,0.45}");
+
+    if (optList.size() != 2) {
+        RESTError << "TRestAxionOpticsMirror::DrawOpticsProperties. Wrong arguments!" << RESTendl;
+        return fCanvas;
+    }
+
+    std::vector<double> energies = StringToElements(optList[0], "[", ",", "]");
+    std::vector<double> aRange = StringToElements(optList[0], "(", ",", ")");
+    std::vector<double> eLegendCoords = StringToElements(optList[0], "{", ",", "}");
+
+    std::vector<double> angles = StringToElements(optList[1], "[", ",", "]");
+    std::vector<double> eRange = StringToElements(optList[1], "(", ",", ")");
+    std::vector<double> aLegendCoords = StringToElements(optList[1], "{", ",", "}");
+
+    if (eRange[0] < 0.03) eRange[0] = 0.03;
+    if (eRange[1] > 15) eRange[1] = 15;
+    if (aRange[0] < 0.0) aRange[0] = 0.0;
+    if (aRange[1] > 9) aRange[1] = 9;
+
+    TPad* pad = new TPad("pad", "This is pad", 0.01, 0.01, 0.99, 0.99);
+    pad->Divide(1, 2);
+    pad->Draw();
+
+    ////// Drawing reflectivity versus angle
+    pad->cd(1);
+    pad->cd(1)->SetRightMargin(0.05);
+    pad->cd(1)->SetLeftMargin(0.15);
+    pad->cd(1)->SetBottomMargin(0.14);
+    pad->cd(1)->SetTopMargin(0.05);
+
+    std::vector<TGraph*> ref_vs_ang_graph;
+
+    for (unsigned int n = 0; n < energies.size(); n++) {
+        string grname = "gr" + IntegerToString(n);
+        TGraph* gr = new TGraph();
+        gr->SetName(grname.c_str());
+        for (double a = aRange[0]; a <= aRange[1]; a += (aRange[1] - aRange[0]) / 10000.) {
+            gr->SetPoint(gr->GetN(), a, GetReflectivity(a, energies[n]));
+        }
+        gr->SetLineColor(49 - n * 3);
+        gr->SetLineWidth(2);
+        ref_vs_ang_graph.push_back(gr);
+    }
+
+    ref_vs_ang_graph[0]->GetXaxis()->SetLimits(aRange[0], aRange[1]);
+    ref_vs_ang_graph[0]->GetHistogram()->SetMaximum(1);
+    ref_vs_ang_graph[0]->GetHistogram()->SetMinimum(lowRange);
+
+    ref_vs_ang_graph[0]->GetXaxis()->SetTitle("Angle [degrees]");
+    ref_vs_ang_graph[0]->GetXaxis()->SetTitleSize(0.06);
+    ref_vs_ang_graph[0]->GetXaxis()->SetLabelSize(0.06);
+    ref_vs_ang_graph[0]->GetYaxis()->SetTitle("Reflectivity");
+    ref_vs_ang_graph[0]->GetYaxis()->SetTitleOffset(1.2);
+    ref_vs_ang_graph[0]->GetYaxis()->SetTitleSize(0.06);
+    ref_vs_ang_graph[0]->GetYaxis()->SetLabelSize(0.06);
+    ref_vs_ang_graph[0]->Draw("AL");
+    for (unsigned int n = 1; n < energies.size(); n++) ref_vs_ang_graph[n]->Draw("L");
+
+    Double_t lx1 = 0.6, ly1 = 0.75, lx2 = 0.9, ly2 = 0.95;
+    if (eLegendCoords.size() > 0) {
+        lx1 = eLegendCoords[0];
+        ly1 = eLegendCoords[1];
+        lx2 = eLegendCoords[2];
+        ly2 = eLegendCoords[3];
+    }
+    TLegend* legend = new TLegend(lx1, ly1, lx2, ly2);
+
+    legend->SetTextSize(0.03);
+    legend->SetHeader("Energies", "C");  // option "C" allows to center the header
+    for (unsigned int n = 0; n < energies.size(); n++) {
+        std::string lname = "gr" + IntegerToString(n);
+        std::string ltitle = DoubleToString(energies[n], "%3.2lf") + " keV";
+
+        legend->AddEntry(lname.c_str(), ltitle.c_str(), "l");
+    }
+    legend->Draw();
+
+    ////// Drawing reflectivity versus energy
+    pad->cd(2);
+    pad->cd(2)->SetRightMargin(0.05);
+    pad->cd(2)->SetLeftMargin(0.16);
+    pad->cd(2)->SetBottomMargin(0.14);
+    pad->cd(2)->SetTopMargin(0.05);
+
+    std::vector<TGraph*> ref_vs_en_graph;
+
+    for (unsigned int n = 0; n < angles.size(); n++) {
+        string grname = "agr" + IntegerToString(n);
+        TGraph* gr = new TGraph();
+        gr->SetName(grname.c_str());
+        for (double e = eRange[0]; e <= eRange[1]; e += (eRange[1] - eRange[0]) / 10000.) {
+            gr->SetPoint(gr->GetN(), e, GetReflectivity(angles[n], e));
+        }
+        gr->SetLineColor(49 - n * 3);
+        gr->SetLineWidth(2);
+        ref_vs_en_graph.push_back(gr);
+    }
+
+    ref_vs_en_graph[0]->GetXaxis()->SetLimits(eRange[0], eRange[1]);
+    ref_vs_en_graph[0]->GetHistogram()->SetMaximum(1);
+    ref_vs_en_graph[0]->GetHistogram()->SetMinimum(lowRange2);
+
+    ref_vs_en_graph[0]->GetXaxis()->SetTitle("Energy [keV]");
+    ref_vs_en_graph[0]->GetXaxis()->SetTitleSize(0.06);
+    ref_vs_en_graph[0]->GetXaxis()->SetLabelSize(0.06);
+    ref_vs_en_graph[0]->GetYaxis()->SetTitle("Reflectivity");
+    ref_vs_en_graph[0]->GetYaxis()->SetTitleOffset(1.2);
+    ref_vs_en_graph[0]->GetYaxis()->SetTitleSize(0.06);
+    ref_vs_en_graph[0]->GetYaxis()->SetLabelSize(0.06);
+    ref_vs_en_graph[0]->Draw("AL");
+    for (unsigned int n = 1; n < angles.size(); n++) ref_vs_en_graph[n]->Draw("L");
+
+    if (aLegendCoords.size() > 0) {
+        lx1 = aLegendCoords[0];
+        ly1 = aLegendCoords[1];
+        lx2 = aLegendCoords[2];
+        ly2 = aLegendCoords[3];
+    }
+    TLegend* legendA = new TLegend(lx1, ly1, lx2, ly2);
+    legendA->SetTextSize(0.03);
+    legendA->SetHeader("Angles", "C");  // option "C" allows to center the header
+    for (unsigned int n = 0; n < angles.size(); n++) {
+        std::string lname = "agr" + IntegerToString(n);
+        std::string ltitle = DoubleToString(angles[n], "%3.2lf") + " degrees";
+
+        legendA->AddEntry(lname.c_str(), ltitle.c_str(), "l");
+    }
+    legendA->Draw();
+
+
+    /// Drawing a main title
+    return pad;
+}
