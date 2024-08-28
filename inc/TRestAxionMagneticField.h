@@ -118,6 +118,7 @@ class TRestAxionMagneticField : public TRestMetadata {
     void ReMap(const size_t& n, const TVector3& newMapSize);
 
     void SetTrack(const TVector3& position, const TVector3& direction);
+    void SetUserTrack(const TVector3& start, const TVector3& end);
 
     Double_t GetTrackLength() const { return fTrackLength; }
     TVector3 GetTrackStart() const { return fTrackStart; }

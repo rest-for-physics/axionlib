@@ -542,9 +542,10 @@ TH1F* TRestAxionSolarQCDFlux::GetTotalSpectrum() {
     }
 
     fTotalHist = new TH1F("fTotalHist", "", 20000, 0, 20);
-    for (int n = 0; n < hc->GetNbinsX(); n++) {
+    for (int n = 0; n < hc->GetNbinsX() - 1; n++) {
         for (int m = 0; m < 100; m++) {
-            fTotalHist->SetBinContent(n * 100 + 1 + m, hc->GetBinContent(n + 1));
+            fTotalHist->SetBinContent(n * 100 + 1 + m, (1 - 0.01 * (Double_t)m) * hc->GetBinContent(n + 1) +
+                                                           0.01 * (Double_t)m * hc->GetBinContent(n + 2));
         }
     }
 

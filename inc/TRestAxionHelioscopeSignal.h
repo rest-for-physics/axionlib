@@ -53,6 +53,12 @@ class TRestAxionHelioscopeSignal : public TRestComponent {
     /// If an x-ray window is present we may add an efficiency for Ngamma calculation
     Double_t fWindowEfficiency = 1;
 
+    /// The overall detector efficiency
+    Double_t fDetectorEfficiency = 1;
+
+    /// The additional gas length photons need to travel to reach a vacuum region (mm)
+    Double_t fGasLength = 0;
+
     /// It defines the gas mixture we use inside our magnetic field. Vacuum if it is nullptr
     TRestAxionBufferGas* fGas = nullptr;
 
@@ -80,12 +86,14 @@ class TRestAxionHelioscopeSignal : public TRestComponent {
     void SetMagnetRadius(const Double_t& radius) { fMagnetRadius = radius; }
     void SetMagnetLength(const Double_t& length) { fMagnetLength = length; }
     void SetMagnetStrength(const Double_t& strength) { fMagnetStrength = strength; }
+    void SetGasLength(const Double_t& length) { fGasLength = length; }
     void SetType(const std::string& type) { fConversionType = type; }
 
     Int_t GetNumberOfBores() const { return fBores; }
     Double_t GetMagnetRadius() const { return fMagnetRadius; }
     Double_t GetMagnetLength() const { return fMagnetLength; }
     Double_t GetMagnetStrength() const { return fMagnetStrength; }
+    Double_t GetGasLength() const { return fGasLength; }
     std::string GetType() const { return fConversionType; }
 
     void Initialize() override;
@@ -93,6 +101,6 @@ class TRestAxionHelioscopeSignal : public TRestComponent {
     TRestAxionHelioscopeSignal();
     ~TRestAxionHelioscopeSignal();
 
-    ClassDefOverride(TRestAxionHelioscopeSignal, 1);
+    ClassDefOverride(TRestAxionHelioscopeSignal, 2);
 };
 #endif
