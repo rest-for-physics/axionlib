@@ -78,5 +78,5 @@ This repository makes use of the following published codes:
 ![cover4](./images/paper/cover4.png)
 ![cover5](./images/paper/cover5.png)
 ![cover6](./images/paper/cover6.png)
-<img src="./images/paper/cover7.png" alt="cover7" style="width:500px;"/>
-<img src="./images/paper/cover8.png" alt="cover8" style="width:500px;"/>
+<img src="./images/paper/cover7.png" alt="cover7" style="width:400px;"/>
+<img src="./images/paper/cover8.png" alt="cover8" style="width:400px;"/>
