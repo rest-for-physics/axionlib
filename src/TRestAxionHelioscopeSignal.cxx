@@ -154,7 +154,7 @@ Double_t TRestAxionHelioscopeSignal::GetSignalRate(std::vector<Double_t> point, 
     Double_t probability = 0;
     if (fConversionType == "IAXO") {
         probability =
-            fOpticsEfficiency * fWindowEfficiency * fField->GammaTransmissionProbability(point[0], mass);
+            fOpticsEfficiency * fWindowEfficiency * fDetectorEfficiency * fField->GammaTransmissionProbability(point[0], mass);
 
         // We assume all flux ends up inside the spot. No XY dependency of signal.
         Double_t apertureArea = TMath::Pi() * fMagnetRadius * units("cm") * fMagnetRadius * units("cm");
@@ -288,6 +288,7 @@ void TRestAxionHelioscopeSignal::PrintMetadata() {
 
     RESTMetadata << "Optics efficiency : " << fOpticsEfficiency << RESTendl;
     RESTMetadata << "Window efficiency : " << fWindowEfficiency << RESTendl;
+    RESTMetadata << "Detector efficiency : " << fDetectorEfficiency << RESTendl;
 
     RESTMetadata << "----" << RESTendl;
 }
