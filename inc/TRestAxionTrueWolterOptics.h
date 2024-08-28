@@ -144,10 +144,10 @@ class TRestAxionTrueWolterOptics : public TRestAxionOptics {
     }
 
     /// It returns the value of max entrance radius in mm
-	Double_t GetMaxEntranceRadius() { return GetR1().back(); }
-	
+    Double_t GetMaxEntranceRadius() { return GetR1().back(); }
+
     /// It returns the value of min entrance radius in mm
-	Double_t GetMinEntranceRadius() { return GetR1().front(); }
+    Double_t GetMinEntranceRadius() { return GetR1().front(); }
 
     /// It returns the value min/max entrance radius in mm as a std::pair
     std::pair<Double_t, Double_t> GetRadialLimits() override {
@@ -158,7 +158,7 @@ class TRestAxionTrueWolterOptics : public TRestAxionOptics {
         return result;
     }
 
-    TRestSpiderMask* const& GetSpiderMask () const { return fSpiderMask; }
+    TRestSpiderMask* const& GetSpiderMask() const { return fSpiderMask; }
 
     void SetMirror() override {
         Double_t x = fEntrancePosition.X();

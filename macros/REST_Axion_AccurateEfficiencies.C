@@ -25,13 +25,15 @@ Double_t deltaE = 0.1;
 //***
 //*** Author: Javier Galan
 //*******************************************************************************************************
-int REST_Axion_AccurateEfficiencies( std::string fluxFile = "fluxes.rml", std::string fluxName = "LennertHoofPrimakoff", std::string opticsFile = "xmmTrueWolter.rml", std::string opticsName = "xmm" ) {
-	
-	TRestAxionTrueWolterOptics optics( opticsFile.c_str(), opticsName.c_str() );
-	TRestAxionOpticsMirror *mirror = optics.GetMirrorProperties();
+int REST_Axion_AccurateEfficiencies(std::string fluxFile = "fluxes.rml",
+                                    std::string fluxName = "LennertHoofPrimakoff",
+                                    std::string opticsFile = "xmmTrueWolter.rml",
+                                    std::string opticsName = "xmm") {
+    TRestAxionTrueWolterOptics optics(opticsFile.c_str(), opticsName.c_str());
+    TRestAxionOpticsMirror* mirror = optics.GetMirrorProperties();
 
-	TRestAxionSolarQCDFlux flux( fluxFile.c_str(), fluxName.c_str());
-	flux.Initialize();
+    TRestAxionSolarQCDFlux flux(fluxFile.c_str(), fluxName.c_str());
+    flux.Initialize();
 
 	Double_t R2sum = 0;
 	Double_t fluxSum = 0;
@@ -44,22 +46,21 @@ int REST_Axion_AccurateEfficiencies( std::string fluxFile = "fluxes.rml", std::s
 		R2sum += flux.GetFluxAtEnergy(energy, 0) * R * R; 
 	}
 
-	Double_t R2eff = R2sum/fluxSum;
-	std::cout << "R2eff: " << R2eff << std::endl;
+    Double_t R2eff = R2sum / fluxSum;
+    std::cout << "R2eff: " << R2eff << std::endl;
 
-	Double_t Rout = optics.GetMaxEntranceRadius();
-	Double_t Rin = optics.GetMinEntranceRadius();
+    Double_t Rout = optics.GetMaxEntranceRadius();
+    Double_t Rin = optics.GetMinEntranceRadius();
 
-	TRestSpiderMask *sMask = optics.GetSpiderMask();
-	Double_t na = sMask->GetNumberOfArms();
-	Double_t wa = sMask->GetArmsWidth();
+    TRestSpiderMask* sMask = optics.GetSpiderMask();
+    Double_t na = sMask->GetNumberOfArms();
+    Double_t wa = sMask->GetArmsWidth();
 
-	std::vector <Double_t> r = optics.GetR1();
-	std::vector <Double_t> th = optics.GetThickness();
+    std::vector<Double_t> r = optics.GetR1();
+    std::vector<Double_t> th = optics.GetThickness();
 
-	Double_t Aeff = (TMath::Pi() - 0.5*na*wa )*(Rout*Rout-Rin*Rin);
-	for( size_t n = 0; n < r.size(); n++ )
-		Aeff -= (2*TMath::Pi()-na*wa)*r[n]*th[n];
+    Double_t Aeff = (TMath::Pi() - 0.5 * na * wa) * (Rout * Rout - Rin * Rin);
+    for (size_t n = 0; n < r.size(); n++) Aeff -= (2 * TMath::Pi() - na * wa) * r[n] * th[n];
 
 	std::cout << "Aeff (optics): " << Aeff/Rout/Rout/TMath::Pi() << std::endl;
 
@@ -170,6 +171,7 @@ int REST_Axion_AccurateEfficiencies( std::string fluxFile = "fluxes.rml", std::s
 
 	c2.Print("windows.pdf");
 
+    c.Print("tracks.png");
 
     return 0;
 }
