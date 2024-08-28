@@ -1,0 +1,5 @@
+<resp>
+        <TRestResponse name="XenonNeon" variable="final_energy">
+            <parameter name="filename" value="XenonNeon_50Pct_1.4bar.N150f" />
+        </TRestResponse>
+</resp>
