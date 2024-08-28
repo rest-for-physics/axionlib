@@ -426,7 +426,7 @@ TPad* TRestAxionWolterOptics::DrawMirrors() {
         gr->SetPoint(2, lX, fR5[mirror]);
 
         gr->GetXaxis()->SetLimits(-3.5 * lX, 3.5 * lX);
-        gr->GetHistogram()->SetMaximum(fR1.back() * 1.15);
+        gr->GetHistogram()->SetMaximum(fR1.back() * 1.05);
         gr->GetHistogram()->SetMinimum(fR1.front() * 0.8);
 
         gr->GetXaxis()->SetTitle("Z [mm]");

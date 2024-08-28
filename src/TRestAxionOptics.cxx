@@ -565,9 +565,10 @@ TPad* TRestAxionOptics::CreatePad(Int_t nx, Int_t ny) {
     fPad = new TPad("optics_pad", "This is the optics drawing pad", 0.01, 0.02, 0.99, 0.97);
     if (nx > 1 || ny > 1) fPad->Divide(nx, ny);
     fPad->Draw();
-    fPad->SetRightMargin(0.09);
-    fPad->SetLeftMargin(0.2);
-    fPad->SetBottomMargin(0.15);
+    fPad->SetRightMargin(0.05);
+    fPad->SetLeftMargin(0.18);
+    fPad->SetBottomMargin(0.1);
+    fPad->SetTopMargin(0.02);
 
     return fPad;
 }

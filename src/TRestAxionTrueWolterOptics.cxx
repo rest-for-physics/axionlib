@@ -430,17 +430,17 @@ TPad* TRestAxionTrueWolterOptics::DrawMirrors() {
         gr->SetPoint(2, lX, fR5[mirror]);
 
         gr->GetXaxis()->SetLimits(-3.5 * lX, 3.5 * lX);
-        gr->GetHistogram()->SetMaximum(fR1.back() * 1.15);
+        gr->GetHistogram()->SetMaximum(fR1.back() * 1.05);
         gr->GetHistogram()->SetMinimum(fR1.front() * 0.8);
 
         gr->GetXaxis()->SetTitle("Z [mm]");
-        gr->GetXaxis()->SetTitleSize(0.04);
-        gr->GetXaxis()->SetLabelSize(0.04);
+        gr->GetXaxis()->SetTitleSize(0.05);
+        gr->GetXaxis()->SetLabelSize(0.05);
         gr->GetXaxis()->SetNdivisions(5);
         gr->GetYaxis()->SetTitle("R [mm]");
-        gr->GetYaxis()->SetTitleOffset(1.4);
-        gr->GetYaxis()->SetTitleSize(0.04);
-        gr->GetYaxis()->SetLabelSize(0.04);
+        gr->GetYaxis()->SetTitleOffset(1.8);
+        gr->GetYaxis()->SetTitleSize(0.05);
+        gr->GetYaxis()->SetLabelSize(0.05);
         gr->SetLineWidth(6 * fThickness[mirror]);
         gr->SetLineColor(20 + mirror % 20);
         if (mirror == 0)
