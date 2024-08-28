@@ -35,16 +35,15 @@ int REST_Axion_AccurateEfficiencies(std::string fluxFile = "fluxes.rml",
     TRestAxionSolarQCDFlux flux(fluxFile.c_str(), fluxName.c_str());
     flux.Initialize();
 
-	Double_t R2sum = 0;
-	Double_t fluxSum = 0;
-	Double_t maxFlux = 0;
-	for( Double_t energy = fromEnergy; energy < toEnergy; energy += deltaE )
-	{
-		Double_t R = mirror->GetReflectivity(incidenceAngle, energy );
-		fluxSum += flux.GetFluxAtEnergy(energy, 0);
-		if( flux.GetFluxAtEnergy(energy, 0) > maxFlux ) maxFlux = flux.GetFluxAtEnergy(energy, 0);
-		R2sum += flux.GetFluxAtEnergy(energy, 0) * R * R; 
-	}
+    Double_t R2sum = 0;
+    Double_t fluxSum = 0;
+    Double_t maxFlux = 0;
+    for (Double_t energy = fromEnergy; energy < toEnergy; energy += deltaE) {
+        Double_t R = mirror->GetReflectivity(incidenceAngle, energy);
+        fluxSum += flux.GetFluxAtEnergy(energy, 0);
+        if (flux.GetFluxAtEnergy(energy, 0) > maxFlux) maxFlux = flux.GetFluxAtEnergy(energy, 0);
+        R2sum += flux.GetFluxAtEnergy(energy, 0) * R * R;
+    }
 
     Double_t R2eff = R2sum / fluxSum;
     std::cout << "R2eff: " << R2eff << std::endl;
@@ -62,83 +61,82 @@ int REST_Axion_AccurateEfficiencies(std::string fluxFile = "fluxes.rml",
     Double_t Aeff = (TMath::Pi() - 0.5 * na * wa) * (Rout * Rout - Rin * Rin);
     for (size_t n = 0; n < r.size(); n++) Aeff -= (2 * TMath::Pi() - na * wa) * r[n] * th[n];
 
-	std::cout << "Aeff (optics): " << Aeff/Rout/Rout/TMath::Pi() << std::endl;
+    std::cout << "Aeff (optics): " << Aeff / Rout / Rout / TMath::Pi() << std::endl;
 
-	TCanvas c;
-	c.SetCanvasSize(2400, 1800);
-	c.SetWindowSize(2400, 1800);
-	c.Divide(2,1);
+    TCanvas c;
+    c.SetCanvasSize(2400, 1800);
+    c.SetWindowSize(2400, 1800);
+    c.Divide(2, 1);
 
-	c.cd(1);
-	optics.GetMirrorProperties()->DrawOpticsPropertiesLinear();
+    c.cd(1);
+    optics.GetMirrorProperties()->DrawOpticsPropertiesLinear();
 
-	c.cd(2);
-	optics.DrawParticleTracks();
+    c.cd(2);
+    optics.DrawParticleTracks();
 
-	c.Print("optics.pdf");
+    c.Print("optics.pdf");
 
-	/// Extracted from x-ray window MicromegasStrongBack
-	na = 8;
-	wa = 2.64*TMath::Pi()/180.;
-	Rout = 8.5;
-	Rin = 4.55;
-	Double_t Ro = 4.25;
-	
-	Aeff = (TMath::Pi() - 0.5*na*wa )*(Rout*Rout-Rin*Rin) + TMath::Pi()*Ro*Ro;
+    /// Extracted from x-ray window MicromegasStrongBack
+    na = 8;
+    wa = 2.64 * TMath::Pi() / 180.;
+    Rout = 8.5;
+    Rin = 4.55;
+    Double_t Ro = 4.25;
 
-	std::cout << "Aeff (window): " << Aeff/Rout/Rout/TMath::Pi() << std::endl;
+    Aeff = (TMath::Pi() - 0.5 * na * wa) * (Rout * Rout - Rin * Rin) + TMath::Pi() * Ro * Ro;
 
-	TRestAxionXrayWindow strongBack("windows.rml", "MicromegasStrongBack");
-	TRestAxionXrayWindow mylar("windows.rml", "MicromegasMylar");
-	TRestAxionXrayWindow aluminum("windows.rml", "MicromegasAluminumFoil");
-	
+    std::cout << "Aeff (window): " << Aeff / Rout / Rout / TMath::Pi() << std::endl;
+
+    TRestAxionXrayWindow strongBack("windows.rml", "MicromegasStrongBack");
+    TRestAxionXrayWindow mylar("windows.rml", "MicromegasMylar");
+    TRestAxionXrayWindow aluminum("windows.rml", "MicromegasAluminumFoil");
+
     TGraph* mylarGraph = new TGraph();
-	mylarGraph->SetName( "Mylar" );
-	mylarGraph->SetLineColor(49);
-	mylarGraph->SetLineWidth(2);
+    mylarGraph->SetName("Mylar");
+    mylarGraph->SetLineColor(49);
+    mylarGraph->SetLineWidth(2);
 
     TGraph* aluminumGraph = new TGraph();
-	aluminumGraph->SetName("Aluminum");
-	aluminumGraph->SetLineColor(46);
-	aluminumGraph->SetLineWidth(2);
+    aluminumGraph->SetName("Aluminum");
+    aluminumGraph->SetLineColor(46);
+    aluminumGraph->SetLineWidth(2);
 
     TGraph* solarGraph = new TGraph();
-	solarGraph->SetName( "SolarFlux" );
-	solarGraph->SetLineColor(43);
-	solarGraph->SetLineWidth(2);
-	
-	Double_t WeffSum = 0;
-	Double_t AlSum = 0;
-	Double_t MySum = 0;
-	for( Double_t energy = deltaE; energy < toEnergy; energy += deltaE )
-	{
-		Double_t tMy = mylar.GetTransmission( energy, 0 , 0 );
-		Double_t tAl = aluminum.GetTransmission( energy, 0 , 0 );
-		
-		mylarGraph->SetPoint(mylarGraph->GetN(), energy, tMy);
-		aluminumGraph->SetPoint(aluminumGraph->GetN(), energy, tAl);
-		solarGraph->SetPoint(solarGraph->GetN(), energy, flux.GetFluxAtEnergy(energy,0)/maxFlux);
+    solarGraph->SetName("SolarFlux");
+    solarGraph->SetLineColor(43);
+    solarGraph->SetLineWidth(2);
 
-		WeffSum += flux.GetFluxAtEnergy(energy, 0) * tMy * tAl; 
-		AlSum += flux.GetFluxAtEnergy(energy, 0) * tAl; 
-		MySum += flux.GetFluxAtEnergy(energy, 0) * tMy; 
-	}
+    Double_t WeffSum = 0;
+    Double_t AlSum = 0;
+    Double_t MySum = 0;
+    for (Double_t energy = deltaE; energy < toEnergy; energy += deltaE) {
+        Double_t tMy = mylar.GetTransmission(energy, 0, 0);
+        Double_t tAl = aluminum.GetTransmission(energy, 0, 0);
 
-	WeffSum = WeffSum/fluxSum;
-	AlSum = AlSum/fluxSum;
-	MySum = MySum/fluxSum;
-	std::cout << "AlSum: " << AlSum << std::endl;
-	std::cout << "MySum: " << MySum << std::endl;
-	std::cout << "WeffSum: " << WeffSum << std::endl;
-	
-	TCanvas c2;
-	c2.SetCanvasSize(1200, 900);
-	c2.SetWindowSize(1200, 900);
-	//c2.SetLogy();
+        mylarGraph->SetPoint(mylarGraph->GetN(), energy, tMy);
+        aluminumGraph->SetPoint(aluminumGraph->GetN(), energy, tAl);
+        solarGraph->SetPoint(solarGraph->GetN(), energy, flux.GetFluxAtEnergy(energy, 0) / maxFlux);
+
+        WeffSum += flux.GetFluxAtEnergy(energy, 0) * tMy * tAl;
+        AlSum += flux.GetFluxAtEnergy(energy, 0) * tAl;
+        MySum += flux.GetFluxAtEnergy(energy, 0) * tMy;
+    }
+
+    WeffSum = WeffSum / fluxSum;
+    AlSum = AlSum / fluxSum;
+    MySum = MySum / fluxSum;
+    std::cout << "AlSum: " << AlSum << std::endl;
+    std::cout << "MySum: " << MySum << std::endl;
+    std::cout << "WeffSum: " << WeffSum << std::endl;
+
+    TCanvas c2;
+    c2.SetCanvasSize(1200, 900);
+    c2.SetWindowSize(1200, 900);
+    // c2.SetLogy();
 
     TPad* pad2 = new TPad("pad1", "This is pad1", 0.01, 0.02, 0.99, 0.97);
- //   pad1->Divide(2, 2);
-	pad2->SetLogy();
+    //   pad1->Divide(2, 2);
+    pad2->SetLogy();
     pad2->Draw();
 
     ////// Drawing reflectivity versus angle
@@ -147,29 +145,29 @@ int REST_Axion_AccurateEfficiencies(std::string fluxFile = "fluxes.rml",
     pad2->SetBottomMargin(0.15);
 
     mylarGraph->GetXaxis()->SetLimits(0, 10);
- //   mylarGraph->GetHistogram()->SetMaximum(1);
+    //   mylarGraph->GetHistogram()->SetMaximum(1);
     mylarGraph->GetHistogram()->SetMinimum(0);
 
-	mylarGraph->GetXaxis()->SetTitle("Energy [keV]");
-	mylarGraph->GetXaxis()->SetTitleSize(0.04);
-	mylarGraph->GetXaxis()->SetLabelSize(0.04);
-	mylarGraph->GetYaxis()->SetTitle("Transmission");
-	mylarGraph->GetYaxis()->SetTitleOffset(1.2);
-	mylarGraph->GetYaxis()->SetTitleSize(0.04);
-	mylarGraph->GetYaxis()->SetLabelSize(0.04);
+    mylarGraph->GetXaxis()->SetTitle("Energy [keV]");
+    mylarGraph->GetXaxis()->SetTitleSize(0.04);
+    mylarGraph->GetXaxis()->SetLabelSize(0.04);
+    mylarGraph->GetYaxis()->SetTitle("Transmission");
+    mylarGraph->GetYaxis()->SetTitleOffset(1.2);
+    mylarGraph->GetYaxis()->SetTitleSize(0.04);
+    mylarGraph->GetYaxis()->SetLabelSize(0.04);
     mylarGraph->Draw("AL");
     aluminumGraph->Draw("L");
-    //solarGraph->Draw("L");
+    // solarGraph->Draw("L");
 
     Double_t lx1 = 0.6, ly1 = 0.55, lx2 = 0.8, ly2 = 0.75;
     TLegend* legend = new TLegend(lx1, ly1, lx2, ly2);
-	legend->SetTextSize(0.03);
-	//   legend->SetHeader("Widnows", "C");  // option "C" allows to center the header
-	legend->AddEntry( "Mylar", "Mylar", "l");
-	legend->AddEntry( "Aluminum", "Aluminum", "l");
-	legend->Draw();
+    legend->SetTextSize(0.03);
+    //   legend->SetHeader("Widnows", "C");  // option "C" allows to center the header
+    legend->AddEntry("Mylar", "Mylar", "l");
+    legend->AddEntry("Aluminum", "Aluminum", "l");
+    legend->Draw();
 
-	c2.Print("windows.pdf");
+    c2.Print("windows.pdf");
 
     c.Print("tracks.png");
 

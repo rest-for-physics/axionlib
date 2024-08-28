@@ -631,7 +631,7 @@ std::pair<Double_t, Double_t> TRestAxionField::ComputeOffResonanceIntegral(Doubl
         gsl_integration_qawo(&F, 0, accuracy, accuracy, num_intervals, workspace, wf, &reprob, &rerr);
     if (status > 0) {
         gsl_integration_qawo_table_free(wf);
-		std::cout << "Status1: " << status << std::endl;
+        std::cout << "Status1: " << status << std::endl;
         return {0, status};
     }
 
@@ -639,7 +639,7 @@ std::pair<Double_t, Double_t> TRestAxionField::ComputeOffResonanceIntegral(Doubl
     status = gsl_integration_qawo(&F, 0, accuracy, accuracy, num_intervals, workspace, wf, &improb, &imerr);
     if (status > 0) {
         gsl_integration_qawo_table_free(wf);
-		std::cout << "Status2: " << status << std::endl;
+        std::cout << "Status2: " << status << std::endl;
         return {0, status};
     }
 
