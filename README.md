@@ -72,18 +72,15 @@ This repository makes use of the following published codes:
 
 ### Gallery
 
-![cover1](./images/paper/cover1.png)
-![cover2](./images/paper/cover2.png)
-![cover3](./images/paper/cover3.png)
-![cover4](./images/paper/cover4.png)
-![cover5](./images/paper/cover5.png)
-![cover6](./images/paper/cover6.png)
-
+<center>
 <img src="./images/paper/cover1.png" alt="cover1" style="width:600px;"/>
 <img src="./images/paper/cover2.png" alt="cover2" style="width:600px;"/>
 <img src="./images/paper/cover3.png" alt="cover3" style="width:600px;"/>
 <img src="./images/paper/cover4.png" alt="cover4" style="width:600px;"/>
 <img src="./images/paper/cover5.png" alt="cover5" style="width:600px;"/>
+
 <img src="./images/paper/cover6.png" alt="cover6" style="width:400px;"/>
+
 <img src="./images/paper/cover7.png" alt="cover7" style="width:400px;"/>
 <img src="./images/paper/cover8.png" alt="cover8" style="width:400px;"/>
+</center>
