@@ -58,7 +58,7 @@
 			<TRestAxionHelioscopeSignal name="Vacuum" nature="signal" parameter="ma"
 				conversionType="IAXO" bores="Bores"
 				magnetRadius="MagnetRadius cm" magnetLength="MagnetLength m" magnetStrength="BField T"
-				opticsEfficiency="OpticsEff" windowEfficiency="WindowEff" detectorEfficiency="DetectorEff" 
+				opticsEfficiency="OpticsEff" windowEfficiency="WindowEff" detectorEfficiency="DetectorEff"
 				gasLength="GasLength m" >
 
 				<cVariable name="energy" range="(0,10)keV" bins="20" />
@@ -88,7 +88,7 @@
 	<TRestAxionHelioscopeSignal name="GasSignal" nature="signal" parameter="ma"
 		conversionType="IAXO" bores="Bores"
 		magnetRadius="MagnetRadius cm" magnetLength="MagnetLength m" magnetStrength="BField T"
-		opticsEfficiency="OpticsEff" windowEfficiency="WindowEff" detectorEfficiency="DetectorEff" 
+		opticsEfficiency="OpticsEff" windowEfficiency="WindowEff" detectorEfficiency="DetectorEff"
 		gasLength="GasLength m" >
 
 		<cVariable name="energy" range="(0,10)keV" bins="20" />

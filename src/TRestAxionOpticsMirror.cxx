@@ -754,7 +754,7 @@ TCanvas* TRestAxionOpticsMirror::DrawOpticsProperties(std::string options, Doubl
 /// Two additional double arguments allow to set the low y-range of each of the plots.
 ///
 TPad* TRestAxionOpticsMirror::DrawOpticsPropertiesLinear(std::string options, Double_t lowRange,
-                                                      Double_t lowRange2) {
+                                                         Double_t lowRange2) {
     if (fReflectivityTable.size() == 0) LoadTables();
 
     std::vector<string> optList = TRestTools::GetOptions(options);
@@ -890,7 +890,6 @@ TPad* TRestAxionOpticsMirror::DrawOpticsPropertiesLinear(std::string options, Do
         legendA->AddEntry(lname.c_str(), ltitle.c_str(), "l");
     }
     legendA->Draw();
-
 
     /// Drawing a main title
     return pad;

@@ -57,7 +57,7 @@ class TRestAxionHelioscopeSignal : public TRestComponent {
     Double_t fDetectorEfficiency = 1;
 
     /// The additional gas length photons need to travel to reach a vacuum region (mm)
-    Double_t fGasLength = 0; 
+    Double_t fGasLength = 0;
 
     /// It defines the gas mixture we use inside our magnetic field. Vacuum if it is nullptr
     TRestAxionBufferGas* fGas = nullptr;
