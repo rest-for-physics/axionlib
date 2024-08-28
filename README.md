@@ -81,7 +81,7 @@ This repository makes use of the following published codes:
 <br>
 <img src="./images/paper/cover4.png" alt="cover4" style="width:800px;"/>
 <br>
-<img src="./images/paper/cover5.png" alt="cover5" style="width:700px;"/>
+<img src="./images/paper/cover5.png" alt="cover5" style="width:800px;"/>
 <br>
 <img src="./images/paper/cover6.png" alt="cover6" style="width:400px;"/>
 <br>
