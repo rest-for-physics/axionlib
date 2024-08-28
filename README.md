@@ -74,16 +74,17 @@ This repository makes use of the following published codes:
 
 <p align="center">
 
-<img src="./images/paper/cover1.png" alt="cover1" style="width:600px;" class="center" />
-<img src="./images/paper/cover2.png" alt="cover2" style="width:600px;"/>
-<img src="./images/paper/cover3.png" alt="cover3" style="width:600px;"/>
+<img src="./images/paper/cover1.png" alt="cover1" style="width:450px;" class="center" />
+<img src="./images/paper/cover2.png" alt="cover2" style="width:450px;"/>
+<br>
+<img src="./images/paper/cover3.png" alt="cover3" style="width:450px;"/>
 <br>
 <img src="./images/paper/cover4.png" alt="cover4" style="width:800px;"/>
 <br>
 <img src="./images/paper/cover5.png" alt="cover5" style="width:700px;"/>
 <br>
-<img src="./images/paper/cover6.png" alt="cover6" style="width:500px;"/>
+<img src="./images/paper/cover6.png" alt="cover6" style="width:400px;"/>
 <br>
 <img src="./images/paper/cover7.png" alt="cover7" style="width:400px;"/>
 <img src="./images/paper/cover8.png" alt="cover8" style="width:400px;"/>
-</p>
+
