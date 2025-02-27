@@ -72,9 +72,8 @@ This repository makes use of the following published codes:
 
 ### License
 
-**axionlib** is distributed under a [Creative Commons license](https://creativecommons.org/licenses/).  
+**axionlib** is distributed under a [Creative Commons license](https://creativecommons.org/licenses/).
 If you use or adapt any of the code in this repository, please cite the following work:
 
- **IAXO Collaboration**, Ahyoune, S., Altenmüller, K. et al., “An accurate solar axions ray-tracing response of BabyIAXO.”  
+ **IAXO Collaboration**, Ahyoune, S., Altenmüller, K. et al., “An accurate solar axions ray-tracing response of BabyIAXO.”
  *Journal of High Energy Physics* **2025**, 159 (2025). [https://doi.org/10.1007/JHEP02(2025)159](https://doi.org/10.1007/JHEP02(2025)159)
-
