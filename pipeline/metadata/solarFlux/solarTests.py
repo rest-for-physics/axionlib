@@ -25,7 +25,6 @@ from ROOT import (
     TVector3,
 )
 
-
 ROOT.gSystem.Load("libRestFramework.so")
 ROOT.gSystem.Load("libRestAxion.so")
 
