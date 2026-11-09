@@ -83,7 +83,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
 
     // Computes the Vacuum probability
     ax->AssignBufferGas(nullptr);
-    std ::vector<double> prob_vac;
+    std::vector<double> prob_vac;
 
     // Probability is not zero, but we introduce an artifact (virtual point) to make proper TGraph filling
     prob_vac.push_back(0);
@@ -196,7 +196,7 @@ int REST_Axion_PlotResonances(std::string optionString = "", double ma_max = 0.1
     Double_t deltaE = 0;
     if (nGamma)  // The following code could be a method of a future TRestAxionPlotResonances::DrawNGamma()
     {
-        std ::vector<double> NGamma, NGammaABC;
+        std::vector<double> NGamma, NGammaABC;
 
         /////////// Integrating Ngamma for Primakoff ////////////
         TRestAxionSolarQCDFlux* sFlux = new TRestAxionSolarQCDFlux("fluxes.rml", "LennertHoofPrimakoff");
